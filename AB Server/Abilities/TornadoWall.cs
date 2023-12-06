@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 17 },
+                    { "Card", 18 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -143,7 +143,7 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
-                        { "Ability", 17 },
+                        { "Ability", 18 },
                         { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => (x.Position >= 0 || (x.Position < 0 & x.InHands)) & x.Owner == owner & x.Attribute == Attribute.Ventus & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
@@ -193,7 +193,7 @@ namespace AB_Server.Abilities
 
         public new int GetTypeID()
         {
-            return 17;
+            return 18;
         }
     }
 }

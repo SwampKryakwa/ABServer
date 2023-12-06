@@ -1,40 +1,39 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
-    internal class FireJudgeEffect : INegatable
+    internal class CyclingMadnessEffect : INegatable
     {
         public int TypeID { get; }
         Bakugan user;
         Game game;
-        short boost;
         bool counterNegated = false;
+        IAbilityCard card;
 
         public Player GetOwner()
         {
             return user.Owner;
         }
 
-        public FireJudgeEffect(Bakugan user, Game game, int typeID)
+        public CyclingMadnessEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
             this.user = user;
             this.game = game;
             user.usedAbilityThisTurn = true;
             TypeID = typeID;
+            this.card = card;
         }
 
         public void Activate()
         {
-            int team = user.Owner.SideID;
-            boost = (short)(game.BakuganIndex.Count(x => x.Position >= 0 & x.Owner.SideID != team) * 100);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 0 },
+                    { "Card", 14 },
                     { "UserID", user.BID },
                     { "User", new JObject {
                         { "Type", (int)user.Type },
@@ -44,16 +43,30 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(boost);
+
+            user.Boost(80);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
-
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
-            game.BakuganPowerReset += ResetTurnover;
-
+            
+            game.BakuganDestroyed += Trigger;
             user.affectingEffects.Add(this);
+        }
+
+        public void Trigger(Bakugan target, ushort owner)
+        {
+            user.Owner.AbilityGrave.Remove(card);
+            user.Owner.AbilityHand.Add(card);
+            game.BakuganDestroyed -= Trigger;
+        }
+
+        //is not negatable after turn ends
+        public void NegatabilityTurnover()
+        {
+            game.NegatableAbilities.Remove(this);
+            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
@@ -65,49 +78,33 @@ namespace AB_Server.Abilities
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
+
+                game.BakuganDestroyed -= Trigger;
             }
         }
 
         //remove when negated
         public void Negate(bool asCounter)
         {
-            game.NegatableAbilities.Remove(this);
+            user.Boost(-80);
+
             if (asCounter) counterNegated = true;
             else if (user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                user.Boost((short)-boost);
-            }
-        }
 
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
+                game.BakuganDestroyed -= Trigger;
+            }
             game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
-        }
-
-        //remove when power reset
-        public void ResetTurnover(Bakugan leaver)
-        {
-            if (leaver == user & user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
         }
     }
 
-    internal class FireJudge : AbilityCard, IAbilityCard
+    internal class CyclingMadness : AbilityCard, IAbilityCard
     {
 
-        public FireJudge(int cID, Player owner)
+        public CyclingMadness(int cID, Player owner)
         {
             CID = cID;
             this.owner = owner;
@@ -120,9 +117,9 @@ namespace AB_Server.Abilities
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
-                { "Message", "ability_boost_target" },
-                { "Ability", 0 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
+                { "Message", "ability_user" },
+                { "Ability", 14 },
+                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -138,7 +135,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
-            var effect = new FireJudgeEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
+            var effect = new CyclingMadnessEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0, this);
 
             //window for counter
 
@@ -158,7 +155,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)
@@ -168,7 +165,7 @@ namespace AB_Server.Abilities
 
         public new int GetTypeID()
         {
-            return 0;
+            return 14;
         }
     }
 }

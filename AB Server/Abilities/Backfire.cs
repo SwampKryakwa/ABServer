@@ -78,7 +78,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 2 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Pyrus && !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -88,8 +88,8 @@ namespace AB_Server.Abilities
                             }
                         )) } },
                     new JObject {
-                        { "SelectionType", "G?" },
-                        { "Message", "gate_move_target" },
+                        { "SelectionType", "G" },
+                        { "Message", "gate_negate_target" },
                         { "Ability", 2 },
                         { "SelectionGates", new JArray(game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
                             { "Type", x.GetTypeID() },
@@ -124,7 +124,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.GateIndex.Any(x => x.IsOpen) && x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Pyrus && !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => game.GateIndex.Any(x=>x.IsOpen) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

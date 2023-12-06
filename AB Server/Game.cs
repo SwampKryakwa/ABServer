@@ -127,7 +127,7 @@ namespace AB_Server
         {
             int numberUpdates = NewEvents[player].Count;
             List<JObject> toReturn = new();
-            if (NewEvents[player].Count != 0) toReturn = NewEvents[player].Slice(0, numberUpdates);
+            if (NewEvents[player].Count != 0) toReturn = NewEvents[player].Take(numberUpdates).ToList();
             NewEvents[player] = NewEvents[player].Skip(numberUpdates).ToList();
 
             return toReturn;
@@ -352,6 +352,18 @@ namespace AB_Server
                         });
         }
 
+        public void EndTurn()
+        {
+            TurnEnd?.Invoke();
+
+            turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
+            activePlayer = turnPlayer;
+
+            BakuganIndex.ForEach(x => x.usedAbilityThisTurn = false);
+
+            Players[turnPlayer].HasSetGate = false;
+            Players[turnPlayer].HasThrownBakugan = false;
+        }
 
         public JObject GetPossibleMoves(int player)
         {
@@ -370,7 +382,7 @@ namespace AB_Server
 
             JObject moves = new()
             {
-                { "CanSetGate", Players[player].HasSettableGates() && !isFightGoing },
+                { "CanSetGate", Players[player].HasSettableGates() & !isFightGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() },
                 { "CanActivateAbility", Players[player].HasActivatableAbilities() },

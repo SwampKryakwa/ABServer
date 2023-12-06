@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
-    internal class FireTornadoEffect : INegatable
+    internal class TornadoWallEffect : INegatable
     {
         public int TypeID { get; }
         public Bakugan User;
@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
             return User.Owner;
         }
 
-        public FireTornadoEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public TornadoWallEffect(Bakugan user, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -27,14 +27,12 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 1 },
+                    { "Card", 17 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -44,8 +42,20 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(100);
-            target.Boost(-100);
+            foreach (Bakugan b in game.BakuganIndex.Where(x=>x.Position >= 0))
+            {
+                if (b.Owner == User.Owner & b.Attribute == Attribute.Ventus)
+                {
+                    b.Boost(80);
+                    b.affectingEffects.Add(this);
+                    break;
+                }
+                if (b.Owner.SideID != User.Owner.SideID)
+                {
+                    b.Boost(-80);
+                    b.affectingEffects.Add(this);
+                }
+            }
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
@@ -53,8 +63,6 @@ namespace AB_Server.Abilities
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
             game.BakuganPowerReset += ResetTurnover;
-
-            User.affectingEffects.Add(this);
         }
 
         //remove when goes to hand
@@ -76,12 +84,24 @@ namespace AB_Server.Abilities
             if (asCounter) counterNegated = true;
             else if (User.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
+                target.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
-                User.Boost(-100);
-                target.Boost(100);
+                foreach (Bakugan b in game.BakuganIndex)
+                {
+                    if (b.Owner == User.Owner & b.affectingEffects.Contains(this))
+                    {
+                        b.Boost(-80);
+                        b.affectingEffects.Remove(this);
+                        return;
+                    }
+                    if (b.Owner.SideID != User.Owner.SideID & b.affectingEffects.Contains(this))
+                    {
+                        b.Boost(80);
+                        b.affectingEffects.Remove(this);
+                    }
+                }
             }
         }
         //is not negatable after turn ends
@@ -94,9 +114,9 @@ namespace AB_Server.Abilities
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
-            if (leaver == User & User.affectingEffects.Contains(this))
+            if (leaver.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
+                leaver.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
@@ -104,9 +124,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class FireTornado : AbilityCard, IAbilityCard
+    internal class TornadoWall : AbilityCard, IAbilityCard
     {
-        public FireTornado(int cID, Player owner)
+        public TornadoWall(int cID, Player owner)
         {
             CID = cID;
             this.owner = owner;
@@ -118,13 +138,13 @@ namespace AB_Server.Abilities
             game.NewEvents[owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
-                { "Count", 2 },
+                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
-                        { "Ability", 1 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
+                        { "Ability", 17 },
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => (x.Position >= 0 || (x.Position < 0 & x.InHands)) & x.Owner == owner & x.Attribute == Attribute.Ventus & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -132,14 +152,9 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "B?" },
-                        { "Message", "ability_deboost_target" },
-                        { "Ability", 1 },
-                        { "SelectionRange", "SGE" },
-                        { "CompareTo", 0 }
-                    } } 
+                        )) }
+                    }
+                }
                 }
             });
 
@@ -148,7 +163,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
-            var effect = new FireTornadoEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["bakugan"]], game, 1);
+            var effect = new TornadoWallEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game, 1);
 
             //window for counter
 
@@ -168,7 +183,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => (x.Position >= 0 || (x.Position < 0 & x.InHands)) & x.Owner == owner & x.Attribute == Attribute.Ventus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)
@@ -178,7 +193,7 @@ namespace AB_Server.Abilities
 
         public new int GetTypeID()
         {
-            return 1;
+            return 17;
         }
     }
 }

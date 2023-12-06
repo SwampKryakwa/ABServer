@@ -26,7 +26,21 @@ namespace AB_Server.Gates
         public int Position { get; set; }
         public bool[] DisallowedPlayers { get; set; }
         public bool ActiveBattle { get; set; } = false;
+        public bool IsFrozen = false;
         public bool IsOpen { get; set; } = false;
+
+
+        public void Freeze()
+        {
+            IsFrozen = true;
+            ActiveBattle = true;
+
+            if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
+            {
+                game.isFightGoing = false;
+                game.EndTurn();
+            }
+        }
 
         public void DetermineWinner()
         {
@@ -140,8 +154,8 @@ namespace AB_Server.Gates
             List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
-                Bakugans.FindAll(x => x.Owner.ID == i && !x.Defeated).ForEach(x => x.ToHand(Bakugans));
-                Bakugans.FindAll(x => x.Owner.ID == i && x.Defeated).ForEach(x => x.ToHand(Bakugans));
+                Bakugans.FindAll(x => x.Owner.ID == i & !x.Defeated).ForEach(x => x.ToHand(Bakugans));
+                Bakugans.FindAll(x => x.Owner.ID == i & x.Defeated).ForEach(x => x.ToHand(Bakugans));
             }
 
             foreach (List<JObject> e in game.NewEvents)
@@ -165,11 +179,13 @@ namespace AB_Server.Gates
 
         public bool IsOpenable()
         {
-            return Position >= 0 && Bakugans.Count >= 2 && !IsOpen;
+            return Position >= 0 & Bakugans.Count >= 2 & !IsOpen;
         }
 
         public bool CheckBattles()
         {
+            if (IsFrozen) return false;
+
             int[] numbSides = new int[game.PlayerCount];
             for (int i = 0; i < numbSides.Length; i++) numbSides[i] = 0;
 
@@ -210,7 +226,7 @@ namespace AB_Server.Gates
             int Y2 = pos2 % 10;
             int DX = Math.Abs(X1 - X2);
             int DY = Math.Abs(Y1 - Y2);
-            return (DX + DY == 1) && pos1 > 0 && pos2 > 0;
+            return (DX + DY == 1) & pos1 > 0 & pos2 > 0;
         }
 
         public static bool AreTouching(IGateCard card1, IGateCard card2)
@@ -221,7 +237,7 @@ namespace AB_Server.Gates
             int Y2 = card2.Position % 10;
             int DX = Math.Abs(X1 - X2);
             int DY = Math.Abs(Y1 - Y2);
-            return (DX + DY == 1) && card1.Position > 0 && card2.Position > 0;
+            return (DX + DY == 1) & card1.Position > 0 & card2.Position > 0;
         }
     }
 

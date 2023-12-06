@@ -62,6 +62,7 @@ namespace AB_Server
 
         public List<object> affectingEffects = new();
 
+        public short DefaultPower { get; }
         public short BasePower;
         public short Power;
 
@@ -80,6 +81,7 @@ namespace AB_Server
         public Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
         {
             Type = type;
+            DefaultPower = power;
             BasePower = power;
             Power = power;
             this.game = game;
@@ -97,6 +99,28 @@ namespace AB_Server
             {
                 e.Add(new JObject {
                     { "Type", "BakuganBoostedEvent" },
+                    { "Owner", Owner.ID },
+                    { "Boost", boost },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID } }
+                    }
+                });
+            }
+            game.OnBakuganBoosted(this, boost);
+        }
+
+        public void PermaBoost(short boost)
+        {
+            BasePower += boost;
+            Power += boost;
+            foreach (var e in game.NewEvents)
+            {
+                e.Add(new JObject {
+                    { "Type", "BakuganPermaBoostedEvent" },
                     { "Owner", Owner.ID },
                     { "Boost", boost },
                     { "Bakugan", new JObject {
@@ -278,7 +302,7 @@ namespace AB_Server
                 if (Math.Abs(j - int.Parse(Position[1].ToString())) <= 1)
                     for (int i = 0; i < field.Gates.GetLength(0); i++)
                         if (Math.Abs(i - int.Parse(Position[0].ToString())) <= 1)
-                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) && $"{i}{j}" != Position) return true;
+                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) & $"{i}{j}" != Position) return true;
             return false;
         }*/
 
@@ -289,7 +313,7 @@ namespace AB_Server
                 if (Math.Abs(j - int.Parse(Position[1].ToString())) <= 1)
                     for (int i = 0; i < field.Gates.GetLength(0); i++)
                         if (Math.Abs(i - int.Parse(Position[0].ToString())) <= 1)
-                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) && $"{i}{j}" != Position) gates.Add(field.Gates[i, j]);
+                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) & $"{i}{j}" != Position) gates.Add(field.Gates[i, j]);
             return gates;
         }*/
     }

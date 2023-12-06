@@ -92,7 +92,7 @@ namespace AB_Server.Gates
 
         public void OnBakuganMove(Bakugan target, int pos)
         {
-            if (target.Attribute == Attribute && pos == Position)
+            if (target.Attribute == Attribute & pos == Position)
             {
                 if (!target.affectingEffects.Contains(this))
                 {
@@ -100,7 +100,7 @@ namespace AB_Server.Gates
                     target.Boost(Power);
                 }
             }
-            else if (target.affectingEffects.Contains(this) && pos != Position)
+            else if (target.affectingEffects.Contains(this) & pos != Position)
             {
                 target.affectingEffects.Remove(this);
                 target.Boost((short)-Power);
@@ -109,7 +109,7 @@ namespace AB_Server.Gates
 
         public void OnBakuganStands(Bakugan target, ushort owner, int pos)
         {
-            if (target.Attribute == Attribute && pos == Position)
+            if (target.Attribute == Attribute & pos == Position)
             {
                 if (!target.affectingEffects.Contains(this))
                 {

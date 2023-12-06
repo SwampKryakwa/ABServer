@@ -7,7 +7,23 @@
             (x, y) => new FireJudge(x, y),
             (x, y) => new FireTornado(x, y),
             (x, y) => new Backfire(x, y),
-            (x, y) => new RapidFire(x, y)
+            (x, y) => new RapidFire(x, y),
+            (x, y) => new RapidLight(x, y),
+            (x, y) => new ClayArmor(x, y),
+            (x, y) => new MagmaSurface(x, y),
+            (x, y) => new DesertVortex(x, y),
+            (x, y) => new SpiritCanyon(x, y),
+            (x, y) => new LightHelix(x, y),
+            (x, y) => new LightningTornado(x, y),
+            (x, y) => new HaosFreeze(x, y),
+            (x, y) => new ShiningBrilliance(x, y),
+            (x, y) => new ColourfulDeath(x, y),
+            (x, y) => new CyclingMadness(x, y),
+            (x, y) => new ChainsDes(x, y),
+            (x, y) => new JudgementNight(x, y),
+            (x, y) => new Uptake(x, y),
+            (x, y) => new TornadoWall(x, y),
+            (x, y) => new BlindJudge(x, y)
         };
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)

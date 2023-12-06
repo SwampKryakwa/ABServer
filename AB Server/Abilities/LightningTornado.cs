@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
-    internal class FireTornadoEffect : INegatable
+    internal class LightningTornadoEffect : INegatable
     {
         public int TypeID { get; }
         public Bakugan User;
@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
             return User.Owner;
         }
 
-        public FireTornadoEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public LightningTornadoEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -34,7 +34,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 1 },
+                    { "Card", 10 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -104,9 +104,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class FireTornado : AbilityCard, IAbilityCard
+    internal class LightningTornado : AbilityCard, IAbilityCard
     {
-        public FireTornado(int cID, Player owner)
+        public LightningTornado(int cID, Player owner)
         {
             CID = cID;
             this.owner = owner;
@@ -118,13 +118,13 @@ namespace AB_Server.Abilities
             game.NewEvents[owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
-                { "Count", 2 },
+                { "Count", 10 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
                         { "Ability", 1 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -139,7 +139,7 @@ namespace AB_Server.Abilities
                         { "Ability", 1 },
                         { "SelectionRange", "SGE" },
                         { "CompareTo", 0 }
-                    } } 
+                    } }
                 }
             });
 
@@ -148,7 +148,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
-            var effect = new FireTornadoEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["bakugan"]], game, 1);
+            var effect = new LightningTornadoEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["bakugan"]], game, 1);
 
             //window for counter
 
@@ -168,7 +168,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)
@@ -178,7 +178,7 @@ namespace AB_Server.Abilities
 
         public new int GetTypeID()
         {
-            return 1;
+            return 10;
         }
     }
 }

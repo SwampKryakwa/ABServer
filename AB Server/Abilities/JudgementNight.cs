@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
-    internal class ClayArmorEffect : INegatable
+    internal class JudgementNightEffect : INegatable
     {
         public int TypeID { get; }
         Bakugan user;
@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
             return user.Owner;
         }
 
-        public ClayArmorEffect(Bakugan user, Game game, int typeID)
+        public JudgementNightEffect(Bakugan user, Game game, int typeID)
         {
             this.user = user;
             this.game = game;
@@ -31,7 +31,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 5 },
+                    { "Card", 0 },
                     { "UserID", user.BID },
                     { "User", new JObject {
                         { "Type", (int)user.Type },
@@ -41,54 +41,24 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-
-            game.NegatableAbilities.Add(this);
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
-
-            game.GateAdded += Trigger;
-            user.affectingEffects.Add(this);
-        }
-
-        public void Trigger(IGateCard target, ushort owner, int pos)
-        {
-            user.Boost(100);
-        }
-
-        //remove when goes to hand
-        //remove when goes to grave
-        public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
-        {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(user)).DetermineWinner();
+            if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
             {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.GateAdded -= Trigger;
+                game.isFightGoing = false;
+                game.EndTurn();
             }
         }
-
         //remove when negated
         public void Negate(bool asCounter)
         {
             if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.GateAdded -= Trigger;
-            }
-            game.NegatableAbilities.Remove(this);
         }
     }
 
-    internal class ClayArmor : AbilityCard, IAbilityCard
+    internal class JudgementNight : AbilityCard, IAbilityCard
     {
 
-        public ClayArmor(int cID, Player owner)
+        public JudgementNight(int cID, Player owner)
         {
             CID = cID;
             this.owner = owner;
@@ -101,9 +71,9 @@ namespace AB_Server.Abilities
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
-                { "Message", "ability_user" },
-                { "Ability", 5 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
+                { "Message", "ability_boost_target" },
+                { "Ability", 0 },
+                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -119,7 +89,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
-            var effect = new ClayArmorEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
+            var effect = new JudgementNightEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
 
             //window for counter
 
@@ -139,7 +109,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)
@@ -149,7 +119,7 @@ namespace AB_Server.Abilities
 
         public new int GetTypeID()
         {
-            return 5;
+            return 0;
         }
     }
 }

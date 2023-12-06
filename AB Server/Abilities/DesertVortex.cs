@@ -78,7 +78,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 7 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Subterra && !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -88,8 +88,8 @@ namespace AB_Server.Abilities
                             }
                         )) } },
                     new JObject {
-                        { "SelectionType", "G" },
-                        { "Message", "gate_negate_target" },
+                        { "SelectionType", "G?" },
+                        { "Message", "gate_move_target" },
                         { "Ability", 7 },
                         { "SelectionRange", "TGHE" },
                         { "CompareTo", 0 }
@@ -102,7 +102,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
-            var effect = new DesertVortexEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.GateIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["gate"]], game, 1);
+            var effect = new DesertVortexEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.Field[(int)game.IncomingSelection[owner.ID]["array"][1]["pos"] / 10, (int)game.IncomingSelection[owner.ID]["array"][1]["pos"] % 10], game, 1);
 
             //window for counter
 
@@ -122,7 +122,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.GateIndex.Any(x => x.IsOpen) && x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Pyrus && !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

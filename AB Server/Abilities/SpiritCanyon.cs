@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
@@ -27,7 +28,7 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             int team = user.Owner.SideID;
-            boost = (short)(game.GateIndex.Count(x => x.Position >= 0) * 50);
+            boost = (short)(game.GateIndex.Count(x => game.Field.Cast<IGateCard>().Contains(x)) * 50);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -60,7 +61,7 @@ namespace AB_Server.Abilities
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
+            if (leaver == user & user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -93,7 +94,7 @@ namespace AB_Server.Abilities
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
+            if (leaver == user & user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -121,7 +122,7 @@ namespace AB_Server.Abilities
                 { "SelectionType", "B" },
                 { "Message", "ability_boost_target" },
                 { "Ability", 8 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Subterra && !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -157,7 +158,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Pyrus && !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

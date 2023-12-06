@@ -133,7 +133,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 6 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Subterra && game.GateIndex.Any(y=>(y as GateCard).IsTouching(x.Position) && y.Bakugans.Any(y=>y.Owner.SideID != x.Owner.SideID)) && !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & game.GateIndex.Any(y=>(y as GateCard).IsTouching(x.Position) & y.Bakugans.Any(y=>y.Owner.SideID != x.Owner.SideID)) & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -179,7 +179,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.GateIndex.Any(x => x.IsOpen) && x.Position >= 0 && x.Owner == owner && x.Attribute == Attribute.Pyrus && !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & game.GateIndex.Any(y => (y as GateCard).IsTouching(x.Position) & y.Bakugans.Any(y => y.Owner.SideID != x.Owner.SideID)) & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

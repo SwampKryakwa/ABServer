@@ -82,7 +82,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return BakuganHand.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HasThrownBakugan;
+            return BakuganHand.Any() & game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) & !HasThrownBakugan;
         }
 
         public bool HasActivatableAbilities()
@@ -97,12 +97,18 @@ namespace AB_Server
 
         public bool HasSettableGates()
         {
-            return GateHand.Count != 0 && !HasSetGate;
+            return GateHand.Count != 0 & !HasSetGate;
         }
 
         public bool HasOpenableGates()
         {
-            return game.Field.Cast<IGateCard>().Any(x => (x?.IsOpenable() == true) && x.Owner == this);
+            foreach (IGateCard g in game.Field)
+            {
+                if (g != null)
+                    if (g.IsOpenable() && g.Owner == this)
+                        return true;
+            }
+            return false;
         }
 
         public List<Bakugan> ThrowableBakugan()
@@ -122,17 +128,24 @@ namespace AB_Server
 
         public List<IGateCard> OpenableGates()
         {
-            return game.Field.Cast<IGateCard>().Where(x => (x?.IsOpenable() == true) && x.Owner == this).ToList();
+            List<IGateCard> openableGates = new();
+            foreach (IGateCard g in game.Field)
+            {
+                if (g != null)
+                    if (g.IsOpenable() && g.Owner == this)
+                        openableGates.Add(g);
+            }
+            return openableGates;
         }
 
         public bool CanEndTurn()
         {
-            return !game.isFightGoing && (HasThrownBakugan || !HasSkippedTurn);
+            return !game.isFightGoing & (HasThrownBakugan | !HasSkippedTurn);
         }
 
         public bool CanEndBattle()
         {
-            return game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
+            return game.BakuganIndex.Any(x => x.Owner == this & x.InBattle);
         }
 
         /*public static Player FromJSON(JObject playerJson, ushort playerID)

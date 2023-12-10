@@ -45,7 +45,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            target.Freeze();
+            target.Freeze(this);
 
             game.BakuganAdded += Trigger;
 
@@ -61,8 +61,7 @@ namespace AB_Server.Abilities
         {
             if (target.Position == pos)
             {
-                this.target.IsFrozen = false;
-                game.isFightGoing |= this.target.CheckBattles();
+                this.target.TryUnfreeze(this);
                 game.BakuganAdded -= Trigger;
             }
         }
@@ -76,8 +75,7 @@ namespace AB_Server.Abilities
                 User.affectingEffects.Remove(this);
                 game.BakuganPowerReset -= ResetTurnover;
 
-                target.IsFrozen = false;
-                game.isFightGoing |= target.CheckBattles();
+                this.target.TryUnfreeze(this);
 
                 game.BakuganAdded -= Trigger;
             }

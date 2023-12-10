@@ -68,6 +68,7 @@ namespace AB_Server
 
         public Player Owner;
 
+        public Attribute BaseAttribute;
         public Attribute Attribute;
         public Treatment Treatment;
 
@@ -86,6 +87,7 @@ namespace AB_Server
             Power = power;
             this.game = game;
             this.BID = BID;
+            BaseAttribute = attribute;
             Attribute = attribute;
             Treatment = treatment;
             Owner = owner;

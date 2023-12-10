@@ -85,6 +85,7 @@ namespace AB_Server
                         Console.WriteLine(request.Body);
                     }
 
+                    if (request.Body == "") return;
                     JObject postedJson = JObject.Parse(request.Body);
 
                     string requestedResource = request.Url.ToString().Split('/')[^1];
@@ -184,6 +185,10 @@ namespace AB_Server
 
                         case "getupdates":
                             answer.Add("updates", JArray.FromObject(GIDToGame[(long)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
+                            break;
+
+                        case "checkturnstart":
+                            answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(long)postedJson["gid"]].activePlayer } });
                             break;
 
                         case "getmoves":

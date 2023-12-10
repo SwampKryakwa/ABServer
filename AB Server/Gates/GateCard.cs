@@ -9,12 +9,15 @@ namespace AB_Server.Gates
     {
         static Func<int, Player, IGateCard>[] GateCtrs = new Func<int, Player, IGateCard>[]
         {
-
+            (x, y) => { throw new Exception("IncorrectGateCreation"); },
+            (x, y) => new TripleBattle(x, y),
+            (x, y) => new QuartetBattle(x, y),
+            (x, y) => new MindGhost(x, y),
         };
 
         public static IGateCard CreateCard(Player owner, int cID, int type)
         {
-            return GateCtrs[type - 1].Invoke(cID, owner);
+            return GateCtrs[type].Invoke(cID, owner);
         }
 
         private protected Game game;
@@ -27,12 +30,15 @@ namespace AB_Server.Gates
         public bool[] DisallowedPlayers { get; set; }
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
+        public List<object> Freezing;
         public bool IsOpen { get; set; } = false;
+        public bool Negated = false;
 
 
-        public void Freeze()
+        public void Freeze(object frozer)
         {
             IsFrozen = true;
+            Freezing.Add(frozer);
             ActiveBattle = true;
 
             if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
@@ -42,8 +48,19 @@ namespace AB_Server.Gates
             }
         }
 
+        public void TryUnfreeze(object frozer)
+        {
+            Freezing.Remove(frozer);
+            if (Freezing.Count == 0) IsFrozen = false;
+            game.isFightGoing |= CheckBattles();
+        }
+
         public void DetermineWinner()
         {
+            for (int i = 0; i < DisallowedPlayers.Length; i++)
+            {
+                DisallowedPlayers[i] = false;
+            }
             foreach (Bakugan b in Bakugans)
             {
                 b.InBattle = false;
@@ -179,7 +196,7 @@ namespace AB_Server.Gates
 
         public bool IsOpenable()
         {
-            return Position >= 0 & Bakugans.Count >= 2 & !IsOpen;
+            return !Negated & Position >= 0 & Bakugans.Count >= 2 & !IsOpen;
         }
 
         public bool CheckBattles()
@@ -257,6 +274,7 @@ namespace AB_Server.Gates
         public void Open();
         public void Negate();
         public void Remove();
+        public void DetermineWinner();
 
         public bool IsOpenable() { return false; }
         public bool CheckBattles();

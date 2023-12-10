@@ -91,7 +91,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "G" },
                         { "Message", "gate_negate_target" },
                         { "Ability", 2 },
-                        { "SelectionGates", new JArray(game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
+                        { "SelectionGates", new JArray(game.GateIndex.Where(x => x.IsOpen & x.Position > 0).Select(x => new JObject {
                             { "Type", x.GetTypeID() },
                             { "Pos", x.Position }
                         })) }
@@ -124,7 +124,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.GateIndex.Any(x=>x.IsOpen) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => game.GateIndex.Any(x => x.IsOpen) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

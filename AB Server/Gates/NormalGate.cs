@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Gates
 {
@@ -30,6 +29,7 @@ namespace AB_Server.Gates
         public new void Negate()
         {
             IsOpen = false;
+            Negated = true;
             game.BakuganIndex.Where(x => x.affectingEffects.Contains(this)).ToList().ForEach(x => x.Boost((short)-Power));
             game.BakuganIndex.ForEach(x => x.affectingEffects.Remove(this));
 

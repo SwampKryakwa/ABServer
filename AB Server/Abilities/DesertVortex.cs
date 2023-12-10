@@ -69,6 +69,14 @@ namespace AB_Server.Abilities
 
         public new void Activate()
         {
+            List<GateCard> notNull = game.Field.Cast<GateCard>().Where(x => x != null).ToList();
+            List<GateCard> hasEnemies = notNull.Where(x => x.Bakugans.Any(z => z.Owner.SideID != owner.SideID)).ToList();
+            List<Bakugan> possibleUsers = game.BakuganIndex.Where(x => x.Owner == owner & x.Attribute == Attribute.Subterra & x.Position >= 0).ToList();
+            List<Bakugan> users = new();
+            foreach (Bakugan b in possibleUsers)
+            {
+                if (hasEnemies.Any(x => x.IsTouching(b.Position))) users.Add(b);
+            }
             game.NewEvents[owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
@@ -78,7 +86,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 7 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => game.Field.Cast<GateCard>().Any(y => y?.Owner != owner && y.Bakugans?.Any(z => z.Owner.SideID != x.Owner.SideID) == true && y?.IsTouching(x.Position) == true) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(users.Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -122,7 +130,14 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.Field.Cast<GateCard>().Any(y => y?.Owner != owner && y.Bakugans?.Any(z => z.Owner.SideID != x.Owner.SideID) == true && y?.IsTouching(x.Position) == true) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
+            List<GateCard> notNull = game.Field.Cast<GateCard>().Where(x => x != null).ToList();
+            List<GateCard> hasEnemies = notNull.Where(x=>x.Bakugans.Any(z => z.Owner.SideID != owner.SideID)).ToList();
+            List<Bakugan> possibleUsers = game.BakuganIndex.Where(x => x.Owner == owner & x.Attribute == Attribute.Subterra & x.Position >= 0).ToList(); 
+            foreach (Bakugan b in possibleUsers)
+            {
+                if (hasEnemies.Any(x => x.IsTouching(b.Position))) return true;
+            }
+            return false;
         }
 
         public new bool IsActivateable(bool asFusion)

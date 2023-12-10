@@ -77,7 +77,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 3 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => game.BakuganIndex.Count(x=>x.Owner.SideID != owner.SideID) >= 2 & x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -128,7 +128,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
+            return game.BakuganIndex.Any(x => game.BakuganIndex.Count(x => x.Owner.SideID != owner.SideID) >= 2 & x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

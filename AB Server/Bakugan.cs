@@ -53,6 +53,21 @@ namespace AB_Server
         Worm
     }
 
+    interface BakuganContainer
+    {
+        List<Bakugan> Bakugans { get; }
+
+        public void Remove(Bakugan bakugan)
+        {
+            Bakugans.Remove(bakugan);
+        }
+
+        public void Add(Bakugan bakugan)
+        {
+            Bakugans.Add(bakugan);
+        }
+    }
+
     internal class Bakugan
     {
         Game game;
@@ -73,7 +88,7 @@ namespace AB_Server
         public Treatment Treatment;
 
         public GateCard ParentGate;
-        public int Position;
+        public BakuganContainer Position;
         public bool InBattle = false;
         public bool Defeated = false;
         public bool InHands = true;
@@ -91,10 +106,10 @@ namespace AB_Server
             Attribute = attribute;
             Treatment = treatment;
             Owner = owner;
-            Position = -owner.ID * 2 - 1;
+            Position = owner;
         }
 
-        public void Boost(short boost)
+        public void Boost(short boost, object source)
         {
             Power += boost;
             foreach (var e in game.NewEvents)
@@ -112,10 +127,10 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganBoosted(this, boost);
+            game.OnBakuganBoosted(this, boost, source);
         }
 
-        public void PermaBoost(short boost)
+        public void PermaBoost(short boost, object source)
         {
             BasePower += boost;
             Power += boost;
@@ -134,21 +149,23 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganBoosted(this, boost);
+            game.OnBakuganBoosted(this, boost, source);
         }
 
-        public void AddFromHand(int pos)
+        public void AddFromHand(GateCard destination)
         {
-            Position = pos;
-            Owner.BakuganHand.Remove(this);
-            game.Field[pos / 10, pos % 10].Bakugans.Add(this);
-            game.Field[pos / 10, pos % 10].DisallowedPlayers[Owner.ID] = true;
-            if (game.Field[pos / 10, pos % 10].ActiveBattle) InBattle = true;
+            Position.Remove(this);
+            Position = destination;
+            destination.Bakugans.Add(this);
+            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.EnterOrder.Add(new Bakugan[] { this });
+            if (destination.ActiveBattle) InBattle = true;
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
                     { "Type", "BakuganAddedEvent" },
-                    { "Pos", pos },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
                     { "Owner", Owner.ID },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -159,23 +176,25 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganAdded(this, Owner.ID, pos);
-            game.isFightGoing = game.Field[pos / 10, pos % 10].CheckBattles();
+            game.OnBakuganAdded(this, Owner.ID, destination);
+            game.isFightGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
         }
 
-        public void Throw(int pos)
+        public void Throw(GateCard destination)
         {
-            Position = pos;
-            Owner.BakuganHand.Remove(this);
-            game.Field[pos / 10, pos % 10].Bakugans.Add(this);
-            game.Field[pos / 10, pos % 10].DisallowedPlayers[Owner.ID] = true;
+            Position.Remove(this);
+            Position = destination;
+            destination.Bakugans.Add(this);
+            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.EnterOrder.Add(new Bakugan[] { this });
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
                     { "Type", "BakuganThrownEvent" },
-                    { "Pos", pos },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
                     { "Owner", Owner.ID },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -186,24 +205,33 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganThrown(this, Owner.ID, pos);
-            game.isFightGoing = game.Field[pos / 10, pos % 10].CheckBattles();
+            game.OnBakuganThrown(this, Owner.ID, destination);
+            game.isFightGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
         }
 
-        public void Move(int pos)
+        public void Move(GateCard destination)
         {
-            game.Field[Position / 10, Position % 10].Bakugans.Remove(this);
-            if (!game.Field[Position / 10, Position % 10].Bakugans.Any(x=>x.Owner == Owner)) game.Field[Position / 10, Position % 10].DisallowedPlayers[Owner.ID] = false;
-            game.Field[pos / 10, pos % 10].DisallowedPlayers[Owner.ID] = true;
-            if (game.Field[pos / 10, pos % 10].ActiveBattle) InBattle = true;
+            Position.Remove(this);
+            GateCard oldPosition = Position as GateCard;
+
+            int f = oldPosition.EnterOrder.IndexOf(oldPosition.EnterOrder.First(x => x.Contains(this)));
+            if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
+            else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != this).ToArray();
+
+            if (!oldPosition.Bakugans.Any(x => x.Owner == Owner)) oldPosition.DisallowedPlayers[Owner.ID] = false;
+
+            destination.DisallowedPlayers[Owner.ID] = true;
+            if (destination.ActiveBattle) InBattle = true;
+            destination.EnterOrder.Add(new Bakugan[] { this });
 
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
                     { "Type", "BakuganMovedEvent" },
-                    { "Pos", pos },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
                     { "Owner", Owner.ID },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -215,39 +243,45 @@ namespace AB_Server
                 });
             }
 
-            game.Field[pos / 10, pos % 10].Bakugans.Add(this);
-            Position = pos;
-            game.OnBakuganMoved(this, pos);
-            game.isFightGoing = game.Field[pos / 10, pos % 10].CheckBattles();
+            destination.Bakugans.Add(this);
+            Position = destination;
+            game.OnBakuganMoved(this, destination);
+            game.isFightGoing = destination.CheckBattles();
         }
 
-        public void FromGrave(int pos)
+        public void FromGrave(GateCard destination)
         {
             Defeated = false;
-            Position = pos;
-            Owner.BakuganGrave.Remove(this);
-            game.Field[pos / 10, pos % 10].Bakugans.Add(this);
-            game.OnBakuganPlacedFromGrave(this, Owner.ID, pos);
-            game.isFightGoing = game.Field[pos / 10, pos % 10].CheckBattles();
+            Position.Remove(this);
+            Position = destination;
+            destination.Bakugans.Add(this);
+            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.EnterOrder.Add(new Bakugan[] { this });
+            game.OnBakuganPlacedFromGrave(this, Owner.ID, destination);
+            game.isFightGoing = destination.CheckBattles();
             Power = BasePower;
         }
 
         public void Revive()
         {
             Defeated = false;
-            Position = -Owner.ID * 2 - 2;
-            Owner.BakuganGrave.Remove(this);
-            Owner.BakuganHand.Add(this);
+            Position.Remove(this);
+            Position = Owner;
+            Owner.Bakugans.Add(this);
             game.OnBakuganRevived(this, Owner.ID);
             Power = BasePower;
             InHands = true;
         }
 
-        public void ToHand(List<Bakugan> oldContainer)
+        public void ToHand(List<Bakugan[]> entryOrder)
         {
-            Position = -Owner.ID * 2 - 1;
-            Owner.BakuganHand.Add(this);
-            oldContainer.Remove(this);
+            Position.Remove(this);
+            Position = Owner;
+            Owner.Bakugans.Add(this);
+
+            int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
+            if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
+            else entryOrder[f] = entryOrder[f].Where(x => x != this).ToArray();
 
             foreach (List<JObject> e in game.NewEvents)
             {
@@ -270,12 +304,16 @@ namespace AB_Server
             InHands = true;
         }
 
-        public void Destroy(List<Bakugan> oldContainer)
+        public void Destroy(List<Bakugan> oldContainer, List<Bakugan[]> entryOrder)
         {
             Defeated = true;
-            Position = -Owner.ID * 2 - 2;
-            Owner.BakuganGrave.Add(this);
+            Position = Owner.BakuganGrave;
+            Owner.BakuganGrave.Bakugans.Add(this);
             oldContainer.Remove(this);
+
+            int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
+            if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
+            else entryOrder[f] = entryOrder[f].Where(x => x != this).ToArray();
 
             foreach (List<JObject> e in game.NewEvents)
             {
@@ -297,26 +335,5 @@ namespace AB_Server
             Power = BasePower;
             InHands = false;
         }
-
-        /*public bool HasNeighborEnemies(Field field)
-        {
-            for (int j = 0; j < field.Gates.GetLength(1); j++)
-                if (Math.Abs(j - int.Parse(Position[1].ToString())) <= 1)
-                    for (int i = 0; i < field.Gates.GetLength(0); i++)
-                        if (Math.Abs(i - int.Parse(Position[0].ToString())) <= 1)
-                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) & $"{i}{j}" != Position) return true;
-            return false;
-        }*/
-
-        /*public List<GateCard> GetListNeighborGatesWithEnemies(Field field)
-        {
-            List<GateCard> gates = new();
-            for (int j = 0; j < field.Gates.GetLength(1); j++)
-                if (Math.Abs(j - int.Parse(Position[1].ToString())) <= 1)
-                    for (int i = 0; i < field.Gates.GetLength(0); i++)
-                        if (Math.Abs(i - int.Parse(Position[0].ToString())) <= 1)
-                            if (field.Gates[i, j].BakuganList.Any(x => x.Owner != OwnerID) & $"{i}{j}" != Position) gates.Add(field.Gates[i, j]);
-            return gates;
-        }*/
     }
 }

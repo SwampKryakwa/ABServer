@@ -59,7 +59,7 @@ namespace AB_Server.Gates
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
-                b.Destroy(Bakugans);
+                b.Destroy(Bakugans, EnterOrder);
             }
 
             foreach (List<JObject> e in game.NewEvents)

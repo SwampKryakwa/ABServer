@@ -5,20 +5,30 @@ using System.Linq;
 
 namespace AB_Server
 {
-    internal class Player
+    internal class GraveBakugan : BakuganContainer
+    {
+        public Player Player;
+
+        public List<Bakugan> Bakugans { get; } = new();
+
+        public GraveBakugan(Player player)
+        {
+            Player = player;
+        }
+    }
+
+    internal class Player : BakuganContainer
     {
 
         public ushort ID;
         public ushort SideID = new();
-#pragma warning disable CS0649
         public string DisplayName;
-#pragma warning restore CS0649
 
-        public List<Bakugan> BakuganHand = new();
+        public List<Bakugan> Bakugans { get; } = new();
         public List<IAbilityCard> AbilityHand = new();
         public List<IGateCard> GateHand = new();
 
-        public List<Bakugan> BakuganGrave = new();
+        public GraveBakugan BakuganGrave;
         public List<IAbilityCard> AbilityGrave = new();
         public List<IGateCard> GateGrave = new();
 
@@ -37,6 +47,7 @@ namespace AB_Server
             ID = id;
             SideID = sideID;
             this.game = game;
+            BakuganGrave = new(this);
         }
 
         public static Player FromJson(ushort id, ushort sideID, JObject deck, Game game)
@@ -54,7 +65,7 @@ namespace AB_Server
 
                 Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, player, game, game.BakuganIndex.Count);
                 game.BakuganIndex.Add(bak);
-                player.BakuganHand.Add(bak);
+                player.Bakugans.Add(bak);
                 player.BakuganOwned.Add(bak);
             }
 
@@ -84,7 +95,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return BakuganHand.Any() & game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) & !HasThrownBakugan;
+            return Bakugans.Any() & game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) & !HasThrownBakugan;
         }
 
         public bool HasActivatableAbilities()
@@ -115,7 +126,7 @@ namespace AB_Server
 
         public List<Bakugan> ThrowableBakugan()
         {
-            return BakuganHand;
+            return Bakugans;
         }
 
         public List<IGateCard> SettableGates()

@@ -35,17 +35,17 @@ namespace AB_Server
         public List<INegatable> NegatableAbilities = new();
 
         //All the event types in the game
-        public delegate void BakuganBoostedEffect(Bakugan target, short boost);
+        public delegate void BakuganBoostedEffect(Bakugan target, short boost, object source);
         public delegate void BakuganPowerResetEffect(Bakugan bakugan);
-        public delegate void BakuganMovedEffect(Bakugan target, int pos);
+        public delegate void BakuganMovedEffect(Bakugan target, BakuganContainer pos);
         public delegate void BakuganReturnedEffect(Bakugan target, ushort owner);
         public delegate void BakuganDestroyedEffect(Bakugan target, ushort owner);
         public delegate void BakuganRevivedEffect(Bakugan target, ushort owner);
-        public delegate void BakuganThrownEffect(Bakugan target, ushort owner, int pos);
-        public delegate void BakuganAddedEffect(Bakugan target, ushort owner, int pos);
-        public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, int pos);
-        public delegate void GateAddedEffect(IGateCard target, ushort owner, int pos);
-        public delegate void GateRemovedEffect(IGateCard target, ushort owner, int pos);
+        public delegate void BakuganThrownEffect(Bakugan target, ushort owner, BakuganContainer pos);
+        public delegate void BakuganAddedEffect(Bakugan target, ushort owner, BakuganContainer pos);
+        public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, BakuganContainer pos);
+        public delegate void GateAddedEffect(IGateCard target, ushort owner, params int[] pos);
+        public delegate void GateRemovedEffect(IGateCard target, ushort owner, params int[] pos);
         public delegate void BattleOverEffect(IGateCard target, ushort winner);
         public delegate void TurnEndEffect();
 
@@ -64,18 +64,18 @@ namespace AB_Server
         public event BattleOverEffect BattleOver;
         public event TurnEndEffect TurnEnd;
 
-        public void OnBakuganBoosted(Bakugan target, short boost) =>
-            BakuganBoosted?.Invoke(target, boost);
-        public void OnBakuganMoved(Bakugan target, int pos) =>
+        public void OnBakuganBoosted(Bakugan target, short boost, object source) =>
+            BakuganBoosted?.Invoke(target, boost, source);
+        public void OnBakuganMoved(Bakugan target, BakuganContainer pos) =>
             BakuganMoved?.Invoke(target, pos);
-        public void OnBakuganAdded(Bakugan target, ushort owner, int pos)
+        public void OnBakuganAdded(Bakugan target, ushort owner, BakuganContainer pos)
         {
             BakuganAdded?.Invoke(target, owner, pos);
             BakuganThrown?.Invoke(target, owner, pos);
         }
-        public void OnBakuganThrown(Bakugan target, ushort owner, int pos) =>
+        public void OnBakuganThrown(Bakugan target, ushort owner, BakuganContainer pos) =>
             BakuganThrown?.Invoke(target, owner, pos);
-        public void OnBakuganPlacedFromGrave(Bakugan target, ushort owner, int pos) =>
+        public void OnBakuganPlacedFromGrave(Bakugan target, ushort owner, BakuganContainer pos) =>
             BakuganPlacedFromGrave?.Invoke(target, owner, pos);
         public void OnBakuganReturned(Bakugan target, ushort owner) =>
             BakuganReturned?.Invoke(target, owner);
@@ -83,9 +83,9 @@ namespace AB_Server
             BakuganDestroyed?.Invoke(target, owner);
         public void OnBakuganRevived(Bakugan target, ushort owner) =>
             BakuganRevived?.Invoke(target, owner);
-        public void OnGateAdded(IGateCard target, ushort owner, int pos) =>
+        public void OnGateAdded(IGateCard target, ushort owner, params int[] pos) =>
             GateAdded?.Invoke(target, owner, pos);
-        public void OnGateRemoved(IGateCard target, ushort owner, int pos) =>
+        public void OnGateRemoved(IGateCard target, ushort owner, params int[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
         public void OnBattleOver(IGateCard target, ushort winner) =>
             BattleOver?.Invoke(target, winner);

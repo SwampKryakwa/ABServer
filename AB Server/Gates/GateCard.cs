@@ -13,6 +13,7 @@ namespace AB_Server.Gates
             (x, y) => new TripleBattle(x, y),
             (x, y) => new QuartetBattle(x, y),
             (x, y) => new MindGhost(x, y),
+            (x, y) => { throw new Exception("IncorrectGateCreation"); },
         };
 
         public static IGateCard CreateCard(Player owner, int cID, int type)
@@ -20,13 +21,15 @@ namespace AB_Server.Gates
             return GateCtrs[type].Invoke(cID, owner);
         }
 
+        public List<Bakugan[]> EnterOrder = new();
+
         private protected Game game;
 
         public int CID { get; set; }
 
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
-        public int Position { get; set; }
+        public (int X, int Y) Position { get; set; }
         public bool[] DisallowedPlayers { get; set; }
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
@@ -86,12 +89,12 @@ namespace AB_Server.Gates
             {
                 if (b.Owner.SideID == winner)
                 {
-                    b.ToHand(Bakugans);
+                    b.ToHand(Bakugans, EnterOrder);
                 }
 
                 else
                 {
-                    b.Destroy(Bakugans);
+                    b.Destroy(Bakugans, EnterOrder);
                 }
             }
 
@@ -115,7 +118,7 @@ namespace AB_Server.Gates
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
-                b.ToHand(Bakugans);
+                b.ToHand(Bakugans, EnterOrder);
             }
             foreach (List<JObject> e in game.NewEvents)
             {
@@ -171,8 +174,8 @@ namespace AB_Server.Gates
             List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
-                Bakugans.FindAll(x => x.Owner.ID == i & !x.Defeated).ForEach(x => x.ToHand(Bakugans));
-                Bakugans.FindAll(x => x.Owner.ID == i & x.Defeated).ForEach(x => x.ToHand(Bakugans));
+                Bakugans.FindAll(x => x.Owner.ID == i & !x.Defeated).ForEach(x => x.ToHand(Bakugans, EnterOrder));
+                Bakugans.FindAll(x => x.Owner.ID == i & x.Defeated).ForEach(x => x.ToHand(Bakugans, EnterOrder));
             }
 
             foreach (List<JObject> e in game.NewEvents)
@@ -258,7 +261,7 @@ namespace AB_Server.Gates
         }
     }
 
-    interface IGateCard
+    interface IGateCard : BakuganContainer
     {
         public int CID { get; set; }
         public bool IsOpen { get; set; }
@@ -266,7 +269,7 @@ namespace AB_Server.Gates
         public Player Owner { get; set; }
         public bool ActiveBattle { get; set; }
         public bool[] DisallowedPlayers { get; set; }
-        public int Position { get; set; }
+        public (int X, int Y) Position { get; set; }
 
         public int GetTypeID();
         public void SetStart(int pos);

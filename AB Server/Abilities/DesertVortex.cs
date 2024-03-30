@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
@@ -30,7 +30,7 @@ namespace AB_Server.Abilities
         {
             if (counterNegated) return;
 
-            User.Move(target.Position);
+            User.Move(target as GateCard);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -63,21 +63,21 @@ namespace AB_Server.Abilities
         public DesertVortex(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
         }
 
         public new void Activate()
         {
-            List<GateCard> notNull = game.Field.Cast<GateCard>().Where(x => x != null).ToList();
-            List<GateCard> hasEnemies = notNull.Where(x => x.Bakugans.Any(z => z.Owner.SideID != owner.SideID)).ToList();
-            List<Bakugan> possibleUsers = game.BakuganIndex.Where(x => x.Owner == owner & x.Attribute == Attribute.Subterra & x.Position >= 0).ToList();
+            List<GateCard> notNull = Game.Field.Cast<GateCard>().Where(x => x != null).ToList();
+            List<GateCard> hasEnemies = notNull.Where(x => x.Bakugans.Any(z => z.Owner.SideID != Owner.SideID)).ToList();
+            List<Bakugan> possibleUsers = Game.BakuganIndex.Where(x => x.Owner == Owner && x.Attribute == Attribute.Subterra && x.OnField()).ToList();
             List<Bakugan> users = new();
             foreach (Bakugan b in possibleUsers)
             {
-                if (hasEnemies.Any(x => x.IsTouching(b.Position))) users.Add(b);
+                if (hasEnemies.Any(x => x.IsTouching(b.Position as GateCard))) users.Add(b);
             }
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
                 { "Count", 7 },
@@ -105,12 +105,12 @@ namespace AB_Server.Abilities
                 }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new DesertVortexEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.Field[(int)game.IncomingSelection[owner.ID]["array"][1]["pos"] / 10, (int)game.IncomingSelection[owner.ID]["array"][1]["pos"] % 10], game, 1);
+            var effect = new DesertVortexEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.Field[(int)Game.IncomingSelection[Owner.ID]["array"][1]["pos"] / 10, (int)Game.IncomingSelection[Owner.ID]["array"][1]["pos"] % 10], Game, 1);
 
             //window for counter
 
@@ -123,19 +123,19 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void ActivateFusion()
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
         public new bool IsActivateable()
         {
-            List<GateCard> notNull = game.Field.Cast<GateCard>().Where(x => x != null).ToList();
-            List<GateCard> hasEnemies = notNull.Where(x=>x.Bakugans.Any(z => z.Owner.SideID != owner.SideID)).ToList();
-            List<Bakugan> possibleUsers = game.BakuganIndex.Where(x => x.Owner == owner & x.Attribute == Attribute.Subterra & x.Position >= 0).ToList(); 
+            List<GateCard> notNull = Game.Field.Cast<GateCard>().Where(x => x != null).ToList();
+            List<GateCard> hasEnemies = notNull.Where(x=>x.Bakugans.Any(z => z.Owner.SideID != Owner.SideID)).ToList();
+            List<Bakugan> possibleUsers = Game.BakuganIndex.Where(x => x.Owner == Owner && x.Attribute == Attribute.Subterra && x.OnField()).ToList(); 
             foreach (Bakugan b in possibleUsers)
             {
-                if (hasEnemies.Any(x => x.IsTouching(b.Position))) return true;
+                if (hasEnemies.Any(x => x.IsTouching(b.Position as GateCard))) return true;
             }
             return false;
         }

@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.game = game;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
@@ -50,16 +50,16 @@ namespace AB_Server.Abilities
             user.affectingEffects.Add(this);
         }
 
-        public void Trigger(IGateCard target, ushort owner, int pos)
+        public void Trigger(IGateCard target, ushort owner, params int[] pos)
         {
-            user.Boost(100);
+            user.Boost(100, this);
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -91,19 +91,20 @@ namespace AB_Server.Abilities
         public ClayArmor(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
+            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
                 { "Message", "ability_user" },
                 { "Ability", 5 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -114,12 +115,12 @@ namespace AB_Server.Abilities
                 )) }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new ClayArmorEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
+            var effect = new ClayArmorEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
 
             //window for counter
 
@@ -127,29 +128,13 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter()
+        public new void ActivateCounter() => Activate();
+
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new void ActivateFusion()
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable();
-        }
-
-        public new int GetTypeID()
-        {
-            return 5;
-        }
+        public new int GetTypeID() => 5;
     }
 }

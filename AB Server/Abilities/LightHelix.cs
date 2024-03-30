@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.game = game;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
             this.card = card;
         }
@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            user.Boost(50);
+            user.Boost(50, this);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
@@ -73,7 +73,7 @@ namespace AB_Server.Abilities
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -86,7 +86,7 @@ namespace AB_Server.Abilities
         //remove when negated
         public void Negate(bool asCounter)
         {
-            user.Boost(-50);
+            user.Boost(-50, this);
 
             if (asCounter) counterNegated = true;
             else if (user.affectingEffects.Contains(this))
@@ -107,19 +107,19 @@ namespace AB_Server.Abilities
         public LightHelix(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
                 { "Message", "ability_user" },
                 { "Ability", 9 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -130,12 +130,12 @@ namespace AB_Server.Abilities
                 )) }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new LightHelixEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0, this);
+            var effect = new LightHelixEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0, this);
 
             //window for counter
 
@@ -148,14 +148,14 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void ActivateFusion()
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn);
+            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

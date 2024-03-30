@@ -34,6 +34,7 @@ namespace AB_Server.Gates
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
         public List<object> Freezing;
+        public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
 
@@ -89,12 +90,12 @@ namespace AB_Server.Gates
             {
                 if (b.Owner.SideID == winner)
                 {
-                    b.ToHand(Bakugans, EnterOrder);
+                    b.ToHand(EnterOrder);
                 }
 
                 else
                 {
-                    b.Destroy(Bakugans, EnterOrder);
+                    b.Destroy(EnterOrder);
                 }
             }
 
@@ -109,7 +110,7 @@ namespace AB_Server.Gates
             }
             game.OnBattleOver(this, (ushort)winner);
 
-            game.Field[Position / 10, Position % 10] = null;
+            game.Field[Position.X, Position.Y] = null;
 
             (this as IGateCard).Remove();
         }
@@ -118,7 +119,7 @@ namespace AB_Server.Gates
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
-                b.ToHand(Bakugans, EnterOrder);
+                b.ToHand(EnterOrder);
             }
             foreach (List<JObject> e in game.NewEvents)
             {
@@ -131,24 +132,26 @@ namespace AB_Server.Gates
             game.OnBattleOver(this, game.PlayerCount);
         }
 
-        public void SetStart(int pos)
+        public void SetStart(int posX, int posY)
         {
-            game.Field[pos / 10, pos % 10] = this;
+            game.Field[posX, posY] = this;
             Owner.GateHand.Remove(this);
-            Position = pos;
+            Position = (posX, posY);
         }
 
-        public void Set(int pos)
+        public void Set(int posX, int posY)
         {
-            game.Field[pos / 10, pos % 10] = this;
+            game.Field[posX, posY] = this;
+            OnField = true;
             Owner.GateHand.Remove(this);
-            Position = pos;
+            Position = (posX, posY);
             foreach (var e in game.NewEvents)
             {
                 JObject obj = new()
                 {
                     { "Type", "GateSetEvent" },
-                    { "Pos", pos },
+                    { "PosX", posX },
+                    { "PosY", posY },
                     { "GateData", new JObject {
                         { "Type", (this as IGateCard).GetTypeID() } }
                     },
@@ -162,7 +165,7 @@ namespace AB_Server.Gates
                 }
                 e.Add(obj);
             }
-            game.OnGateAdded(this, Owner.ID, pos);
+            game.OnGateAdded(this, Owner.ID, posX, posY);
         }
 
         public void Open() { throw new NotImplementedException(); }
@@ -174,8 +177,8 @@ namespace AB_Server.Gates
             List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
-                Bakugans.FindAll(x => x.Owner.ID == i & !x.Defeated).ForEach(x => x.ToHand(Bakugans, EnterOrder));
-                Bakugans.FindAll(x => x.Owner.ID == i & x.Defeated).ForEach(x => x.ToHand(Bakugans, EnterOrder));
+                Bakugans.FindAll(x => x.Owner.ID == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                Bakugans.FindAll(x => x.Owner.ID == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
             }
 
             foreach (List<JObject> e in game.NewEvents)
@@ -183,7 +186,8 @@ namespace AB_Server.Gates
                 e.Add(new JObject
                 {
                     { "Type", "GateRemoved" },
-                    { "Pos", Position }
+                    { "PosX", Position.X },
+                    { "PosY", Position.Y }
                 });
             }
         }
@@ -191,15 +195,14 @@ namespace AB_Server.Gates
         public void ToGrave()
         {
             Remove();
-            Position = -Owner.ID * 2 - 2;
             Owner.GateGrave.Add(this);
-            game.Field[Position / 10, Position % 10] = null;
+            game.Field[Position.X, Position.Y] = null;
             IsOpen = false;
         }
 
         public bool IsOpenable()
         {
-            return !Negated & Position >= 0 & Bakugans.Count >= 2 & !IsOpen;
+            return !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
         }
 
         public bool CheckBattles()
@@ -233,37 +236,35 @@ namespace AB_Server.Gates
             return AreTouching(this, card);
         }
 
-        public bool IsTouching(int pos)
+        public bool IsTouching((int X, int Y) pos)
         {
             return AreTouching(Position, pos);
         }
 
-        public static bool AreTouching(int pos1, int pos2)
+        public static bool AreTouching((int X, int Y) pos1, (int X, int Y) pos2)
         {
-            int X1 = pos1 / 10;
-            int Y1 = pos1 % 10;
-            int X2 = pos2 / 10;
-            int Y2 = pos2 % 10;
-            int DX = Math.Abs(X1 - X2);
-            int DY = Math.Abs(Y1 - Y2);
-            return (DX + DY == 1) & pos1 > 0 & pos2 > 0;
+            int DX = Math.Abs(pos1.X - pos2.X);
+            int DY = Math.Abs(pos1.Y - pos2.Y);
+            return DX + DY == 1;
         }
 
         public static bool AreTouching(IGateCard card1, IGateCard card2)
         {
-            int X1 = card1.Position / 10;
-            int Y1 = card1.Position % 10;
-            int X2 = card2.Position / 10;
-            int Y2 = card2.Position % 10;
-            int DX = Math.Abs(X1 - X2);
-            int DY = Math.Abs(Y1 - Y2);
-            return (DX + DY == 1) & card1.Position > 0 & card2.Position > 0;
+            if (!card1.OnField | card2.OnField) return false;
+            int X1 = card1.Position.X;
+            int Y1 = card1.Position.Y;
+            int X2 = card2.Position.X;
+            int Y2 = card2.Position.Y;
+            int DX = Math.Abs(card1.Position.X - card2.Position.X);
+            int DY = Math.Abs(card1.Position.Y - card2.Position.Y);
+            return DX + DY == 1;
         }
     }
 
     interface IGateCard : BakuganContainer
     {
         public int CID { get; set; }
+        public bool OnField { get; set; }
         public bool IsOpen { get; set; }
         public List<Bakugan> Bakugans { get; set; }
         public Player Owner { get; set; }
@@ -272,8 +273,8 @@ namespace AB_Server.Gates
         public (int X, int Y) Position { get; set; }
 
         public int GetTypeID();
-        public void SetStart(int pos);
-        public void Set(int pos);
+        public void SetStart(int posX, int posY);
+        public void Set(int posX, int posY);
         public void Open();
         public void Negate();
         public void Remove();

@@ -92,7 +92,7 @@ namespace AB_Server
         public bool InBattle = false;
         public bool Defeated = false;
         public bool InHands = true;
-        public bool usedAbilityThisTurn = false;
+        public bool UsedAbilityThisTurn = false;
 
         public Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
         {
@@ -188,7 +188,7 @@ namespace AB_Server
             Position = destination;
             destination.Bakugans.Add(this);
             destination.DisallowedPlayers[Owner.ID] = true;
-            destination.EnterOrder.Add(new Bakugan[] { this });
+            destination.EnterOrder.Add([this]);
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
@@ -304,12 +304,12 @@ namespace AB_Server
             InHands = true;
         }
 
-        public void Destroy(List<Bakugan> oldContainer, List<Bakugan[]> entryOrder)
+        public void Destroy(List<Bakugan[]> entryOrder)
         {
             Defeated = true;
+            Position.Remove(this);
             Position = Owner.BakuganGrave;
             Owner.BakuganGrave.Bakugans.Add(this);
-            oldContainer.Remove(this);
 
             int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
             if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
@@ -334,6 +334,21 @@ namespace AB_Server
             game.OnBakuganDestroyed(this, Owner.ID);
             Power = BasePower;
             InHands = false;
+        }
+
+        public bool OnField()
+        {
+            return typeof(IGateCard).IsAssignableFrom(Position.GetType());
+        }
+
+        public bool InHand()
+        {
+            return Position.GetType() == typeof(Player);
+        }
+
+        public bool InGrave()
+        {
+            return Position.GetType() == typeof(GraveBakugan);
         }
     }
 }

@@ -20,13 +20,13 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.game = game;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
         public void Activate()
         {
-            boost = (short)(game.BakuganIndex.Count(x => x.Position >= 0 & x != user) * 100);
+            boost = (short)(game.BakuganIndex.Count(x => x.OnField() && x != user) * 100);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -43,11 +43,11 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(boost);
+            user.Boost(boost, this);
 
-            foreach (Bakugan b in game.BakuganIndex.Where(x => x.Position >= 0 & x != user))
+            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x != user))
             {
-                b.Boost(-100);
+                b.Boost(-100, this);
                 b.affectingEffects.Add(this);
             }
 
@@ -65,7 +65,7 @@ namespace AB_Server.Abilities
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -85,8 +85,8 @@ namespace AB_Server.Abilities
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
-                user.Boost((short)-boost);
-                foreach (Bakugan b in game.BakuganIndex.Where(x => x.affectingEffects.Contains(this))) b.Boost(100);
+                user.Boost((short)-boost, this);
+                foreach (Bakugan b in game.BakuganIndex.Where(x => x.affectingEffects.Contains(this))) b.Boost(100, this);
             }
         }
 
@@ -116,19 +116,20 @@ namespace AB_Server.Abilities
         public ColourfulDeath(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
+            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
                 { "Message", "ability_boost_target" },
                 { "Ability", 13 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -139,12 +140,12 @@ namespace AB_Server.Abilities
                 )) }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new ColourfulDeathEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
+            var effect = new ColourfulDeathEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
 
             //window for counter
 
@@ -152,29 +153,13 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter()
+        public new void ActivateCounter() => Activate();
+
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new void ActivateFusion()
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable();
-        }
-
-        public new int GetTypeID()
-        {
-            return 13;
-        }
+        public new int GetTypeID() => 13;
     }
 }

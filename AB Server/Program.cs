@@ -79,7 +79,7 @@ namespace AB_Server
 
                     // Decode the key value
                     key = Uri.UnescapeDataString(key);
-                    if (key != "/getupdates" & key != "/getplayerlist" & key != "/getallready" & key != "/checkstarted")
+                    if (key != "/getupdates" && key != "/getplayerlist" && key != "/getallready" && key != "/checkstarted")
                     {
                         Console.WriteLine(key);
                         Console.WriteLine(request.Body);

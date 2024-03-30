@@ -37,6 +37,8 @@ namespace AB_Server
         public bool HasSetGate;
         public bool HasThrownBakugan;
         public bool HasSkippedTurn;
+        public bool HasUsedFusion = false;
+        public bool HasUsedCounter = false;
 
         public short hp = 3;
 
@@ -95,7 +97,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return Bakugans.Any() & game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) & !HasThrownBakugan;
+            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HasThrownBakugan;
         }
 
         public bool HasActivatableAbilities()
@@ -110,7 +112,7 @@ namespace AB_Server
 
         public bool HasSettableGates()
         {
-            return GateHand.Count != 0 & !HasSetGate;
+            return GateHand.Count != 0 && !HasSetGate;
         }
 
         public bool HasOpenableGates()
@@ -153,12 +155,12 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isFightGoing & (HasThrownBakugan | !HasSkippedTurn);
+            return !game.isFightGoing && (HasThrownBakugan | !HasSkippedTurn);
         }
 
         public bool CanEndBattle()
         {
-            return game.BakuganIndex.Any(x => x.Owner == this & x.InBattle);
+            return game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
         }
 
         /*public static Player FromJSON(JObject playerJson, ushort playerID)

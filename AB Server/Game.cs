@@ -34,6 +34,8 @@ namespace AB_Server
 
         public List<INegatable> NegatableAbilities = new();
 
+        public List<IAbilityCard> AbilityChain = new();
+
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, short boost, object source);
         public delegate void BakuganPowerResetEffect(Bakugan bakugan);
@@ -125,10 +127,8 @@ namespace AB_Server
 
         public List<JObject> GetUpdates(int player)
         {
-            int numberUpdates = NewEvents[player].Count;
-            List<JObject> toReturn = new();
-            if (NewEvents[player].Count != 0) toReturn = NewEvents[player].Take(numberUpdates).ToList();
-            NewEvents[player] = NewEvents[player].Skip(numberUpdates).ToList();
+            List<JObject> toReturn = new(NewEvents[player]);
+            NewEvents[player].Clear();
 
             return toReturn;
         }
@@ -165,12 +165,12 @@ namespace AB_Server
                         JObject selection = IncomingSelection[i];
                         IncomingSelection[i] = null;
 
-                        Players[i].GateHand[(int)selection["gate"]].SetStart(i * 10 + 1);
+                        Players[i].GateHand[(int)selection["gate"]].SetStart(i, 1);
 
                         selection = null;
                     }
 
-                    foreach (var e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
+                    foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
                     Started = true;
                 };
         }
@@ -186,12 +186,11 @@ namespace AB_Server
             switch (moveType)
             {
                 case "throw":
-                    int gateSelection = (int)selection["pos"];
+                    GateCard gateSelection = Field[(int)selection["posX"], (int)selection["posY"]];
 
-
-                    if (Field[gateSelection / 10, gateSelection % 10] == null)
+                    if (gateSelection == null)
                     {
-                        NewEvents[turnPlayer].Add(new JObject()
+                        NewEvents[turnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
@@ -199,25 +198,24 @@ namespace AB_Server
                     }
 
 
-                    if (!Field[gateSelection / 10, gateSelection % 10].DisallowedPlayers[activePlayer])
+                    if (!gateSelection.DisallowedPlayers[activePlayer])
                     {
                         Players[turnPlayer].HasThrownBakugan = true;
                         BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
                     }
                     else
-                        NewEvents[turnPlayer].Add(new JObject()
+                        NewEvents[turnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
 
                     break;
                 case "set":
-                    int posSelection = (int)selection["pos"];
+                    (int X, int Y) posSelection = ((int)selection["posX"], (int)selection["posY"]);
 
-
-                    if (Field[posSelection / 10, posSelection % 10] != null)
+                    if (Field[posSelection.X, posSelection.Y] != null)
                     {
-                        NewEvents[turnPlayer].Add(new JObject()
+                        NewEvents[turnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
@@ -225,7 +223,7 @@ namespace AB_Server
                     else
                     {
                         Players[turnPlayer].HasSetGate = true;
-                        GateIndex[(int)selection["gate"]].Set(posSelection);
+                        GateIndex[(int)selection["gate"]].Set(posSelection.X, posSelection.Y);
                     }
 
                     break;
@@ -234,7 +232,7 @@ namespace AB_Server
 
                     if (!AbilityIndex[abilitySelection].IsActivateable())
                     {
-                        NewEvents[activePlayer].Add(new JObject()
+                        NewEvents[activePlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
@@ -250,20 +248,20 @@ namespace AB_Server
 
                     if (gateToOpen == null)
                     {
-                        NewEvents[activePlayer].Add(new JObject() { { "Type", "InvalidAction" } });
+                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
                     }
 
                     if (gateToOpen.IsOpenable())
                         gateToOpen.Open();
                     else
-                        NewEvents[activePlayer].Add(new JObject() { { "Type", "InvalidAction" } });
+                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
 
                     break;
                 case "pass":
                     if (!isFightGoing)
                     {
-                        NewEvents[activePlayer].Add(new JObject() { { "Type", "InvalidAction" } });
+                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
                     }
                     playersPassed++;
@@ -303,7 +301,7 @@ namespace AB_Server
                         turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
                         activePlayer = turnPlayer;
 
-                        BakuganIndex.ForEach(x => x.usedAbilityThisTurn = false);
+                        BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
                         Players[turnPlayer].HasSetGate = false;
                         Players[turnPlayer].HasThrownBakugan = false;
@@ -319,7 +317,7 @@ namespace AB_Server
                         turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
                         activePlayer = turnPlayer;
 
-                        BakuganIndex.ForEach(x => x.usedAbilityThisTurn = false);
+                        BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
                         Players[turnPlayer].HasSetGate = false;
                         Players[turnPlayer].HasThrownBakugan = false;
@@ -359,7 +357,7 @@ namespace AB_Server
             turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
             activePlayer = turnPlayer;
 
-            BakuganIndex.ForEach(x => x.usedAbilityThisTurn = false);
+            BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
             Players[turnPlayer].HasSetGate = false;
             Players[turnPlayer].HasThrownBakugan = false;
@@ -382,7 +380,7 @@ namespace AB_Server
 
             JObject moves = new()
             {
-                { "CanSetGate", Players[player].HasSettableGates() & !isFightGoing },
+                { "CanSetGate", Players[player].HasSettableGates() && !isFightGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() },
                 { "CanActivateAbility", Players[player].HasActivatableAbilities() },
@@ -400,41 +398,47 @@ namespace AB_Server
             return moves;
         }
 
-        public void AskCounter(int player, IAbilityCard ability)
+        public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user)
         {
-            if (Players[player].HasActivatableAbilities(true))
-                NewEvents[player].Add(new JObject
-                {
-                    { "Type", "StartSelection" },
-                    { "SelectionType", "Q" },
-                    { "Message", "want_counter" }
-                });
-
-            awaitingAnswers[player] = new Action(() => ResolveCounter(player, ability));
+            awaitingAnswers[player.ID] = () => CheckFusion(player, ability, user);
+            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.CustomSelectionEvent("FusionPrompt", "promt_answer_yes", "prompt_answer_no")));
         }
 
-        public void ResolveCounter(int player, IAbilityCard ability)
+        public void CheckFusion(Player player, IAbilityCard ability, Bakugan user)
         {
-            if (!(bool)IncomingSelection[player]["answer"])
+            if (!(bool)IncomingSelection[player.ID]["answer"]) return;
+
+            player.HasUsedFusion = true;
+            awaitingAnswers[player.ID] = () => ResolveFusion(player, ability, user);
+
+            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateable()).ToArray())));
+        }
+
+        public void ResolveFusion(Player player, IAbilityCard ability, Bakugan user)
+        {
+            int id = (int)IncomingSelection[player.ID]["id"];
+            if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
-                if (ability.Iter()) ability.Resolve();
-                return;
+                AbilityIndex[id].ActivateFusion(ability, user);
             }
-
-            NewEvents[player].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "C" },
-                { "Message", "choose_counter" },
-                { "ActivateableAbilities", new JArray(Players[player].ActivateableAbilities().Select(x => new JObject { { "cid", x.CID }, { "Type", x.GetTypeID() } })) }
-            });
-
-            awaitingAnswers[player] = new Action(() => ResolveCounter(player, ability));
         }
 
-        public void TriggerCounter(int player, IAbilityCard ability)
+        public void SuggestCounter(int player, IAbilityCard ability)
         {
-            AbilityIndex[(int)IncomingSelection[player]["CID"]].ActivateCounter();
+
+        }
+
+        public void CheckCounter()
+        {
+
+        }
+
+        public void ResolveChain()
+        {
+            foreach (IAbilityCard ability in AbilityChain)
+            {
+                ability.Resolve();
+            }
         }
     }
 }

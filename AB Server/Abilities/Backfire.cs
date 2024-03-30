@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
@@ -47,7 +47,6 @@ namespace AB_Server.Abilities
             }
 
             target.Negate();
-
         }
 
         //remove when negated
@@ -63,13 +62,14 @@ namespace AB_Server.Abilities
         public Backfire(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
+            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Pyrus && !x.UsedAbilityThisTurn && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
                 { "Count", 2 },
@@ -78,7 +78,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 2 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -91,20 +91,21 @@ namespace AB_Server.Abilities
                         { "SelectionType", "G" },
                         { "Message", "gate_negate_target" },
                         { "Ability", 2 },
-                        { "SelectionGates", new JArray(game.GateIndex.Where(x => x.IsOpen & x.Position > 0).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {
                             { "Type", x.GetTypeID() },
-                            { "Pos", x.Position }
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y }
                         })) }
                     } }
                 }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new BackfireEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.GateIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["gate"]], game, 1);
+            var effect = new BackfireEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]], Game, 1);
 
             //window for counter
 
@@ -112,29 +113,15 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter()
+        public new void ActivateCounter() => IsActivateable();
+
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new void ActivateFusion()
-        {
-            Activate();
-        }
+        public new bool IsActivateable(bool asFusion) => IsActivateable();
 
-        public new bool IsActivateable()
-        {
-            return game.BakuganIndex.Any(x => game.GateIndex.Any(x => x.IsOpen) & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Pyrus & !x.usedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable();
-        }
-
-        public new int GetTypeID()
-        {
-            return 2;
-        }
+        public new int GetTypeID() => 2;
     }
 }

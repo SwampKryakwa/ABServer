@@ -10,7 +10,7 @@ namespace AB_Server.Gates
 {
     internal class AttributeHazard : GateCard, IGateCard
     {
-        Attribute attribute;
+        public Attribute Attribute;
         public AttributeHazard(int cID, Player owner, Attribute attribute)
         {
             game = owner.game;
@@ -21,7 +21,7 @@ namespace AB_Server.Gates
                 DisallowedPlayers[i] = false;
             }
             CID = cID;
-            this.attribute = attribute;
+            Attribute = attribute;
         }
 
         public new int GetTypeID()
@@ -46,12 +46,12 @@ namespace AB_Server.Gates
             game.BakuganDestroyed -= OnBakuganLeaves;
         }
 
-        public new void Set(int pos)
+        public new void Set(int posX, int posY)
         {
             game.BakuganMoved += OnBakuganMove;
             game.BakuganThrown += OnBakuganStands;
             game.BakuganPlacedFromGrave += OnBakuganStands;
-            base.Set(pos);
+            base.Set(posX, posY);
         }
 
         public void Trigger()
@@ -63,7 +63,7 @@ namespace AB_Server.Gates
         {
             IsOpen = true;
             Bakugans[0].affectingEffects.Add(this);
-            Bakugans[0].Attribute = attribute;
+            Bakugans[0].Attribute = Attribute;
 
             game.BakuganMoved -= OnBakuganMove;
             game.BakuganThrown -= OnBakuganStands;
@@ -91,14 +91,14 @@ namespace AB_Server.Gates
             base.Remove();
         }
 
-        public void OnBakuganMove(Bakugan target, int pos)
+        public void OnBakuganMove(Bakugan target, BakuganContainer pos)
         {
-            if (pos == Position) Trigger();
+            if (pos == this) Trigger();
         }
 
-        public void OnBakuganStands(Bakugan target, ushort owner, int pos)
+        public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
         {
-            if (pos == Position) Trigger();
+            if (pos == this) Trigger();
         }
 
         public void OnBakuganLeaves(Bakugan target, ushort owner)

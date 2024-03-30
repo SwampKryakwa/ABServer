@@ -66,7 +66,7 @@ namespace AB_Server.Gates
             base.Remove();
         }
 
-        public void OnBakuganMove(Bakugan target, int pos)
+        public void OnBakuganMove(Bakugan target, BakuganContainer pos)
         {
             if (Bakugans.Count < 3)
                 Freeze(this);
@@ -74,7 +74,7 @@ namespace AB_Server.Gates
                 TryUnfreeze(this);
         }
 
-        public void OnBakuganStands(Bakugan target, ushort owner, int pos)
+        public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
         {
             if (Bakugans.Count < 3)
                 Freeze(this);

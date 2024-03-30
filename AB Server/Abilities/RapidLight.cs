@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
@@ -21,7 +22,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
@@ -47,7 +48,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.AddFromHand(User.Position);
+            target.AddFromHand(User.Position as GateCard);
         }
 
         //remove when negated
@@ -62,13 +63,13 @@ namespace AB_Server.Abilities
         public RapidLight(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
                 { "Count", 2 },
@@ -77,7 +78,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 4 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => game.BakuganIndex.Count(x=>x.Owner.SideID != owner.SideID) >= 2 & x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => Game.BakuganIndex.Count(x=>x.Owner.SideID != Owner.SideID) >= 2 && x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -90,7 +91,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_addable_target" },
                         { "Ability", 4 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InHands & x.Owner == owner & ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -103,12 +104,12 @@ namespace AB_Server.Abilities
                 }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new RapidLightEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["bakugan"]], game, 1);
+            var effect = new RapidLightEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 1);
 
             //window for counter
 
@@ -121,14 +122,14 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void ActivateFusion()
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => game.BakuganIndex.Count(x => x.Owner.SideID != owner.SideID) >= 2 & x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Haos & !x.usedAbilityThisTurn);
+            return Game.BakuganIndex.Any(x => Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2 && x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

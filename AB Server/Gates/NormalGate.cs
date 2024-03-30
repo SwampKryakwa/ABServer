@@ -30,7 +30,7 @@ namespace AB_Server.Gates
         {
             IsOpen = false;
             Negated = true;
-            game.BakuganIndex.Where(x => x.affectingEffects.Contains(this)).ToList().ForEach(x => x.Boost((short)-Power));
+            game.BakuganIndex.Where(x => x.affectingEffects.Contains(this)).ToList().ForEach(x => x.Boost((short)-Power, this));
             game.BakuganIndex.ForEach(x => x.affectingEffects.Remove(this));
 
             game.BakuganMoved -= OnBakuganMove;
@@ -48,7 +48,8 @@ namespace AB_Server.Gates
             {
                 e.Add(new JObject {
                     { "Type", "GateOpenEvent" },
-                    { "Pos", Position },
+                    { "PosX", Position.X },
+                    { "PosY", Position.Y },
                     { "Owner", Owner.ID },
                     { "Bakugan", new JObject {
                         { "Type", 0 },
@@ -65,7 +66,7 @@ namespace AB_Server.Gates
             {
                 if (b.Attribute == Attribute)
                 {
-                    b.Boost(Power);
+                    b.Boost(Power, this);
                     b.affectingEffects.Add(this);
                 }
             }
@@ -90,31 +91,31 @@ namespace AB_Server.Gates
             base.Remove();
         }
 
-        public void OnBakuganMove(Bakugan target, int pos)
+        public void OnBakuganMove(Bakugan target, BakuganContainer pos)
         {
-            if (target.Attribute == Attribute & pos == Position)
+            if (target.Attribute == Attribute && pos == this)
             {
                 if (!target.affectingEffects.Contains(this))
                 {
                     target.affectingEffects.Add(this);
-                    target.Boost(Power);
+                    target.Boost(Power, this);
                 }
             }
-            else if (target.affectingEffects.Contains(this) & pos != Position)
+            else if (target.affectingEffects.Contains(this) && pos != this)
             {
                 target.affectingEffects.Remove(this);
-                target.Boost((short)-Power);
+                target.Boost((short)-Power, this);
             }
         }
 
-        public void OnBakuganStands(Bakugan target, ushort owner, int pos)
+        public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
         {
-            if (target.Attribute == Attribute & pos == Position)
+            if (target.Attribute == Attribute && pos == this)
             {
                 if (!target.affectingEffects.Contains(this))
                 {
                     target.affectingEffects.Add(this);
-                    target.Boost(Power);
+                    target.Boost(Power, this);
                 }
             }
         }
@@ -124,7 +125,7 @@ namespace AB_Server.Gates
             if (target.affectingEffects.Contains(this))
             {
                 target.affectingEffects.Remove(this);
-                target.Boost((short)-Power);
+                target.Boost((short)-Power, this);
             }
         }
     }

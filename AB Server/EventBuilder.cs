@@ -1,0 +1,363 @@
+﻿using AB_Server.Abilities;
+using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
+
+namespace AB_Server
+{
+    internal static class EventBuilder
+    {
+        public static JObject SelectionBundler(params JObject[] selections)
+        {
+            return new JObject
+            {
+                { "Type", "Selection" },
+                { "selections", JArray.FromObject(selections) }
+            };
+        }
+
+        public static JObject CustomSelectionEvent(string prompt, params string[] options)
+        {
+            return new JObject
+            {
+                { "type", "C" },
+                { "prompt", prompt },
+                { "options", JArray.FromObject(options) }
+            };
+        }
+
+        public static JObject AbilitySelection(string prompt, params IAbilityCard[] abilities)
+        {
+            return new JObject
+            {
+                { "type", "A" },
+                { "prompt", prompt },
+                { "options", JArray.FromObject(abilities.Select(x => new JObject { { "type", x.GetTypeID() }, { "id", x.CID } } )) }
+            };
+        }
+
+        public static JObject SetGate(GateCard card, bool RevealInfo)
+        {
+            JObject extra = new();
+
+            switch (card.GetTypeID())
+            {
+                case 0:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as NormalGate).Attribute },
+                        { "Power", (card as NormalGate).Power }
+                    };
+                    break;
+                case 4:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                    };
+                    break;
+            }
+
+            if (RevealInfo)
+                return new JObject
+                {
+                    { "Type", "SetGate" },
+                    { "type", card.GetTypeID() },
+                    { "owner", card.Owner.ID },
+                    { "posX", card.Position.X },
+                    { "posY", card.Position.Y },
+                    { "extra", extra }
+                };
+            return new JObject
+            {
+                { "Type", "SetGate" },
+                { "type", -1 },
+                { "owner", card.Owner.ID },
+                { "posX", card.Position.X },
+                { "posY", card.Position.Y }
+            };
+        }
+
+        public static JObject RemoveGate(GateCard card)
+        {
+            return new JObject
+            {
+                { "Type", "RemoveGate" },
+                { "posX", card.Position.X },
+                { "posY", card.Position.Y }
+            };
+        }
+
+        public static JObject OpenGate(GateCard card)
+        {
+            JObject extra = new();
+
+            switch (card.GetTypeID())
+            {
+                case 0:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as NormalGate).Attribute },
+                        { "Power", (card as NormalGate).Power }
+                    };
+                    break;
+                case 4:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                    };
+                    break;
+            }
+
+            return new JObject
+            {
+                { "Type", "OpenGate" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+                { "posX", card.Position.X },
+                { "posY", card.Position.Y },
+                { "extra", extra }
+            };
+        }
+
+        public static JObject DiscardGate(GateCard card)
+        {
+            JObject extra = new();
+
+            switch (card.GetTypeID())
+            {
+                case 0:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as NormalGate).Attribute },
+                        { "Power", (card as NormalGate).Power }
+                    };
+                    break;
+                case 4:
+                    extra = new JObject
+                    {
+                        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                    };
+                    break;
+            }
+
+            return new JObject
+            {
+                { "Type", "DiscardGate" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+                { "extra", extra }
+            };
+        }
+
+        public static JObject RetractGate(GateCard card)
+        {
+            return new JObject
+            {
+                { "Type", "OpenGate" },
+                { "posX", card.Position.X },
+                { "posY", card.Position.Y },
+            };
+        }
+
+        public static JObject ActivateAbility(AbilityCard card)
+        {
+            return new JObject
+            {
+                { "Type", "ActivateAbility" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+            };
+        }
+
+        public static JObject NegateAbility(AbilityCard card)
+        {
+            return new JObject
+            {
+                { "Type", "NegateAbility" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+            };
+        }
+
+        public static JObject DiscardAbility(AbilityCard card)
+        {
+            return new JObject
+            {
+                { "Type", "DiscardAbility" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+            };
+        }
+
+        public static JObject RestoreAbility(AbilityCard card)
+        {
+            return new JObject
+            {
+                { "Type", "RestoreAbility" },
+                { "type", card.GetTypeID() },
+                { "owner", card.Owner.ID },
+            };
+        }
+
+        public static JObject ThrowBakugan(Bakugan bakugan, int posX, int posY)
+        {
+            return new JObject
+            {
+                { "Type", "ThrowBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "id", bakugan.BID },
+                { "owner", bakugan.Owner.ID },
+                { "posX", posX },
+                { "posY", posY },
+            };
+        }
+
+        public static JObject AddBakugan(Bakugan bakugan, int posX, int posY)
+        {
+            return new JObject
+            {
+                { "Type", "AddBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "id", bakugan.BID },
+                { "owner", bakugan.Owner.ID },
+                { "posX", posX },
+                { "posY", posY },
+            };
+        }
+
+        public static JObject DestroyBakugan(Bakugan bakugan)
+        {
+            return new JObject
+            {
+                { "Type", "DestroyBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID }
+            };
+        }
+
+        public static JObject RemoveBakugan(Bakugan bakugan, int posX, int posY, bool silent)
+        {
+            return new JObject
+            {
+                { "Type", "RemoveBakugan" },
+                { "id", bakugan.BID },
+                { "posX", posX },
+                { "posY", posY },
+                { "silent", silent }
+            };
+        }
+
+        public static JObject RetractBakugan(Bakugan bakugan, int posX, int posY)
+        {
+            return new JObject
+            {
+                { "Type", "RetractBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID },
+                { "posX", posX },
+                { "posY", posY },
+            };
+        }
+
+        public static JObject BoostBakugan(Bakugan bakugan)
+        {
+            return new JObject
+            {
+                { "Type", "BoostBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID }
+            };
+        }
+
+        public static JObject BoostBakuganHand(Bakugan bakugan)
+        {
+            return new JObject
+            {
+                { "Type", "BoostBakuganHand" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID }
+            };
+        }
+
+        public static JObject BaseBoostBakugan(Bakugan bakugan)
+        {
+            return new JObject
+            {
+                { "Type", "BaseBoostBakugan" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID }
+            };
+        }
+
+        public static JObject BaseBoostBakuganHand(Bakugan bakugan)
+        {
+            return new JObject
+            {
+                { "Type", "BaseBoostBakuganHand" },
+                { "type", (int)bakugan.Type },
+                { "attribute", (int)bakugan.Attribute },
+                { "treatment", (int)bakugan.Treatment },
+                { "power", bakugan.Power },
+                { "owner", bakugan.Owner.ID }
+            };
+        }
+
+        public static JObject SpecialThrowUsed(int type, int user)
+        {
+            return new JObject
+            {
+                { "Type", "SpecialThrowUsed" },
+                { "type", type },
+                { "user", user }
+            };
+        }
+
+        public static JObject ContEffectStart(int type)
+        {
+            return new JObject
+            {
+                { "Type", "ContEffectStart" },
+                { "type", type }
+            };
+        }
+
+        public static JObject ContEffectStop(int type)
+        {
+            return new JObject
+            {
+                { "Type", "ContEffectStop" },
+                { "type", type }
+            };
+        }
+
+        public static JObject GateBattleStart(int posX, int posY)
+        {
+            return new JObject
+            {
+                { "Type", "SpecialThrowUsed" },
+                { "posX", posX },
+                { "posY", posY }
+            };
+        }
+    }
+}

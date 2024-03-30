@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.game = game;
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
         }
 
@@ -45,7 +45,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(boost);
+            user.Boost(boost, this);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
@@ -61,7 +61,7 @@ namespace AB_Server.Abilities
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -81,7 +81,7 @@ namespace AB_Server.Abilities
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
-                user.Boost((short)-boost);
+                user.Boost((short)-boost, this);
             }
         }
         //is not negatable after turn ends
@@ -94,7 +94,7 @@ namespace AB_Server.Abilities
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -110,19 +110,19 @@ namespace AB_Server.Abilities
         public SpiritCanyon(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
                 { "Message", "ability_boost_target" },
                 { "Ability", 8 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -133,12 +133,12 @@ namespace AB_Server.Abilities
                 )) }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new SpiritCanyonEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0);
+            var effect = new SpiritCanyonEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
 
             //window for counter
 
@@ -151,14 +151,14 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void ActivateFusion()
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
         public new bool IsActivateable()
         {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Subterra & !x.usedAbilityThisTurn);
+            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

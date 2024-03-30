@@ -7,119 +7,119 @@ namespace AB_Server.Abilities
     internal class CyclingMadnessEffect : INegatable
     {
         public int TypeID { get; }
-        Bakugan user;
-        Game game;
+        Bakugan User;
+        Game Game;
         bool counterNegated = false;
-        IAbilityCard card;
+        IAbilityCard Card;
 
         public Player GetOwner()
         {
-            return user.Owner;
+            return User.Owner;
         }
 
         public CyclingMadnessEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
-            this.user = user;
-            this.game = game;
-            user.usedAbilityThisTurn = true;
+            User = user;
+            Game = game;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
-            this.card = card;
+            Card = card;
         }
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
+            for (int i = 0; i < Game.NewEvents.Length; i++)
             {
-                game.NewEvents[i].Add(new()
+                Game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 14 },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
 
-            user.Boost(80);
+            User.Boost(80, this);
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
+            Game.NegatableAbilities.Add(this);
+            Game.TurnEnd += NegatabilityTurnover;
+            Game.BakuganReturned += FieldLeaveTurnover;
+            Game.BakuganDestroyed += FieldLeaveTurnover;
             
-            game.BakuganDestroyed += Trigger;
-            user.affectingEffects.Add(this);
+            Game.BakuganDestroyed += Trigger;
+            User.affectingEffects.Add(this);
         }
 
         public void Trigger(Bakugan target, ushort owner)
         {
-            user.Owner.AbilityGrave.Remove(card);
-            user.Owner.AbilityHand.Add(card);
-            game.BakuganDestroyed -= Trigger;
+            User.Owner.AbilityGrave.Remove(Card);
+            User.Owner.AbilityHand.Add(Card);
+            Game.BakuganDestroyed -= Trigger;
         }
 
         //is not negatable after turn ends
         public void NegatabilityTurnover()
         {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
+            Game.NegatableAbilities.Remove(this);
+            Game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user & user.affectingEffects.Contains(this))
+            if (leaver == User && User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
+                User.affectingEffects.Remove(this);
+                Game.BakuganReturned -= FieldLeaveTurnover;
+                Game.BakuganDestroyed -= FieldLeaveTurnover;
 
-                game.BakuganDestroyed -= Trigger;
+                Game.BakuganDestroyed -= Trigger;
             }
         }
 
         //remove when negated
         public void Negate(bool asCounter)
         {
-            user.Boost(-80);
+            User.Boost(-80, this);
 
             if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
+            else if (User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
+                User.affectingEffects.Remove(this);
+                Game.BakuganReturned -= FieldLeaveTurnover;
+                Game.BakuganDestroyed -= FieldLeaveTurnover;
 
-                game.BakuganDestroyed -= Trigger;
+                Game.BakuganDestroyed -= Trigger;
             }
-            game.NegatableAbilities.Remove(this);
+            Game.NegatableAbilities.Remove(this);
         }
     }
 
     internal class CyclingMadness : AbilityCard, IAbilityCard
     {
-
         public CyclingMadness(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
+            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "SelectionType", "B" },
                 { "Message", "ability_user" },
                 { "Ability", 14 },
-                { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn).Select(x =>
+                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                     new JObject { { "Type", (int)x.Type },
                         { "Attribute", (int)x.Attribute },
                         { "Treatment", (int)x.Treatment },
@@ -130,12 +130,12 @@ namespace AB_Server.Abilities
                 )) }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new CyclingMadnessEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["bakugan"]], game, 0, this);
+            var effect = new CyclingMadnessEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0, this);
 
             //window for counter
 
@@ -143,29 +143,13 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter()
+        public new void ActivateCounter() => Activate();
+
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new void ActivateFusion()
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return game.BakuganIndex.Any(x => x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Darkus & !x.usedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable();
-        }
-
-        public new int GetTypeID()
-        {
-            return 14;
-        }
+        public new int GetTypeID() => 14;
     }
 }

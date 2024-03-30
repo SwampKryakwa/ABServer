@@ -7,106 +7,106 @@ namespace AB_Server.Abilities
     internal class BlindJudgeEffect : INegatable
     {
         public int TypeID { get; }
-        Bakugan user;
-        Bakugan target;
+        Bakugan User;
+        Bakugan Target;
         IGateCard battle;
-        Game game;
-        short boost;
-        bool counterNegated = false;
-        IAbilityCard card;
+        Game Game;
+        short Boost;
+        bool CounterNegated = false;
+        IAbilityCard Card;
 
         public Player GetOwner()
         {
-            return user.Owner;
+            return User.Owner;
         }
 
         public BlindJudgeEffect(Bakugan user, Bakugan target, Game game, int typeID, IAbilityCard card)
         {
-            this.user = user;
-            this.game = game;
-            this.target = target;
+            User = user;
+            Game = game;
+            Target = target;
             battle = game.GateIndex.First(x => x.Bakugans.Contains(user));
-            user.usedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true;
             TypeID = typeID;
-            this.card = card;
+            Card = card;
         }
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
+            for (int i = 0; i < Game.NewEvents.Length; i++)
             {
-                game.NewEvents[i].Add(new()
+                Game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 19 },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
-            boost = (short)(game.BakuganIndex.Count(x=>x.Attribute == Attribute.Ventus & x.Owner == user.Owner) * -100);
+            Boost = (short)(Game.BakuganIndex.Count(x=>x.Attribute == Attribute.Ventus && x.Owner == User.Owner) * -100);
 
-            target.Boost(boost);
+            Target.Boost(Boost, this);
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
+            Game.NegatableAbilities.Add(this);
+            Game.TurnEnd += NegatabilityTurnover;
+            Game.BakuganReturned += FieldLeaveTurnover;
+            Game.BakuganDestroyed += FieldLeaveTurnover;
             
-            game.BattleOver += Trigger;
-            target.affectingEffects.Add(this);
+            Game.BattleOver += Trigger;
+            Target.affectingEffects.Add(this);
         }
 
         public void Trigger(IGateCard target, ushort winner)
         {
             if (battle == target)
             {
-                user.Owner.AbilityGrave.Remove(card);
-                user.Owner.AbilityHand.Add(card);
-                game.BattleOver -= Trigger;
+                User.Owner.AbilityGrave.Remove(Card);
+                User.Owner.AbilityHand.Add(Card);
+                Game.BattleOver -= Trigger;
             }
         }
 
         //is not negatable after turn ends
         public void NegatabilityTurnover()
         {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
+            Game.NegatableAbilities.Remove(this);
+            Game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == target & target.affectingEffects.Contains(this))
+            if (leaver == Target && Target.affectingEffects.Contains(this))
             {
-                target.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
+                Target.affectingEffects.Remove(this);
+                Game.BakuganReturned -= FieldLeaveTurnover;
+                Game.BakuganDestroyed -= FieldLeaveTurnover;
 
-                game.BattleOver -= Trigger;
+                Game.BattleOver -= Trigger;
             }
         }
 
         //remove when negated
         public void Negate(bool asCounter)
         {
-            target.Boost((short)-boost);
+            Target.Boost((short)-Boost, this);
 
-            if (asCounter) counterNegated = true;
-            else if (target.affectingEffects.Contains(this))
+            if (asCounter) CounterNegated = true;
+            else if (Target.affectingEffects.Contains(this))
             {
-                target.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
+                Target.affectingEffects.Remove(this);
+                Game.BakuganReturned -= FieldLeaveTurnover;
+                Game.BakuganDestroyed -= FieldLeaveTurnover;
 
-                game.BattleOver -= Trigger;
+                Game.BattleOver -= Trigger;
             }
-            game.NegatableAbilities.Remove(this);
+            Game.NegatableAbilities.Remove(this);
         }
     }
 
@@ -116,13 +116,14 @@ namespace AB_Server.Abilities
         public BlindJudge(int cID, Player owner)
         {
             CID = cID;
-            this.owner = owner;
-            game = owner.game;
+            Owner = owner;
+            Game = owner.game;
+            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
         {
-            game.NewEvents[owner.ID].Add(new JObject
+            Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
                 { "Count", 2 },
@@ -131,7 +132,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
                         { "Ability", 19 },
-                        { "SelectionBakugans", new JArray(game.BakuganIndex.Where(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Ventus & !x.usedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -150,12 +151,12 @@ namespace AB_Server.Abilities
                 }
             });
 
-            game.awaitingAnswers[owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public void Resolve()
+        public new void Resolve()
         {
-            var effect = new BlindJudgeEffect(game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][0]["bakugan"]], game.BakuganIndex[(int)game.IncomingSelection[owner.ID]["array"][1]["bakugan"]], game, 0, this);
+            var effect = new BlindJudgeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 0, this);
 
             //window for counter
 
@@ -168,14 +169,9 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void ActivateFusion()
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return game.BakuganIndex.Any(x => x.InBattle & x.Position >= 0 & x.Owner == owner & x.Attribute == Attribute.Ventus & !x.usedAbilityThisTurn);
         }
 
         public new bool IsActivateable(bool asFusion)

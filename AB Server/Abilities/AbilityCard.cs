@@ -25,7 +25,8 @@
             (x, y) => new JudgementNight(x, y),
             (x, y) => new Uptake(x, y),
             (x, y) => new TornadoWall(x, y),
-            (x, y) => new BlindJudge(x, y)
+            (x, y) => new BlindJudge(x, y),
+            (x, y) => new Tsunami(x, y)
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)

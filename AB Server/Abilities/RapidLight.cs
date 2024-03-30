@@ -65,6 +65,7 @@ namespace AB_Server.Abilities
             CID = cID;
             Owner = owner;
             Game = owner.game;
+            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn && Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2;
         }
 
         public new void Activate()
@@ -78,7 +79,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 4 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => Game.BakuganIndex.Count(x=>x.Owner.SideID != Owner.SideID) >= 2 && x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

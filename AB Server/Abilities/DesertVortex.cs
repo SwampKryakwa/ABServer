@@ -65,18 +65,12 @@ namespace AB_Server.Abilities
             CID = cID;
             Owner = owner;
             Game = owner.game;
+            BakuganIsValid = x => x.Owner == owner && x.OnField() && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn && x.HasNeighbourEnemies();
         }
 
         public new void Activate()
         {
-            List<GateCard> notNull = Game.Field.Cast<GateCard>().Where(x => x != null).ToList();
-            List<GateCard> hasEnemies = notNull.Where(x => x.Bakugans.Any(z => z.Owner.SideID != Owner.SideID)).ToList();
-            List<Bakugan> possibleUsers = Game.BakuganIndex.Where(x => x.Owner == Owner && x.Attribute == Attribute.Subterra && x.OnField()).ToList();
-            List<Bakugan> users = new();
-            foreach (Bakugan b in possibleUsers)
-            {
-                if (hasEnemies.Any(x => x.IsTouching(b.Position as GateCard))) users.Add(b);
-            }
+            List<Bakugan> users = Game.BakuganIndex.Where(BakuganIsValid).ToList();
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },

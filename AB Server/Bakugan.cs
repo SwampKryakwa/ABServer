@@ -350,5 +350,20 @@ namespace AB_Server
         {
             return Position.GetType() == typeof(GraveBakugan);
         }
+
+        public bool HasNeighbourEnemies()
+        {
+            if (!OnField() ||
+                !game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField())) return false;
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            (int X, int Y) = (Position as GateCard).Position;
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
+            if (game.GetGateByCoord(X - 1, Y) != null) return true;
+            if (game.GetGateByCoord(X + 1, Y) != null) return true;
+            if (game.GetGateByCoord(X, Y - 1) != null) return true;
+            if (game.GetGateByCoord(X, Y + 1) != null) return true;
+            return false;
+        }
     }
 }

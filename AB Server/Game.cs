@@ -22,6 +22,11 @@ namespace AB_Server
 
         public List<Player> Players;
         public GateCard[,] Field;
+        public GateCard? GetGateByCoord(int X, int Y)
+        {
+            if (X < 0 || Y < 0 || X >= Field.GetLength(0) || Y >= Field.GetLength(1)) return null;
+            return Field[X, Y];
+        }
 
         public ushort[] Sides;
         public List<Bakugan> BakuganIndex = new();

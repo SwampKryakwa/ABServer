@@ -131,6 +131,7 @@ namespace AB_Server.Abilities
             CID = cID;
             Owner = owner;
             Game = owner.game;
+            BakuganIsValid = x => !x.InGrave() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
@@ -144,7 +145,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
                         { "Ability", 18 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (x.OnField() || (!x.OnField() && x.InHands)) && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

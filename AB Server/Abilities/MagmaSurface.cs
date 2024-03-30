@@ -120,6 +120,7 @@ namespace AB_Server.Abilities
             CID = cID;
             Owner = owner;
             Game = owner.game;
+            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && Game.GateIndex.Any(y => y.IsOpen) && !x.UsedAbilityThisTurn;
         }
 
         public new void Activate()
@@ -133,7 +134,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 6 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && Game.GateIndex.Any(y=>(y as GateCard).IsTouching(x.Position as GateCard) && y.Bakugans.Any(y=>y.Owner.SideID != x.Owner.SideID)) && !x.UsedAbilityThisTurn).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

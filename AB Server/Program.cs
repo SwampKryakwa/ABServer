@@ -114,7 +114,10 @@ namespace AB_Server
 
                         case "leaveroom":
                             if (Rooms.ContainsKey((string)postedJson["roomName"]))
+                            {
                                 Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]);
+                                if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
+                            }
                             break;
 
                         case "updateready":

@@ -86,7 +86,16 @@ namespace AB_Server
                     }
 
                     if (request.Body == "") return;
-                    JObject postedJson = JObject.Parse(request.Body);
+                    JObject postedJson;
+                    try
+                    {
+                        postedJson = JObject.Parse(request.Body);
+                    }
+                    catch
+                    {
+                        Console.WriteLine(request.Body);
+                        throw;
+                    }
 
                     string requestedResource = request.Url.ToString().Split('/')[^1];
 
@@ -97,6 +106,10 @@ namespace AB_Server
                     int player;
                     switch (requestedResource)
                     {
+                        case "ping":
+                            answer.Add("response", true);
+                            break;
+
                         case "createroom":
                             string room = RandomString(8);
                             Rooms.Add(room, new Room((short)postedJson["playerCount"]));
@@ -180,7 +193,7 @@ namespace AB_Server
                         case "join":
                             GID = (long)postedJson["gid"];
                             game = GIDToGame[GID];
-                            answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"]));
+                            answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
                             answer.Add("playerCount", game.Players.Where(x => x != null).Count());
                             if (game.PlayerCount == game.Players.Count)
                                 new Thread(game.Initiate).Start();

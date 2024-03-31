@@ -70,17 +70,16 @@ namespace AB_Server.Abilities
 
         public new void Activate()
         {
-            List<Bakugan> users = Game.BakuganIndex.Where(BakuganIsValid).ToList();
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
-                { "Count", 7 },
+                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
                         { "Ability", 7 },
-                        { "SelectionBakugans", new JArray(users.Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).ToList().Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -88,14 +87,8 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "G?" },
-                        { "Message", "gate_move_target" },
-                        { "Ability", 7 },
-                        { "SelectionRange", "TGHE" },
-                        { "CompareTo", 0 }
-                    } }
+                        )) } }
+                }
                 }
             });
 
@@ -104,12 +97,55 @@ namespace AB_Server.Abilities
 
         public new void Resolve()
         {
-            var effect = new DesertVortexEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.Field[(int)Game.IncomingSelection[Owner.ID]["array"][1]["pos"] / 10, (int)Game.IncomingSelection[Owner.ID]["array"][1]["pos"] % 10], Game, 1);
+
+            Bakugan user = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            if (!BakuganIsValid(user))
+            {
+                Activate();
+                return;
+            }
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_target" },
+                        { "Ability", 7 },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (user.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (user.Position as GateCard).Position.Y)) == 1).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID }
+                            }
+                        )) } }
+                }
+                }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = () => EndResolve(user);
+        }
+
+        public void EndResolve(Bakugan user)
+        {
+            var effect = new DesertVortexEffect(user, Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]].Position as GateCard, Game, 1);
 
             //window for counter
 
             effect.Activate();
             Dispose();
+        }
+
+        public bool ValidateUser(Bakugan user) => BakuganIsValid(user);
+
+        public bool ValidateTarget(Bakugan user, Bakugan target)
+        {
+            return false;
         }
 
         public new void ActivateCounter()
@@ -125,8 +161,8 @@ namespace AB_Server.Abilities
         public new bool IsActivateable()
         {
             List<GateCard> notNull = Game.Field.Cast<GateCard>().Where(x => x != null).ToList();
-            List<GateCard> hasEnemies = notNull.Where(x=>x.Bakugans.Any(z => z.Owner.SideID != Owner.SideID)).ToList();
-            List<Bakugan> possibleUsers = Game.BakuganIndex.Where(x => x.Owner == Owner && x.Attribute == Attribute.Subterra && x.OnField()).ToList(); 
+            List<GateCard> hasEnemies = notNull.Where(x => x.Bakugans.Any(z => z.Owner.SideID != Owner.SideID)).ToList();
+            List<Bakugan> possibleUsers = Game.BakuganIndex.Where(x => x.Owner == Owner && x.Attribute == Attribute.Subterra && x.OnField()).ToList();
             foreach (Bakugan b in possibleUsers)
             {
                 if (hasEnemies.Any(x => x.IsTouching(b.Position as GateCard))) return true;

@@ -47,7 +47,7 @@
         public void ActivateCounter() =>
             throw new NotImplementedException();
 
-        public void ActivateFusion(IAbilityCard fusedWith, Bakugan user) =>
+        public void ActivateFusion(IAbilityCard fusedWith, Bakugan user, Action finishOriginal) =>
             throw new NotImplementedException();
 
         public new void Resolve() =>
@@ -72,7 +72,7 @@
         public int GetTypeID();
         public void Activate();
         public void ActivateCounter();
-        public void ActivateFusion(IAbilityCard fusedWith, Bakugan user);
+        public void ActivateFusion(IAbilityCard fusedWith, Bakugan user, Action finishOriginal);
         public new void Resolve();
 
         public bool IsActivateable();

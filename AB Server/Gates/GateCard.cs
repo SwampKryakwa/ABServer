@@ -7,14 +7,14 @@ namespace AB_Server.Gates
 {
     internal class GateCard : IGateCard
     {
-        static Func<int, Player, IGateCard>[] GateCtrs = new Func<int, Player, IGateCard>[]
-        {
+        static Func<int, Player, IGateCard>[] GateCtrs =
+        [
             (x, y) => { throw new Exception("IncorrectGateCreation"); },
             (x, y) => new TripleBattle(x, y),
             (x, y) => new QuartetBattle(x, y),
             (x, y) => new MindGhost(x, y),
             (x, y) => { throw new Exception("IncorrectGateCreation"); },
-        };
+        ];
 
         public static IGateCard CreateCard(Player owner, int cID, int type)
         {

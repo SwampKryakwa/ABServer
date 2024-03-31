@@ -117,9 +117,9 @@ namespace AB_Server
             }
         }
 
-        public int AddPlayer(JObject deck, long UUID)
+        public int AddPlayer(JObject deck, long UUID, string playerName)
         {
-            Players.Add(Player.FromJson(loggedPlayers, loggedPlayers, deck, this));
+            Players.Add(Player.FromJson(loggedPlayers, loggedPlayers, deck, this, playerName));
             UUIDToPid.Add(UUID, loggedPlayers);
             loggedPlayers++;
             return loggedPlayers - 1;
@@ -175,6 +175,7 @@ namespace AB_Server
                         selection = null;
                     }
 
+                    foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x=>x.DisplayName).ToArray()) } });
                     foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
                     Started = true;
                 };
@@ -403,28 +404,28 @@ namespace AB_Server
             return moves;
         }
 
-        public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user, Action finishOriginal)
         {
-            awaitingAnswers[player.ID] = () => CheckFusion(player, ability, user);
+            awaitingAnswers[player.ID] = () => CheckFusion(player, ability, user, finishOriginal);
             NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.CustomSelectionEvent("FusionPrompt", "promt_answer_yes", "prompt_answer_no")));
         }
 
-        public void CheckFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void CheckFusion(Player player, IAbilityCard ability, Bakugan user, Action finishOriginal)
         {
             if (!(bool)IncomingSelection[player.ID]["answer"]) return;
 
             player.HasUsedFusion = true;
-            awaitingAnswers[player.ID] = () => ResolveFusion(player, ability, user);
+            awaitingAnswers[player.ID] = () => ResolveFusion(player, ability, user, finishOriginal);
 
             NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateable()).ToArray())));
         }
 
-        public void ResolveFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void ResolveFusion(Player player, IAbilityCard ability, Bakugan user, Action finishOriginal)
         {
             int id = (int)IncomingSelection[player.ID]["id"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
-                AbilityIndex[id].ActivateFusion(ability, user);
+                AbilityIndex[id].ActivateFusion(ability, user, finishOriginal);
             }
         }
 

@@ -103,12 +103,48 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
+        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user, Action finishOriginal)
+        {
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "G" },
+                        { "Message", "gate_negate_target" },
+                        { "Ability", 2 },
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {
+                            { "Type", x.GetTypeID() },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y }
+                        })) }
+                    } }
+                }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = () => ResolveFusion(user, finishOriginal);
+        }
+
         public new void Resolve()
         {
-            var effect = new BackfireEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]], Game, 1);
+            Bakugan user = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            var effect = new BackfireEffect(user, Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]], Game, 1);
+
+            Game.SuggestFusion(Owner, this, user, () =>
+            {
+                effect.Activate();
+                Dispose();
+            });
+        }
+
+        public void ResolveFusion(Bakugan user, Action finishOriginal)
+        {
+            var effect = new BackfireEffect(user, Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["gate"]], Game, 1);
 
             //window for counter
 
+            finishOriginal();
             effect.Activate();
             Dispose();
         }

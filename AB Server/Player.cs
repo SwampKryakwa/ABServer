@@ -44,17 +44,18 @@ namespace AB_Server
 
         public Game game;
 
-        public Player(ushort id, ushort sideID, Game game)
+        public Player(ushort id, ushort sideID, Game game, string displayName)
         {
             ID = id;
             SideID = sideID;
             this.game = game;
             BakuganGrave = new(this);
+            DisplayName = displayName;
         }
 
-        public static Player FromJson(ushort id, ushort sideID, JObject deck, Game game)
+        public static Player FromJson(ushort id, ushort sideID, JObject deck, Game game, string displayName)
         {
-            Player player = new(id, sideID, game);
+            Player player = new(id, sideID, game, displayName);
 
             //player.DisplayName = deck["dispName"].ToString();
 

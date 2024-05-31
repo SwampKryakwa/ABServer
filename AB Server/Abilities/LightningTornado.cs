@@ -5,7 +5,7 @@ namespace AB_Server.Abilities
 {
     internal class LightningTornadoEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
         Game game;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -108,7 +108,7 @@ namespace AB_Server.Abilities
     {
         public LightningTornado(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn;
@@ -174,7 +174,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

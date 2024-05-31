@@ -19,7 +19,7 @@ namespace AB_Server.Gates
             {
                 DisallowedPlayers[i] = false;
             }
-            CID = cID;
+            CardId = cID;
         }
 
         public new int GetTypeID()

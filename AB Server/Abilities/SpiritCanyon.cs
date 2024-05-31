@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class SpiritCanyonEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         Bakugan user;
         Game game;
         short boost;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             this.user = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -109,7 +109,7 @@ namespace AB_Server.Abilities
 
         public SpiritCanyon(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn;
@@ -164,7 +164,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

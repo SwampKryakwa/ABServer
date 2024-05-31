@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class LightHelixEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         Bakugan user;
         Game game;
         bool counterNegated = false;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             this.user = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
             this.card = card;
         }
 
@@ -106,7 +106,7 @@ namespace AB_Server.Abilities
 
         public LightHelix(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn;
@@ -161,7 +161,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

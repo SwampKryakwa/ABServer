@@ -34,11 +34,11 @@ namespace AB_Server
 
         public List<Bakugan> BakuganOwned = new();
 
-        public bool HasSetGate;
-        public bool HasThrownBakugan;
-        public bool HasSkippedTurn;
-        public bool HasUsedFusion = false;
-        public bool HasUsedCounter = false;
+        public bool HadSetGate;
+        public bool HadThrownBakugan;
+        public bool HadSkippedTurn;
+        public bool HadUsedFusion = false;
+        public bool HadUsedCounter = false;
 
         public short hp = 3;
 
@@ -98,12 +98,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HasThrownBakugan;
-        }
-
-        public bool HasActivatableAbilities()
-        {
-            return AbilityHand.Any(x => x.IsActivateable());
+            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HadThrownBakugan;
         }
 
         public bool HasActivatableAbilities(bool asFusion)
@@ -113,7 +108,7 @@ namespace AB_Server
 
         public bool HasSettableGates()
         {
-            return GateHand.Count != 0 && !HasSetGate;
+            return GateHand.Count != 0 && !HadSetGate;
         }
 
         public bool HasOpenableGates()
@@ -139,7 +134,7 @@ namespace AB_Server
 
         public List<IAbilityCard> ActivateableAbilities()
         {
-            return AbilityHand.Where(x => x.IsActivateable()).ToList();
+            return AbilityHand.Where(x => x.IsActivateable(false)).ToList();
         }
 
         public List<IGateCard> OpenableGates()
@@ -156,7 +151,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isFightGoing && (HasThrownBakugan | !HasSkippedTurn);
+            return !game.isFightGoing && (HadThrownBakugan | !HadSkippedTurn);
         }
 
         public bool CanEndBattle()

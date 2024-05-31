@@ -5,7 +5,7 @@ namespace AB_Server.Abilities
 {
     internal class ChainsDesEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
         Game game;
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -107,7 +107,7 @@ namespace AB_Server.Abilities
     {
         public ChainsDes(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => !x.InHands && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;

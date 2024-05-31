@@ -5,7 +5,7 @@ namespace AB_Server.Abilities
 {
     internal class UptakeEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
         Game game;
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             this.game = game;
             target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -107,7 +107,7 @@ namespace AB_Server.Abilities
     {
         public Uptake(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Aquos && !x.UsedAbilityThisTurn;
@@ -168,7 +168,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

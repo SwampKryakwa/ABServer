@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class HaosFreezeEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         Game game;
         bool counterNegated = false;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
             target = game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(User));
         }
 
@@ -104,7 +104,7 @@ namespace AB_Server.Abilities
     {
         public HaosFreeze(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn;
@@ -158,7 +158,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

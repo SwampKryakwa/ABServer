@@ -25,7 +25,7 @@ namespace AB_Server.Gates
 
         private protected Game game;
 
-        public int CID { get; set; }
+        public int CardId { get; set; }
 
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
@@ -156,7 +156,7 @@ namespace AB_Server.Gates
                         { "Type", (this as IGateCard).GetTypeID() } }
                     },
                     { "Owner", Owner.ID },
-                    { "CID", CID }
+                    { "CID", CardId }
                 };
                 if ((this as IGateCard).GetTypeID() == 0)
                 {
@@ -226,10 +226,8 @@ namespace AB_Server.Gates
             return numbSides.Where(x => x > 0).Count() >= 2;
         }
 
-        public int GetTypeID()
-        {
+        public int TypeId =>
             throw new NotImplementedException();
-        }
 
         public bool IsTouching(IGateCard card)
         {
@@ -263,7 +261,7 @@ namespace AB_Server.Gates
 
     interface IGateCard : BakuganContainer
     {
-        public int CID { get; set; }
+        public int CardId { get; set; }
         public bool OnField { get; set; }
         public bool IsOpen { get; set; }
         public List<Bakugan> Bakugans { get; set; }
@@ -272,7 +270,7 @@ namespace AB_Server.Gates
         public bool[] DisallowedPlayers { get; set; }
         public (int X, int Y) Position { get; set; }
 
-        public int GetTypeID();
+        public int TypeId { get; }
         public void SetStart(int posX, int posY);
         public void Set(int posX, int posY);
         public void Open();

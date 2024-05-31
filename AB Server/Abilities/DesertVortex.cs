@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class DesertVortexEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         IGateCard target;
         Game game;
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -62,7 +62,7 @@ namespace AB_Server.Abilities
     {
         public DesertVortex(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.Owner == owner && x.OnField() && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn && x.HasNeighbourEnemies();
@@ -172,7 +172,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

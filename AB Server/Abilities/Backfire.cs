@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class BackfireEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         IGateCard target;
         Game game;
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -61,7 +61,7 @@ namespace AB_Server.Abilities
     {
         public Backfire(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Pyrus && !x.UsedAbilityThisTurn && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
@@ -92,7 +92,7 @@ namespace AB_Server.Abilities
                         { "Message", "gate_negate_target" },
                         { "Ability", 2 },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {
-                            { "Type", x.GetTypeID() },
+                            { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y }
                         })) }
@@ -115,7 +115,7 @@ namespace AB_Server.Abilities
                         { "Message", "gate_negate_target" },
                         { "Ability", 2 },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {
-                            { "Type", x.GetTypeID() },
+                            { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y }
                         })) }
@@ -149,14 +149,14 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter() => IsActivateable();
+        public new void ActivateCounter() => IsActivateable(false);
 
         public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new bool IsActivateable(bool asFusion) => IsActivateable();
+        public new bool IsActivateable(bool asFusion) => IsActivateable(false);
 
         public new int GetTypeID() => 2;
     }

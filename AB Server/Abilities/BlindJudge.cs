@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class BlindJudgeEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         Bakugan User;
         Bakugan Target;
         IGateCard battle;
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities
             Target = target;
             battle = game.GateIndex.First(x => x.Bakugans.Contains(user));
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
             Card = card;
         }
 
@@ -115,7 +115,7 @@ namespace AB_Server.Abilities
 
         public BlindJudge(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
@@ -176,7 +176,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

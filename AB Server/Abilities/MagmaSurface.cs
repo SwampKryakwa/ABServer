@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class MagmaSurfaceEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         IGateCard target;
         IGateCard replacement;
@@ -24,7 +24,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -49,9 +49,9 @@ namespace AB_Server.Abilities
                 });
             }
 
-            replacement = new NormalGate(Attribute.Subterra, 50, target.CID, game, target.Owner);
+            replacement = new NormalGate(Attribute.Subterra, 50, target.CardId, game, target.Owner);
             game.Field[target.Position.X, target.Position.Y] = replacement as GateCard;
-            game.GateIndex[target.CID] = replacement;
+            game.GateIndex[target.CardId] = replacement;
 
             replacement.DisallowedPlayers = target.DisallowedPlayers;
             replacement.Position = target.Position;
@@ -70,7 +70,7 @@ namespace AB_Server.Abilities
                         { "Power", 100 }
                     }},
                     { "Owner", target.Owner.ID },
-                    { "CID", target.CID }
+                    { "CID", target.CardId }
                 };
             }
 
@@ -100,7 +100,7 @@ namespace AB_Server.Abilities
             {
                 game.Field[replacement.Position.X, replacement.Position.Y] = target as GateCard;
             }
-            game.GateIndex[replacement.CID] = target;
+            game.GateIndex[replacement.CardId] = target;
         }
 
         //remove when negated
@@ -117,7 +117,7 @@ namespace AB_Server.Abilities
     {
         public MagmaSurface(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && Game.GateIndex.Any(y => y.IsOpen) && !x.UsedAbilityThisTurn;
@@ -148,7 +148,7 @@ namespace AB_Server.Abilities
                         { "Message", "gate_negate_target" },
                         { "Ability", 6 },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
-                            { "Type", x.GetTypeID() },
+                            { "Type", x.TypeId },
                             { "PosX", x.Position.X }, { "PosY", x.Position.Y }
                         })) }
                     } }
@@ -185,7 +185,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

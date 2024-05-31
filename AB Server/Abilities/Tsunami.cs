@@ -43,7 +43,7 @@ namespace AB_Server.Abilities
     {
         public Tsunami(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.Type == BakuganType.Knight && Game.BakuganIndex.Count(y => y != x && y.Attribute == Attribute.Aquos && y.OnField() && y.Owner.SideID == x.Owner.SideID) >= 2 && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Aquos && !x.UsedAbilityThisTurn;
@@ -79,14 +79,14 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void ActivateCounter() => IsActivateable();
+        public new void ActivateCounter() => IsActivateable(false);
 
         public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
         {
             Activate();
         }
 
-        public new bool IsActivateable(bool asFusion) => IsActivateable();
+        public new bool IsActivateable(bool asFusion) => IsActivateable(false);
 
         public new int GetTypeID() => 20;
     }

@@ -20,7 +20,7 @@ namespace AB_Server.Gates
             {
                 DisallowedPlayers[i] = false;
             }
-            CID = cID;
+            CardId = cID;
             Attribute = attribute;
         }
 

@@ -5,7 +5,7 @@ namespace AB_Server.Abilities
 {
     internal class TornadoWallEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
         Game game;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             this.game = game;
             target = target;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -128,7 +128,7 @@ namespace AB_Server.Abilities
     {
         public TornadoWall(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => !x.InGrave() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
@@ -189,7 +189,7 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateable(bool asFusion)
         {
-            return IsActivateable();
+            return IsActivateable(false);
         }
 
         public new int GetTypeID()

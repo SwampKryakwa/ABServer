@@ -25,13 +25,23 @@ namespace AB_Server
             };
         }
 
+        public static JObject CounterSelectionEvent(int userId, int abilityId)
+        {
+            return new JObject
+            {
+                { "type", "R" },
+                { "user", userId },
+                { "ability", abilityId }
+            };
+        }
+
         public static JObject AbilitySelection(string prompt, params IAbilityCard[] abilities)
         {
             return new JObject
             {
                 { "type", "A" },
                 { "prompt", prompt },
-                { "options", JArray.FromObject(abilities.Select(x => new JObject { { "type", x.GetTypeID() }, { "id", x.CID } } )) }
+                { "options", JArray.FromObject(abilities.Select(x => new JObject { { "type", x.TypeId }, { "id", x.CardId } } )) }
             };
         }
 
@@ -39,7 +49,7 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.GetTypeID())
+            switch (card.TypeId)
             {
                 case 0:
                     extra = new JObject
@@ -60,7 +70,7 @@ namespace AB_Server
                 return new JObject
                 {
                     { "Type", "SetGate" },
-                    { "type", card.GetTypeID() },
+                    { "type", card.TypeId },
                     { "owner", card.Owner.ID },
                     { "posX", card.Position.X },
                     { "posY", card.Position.Y },
@@ -90,7 +100,7 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.GetTypeID())
+            switch (card.TypeId)
             {
                 case 0:
                     extra = new JObject
@@ -110,7 +120,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "OpenGate" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
                 { "posX", card.Position.X },
                 { "posY", card.Position.Y },
@@ -122,7 +132,7 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.GetTypeID())
+            switch (card.TypeId)
             {
                 case 0:
                     extra = new JObject
@@ -142,7 +152,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "DiscardGate" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
                 { "extra", extra }
             };
@@ -163,7 +173,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "ActivateAbility" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
             };
         }
@@ -173,7 +183,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "NegateAbility" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
             };
         }
@@ -183,7 +193,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "DiscardAbility" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
             };
         }
@@ -193,7 +203,7 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "RestoreAbility" },
-                { "type", card.GetTypeID() },
+                { "type", card.TypeId },
                 { "owner", card.Owner.ID },
             };
         }

@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
 {
     internal class CyclingMadnessEffect : INegatable
     {
-        public int TypeID { get; }
+        public int TypeId { get; }
         Bakugan User;
         Game Game;
         bool counterNegated = false;
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             User = user;
             Game = game;
             user.UsedAbilityThisTurn = true;
-            TypeID = typeID;
+            TypeId = typeID;
             Card = card;
         }
 
@@ -105,7 +105,7 @@ namespace AB_Server.Abilities
     {
         public CyclingMadness(int cID, Player owner)
         {
-            CID = cID;
+            CardId = cID;
             Owner = owner;
             Game = owner.game;
             BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;

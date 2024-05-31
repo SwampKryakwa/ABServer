@@ -18,7 +18,7 @@ namespace AB_Server.Gates
             {
                 DisallowedPlayers[i] = false;
             }
-            CID = cID;
+            CardId = cID;
         }
 
         public new int GetTypeID()
@@ -55,7 +55,7 @@ namespace AB_Server.Gates
                         { "Type", 0 },
                         { "Attribute", (int)Attribute },
                         { "Power", Power },
-                        { "CID", CID } }
+                        { "CID", CardId } }
                     }
                 });
             }

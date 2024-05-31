@@ -18,7 +18,7 @@ namespace AB_Server.Gates
             {
                 DisallowedPlayers[i] = false;
             }
-            CID = cID;
+            CardId = cID;
         }
 
         Bakugan first = null;

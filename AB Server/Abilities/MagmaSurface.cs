@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -11,12 +10,9 @@ namespace AB_Server.Abilities
         IGateCard target;
         IGateCard replacement;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public MagmaSurfaceEffect(Bakugan user, IGateCard target, Game game, int typeID)
         {
@@ -29,7 +25,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            if (counterNegated) return;
+
 
             target.Negate();
 
@@ -104,12 +100,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter)
-                counterNegated = true;
-            else
-                Restore();
+            Restore();
         }
     }
 
@@ -120,11 +113,11 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && Game.GateIndex.Any(y => y.IsOpen) && !x.UsedAbilityThisTurn;
         }
 
-        public new void Activate()
+        public new void Setup(bool asCounter)
         {
+            IAbilityCard ability = this;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
@@ -133,8 +126,8 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
-                        { "Ability", 6 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -146,51 +139,70 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "G" },
                         { "Message", "gate_negate_target" },
-                        { "Ability", 6 },
+                        { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X }, { "PosY", x.Position.Y }
                         })) }
-                    } }
-                }
+                    }
+                } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
+        }
+
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        {
+            User = user;
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "G" },
+                        { "Message", "gate_negate_target" },
+                        { "Ability", TypeId },
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X }, { "PosY", x.Position.Y }
+                        })) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = ActivateFusion;
+        }
+
+        private IGateCard target;
+
+        public new void Activate()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
+        public void ActivateFusion()
+        {
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["gate"]];
+
+            Game.CheckChain(Owner, this, User);
         }
 
         public new void Resolve()
         {
-            var effect = new MagmaSurfaceEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]], Game, 1);
+            if (!counterNegated)
+                new MagmaSurfaceEffect(User, target, Game, 1).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Subterra && Game.GateIndex.Any(y => y.IsOpen);
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && Game.GateIndex.Any(y => (y as GateCard).IsTouching(x.Position as GateCard) && y.Bakugans.Any(y => y.Owner.SideID != x.Owner.SideID)) && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 6;
-        }
+        public new int TypeId { get; } = 6;
     }
 }

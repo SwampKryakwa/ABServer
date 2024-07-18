@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -10,12 +9,8 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
         short boost;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+        public Player Owner { get => User.Owner; }
 
         public ChainsDesEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
@@ -71,10 +66,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
-            else if (User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 target.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -103,18 +97,20 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class ChainsDes : AbilityCard, IAbilityCard
+    internal class ChainsDes : AbilityCard, IAbilityCard, INegatable
     {
         public ChainsDes(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => !x.InHands && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
         }
 
-        public new void Activate()
+        public new int TypeId { get; } = 15;
+
+        public new void Setup(bool asCounter)
         {
+            IAbilityCard ability = this;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
@@ -123,8 +119,8 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
-                        { "Ability", 15 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -136,7 +132,7 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_deboost_target" },
-                        { "Ability", 15 },
+                        { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.OnField()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
@@ -153,26 +149,58 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        {
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_deboost_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.OnField()).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID }
+                            }
+                        )) }
+                    } }
+                }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Resolve;
+        }
+
+        private Bakugan target;
+
+        public new void Activate()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
+        public void ActivateFusion()
+        {
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
         public new void Resolve()
         {
-            var effect = new ChainsDesEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 1);
-
-            //window for counter
-
-            effect.Activate();
+            if (!counterNegated)
+                new ChainsDesEffect(User, target, Game, TypeId).Activate();
             Dispose();
         }
 
-        public new void ActivateCounter() => Activate();
-
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new int GetTypeID()
-        {
-            return 15;
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            !user.InHands && user.Owner == Owner && user.Attribute == Attribute.Darkus;
     }
 }

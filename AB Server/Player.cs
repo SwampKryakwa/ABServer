@@ -1,7 +1,6 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 
 namespace AB_Server
 {
@@ -101,9 +100,14 @@ namespace AB_Server
             return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HadThrownBakugan;
         }
 
-        public bool HasActivatableAbilities(bool asFusion)
+        public bool HasActivateableAbilities()
         {
-            return AbilityHand.Any(x => x.IsActivateable(asFusion));
+            return AbilityHand.Any(x => x.IsActivateable());
+        }
+
+        public bool HasActivateableFusionAbilities(Bakugan user)
+        {
+            return AbilityHand.Any(x => x.IsActivateableFusion(user));
         }
 
         public bool HasSettableGates()
@@ -134,7 +138,7 @@ namespace AB_Server
 
         public List<IAbilityCard> ActivateableAbilities()
         {
-            return AbilityHand.Where(x => x.IsActivateable(false)).ToList();
+            return AbilityHand.Where(x => x.IsActivateable()).ToList();
         }
 
         public List<IGateCard> OpenableGates()

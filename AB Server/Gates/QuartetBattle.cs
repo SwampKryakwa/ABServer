@@ -1,12 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class QuartetBattle : GateCard, IGateCard
     {
@@ -22,10 +14,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int GetTypeID()
-        {
-            return 2;
-        }
+        public new int TypeId { get; } = 2;
 
         public new void Negate()
         {

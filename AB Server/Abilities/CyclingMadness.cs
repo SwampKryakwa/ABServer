@@ -1,6 +1,4 @@
-﻿using AB_Server.Gates;
-using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
@@ -9,13 +7,9 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan User;
         Game Game;
-        bool counterNegated = false;
         IAbilityCard Card;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+        public Player Owner { get => User.Owner; }
 
         public CyclingMadnessEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
@@ -50,7 +44,7 @@ namespace AB_Server.Abilities
             Game.TurnEnd += NegatabilityTurnover;
             Game.BakuganReturned += FieldLeaveTurnover;
             Game.BakuganDestroyed += FieldLeaveTurnover;
-            
+
             Game.BakuganDestroyed += Trigger;
             User.affectingEffects.Add(this);
         }
@@ -84,12 +78,11 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
             User.Boost(-80, this);
 
-            if (asCounter) counterNegated = true;
-            else if (User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 User.affectingEffects.Remove(this);
                 Game.BakuganReturned -= FieldLeaveTurnover;
@@ -108,48 +101,19 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_user" },
-                { "Ability", 14 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new CyclingMadnessEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0, this);
+            if (!counterNegated)
+                new CyclingMadnessEffect(User, Game, TypeId, this).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter() => Activate();
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Darkus;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new int GetTypeID() => 14;
+        public new int TypeId { get; } = 14;
     }
 }

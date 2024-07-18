@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -10,12 +9,9 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
         short boost;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public UptakeEffect(Bakugan user, Game game, int typeID)
         {
@@ -71,10 +67,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
-            else if (User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 target.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -110,70 +105,19 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Aquos && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelectionArr" },
-                { "Count", 1 },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "B" },
-                        { "Message", "ability_boost_target" },
-                        { "Ability", 17 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
-                                { "BID", x.BID }
-                            }
-                        )) } 
-                    }
-                }
-                }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new UptakeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, 1);
+            if (!counterNegated)
+                new UptakeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Aquos;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Aquos && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 17;
-        }
+        public new int TypeId { get; } = 17;
     }
 }

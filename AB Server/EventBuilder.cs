@@ -25,6 +25,15 @@ namespace AB_Server
             };
         }
 
+        public static JObject BoolSelectionEvent(string prompt)
+        {
+            return new JObject
+            {
+                { "type", "B" },
+                { "prompt", prompt }
+            };
+        }
+
         public static JObject CounterSelectionEvent(int userId, int abilityId)
         {
             return new JObject

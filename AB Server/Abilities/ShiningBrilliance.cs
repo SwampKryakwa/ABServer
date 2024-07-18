@@ -1,23 +1,19 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
     internal class ShiningBrillianceEffect : INegatable
     {
         public int TypeId { get; }
-        Bakugan user;
+        Bakugan User;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return user.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public ShiningBrillianceEffect(Bakugan user, Game game, int typeID)
         {
-            this.user = user;
+            this.User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
@@ -31,20 +27,20 @@ namespace AB_Server.Abilities
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 12 },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
 
-            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x.Owner == user.Owner && x.Attribute == Attribute.Haos))
+            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x.Owner == User.Owner && x.Attribute == Attribute.Haos))
             {
                 b.PermaBoost(50, this);
-                user.affectingEffects.Add(this);
+                User.affectingEffects.Add(this);
             }
 
             game.NegatableAbilities.Add(this);
@@ -52,84 +48,37 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
             game.NegatableAbilities.Remove(this);
-            if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
-                user.PermaBoost(-50, this);
+                User.affectingEffects.Remove(this);
+                User.PermaBoost(-50, this);
             }
         }
     }
 
     internal class ShiningBrilliance : AbilityCard, IAbilityCard
     {
-
         public ShiningBrilliance(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_user" },
-                { "Ability", 12 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new ShiningBrillianceEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
+            if (!counterNegated)
+                new ShiningBrillianceEffect(User, Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Haos;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 12;
-        }
+        public new int TypeId { get; } = 12;
     }
 }

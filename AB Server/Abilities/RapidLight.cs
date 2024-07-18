@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -10,12 +9,9 @@ namespace AB_Server.Abilities
         public Bakugan User;
         Bakugan target;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public RapidLightEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
@@ -28,7 +24,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            if (counterNegated) return;
+
 
             int team = User.Owner.SideID;
 
@@ -52,9 +48,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
+
         }
     }
 
@@ -65,11 +61,11 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn && Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2;
         }
 
-        public new void Activate()
+        public new void Setup(bool asCounter)
         {
+            IAbilityCard ability = this;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
@@ -78,8 +74,8 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
-                        { "Ability", 4 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -91,7 +87,7 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_addable_target" },
-                        { "Ability", 4 },
+                        { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
@@ -108,39 +104,63 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        {
+            User = user;
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_addable_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID }
+                            }
+                        )) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Resolve;
+        }
+
+        private Bakugan target;
+
+        public new void Activate()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
+        public void ActivateFusion()
+        {
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
         public new void Resolve()
         {
-            var effect = new RapidLightEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 1);
+            if (!counterNegated)
+                new RapidLightEffect(User, target, Game, 1).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Haos && Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2 && x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 4;
-        }
+        public new int TypeId { get; } = 4;
     }
 }

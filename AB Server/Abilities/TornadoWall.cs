@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -9,12 +8,9 @@ namespace AB_Server.Abilities
         public Bakugan User;
         Bakugan target;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public TornadoWallEffect(Bakugan user, Game game, int typeID)
         {
@@ -42,7 +38,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            foreach (Bakugan b in game.BakuganIndex.Where(x=>x.OnField()))
+            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField()))
             {
                 if (b.Owner == User.Owner && b.Attribute == Attribute.Ventus)
                 {
@@ -79,10 +75,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
-            else if (User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 target.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -131,70 +126,19 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => !x.InGrave() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelectionArr" },
-                { "Count", 1 },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "B" },
-                        { "Message", "ability_boost_target" },
-                        { "Ability", 18 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                }
-                }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new TornadoWallEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, 1);
+            if (!counterNegated)
+                new TornadoWallEffect(User, Game, 1).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            !user.InGrave() && user.Attribute == Attribute.Ventus;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => (x.OnField() || (!x.OnField() && x.InHands)) && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 18;
-        }
+        public new int TypeId { get; } = 18;
     }
 }

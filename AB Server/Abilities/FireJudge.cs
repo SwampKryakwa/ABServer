@@ -1,24 +1,20 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
     internal class FireJudgeEffect : INegatable
     {
         public int TypeId { get; }
-        Bakugan user;
+        Bakugan User;
         Game game;
         short boost;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return user.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public FireJudgeEffect(Bakugan user, Game game, int typeID)
         {
-            this.user = user;
+            this.User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
@@ -26,7 +22,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            int team = user.Owner.SideID;
+            int team = User.Owner.SideID;
             boost = (short)(game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != team) * 100);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
@@ -35,16 +31,16 @@ namespace AB_Server.Abilities
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 0 },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
-            user.Boost(boost, this);
+            User.Boost(boost, this);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
@@ -53,16 +49,16 @@ namespace AB_Server.Abilities
             game.BakuganDestroyed += FieldLeaveTurnover;
             game.BakuganPowerReset += ResetTurnover;
 
-            user.affectingEffects.Add(this);
+            User.affectingEffects.Add(this);
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
+            if (leaver == User && User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
+                User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
@@ -70,17 +66,16 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
             game.NegatableAbilities.Remove(this);
-            if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
+                User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
-                user.Boost((short)-boost, this);
+                User.Boost((short)-boost, this);
             }
         }
 
@@ -94,9 +89,9 @@ namespace AB_Server.Abilities
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
+            if (leaver == User && User.affectingEffects.Contains(this))
             {
-                user.affectingEffects.Remove(this);
+                User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
@@ -106,55 +101,24 @@ namespace AB_Server.Abilities
 
     internal class FireJudge : AbilityCard, IAbilityCard
     {
-
         public FireJudge(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Pyrus && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_boost_target" },
-                { "Ability", 0 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new FireJudgeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
+            if (!counterNegated)
+                new FireJudgeEffect(User, Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter() => Activate();
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Pyrus;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new int GetTypeID() => 0;
-
+        public new int TypeId { get; } = 0;
     }
 }

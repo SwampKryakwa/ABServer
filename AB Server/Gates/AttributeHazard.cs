@@ -1,12 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class AttributeHazard : GateCard, IGateCard
     {
@@ -24,10 +16,7 @@ namespace AB_Server.Gates
             Attribute = attribute;
         }
 
-        public new int GetTypeID()
-        {
-            return 4;
-        }
+        public new int TypeId { get; } = 4;
 
         public new void Negate()
         {
@@ -103,7 +92,7 @@ namespace AB_Server.Gates
 
         public void OnBakuganLeaves(Bakugan target, ushort owner)
         {
-            if(target.affectingEffects.Contains(this))
+            if (target.affectingEffects.Contains(this))
             {
                 target.affectingEffects.Remove(this);
                 target.Attribute = target.BaseAttribute;

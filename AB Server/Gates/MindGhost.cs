@@ -1,11 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AB_Server.Gates
 {
@@ -23,10 +16,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int GetTypeID()
-        {
-            return 3;
-        }
+        public new int TypeId { get; } = 3;
 
         public new void Negate()
         {

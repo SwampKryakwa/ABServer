@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json.Nodes;
 using NetCoreServer;
 using System.Collections.Concurrent;
 
@@ -196,7 +194,10 @@ namespace AB_Server
                             answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
                             answer.Add("playerCount", game.Players.Where(x => x != null).Count());
                             if (game.PlayerCount == game.Players.Count)
+                            {
+                                Console.WriteLine("starting");
                                 new Thread(game.Initiate).Start();
+                            }
                             break;
 
                         case "getupdates":
@@ -235,7 +236,8 @@ namespace AB_Server
                             player = (int)postedJson["playerID"];
 
                             game.IncomingSelection[player] = postedJson;
-                            game.GameStep();
+                            if (!game.doNotMakeStep)
+                                game.GameStep();
                             break;
 
                         case "leave":

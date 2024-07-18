@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -8,29 +7,30 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public Bakugan User;
-        IGateCard target;
+        GateCard target;
+        IGateCard source;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
 
-        public DesertVortexEffect(Bakugan user, IGateCard target, Game game, int typeID)
+        public Player Owner { get => User.Owner; }
+
+        public DesertVortexEffect(Bakugan user, GateCard target, Game game, int typeID)
         {
             User = user;
             this.game = game;
-            this.target = target;
+            target = target;
+            source = user.Position as IGateCard;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
         }
 
         public void Activate()
         {
-            if (counterNegated) return;
+            User.Move(target);
 
-            User.Move(target as GateCard);
+            game.BattleOver += Return;
+            game.BakuganDestroyed += (Bakugan target, ushort owner) => { if (target == User) Negate(); };
+            game.BakuganReturned += (Bakugan target, ushort owner) => { if (target == User) Negate(); };
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -47,14 +47,18 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-
         }
 
-        //remove when negated
-        public void Negate(bool asCounter)
+        public void Return(IGateCard target, ushort winner)
         {
-            if (asCounter)
-                counterNegated = true;
+            if (winner == User.Owner.ID && source.OnField)
+                User.Move(this.target);
+            game.BattleOver -= Return;
+        }
+
+        public void Negate()
+        {
+            game.BattleOver -= Return;
         }
     }
 
@@ -65,11 +69,11 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.Owner == owner && x.OnField() && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn && x.HasNeighbourEnemies();
         }
 
-        public new void Activate()
+        public new void Setup(bool asCounter)
         {
+            IAbilityCard ability = this;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
@@ -78,8 +82,8 @@ namespace AB_Server.Abilities
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_user" },
-                        { "Ability", 7 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).ToList().Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).ToList().Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -92,30 +96,22 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Setup2;
         }
 
-        public new void Resolve()
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
+            User = user;
 
-            Bakugan user = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-
-            if (!BakuganIsValid(user))
-            {
-                Activate();
-                return;
-            }
-
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
+            Game.NewEvents[Owner.ID].Add(new JObject {
                 { "Type", "StartSelectionArr" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_target" },
-                        { "Ability", 7 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (user.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (user.Position as GateCard).Position.Y)) == 1).Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (User.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (User.Position as GateCard).Position.Y)) == 1).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -123,39 +119,57 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } }
-                }
-                }
+                        )) }
+                    }
+                } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = () => EndResolve(user);
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
-        public void EndResolve(Bakugan user)
+        public void Setup2()
         {
-            var effect = new DesertVortexEffect(user, Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]].Position as GateCard, Game, 1);
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
 
-            //window for counter
+            Game.NewEvents[Owner.ID].Add(new JObject {
+                { "Type", "StartSelectionArr" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (User.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (User.Position as GateCard).Position.Y)) == 1).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID }
+                            }
+                        )) }
+                    }
+                } }
+            });
 
-            effect.Activate();
+            Game.awaitingAnswers[Owner.ID] = Activate;
+        }
+
+        private GateCard target;
+
+        public new void Activate()
+        {
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]].Position as GateCard;
+
+            Game.CheckChain(Owner, this, User);
+        }
+
+        public void Resolve(Bakugan user)
+        {
+            if (!counterNegated)
+                new DesertVortexEffect(user, target, Game, 1).Activate();
+
             Dispose();
-        }
-
-        public bool ValidateUser(Bakugan user) => BakuganIsValid(user);
-
-        public bool ValidateTarget(Bakugan user, Bakugan target)
-        {
-            return false;
-        }
-
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
-
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
         }
 
         public new bool IsActivateable()
@@ -170,14 +184,9 @@ namespace AB_Server.Abilities
             return false;
         }
 
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Subterra && user.HasNeighbourEnemies();
 
-        public new int GetTypeID()
-        {
-            return 7;
-        }
+        public new int TypeId { get; } = 7;
     }
 }

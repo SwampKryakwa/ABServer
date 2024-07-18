@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AB_Server.Gates
 {
@@ -24,10 +19,7 @@ namespace AB_Server.Gates
         Bakugan first = null;
         Bakugan last = null;
 
-        public new int GetTypeID()
-        {
-            return 5;
-        }
+        public new int TypeId { get; } = 5;
 
         public new void Negate()
         {

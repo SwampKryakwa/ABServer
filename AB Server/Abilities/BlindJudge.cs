@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -12,13 +11,9 @@ namespace AB_Server.Abilities
         IGateCard battle;
         Game Game;
         short Boost;
-        bool CounterNegated = false;
         IAbilityCard Card;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+        public Player Owner { get => User.Owner; }
 
         public BlindJudgeEffect(Bakugan user, Bakugan target, Game game, int typeID, IAbilityCard card)
         {
@@ -48,7 +43,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            Boost = (short)(Game.BakuganIndex.Count(x=>x.Attribute == Attribute.Ventus && x.Owner == User.Owner) * -100);
+            Boost = (short)(Game.BakuganIndex.Count(x => x.Attribute == Attribute.Ventus && x.Owner == User.Owner) * -100);
 
             Target.Boost(Boost, this);
 
@@ -56,7 +51,7 @@ namespace AB_Server.Abilities
             Game.TurnEnd += NegatabilityTurnover;
             Game.BakuganReturned += FieldLeaveTurnover;
             Game.BakuganDestroyed += FieldLeaveTurnover;
-            
+
             Game.BattleOver += Trigger;
             Target.affectingEffects.Add(this);
         }
@@ -93,12 +88,11 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
             Target.Boost((short)-Boost, this);
 
-            if (asCounter) CounterNegated = true;
-            else if (Target.affectingEffects.Contains(this))
+            if (Target.affectingEffects.Contains(this))
             {
                 Target.affectingEffects.Remove(this);
                 Game.BakuganReturned -= FieldLeaveTurnover;
@@ -112,27 +106,26 @@ namespace AB_Server.Abilities
 
     internal class BlindJudge : AbilityCard, IAbilityCard
     {
-
         public BlindJudge(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Ventus && !x.UsedAbilityThisTurn;
         }
 
-        public new void Activate()
+        public void Setup()
         {
+            IAbilityCard ability = this;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
-                { "Count", 2 },
+                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
-                        { "Ability", 19 },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -140,48 +133,86 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "B?" },
-                        { "Message", "ability_deboost_target" },
-                        { "Ability", 19 },
-                        { "SelectionRange", "SGE" },
-                        { "CompareTo", 0 }
-                    } }
-                }
+                        )) } }
+                } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Setup2;
+        }
+
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        {
+            User = user;
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_deboost_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Activate;
+        }
+
+        public void Setup2()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_deboost_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Activate;
+        }
+
+        Bakugan target;
+
+        public new void Activate()
+        {
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
         }
 
         public new void Resolve()
         {
-            var effect = new BlindJudgeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 0, this);
-
-            //window for counter
-
-            effect.Activate();
+            if (!counterNegated)
+                new BlindJudgeEffect(User, target, Game, TypeId, this).Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Ventus;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 19;
-        }
+        public new int TypeId { get; } = 19;
     }
 }

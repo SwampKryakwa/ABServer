@@ -1,7 +1,4 @@
-﻿using AB_Server.Abilities;
-using Newtonsoft.Json.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
@@ -153,12 +150,12 @@ namespace AB_Server.Gates
                     { "PosX", posX },
                     { "PosY", posY },
                     { "GateData", new JObject {
-                        { "Type", (this as IGateCard).GetTypeID() } }
+                        { "Type", (this as IGateCard).TypeId } }
                     },
                     { "Owner", Owner.ID },
                     { "CID", CardId }
                 };
-                if ((this as IGateCard).GetTypeID() == 0)
+                if ((this as IGateCard).TypeId == 0)
                 {
                     (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)(this as NormalGate).Attribute));
                     (obj["GateData"] as JObject).Add(new JProperty("Power", (int)(this as NormalGate).Power));

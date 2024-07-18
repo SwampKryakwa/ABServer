@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -9,13 +8,10 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         public Bakugan User;
         Game game;
-        bool counterNegated = false;
+
         GateCard target;
 
-        public Player GetOwner()
-        {
-            return User.Owner;
-        }
+        public Player Owner { get => User.Owner; }
 
         public HaosFreezeEffect(Bakugan user, Game game, int typeID)
         {
@@ -67,10 +63,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
-            else if (User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 User.affectingEffects.Remove(this);
                 game.BakuganPowerReset -= ResetTurnover;
@@ -107,63 +102,19 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn;
-        }
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_boost_target" },
-                { "Ability", 11 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new ShiningBrillianceEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
+            if (!counterNegated)
+                new HaosFreezeEffect(User, Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Haos;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Haos && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 11;
-        }
+        public new int TypeId { get; } = 11;
     }
 }

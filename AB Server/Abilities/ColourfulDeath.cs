@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -9,12 +8,8 @@ namespace AB_Server.Abilities
         Bakugan user;
         Game game;
         short boost;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return user.Owner;
-        }
+        public Player Owner { get => user.Owner; }
 
         public ColourfulDeathEffect(Bakugan user, Game game, int typeID)
         {
@@ -75,11 +70,10 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
             game.NegatableAbilities.Remove(this);
-            if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
+            if (user.affectingEffects.Contains(this))
             {
                 game.BakuganIndex.ForEach(x => x.affectingEffects.Remove(this));
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -110,56 +104,25 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class ColourfulDeath : AbilityCard, IAbilityCard
+    internal class ColourfulDeath : AbilityCard, IAbilityCard, INegatable
     {
+        public new int TypeId { get; } = 13;
 
         public ColourfulDeath(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.InBattle && x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_boost_target" },
-                { "Ability", 13 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new ColourfulDeathEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
-
-            //window for counter
-
-            effect.Activate();
+            if (!counterNegated)
+                new ColourfulDeathEffect(User, Game, TypeId).Activate();
             Dispose();
         }
 
-        public new void ActivateCounter() => Activate();
-
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new int GetTypeID() => 13;
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Darkus;
     }
 }

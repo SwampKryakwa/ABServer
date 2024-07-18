@@ -1,24 +1,20 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
     internal class JudgementNightEffect : INegatable
     {
         public int TypeId { get; }
-        Bakugan user;
+        Bakugan User;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return user.Owner;
-        }
+
+        public Player Owner { get => User.Owner; }
 
         public JudgementNightEffect(Bakugan user, Game game, int typeID)
         {
-            this.user = user;
+            User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
@@ -32,16 +28,16 @@ namespace AB_Server.Abilities
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 0 },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
-            game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(user)).DetermineWinner();
+            game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(User)).DetermineWinner();
             if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
             {
                 game.isFightGoing = false;
@@ -49,9 +45,9 @@ namespace AB_Server.Abilities
             }
         }
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
+
         }
     }
 
@@ -63,64 +59,19 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn;
-        }
-
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_boost_target" },
-                { "Ability", 0 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
         public new void Resolve()
         {
-            var effect = new JudgementNightEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
+            if (!counterNegated)
+                new JudgementNightEffect(User, Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter()
-        {
-            Activate();
-        }
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Darkus;
 
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new bool IsActivateable()
-        {
-            return Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Darkus && !x.UsedAbilityThisTurn);
-        }
-
-        public new bool IsActivateable(bool asFusion)
-        {
-            return IsActivateable(false);
-        }
-
-        public new int GetTypeID()
-        {
-            return 0;
-        }
+        public new int TypeId { get; } = 16;
     }
 }

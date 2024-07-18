@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -9,12 +8,8 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan user;
         Game game;
-        bool counterNegated = false;
 
-        public Player GetOwner()
-        {
-            return user.Owner;
-        }
+        public Player Owner { get => user.Owner; }
 
         public ClayArmorEffect(Bakugan user, Game game, int typeID)
         {
@@ -70,10 +65,9 @@ namespace AB_Server.Abilities
         }
 
         //remove when negated
-        public void Negate(bool asCounter)
+        public void Negate()
         {
-            if (asCounter) counterNegated = true;
-            else if (user.affectingEffects.Contains(this))
+            if (user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
@@ -85,56 +79,26 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class ClayArmor : AbilityCard, IAbilityCard
+    internal class ClayArmor : AbilityCard, IAbilityCard, INegatable
     {
-
         public ClayArmor(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BakuganIsValid = x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Subterra && !x.UsedAbilityThisTurn;
         }
 
-        public new void Activate()
-        {
-            Game.NewEvents[Owner.ID].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "SelectionType", "B" },
-                { "Message", "ability_user" },
-                { "Ability", 5 },
-                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                    new JObject { { "Type", (int)x.Type },
-                        { "Attribute", (int)x.Attribute },
-                        { "Treatment", (int)x.Treatment },
-                        { "Power", x.Power },
-                        { "Owner", x.Owner.ID },
-                        { "BID", x.BID }
-                    }
-                )) }
-            });
-
-            Game.awaitingAnswers[Owner.ID] = Resolve;
-        }
+        public new int TypeId { get; } = 5;
 
         public new void Resolve()
         {
-            var effect = new ClayArmorEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["bakugan"]], Game, 0);
+            if (!counterNegated)
+                new ClayArmorEffect(User, Game, TypeId).Activate();
 
-            //window for counter
-
-            effect.Activate();
             Dispose();
         }
 
-        public new void ActivateCounter() => Activate();
-
-        public new void ActivateFusion(IAbilityCard fusedWith, Bakugan user)
-        {
-            Activate();
-        }
-
-        public new int GetTypeID() => 5;
+        public new bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Subterra;
     }
 }

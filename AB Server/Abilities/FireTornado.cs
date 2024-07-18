@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Diagnostics.Metrics;
-using System.Security.Cryptography;
 
 namespace AB_Server.Abilities
 {
@@ -10,7 +8,7 @@ namespace AB_Server.Abilities
         public Bakugan User;
         Bakugan target;
         Game game;
-        bool counterNegated = false;
+
 
         public Player Owner { get => User.Owner; }
 
@@ -103,7 +101,7 @@ namespace AB_Server.Abilities
 
     internal class FireTornado : AbilityCard, IAbilityCard, INegatable
     {
-        public int TypeId { get; } = 1;
+        public new int TypeId { get; } = 1;
 
         public FireTornado(int cID, Player owner)
         {
@@ -112,13 +110,11 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        private Bakugan user;
         private Bakugan target;
-
-        private bool counterNegated = false;
 
         public void Setup(bool asCounter)
         {
+            IAbilityCard ability = this;
             Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
@@ -129,7 +125,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_boost_target" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -143,12 +139,9 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Setup2;
         }
 
-        public void SetupFusion(IAbilityCard parentCard) =>
-            Setup(false);
-
-        public void Setup2()
+        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
-            user = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            User = user;
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -158,7 +151,33 @@ namespace AB_Server.Abilities
                         { "SelectionType", "B" },
                         { "Message", "ability_deboost_target" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner != Owner).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Activate;
+        }
+
+        public void Setup2()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "B" },
+                        { "Message", "ability_deboost_target" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner != Owner).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -176,20 +195,14 @@ namespace AB_Server.Abilities
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
 
-            Game.CheckChain(Owner, this, user);
+            Game.CheckChain(Owner, this, User);
         }
 
-        public void Negate() =>
-            counterNegated = true;
-
-        public void Resolve()
+        public new void Resolve()
         {
             if (!counterNegated)
-            {
-                var effect = new FireTornadoEffect(user, target, Game, 1);
+                new FireTornadoEffect(User, target, Game, 1).Activate();
 
-                effect.Activate();
-            }
             Dispose();
         }
 

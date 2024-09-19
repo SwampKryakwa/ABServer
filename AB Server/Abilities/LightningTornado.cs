@@ -114,7 +114,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelectionArr" },
-                { "Count", 10 },
+                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
@@ -128,18 +128,12 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "B?" },
-                        { "Message", "ability_deboost_target" },
-                        { "Ability", TypeId },
-                        { "SelectionRange", "SGE" },
-                        { "CompareTo", 0 }
-                    } }
-                }
+                        )) }
+                    }
+                } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Setup2;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)

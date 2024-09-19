@@ -20,6 +20,8 @@
             }
         }
 
+        public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);
+
         public bool UpdateReady(long uuid, bool isReady)
         {
             IsReady[Array.IndexOf(Players, uuid)] = isReady;

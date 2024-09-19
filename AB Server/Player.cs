@@ -136,10 +136,10 @@ namespace AB_Server
             return GateHand;
         }
 
-        public List<IAbilityCard> ActivateableAbilities()
-        {
-            return AbilityHand.Where(x => x.IsActivateable()).ToList();
-        }
+        //public List<IAbilityCard> ActivateableAbilities()
+        //{
+        //    return AbilityHand.Where(x => x.IsActivateable()).ToList();
+        //}
 
         public List<IGateCard> OpenableGates()
         {
@@ -155,7 +155,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isFightGoing && (HadThrownBakugan | !HadSkippedTurn);
+            return !game.isBattleGoing && (HadThrownBakugan | !HadSkippedTurn);
         }
 
         public bool CanEndBattle()

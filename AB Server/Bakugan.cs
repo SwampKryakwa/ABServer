@@ -176,7 +176,7 @@ namespace AB_Server
                 });
             }
             game.OnBakuganAdded(this, Owner.ID, destination);
-            game.isFightGoing = destination.CheckBattles();
+            game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
         }
@@ -205,7 +205,7 @@ namespace AB_Server
                 });
             }
             game.OnBakuganThrown(this, Owner.ID, destination);
-            game.isFightGoing = destination.CheckBattles();
+            game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
         }
@@ -245,7 +245,7 @@ namespace AB_Server
             destination.Bakugans.Add(this);
             Position = destination;
             game.OnBakuganMoved(this, destination);
-            game.isFightGoing = destination.CheckBattles();
+            game.isBattleGoing = destination.CheckBattles();
         }
 
         public void FromGrave(GateCard destination)
@@ -257,7 +257,7 @@ namespace AB_Server
             destination.DisallowedPlayers[Owner.ID] = true;
             destination.EnterOrder.Add(new Bakugan[] { this });
             game.OnBakuganPlacedFromGrave(this, Owner.ID, destination);
-            game.isFightGoing = destination.CheckBattles();
+            game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
         }
 

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
 {
@@ -44,7 +45,7 @@ namespace AB_Server.Gates
 
             if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
             {
-                game.isFightGoing = false;
+                game.isBattleGoing = false;
                 game.EndTurn();
             }
         }
@@ -53,7 +54,7 @@ namespace AB_Server.Gates
         {
             Freezing.Remove(frozer);
             if (Freezing.Count == 0) IsFrozen = false;
-            game.isFightGoing |= CheckBattles();
+            game.isBattleGoing |= CheckBattles();
         }
 
         public void DetermineWinner()
@@ -129,38 +130,53 @@ namespace AB_Server.Gates
             game.OnBattleOver(this, game.PlayerCount);
         }
 
-        public void SetStart(int posX, int posY)
-        {
-            game.Field[posX, posY] = this;
-            Owner.GateHand.Remove(this);
-            Position = (posX, posY);
-        }
-
         public void Set(int posX, int posY)
         {
             game.Field[posX, posY] = this;
             OnField = true;
             Owner.GateHand.Remove(this);
             Position = (posX, posY);
-            foreach (var e in game.NewEvents)
+            for (int i = 0; i < game.PlayerCount; i++)
             {
-                JObject obj = new()
+                var e = game.NewEvents[i];
+                if (game.Players[i] == Owner)
                 {
-                    { "Type", "GateSetEvent" },
-                    { "PosX", posX },
-                    { "PosY", posY },
-                    { "GateData", new JObject {
-                        { "Type", (this as IGateCard).TypeId } }
-                    },
-                    { "Owner", Owner.ID },
-                    { "CID", CardId }
-                };
-                if ((this as IGateCard).TypeId == 0)
-                {
-                    (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)(this as NormalGate).Attribute));
-                    (obj["GateData"] as JObject).Add(new JProperty("Power", (int)(this as NormalGate).Power));
+                    JObject obj = new()
+                    {
+                        { "Type", "GateSetEvent" },
+                        { "PosX", posX },
+                        { "PosY", posY },
+                        { "GateData", new JObject {
+                            { "Type", (this as IGateCard).TypeId } }
+                        },
+                        { "Owner", Owner.ID },
+                        { "CID", CardId }
+                    };
+                    if (this is NormalGate normalGate)
+                    {
+                        (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)normalGate.Attribute));
+                        (obj["GateData"] as JObject).Add(new JProperty("Power", (int)normalGate.Power));
+                    }
+                    else if (this is NormalGate attributeHazard)
+                    {
+                        (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)attributeHazard.Attribute));
+                    }
+                    e.Add(obj);
                 }
-                e.Add(obj);
+                else
+                {
+                    e.Add(new()
+                    {
+                        { "Type", "GateSetEvent" },
+                        { "PosX", posX },
+                        { "PosY", posY },
+                        { "GateData", new JObject {
+                            { "Type", -1 } }
+                        },
+                        { "Owner", Owner.ID },
+                        { "CID", CardId }
+                    });
+                }
             }
             game.OnGateAdded(this, Owner.ID, posX, posY);
         }
@@ -268,7 +284,6 @@ namespace AB_Server.Gates
         public (int X, int Y) Position { get; set; }
 
         public int TypeId { get; }
-        public void SetStart(int posX, int posY);
         public void Set(int posX, int posY);
         public void Open();
         public void Negate();

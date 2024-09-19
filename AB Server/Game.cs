@@ -32,7 +32,7 @@ namespace AB_Server
 
         ushort turnPlayer;
         public ushort activePlayer { get; protected set; }
-        public bool isFightGoing = false;
+        public bool isBattleGoing = false;
 
         public List<INegatable> NegatableAbilities = new();
 
@@ -178,7 +178,7 @@ namespace AB_Server
                         JObject selection = IncomingSelection[i];
                         IncomingSelection[i] = null;
 
-                        Players[i].GateHand[(int)selection["gate"]].SetStart(i, 1);
+                        Players[i].GateHand[(int)selection["gate"]].Set(i, 1);
 
                         selection = null;
                     }
@@ -276,7 +276,7 @@ namespace AB_Server
 
                     break;
                 case "pass":
-                    if (!isFightGoing)
+                    if (!isBattleGoing)
                     {
                         NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
@@ -310,7 +310,7 @@ namespace AB_Server
                             break;
                         }
 
-                        isFightGoing = false;
+                        isBattleGoing = false;
 
                         TurnEnd?.Invoke();
                         if (!Players[turnPlayer].HadThrownBakugan) Players[turnPlayer].HadSkippedTurn = true;
@@ -344,7 +344,7 @@ namespace AB_Server
 
                     break;
             }
-            if (isFightGoing)
+            if (isBattleGoing)
             {
                 activePlayer = (ushort)((activePlayer + 1) % PlayerCount);
             }
@@ -397,7 +397,7 @@ namespace AB_Server
 
             JObject moves = new()
             {
-                { "CanSetGate", Players[player].HasSettableGates() && !isFightGoing },
+                { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() },
@@ -405,12 +405,12 @@ namespace AB_Server
                 { "CanEndBattle", Players[player].CanEndBattle() },
 
                 { "IsASkip", !Players[player].HadThrownBakugan },
-                { "IsAPass", playersPassed != (PlayerCount - 1) },
+                { "IsAPass", isBattleGoing && playersPassed != (PlayerCount - 1) },
 
                 { "SettableGates", gateArray },
                 { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId } })) },
                 { "ThrowableBakugan", bakuganArray },
-                { "ActivateableAbilities", new JArray(Players[player].ActivateableAbilities().Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId } })) }
+                { "ActivateableAbilities", new JArray(Players[player].AbilityHand.Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId }, { "CanActivate", x.IsActivateable() } })) }
             };
             return moves;
         }
@@ -444,7 +444,8 @@ namespace AB_Server
         public void SuggestCounter(Player player, IAbilityCard ability, Player user)
         {
             awaitingAnswers[player.ID] = () => CheckCounter(player, ability, user);
-            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.ID, ability.TypeId)));
+            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.
+                CounterSelectionEvent(user.ID, ability.TypeId)));
         }
 
         public void CheckCounter(Player player, IAbilityCard ability, Player user)

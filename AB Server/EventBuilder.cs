@@ -10,7 +10,7 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "Type", "Selection" },
+                { "Type", "SelectionStart" },
                 { "selections", JArray.FromObject(selections) }
             };
         }

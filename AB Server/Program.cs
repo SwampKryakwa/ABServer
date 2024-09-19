@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using NetCoreServer;
 using System.Collections.Concurrent;
+using System.Net.Http.Headers;
 
 namespace AB_Server
 {
@@ -63,9 +64,10 @@ namespace AB_Server
 
         static Dictionary<string, Room> Rooms = new();
 
-        static Dictionary<string, long> RoomToGID = new();
-        static Dictionary<long, Game> GIDToGame = new();
+        static Dictionary<string, Game> GIDToGame = new();
         private static Random random = new Random();
+
+        object locker = new();
 
         protected override void OnReceivedRequest(HttpRequest request)
         {
@@ -83,23 +85,21 @@ namespace AB_Server
                         Console.WriteLine(request.Body);
                     }
 
-                    if (request.Body == "") return;
-                    JObject postedJson;
+                    JObject postedJson = null;
                     try
                     {
                         postedJson = JObject.Parse(request.Body);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        Console.WriteLine(request.Body);
-                        throw;
+                        Console.WriteLine(e);
                     }
 
                     string requestedResource = request.Url.ToString().Split('/')[^1];
 
                     JObject answer = new();
 
-                    long GID;
+                    string GID;
                     Game game;
                     int player;
                     switch (requestedResource)
@@ -129,6 +129,10 @@ namespace AB_Server
                                 Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]);
                                 if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
                             }
+                            break;
+
+                        case "getmyposition":
+                            answer.Add("position", Rooms[(string)postedJson["roomName"]].GetPosition((long)postedJson["UUID"]));
                             break;
 
                         case "updateready":
@@ -170,46 +174,41 @@ namespace AB_Server
                         case "newgame":
                             game = new((ushort)postedJson["playerCount"]);
                             room = (string)postedJson["roomName"];
-                            GID = random.NextInt64();
-                            RoomToGID.Add(room, GID);
-                            GIDToGame.Add(GID, game);
+                            GIDToGame.Add(room, game);
 
-                            answer.Add("gid", GID);
+                            answer.Add("gid", room);
                             break;
 
                         case "getsession":
                             answer.Add("UUID", random.NextInt64());
-                            break;
 
-                        case "getgid":
-                            if (RoomToGID.ContainsKey(postedJson["room"].ToString()))
-                                answer.Add("gid", RoomToGID[postedJson["room"].ToString()]);
-                            else
-                                answer.Add("gid", 0);
                             break;
 
                         case "join":
-                            GID = (long)postedJson["gid"];
-                            game = GIDToGame[GID];
-                            answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
-                            answer.Add("playerCount", game.Players.Where(x => x != null).Count());
-                            if (game.PlayerCount == game.Players.Count)
+                            lock (locker)
                             {
-                                Console.WriteLine("starting");
-                                new Thread(game.Initiate).Start();
+                                GID = (string)postedJson["gid"];
+                                game = GIDToGame[GID];
+                                answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
+                                answer.Add("playerCount", game.Players.Where(x => x != null).Count());
+                                if (game.PlayerCount == game.Players.Count)
+                                {
+                                    Console.WriteLine("starting");
+                                    new Thread(game.Initiate).Start();
+                                }
                             }
                             break;
 
                         case "getupdates":
-                            answer.Add("updates", JArray.FromObject(GIDToGame[(long)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
+                            answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
                             break;
 
                         case "checkturnstart":
-                            answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(long)postedJson["gid"]].activePlayer } });
+                            answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].activePlayer } });
                             break;
 
                         case "getmoves":
-                            GID = (long)postedJson["gid"];
+                            GID = (string)postedJson["gid"];
                             game = GIDToGame[GID];
                             player = (int)postedJson["playerID"];
 
@@ -218,7 +217,7 @@ namespace AB_Server
                             break;
 
                         case "answer":
-                            GID = (long)postedJson["gid"];
+                            GID = (string)postedJson["gid"];
                             game = GIDToGame[GID];
                             player = (int)postedJson["playerID"];
 
@@ -231,7 +230,7 @@ namespace AB_Server
                             break;
 
                         case "move":
-                            GID = (long)postedJson["gid"];
+                            GID = (string)postedJson["gid"];
                             game = GIDToGame[GID];
                             player = (int)postedJson["playerID"];
 
@@ -241,7 +240,7 @@ namespace AB_Server
                             break;
 
                         case "leave":
-                            GID = (long)postedJson["gid"];
+                            GID = (string)postedJson["gid"];
                             game = GIDToGame[GID];
 
                             game.Left++;
@@ -252,7 +251,6 @@ namespace AB_Server
                             }
                             break;
                     }
-
                     SendResponse(Response.MakeGetResponse(content: answer.ToString()));
                 }
                 catch (Exception e) { Console.WriteLine(e); }

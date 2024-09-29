@@ -104,11 +104,11 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class ColourfulDeath : AbilityCard, IAbilityCard, INegatable
+    internal class OreganoMurder : AbilityCard, IAbilityCard, INegatable
     {
         public new int TypeId { get; } = 13;
 
-        public ColourfulDeath(int cID, Player owner)
+        public OreganoMurder(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;

@@ -66,13 +66,14 @@ namespace AB_Server.Abilities
         public new void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 2 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "ability_user" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
@@ -85,7 +86,7 @@ namespace AB_Server.Abilities
                             }
                         )) } },
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BH" },
                         { "Message", "ability_addable_target" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
@@ -104,17 +105,18 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Resolve;
         }
 
-        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
 
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BH" },
                         { "Message", "ability_addable_target" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>

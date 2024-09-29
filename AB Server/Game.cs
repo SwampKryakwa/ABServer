@@ -7,7 +7,7 @@ namespace AB_Server
 {
     internal class Game
     {
-        public List<JObject>[] NewEvents;
+        public List<JObject>[] NewEvents { get; set; }
         public JObject[] IncomingSelection;
         public Dictionary<long, int> UidToPid = new();
 
@@ -36,7 +36,7 @@ namespace AB_Server
 
         public List<INegatable> NegatableAbilities = new();
 
-        public List<IAbilityCard> AbilityChain = new();
+        public List<IAbilityCard> AbilityChain { get; set; } = new();
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, short boost, object source);
@@ -399,7 +399,7 @@ namespace AB_Server
             {
                 { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
-                { "CanThrowBakugan", Players[player].HasThrowableBakugan() },
+                { "CanThrowBakugan", Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() },
                 { "CanEndTurn", Players[player].CanEndTurn() },
                 { "CanEndBattle", Players[player].CanEndBattle() },
@@ -417,20 +417,19 @@ namespace AB_Server
 
         public void CheckChain(Player player, IAbilityCard ability, Bakugan user)
         {
-            Console.WriteLine(player.HadUsedFusion);
-            Console.WriteLine(player.HasActivateableFusionAbilities(user));
             if (!player.HadUsedFusion || !player.HasActivateableFusionAbilities(user))
                 SuggestFusion(player, ability, user);
-            else if (Players.Any(x => !x.HadUsedCounter))
+            else if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
             {
                 int next = player.ID + 1;
                 if (next == PlayerCount) next = 0;
-                while (Players[next].HadUsedCounter)
+                int initial = next;
+                while (Players[next].HadUsedCounter || !Players[next].HasActivateableAbilities())
                 {
                     next++;
                     if (next == PlayerCount) next = 0;
+                    if (initial == next) break;
                 }
-                Console.WriteLine(player.ID);
                 if (next == player.ID)
                 {
                     ResolveChain();
@@ -439,13 +438,6 @@ namespace AB_Server
                 SuggestCounter(Players[next], ability, player);
             }
             else ResolveChain();
-        }
-
-        public void SuggestCounter(Player player, IAbilityCard ability, Player user)
-        {
-            awaitingAnswers[player.ID] = () => CheckCounter(player, ability, user);
-            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.
-                CounterSelectionEvent(user.ID, ability.TypeId)));
         }
 
         public void CheckCounter(Player player, IAbilityCard ability, Player user)
@@ -466,16 +458,23 @@ namespace AB_Server
             }
         }
 
+        public void SuggestCounter(Player player, IAbilityCard ability, Player user)
+        {
+            awaitingAnswers[player.ID] = () => CheckCounter(player, ability, user);
+            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.
+                CounterSelectionEvent(user.ID, ability.TypeId)));
+        }
+
         public void ResolveCounter(Player player)
         {
-            int id = (int)IncomingSelection[player.ID]["id"];
+            int id = (int)IncomingSelection[player.ID]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
                 AbilityIndex[id].Setup(true);
         }
 
         public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user)
         {
-            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FusionPrompt")));
+            NewEvents[player.ID].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FUSIONPROMPT")));
 
             awaitingAnswers[player.ID] = () => CheckFusion(player, ability, user);
         }
@@ -488,10 +487,12 @@ namespace AB_Server
                 {
                     int next = player.ID + 1;
                     if (next == PlayerCount) next = 0;
-                    while (Players[next].HadUsedCounter)
+                    int initial = next;
+                    while (Players[next].HadUsedCounter || !Players[next].HasActivateableAbilities())
                     {
                         next++;
                         if (next == PlayerCount) next = 0;
+                        if (initial == next) break;
                     }
                     if (next == player.ID)
                     {
@@ -512,7 +513,7 @@ namespace AB_Server
 
         public void ResolveFusion(Player player, IAbilityCard ability, Bakugan user)
         {
-            int id = (int)IncomingSelection[player.ID]["id"];
+            int id = (int)IncomingSelection[player.ID]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
             {
                 AbilityIndex[id].SetupFusion(ability, user);
@@ -521,11 +522,14 @@ namespace AB_Server
 
         public void ResolveChain()
         {
+            Console.WriteLine("Resolving chain");
             AbilityChain.Reverse();
             foreach (IAbilityCard ability in AbilityChain)
                 ability.Resolve();
             AbilityChain.Clear();
             doNotMakeStep = false;
+            foreach (var playerEvents in NewEvents)
+                playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
         }
     }
 }

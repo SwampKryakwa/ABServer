@@ -43,7 +43,7 @@ namespace AB_Server
         Limulus,
         Mantis,
         Raptor,
-        Rattloid,
+        Sidewinder,
         Saurus,
         Scorpion,
         Serpent,
@@ -86,7 +86,6 @@ namespace AB_Server
         public Attribute Attribute;
         public Treatment Treatment;
 
-        public GateCard ParentGate;
         public BakuganContainer Position;
         public bool InBattle = false;
         public bool Defeated = false;

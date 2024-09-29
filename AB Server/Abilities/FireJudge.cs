@@ -14,7 +14,8 @@ namespace AB_Server.Abilities
 
         public FireJudgeEffect(Bakugan user, Game game, int typeID)
         {
-            this.User = user;
+            Console.WriteLine(typeof(FireJudgeEffect));
+            User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;

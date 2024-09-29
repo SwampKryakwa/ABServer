@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class TsunamiEffect
+    internal class TsunamiWaveEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -12,7 +12,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public TsunamiEffect(Bakugan user, Game game, int typeID)
+        public TsunamiWaveEffect(Bakugan user, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -28,9 +28,9 @@ namespace AB_Server.Abilities
             }
         }
     }
-    internal class Tsunami : AbilityCard, IAbilityCard
+    internal class TsunamiWave : AbilityCard, IAbilityCard
     {
-        public Tsunami(int cID, Player owner)
+        public TsunamiWave(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -40,7 +40,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TsunamiEffect(User, Game, TypeId).Activate();
+                new TsunamiWaveEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }

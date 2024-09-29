@@ -111,13 +111,14 @@ namespace AB_Server.Abilities
         public new void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "ability_boost_target" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
@@ -140,16 +141,17 @@ namespace AB_Server.Abilities
         {
             User = user;
 
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "ability_deboost_target" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
+                        { "SelectionBakugans", new JArray(User.Position.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -173,10 +175,10 @@ namespace AB_Server.Abilities
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "ability_deboost_target" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(User.ParentGate.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
+                        { "SelectionBakugans", new JArray(User.Position.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

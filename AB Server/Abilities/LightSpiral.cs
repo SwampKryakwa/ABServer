@@ -2,36 +2,33 @@
 
 namespace AB_Server.Abilities
 {
-    internal class UptakeEffect : INegatable
+    internal class LightSpiralEffect : INegatable
     {
         public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        Bakugan User;
         Game game;
-        short boost;
 
+        IAbilityCard card;
 
         public Player Owner { get => User.Owner; }
 
-        public UptakeEffect(Bakugan user, Game game, int typeID)
+        public LightSpiralEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
-            User = user;
+            this.User = user;
             this.game = game;
-            target = target;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
+            this.card = card;
         }
 
         public void Activate()
         {
-            boost = (short)((game.BakuganIndex.Count(x => !x.OnField() && !x.InHands) + 1) * 50);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 17 },
+                    { "Card", 9 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -41,16 +38,30 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(boost, this);
+
+            User.Boost(50, this);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
-
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
-            game.BakuganPowerReset += ResetTurnover;
 
+            game.TurnEnd += Trigger;
             User.affectingEffects.Add(this);
+        }
+
+        public void Trigger()
+        {
+            User.Owner.AbilityGrave.Remove(card);
+            User.Owner.AbilityHand.Add(card);
+            game.TurnEnd -= Trigger;
+        }
+
+        //is not negatable after turn ends
+        public void NegatabilityTurnover()
+        {
+            game.NegatableAbilities.Remove(this);
+            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
@@ -62,45 +73,32 @@ namespace AB_Server.Abilities
                 User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
+
+                game.TurnEnd -= Trigger;
             }
         }
 
         //remove when negated
         public void Negate()
         {
-            if (User.affectingEffects.Contains(this))
-            {
-                target.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                target.Boost((short)-boost, this);
-            }
-        }
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
-        }
+            User.Boost(-50, this);
 
-        //remove when power reset
-        public void ResetTurnover(Bakugan leaver)
-        {
-            if (leaver == User && User.affectingEffects.Contains(this))
+            if (User.affectingEffects.Contains(this))
             {
                 User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
+
+                game.TurnEnd -= Trigger;
             }
+            game.NegatableAbilities.Remove(this);
         }
     }
 
-    internal class Uptake : AbilityCard, IAbilityCard
+    internal class LightSpiral : AbilityCard, IAbilityCard
     {
-        public Uptake(int cID, Player owner)
+
+        public LightSpiral(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -110,14 +108,14 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new UptakeEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, TypeId).Activate();
+                new LightSpiralEffect(User, Game, 0, this).Activate();
 
             Dispose();
         }
 
         public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Aquos;
+            user.OnField() && user.Attribute == Attribute.Haos;
 
-        public new int TypeId { get; } = 17;
+        public new int TypeId { get; } = 9;
     }
 }

@@ -106,9 +106,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class MagmaSurface : AbilityCard, IAbilityCard
+    internal class MagmaProminence : AbilityCard, IAbilityCard
     {
-        public MagmaSurface(int cID, Player owner)
+        public MagmaProminence(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -118,13 +118,14 @@ namespace AB_Server.Abilities
         public new void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 2 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "ability_user" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
@@ -151,13 +152,13 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
-        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
 
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {

@@ -24,8 +24,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -60,12 +58,13 @@ namespace AB_Server.Abilities
 
         private IGateCard target;
 
-        public void Setup()
+        public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 2 },
                 { "Selections", new JArray {
                     new JObject {
@@ -82,13 +81,14 @@ namespace AB_Server.Abilities
                             }
                         )) } },
                     new JObject {
-                        { "SelectionType", "G" },
+                        { "SelectionType", "GF" },
                         { "Message", "gate_negate_target" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
-                            { "PosY", x.Position.Y }
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
                         })) }
                     } }
                 }
@@ -97,16 +97,17 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
-        public new void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
+            Game.AbilityChain.Add(this);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
-                { "Type", "StartSelectionArr" },
+                { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "G" },
+                        { "SelectionType", "GF" },
                         { "Message", "gate_negate_target" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen && x.OnField).Select(x => new JObject {

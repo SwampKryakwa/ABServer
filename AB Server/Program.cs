@@ -82,7 +82,9 @@ namespace AB_Server
                     if (key != "/getupdates" && key != "/getplayerlist" && key != "/getallready" && key != "/checkstarted")
                     {
                         Console.WriteLine(key);
+                        Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine(request.Body);
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
 
                     JObject postedJson = null;
@@ -225,8 +227,6 @@ namespace AB_Server
                             game.IncomingSelection[player] = postedJson;
                             game.awaitingAnswers[player]?.Invoke();
 
-                            if (hasStarted)
-                                game.NewEvents[game.activePlayer].Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", game.activePlayer } });
                             break;
 
                         case "move":
@@ -251,6 +251,8 @@ namespace AB_Server
                             }
                             break;
                     }
+                    if (key != "/getupdates" && key != "/getplayerlist" && key != "/getallready" && key != "/checkstarted")
+                        Console.WriteLine();
                     SendResponse(Response.MakeGetResponse(content: answer.ToString()));
                 }
                 catch (Exception e) { Console.WriteLine(e); }

@@ -57,7 +57,7 @@ namespace AB_Server.Gates
                 game.NewEvents[Owner.ID].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "gate_boost_target" },
                         { "gate", 5 },
                         { "SelectionBakugans", new JArray(EnterOrder[0].Select(x =>
@@ -79,7 +79,7 @@ namespace AB_Server.Gates
                 game.NewEvents[Owner.ID].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "gate_deboost_target" },
                         { "gate", 5 },
                         { "SelectionBakugans", new JArray(EnterOrder[^1].Select(x =>
@@ -107,7 +107,7 @@ namespace AB_Server.Gates
                     game.NewEvents[Owner.ID].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
-                        { "SelectionType", "B" },
+                        { "SelectionType", "BF" },
                         { "Message", "gate_deboost_target" },
                         { "gate", 5 },
                         { "SelectionBakugans", new JArray(EnterOrder[^1].Select(x =>

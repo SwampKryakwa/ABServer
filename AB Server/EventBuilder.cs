@@ -10,8 +10,8 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "Type", "SelectionStart" },
-                { "selections", JArray.FromObject(selections) }
+                { "Type", "StartSelection" },
+                { "Selections", JArray.FromObject(selections) }
             };
         }
 
@@ -19,7 +19,7 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "type", "C" },
+                { "SelectionType", "C" },
                 { "prompt", prompt },
                 { "options", JArray.FromObject(options) }
             };
@@ -29,8 +29,8 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "type", "B" },
-                { "prompt", prompt }
+                { "SelectionType", "Q" },
+                { "Prompt", prompt }
             };
         }
 
@@ -38,7 +38,7 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "type", "R" },
+                { "SelectionType", "R" },
                 { "user", userId },
                 { "ability", abilityId }
             };
@@ -48,9 +48,9 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "type", "A" },
+                { "SelectionType", "A" },
                 { "prompt", prompt },
-                { "options", JArray.FromObject(abilities.Select(x => new JObject { { "type", x.TypeId }, { "id", x.CardId } } )) }
+                { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "CID", x.CardId } } )) }
             };
         }
 

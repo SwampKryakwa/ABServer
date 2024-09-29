@@ -2,33 +2,36 @@
 
 namespace AB_Server.Abilities
 {
-    internal class LightHelixEffect : INegatable
+    internal class AbsorbEffect : INegatable
     {
         public int TypeId { get; }
-        Bakugan User;
+        public Bakugan User;
+        Bakugan target;
         Game game;
+        short boost;
 
-        IAbilityCard card;
 
         public Player Owner { get => User.Owner; }
 
-        public LightHelixEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
+        public AbsorbEffect(Bakugan user, Game game, int typeID)
         {
-            this.User = user;
+            User = user;
             this.game = game;
+            target = target;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
-            this.card = card;
         }
 
         public void Activate()
         {
+            boost = (short)((game.BakuganIndex.Count(x => !x.OnField() && !x.InHands) + 1) * 50);
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 9 },
+                    { "Card", 17 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -38,30 +41,16 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-
-            User.Boost(50, this);
+            User.Boost(boost, this);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
+
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
+            game.BakuganPowerReset += ResetTurnover;
 
-            game.TurnEnd += Trigger;
             User.affectingEffects.Add(this);
-        }
-
-        public void Trigger()
-        {
-            User.Owner.AbilityGrave.Remove(card);
-            User.Owner.AbilityHand.Add(card);
-            game.TurnEnd -= Trigger;
-        }
-
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
@@ -73,32 +62,45 @@ namespace AB_Server.Abilities
                 User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.TurnEnd -= Trigger;
+                game.BakuganPowerReset -= ResetTurnover;
             }
         }
 
         //remove when negated
         public void Negate()
         {
-            User.Boost(-50, this);
-
             if (User.affectingEffects.Contains(this))
+            {
+                target.affectingEffects.Remove(this);
+                game.BakuganReturned -= FieldLeaveTurnover;
+                game.BakuganDestroyed -= FieldLeaveTurnover;
+                game.BakuganPowerReset -= ResetTurnover;
+                target.Boost((short)-boost, this);
+            }
+        }
+        //is not negatable after turn ends
+        public void NegatabilityTurnover()
+        {
+            game.NegatableAbilities.Remove(this);
+            game.TurnEnd -= NegatabilityTurnover;
+        }
+
+        //remove when power reset
+        public void ResetTurnover(Bakugan leaver)
+        {
+            if (leaver == User && User.affectingEffects.Contains(this))
             {
                 User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.TurnEnd -= Trigger;
+                game.BakuganPowerReset -= ResetTurnover;
             }
-            game.NegatableAbilities.Remove(this);
         }
     }
 
-    internal class LightHelix : AbilityCard, IAbilityCard
+    internal class Absorb : AbilityCard, IAbilityCard
     {
-
-        public LightHelix(int cID, Player owner)
+        public Absorb(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -108,14 +110,14 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LightHelixEffect(User, Game, 0, this).Activate();
+                new AbsorbEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Haos;
+            user.OnField() && user.Attribute == Attribute.Aquos;
 
-        public new int TypeId { get; } = 9;
+        public new int TypeId { get; } = 17;
     }
 }

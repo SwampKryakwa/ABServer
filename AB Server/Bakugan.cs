@@ -107,6 +107,41 @@ namespace AB_Server
             Position = owner;
         }
 
+        public void SwitchPowers(Bakugan otherBakugan)
+        {
+            short newThisPower = otherBakugan.Power;
+            short newOtherPower = Power;
+            otherBakugan.Power = newOtherPower;
+            Power = newThisPower;
+            foreach (var e in game.NewEvents)
+            {
+                e.Add(new JObject {
+                    { "Type", "BakuganPowerSetEvent" },
+                    { "Owner", Owner.ID },
+                    { "Power", Power },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", otherBakugan.Power },
+                        { "BID", BID } }
+                    }
+                });
+                e.Add(new JObject {
+                    { "Type", "BakuganPowerSetEvent" },
+                    { "Owner", Owner.ID },
+                    { "Power", otherBakugan.Power },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)otherBakugan.Type },
+                        { "Attribute", (int)otherBakugan.Attribute },
+                        { "Treatment", (int)otherBakugan.Treatment },
+                        { "Power", otherBakugan.Power },
+                        { "BID", otherBakugan.BID } }
+                    }
+                });
+            }
+        }
+
         public void Boost(short boost, object source)
         {
             Power += boost;

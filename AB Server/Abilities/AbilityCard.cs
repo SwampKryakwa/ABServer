@@ -26,7 +26,8 @@ namespace AB_Server.Abilities
             (x, y) => new Absorb(x, y),
             (x, y) => new TornadoWall(x, y),
             (x, y) => new BlindJudge(x, y),
-            (x, y) => new TsunamiWave(x, y)
+            (x, y) => new TsunamiWave(x, y),
+            (x, y) => new SerpentSqueeze(x, y)
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)
@@ -95,7 +96,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },

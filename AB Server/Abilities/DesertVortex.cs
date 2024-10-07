@@ -82,7 +82,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).ToList().Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -111,7 +111,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_target" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (User.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (User.Position as GateCard).Position.Y)) == 1).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -139,7 +139,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_target" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => (Math.Abs((x.Position as GateCard).Position.X - (User.Position as GateCard).Position.X) + Math.Abs((x.Position as GateCard).Position.Y - (User.Position as GateCard).Position.Y)) == 1).Select(x =>
                             new JObject { { "Type", (int)x.Type },

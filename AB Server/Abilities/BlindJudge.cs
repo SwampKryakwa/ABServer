@@ -124,7 +124,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_boost_target" },
+                        { "Message", "INFO_BOOSTTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -154,7 +154,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_deboost_target" },
+                        { "Message", "INFO_DECREASETARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(User.Position.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -181,7 +181,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_deboost_target" },
+                        { "Message", "INFO_DECREASETARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(User.Position.Bakugans.Where(x=>x.Owner.SideID != Owner.SideID).Select(x =>
                             new JObject { { "Type", (int)x.Type },

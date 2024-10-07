@@ -31,7 +31,7 @@ namespace AB_Server.Gates
         public bool[] DisallowedPlayers { get; set; }
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
-        public List<object> Freezing;
+        public List<object> Freezing = new();
         public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;

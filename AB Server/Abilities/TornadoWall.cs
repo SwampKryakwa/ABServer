@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
                 {
                     b.Boost(80, this);
                     b.affectingEffects.Add(this);
-                    break;
+                    continue;
                 }
                 if (b.Owner.SideID != User.Owner.SideID)
                 {
@@ -138,9 +138,16 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "B" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionFieldBakugans", new JArray(Game.BakuganIndex.Where(x=> ability.BakuganIsValid(x) && x.OnField()).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID } })) },
+                        { "SelectionHandBakugans", new JArray(Game.BakuganIndex.Where(x=> ability.BakuganIsValid(x) && x.InHand()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

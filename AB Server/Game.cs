@@ -2,6 +2,7 @@
 
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server
 {
@@ -147,46 +148,63 @@ namespace AB_Server
 
         public void Initiate()
         {
-            Sides = Players.Select(x => x.SideID).ToArray();
-
-            turnPlayer = (ushort)new Random().Next(Players.Count);
-            activePlayer = turnPlayer;
-
-            for (int i = 0; i < Players.Count; i++)
+            try
             {
-                var p = Players[i];
-                JArray gates = new();
+                Sides = Players.Select(x => x.SideID).ToArray();
 
-                for (int j = 0; j < p.GateHand.Count; j++)
-                {
-                    int type = p.GateHand[j].TypeId;
-                    if (type == 0)
-                        gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
-                    else
-                        gates.Add(new JObject { { "Type", type } });
-                }
-                if (NewEvents[i].Count == 0)
-                    NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
-            }
+                turnPlayer = (ushort)new Random().Next(Players.Count);
+                activePlayer = turnPlayer;
 
-            for (int i = 0; i < PlayerCount; i++)
-                awaitingAnswers[i] = () =>
+                for (int i = 0; i < Players.Count; i++)
                 {
-                    if (IncomingSelection.Contains(null)) return;
-                    for (int i = 0; i < IncomingSelection.Length; i++)
+                    var p = Players[i];
+                    JArray gates = new();
+
+                    for (int j = 0; j < p.GateHand.Count; j++)
                     {
-                        JObject selection = IncomingSelection[i];
-                        IncomingSelection[i] = null;
-
-                        Players[i].GateHand[(int)selection["gate"]].Set(i, 1);
-
-                        selection = null;
+                        int type = p.GateHand[j].TypeId;
+                        switch (type)
+                        {
+                            case 0:
+                                Console.WriteLine(0);
+                                gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
+                                break;
+                            case 4:
+                                Console.WriteLine(4);
+                                gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
+                                break;
+                            default:
+                                gates.Add(new JObject { { "Type", type } });
+                                break;
+                        }
                     }
+                    if (NewEvents[i].Count == 0)
+                        NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
+                }
 
-                    foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x => x.DisplayName).ToArray()) } });
-                    foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
-                    Started = true;
-                };
+                for (int i = 0; i < PlayerCount; i++)
+                    awaitingAnswers[i] = () =>
+                    {
+                        if (IncomingSelection.Contains(null)) return;
+                        for (int i = 0; i < IncomingSelection.Length; i++)
+                        {
+                            JObject selection = IncomingSelection[i];
+                            IncomingSelection[i] = null;
+
+                            Players[i].GateHand[(int)selection["gate"]].Set(i, 1);
+
+                            selection = null;
+                        }
+
+                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x => x.DisplayName).ToArray()) } });
+                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
+                        Started = true;
+                    };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         public bool doNotMakeStep = false;
@@ -385,10 +403,20 @@ namespace AB_Server
             JArray gateArray = new JArray();
 
             foreach (var gate in Players[player].SettableGates())
-                if (gate.TypeId != 0)
-                    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId } });
-                else
-                    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((NormalGate)gate).Attribute }, { "Power", ((NormalGate)gate).Power } });
+                switch (gate.TypeId)
+                {
+                    case 0:
+                        Console.WriteLine(0);
+                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((NormalGate)gate).Attribute }, { "Power", ((NormalGate)gate).Power } });
+                        break;
+                    case 4:
+                        Console.WriteLine(4);
+                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((AttributeHazard)gate).Attribute } });
+                        break;
+                    default:
+                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId } });
+                        break;
+                }
 
             JArray bakuganArray = new JArray();
 

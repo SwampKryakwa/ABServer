@@ -74,7 +74,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -87,7 +87,7 @@ namespace AB_Server.Abilities
                         )) } },
                     new JObject {
                         { "SelectionType", "BH" },
-                        { "Message", "ability_addable_target" },
+                        { "Message", "INFO_ADDTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -117,7 +117,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BH" },
-                        { "Message", "ability_addable_target" },
+                        { "Message", "INFO_ADDTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Pyrus) | (x.Attribute == Attribute.Haos))).Select(x =>
                             new JObject { { "Type", (int)x.Type },

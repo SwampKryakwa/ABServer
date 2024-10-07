@@ -107,7 +107,7 @@ namespace AB_Server
             Position = owner;
         }
 
-        public void SwitchPowers(Bakugan otherBakugan)
+        public int SwitchPowers(Bakugan otherBakugan)
         {
             short newThisPower = otherBakugan.Power;
             short newOtherPower = Power;
@@ -140,6 +140,7 @@ namespace AB_Server
                     }
                 });
             }
+            return newThisPower - newOtherPower;
         }
 
         public void Boost(short boost, object source)

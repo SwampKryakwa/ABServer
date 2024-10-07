@@ -126,7 +126,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -139,7 +139,7 @@ namespace AB_Server.Abilities
                         )) } },
                     new JObject {
                         { "SelectionType", "G" },
-                        { "Message", "gate_negate_target" },
+                        { "Message", "INFO_GATENEGATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },
@@ -163,7 +163,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "G" },
-                        { "Message", "gate_negate_target" },
+                        { "Message", "INFO_GATENEGATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },

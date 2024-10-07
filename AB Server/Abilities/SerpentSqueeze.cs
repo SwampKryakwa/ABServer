@@ -13,6 +13,7 @@ namespace AB_Server.Abilities
         public Bakugan User;
         Bakugan target;
         Game game;
+        int change;
 
 
         public Player Owner { get => User.Owner; }
@@ -35,7 +36,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 1 },
+                    { "Card", 21 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -45,7 +46,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.SwitchPowers(target);
+            change = User.SwitchPowers(target);
 
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
@@ -79,7 +80,8 @@ namespace AB_Server.Abilities
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
-                User.SwitchPowers(target);
+                User.Boost((short)-change, null);
+                target.Boost((short)change, null);
             }
         }
         //is not negatable after turn ends
@@ -126,7 +128,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_user" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -153,7 +155,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_target" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x != User).Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -179,7 +181,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "ability_target" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x != User).Select(x =>
                             new JObject { { "Type", (int)x.Type },

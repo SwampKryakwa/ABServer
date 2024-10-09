@@ -97,7 +97,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true)) && !HadThrownBakugan;
+            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true) || (x?.AllowAnyPlayers == true)) && !HadThrownBakugan;
         }
 
         public bool HasActivateableAbilities()

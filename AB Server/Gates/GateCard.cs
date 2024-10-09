@@ -29,6 +29,7 @@ namespace AB_Server.Gates
         public Player Owner { get; set; }
         public (int X, int Y) Position { get; set; }
         public bool[] DisallowedPlayers { get; set; }
+        public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
         public List<object> Freezing = new();
@@ -41,13 +42,14 @@ namespace AB_Server.Gates
         {
             IsFrozen = true;
             Freezing.Add(frozer);
-            ActiveBattle = true;
+            ActiveBattle = false;
 
-            if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
-            {
-                game.isBattleGoing = false;
-                game.EndTurn();
-            }
+            for (int i = 0; i < game.Field.GetLength(0); i++)
+                for (int j = 0; j < game.Field.GetLength(1); j++)
+                    if (game.Field[i, j] != null && game.Field[i, j].ActiveBattle) return;
+
+            game.isBattleGoing = false;
+            game.EndTurn();
         }
 
         public void TryUnfreeze(object frozer)
@@ -281,6 +283,7 @@ namespace AB_Server.Gates
         public Player Owner { get; set; }
         public bool ActiveBattle { get; set; }
         public bool[] DisallowedPlayers { get; set; }
+        public bool AllowAnyPlayers { get; set; }
         public (int X, int Y) Position { get; set; }
 
         public int TypeId { get; }

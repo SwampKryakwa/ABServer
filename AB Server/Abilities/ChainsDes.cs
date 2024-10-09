@@ -106,7 +106,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new int TypeId { get; } = 15;
+        public new int TypeId { get; private protected set; } = 15;
 
         public new void Setup(bool asCounter)
         {
@@ -119,17 +119,23 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "INFO_BOOSTTARGET" },
+                        { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionFieldBakugans", new JArray(Game.BakuganIndex.Where(x => ability.BakuganIsValid(x) && x.OnField()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
                                 { "Owner", x.Owner.ID },
-                                { "BID", x.BID }
-                            }
-                        )) } },
+                                { "BID", x.BID } })) },
+                        { "SelectionHandBakugans", new JArray(Game.BakuganIndex.Where(x => ability.BakuganIsValid(x) && x.InGrave()).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.ID },
+                                { "BID", x.BID } })) }
+                    },
                     new JObject {
                         { "SelectionType", "BF" },
                         { "Message", "INFO_DECREASETARGET" },
@@ -147,7 +153,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -177,7 +183,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         private Bakugan target;

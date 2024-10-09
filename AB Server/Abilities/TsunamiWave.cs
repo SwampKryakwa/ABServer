@@ -48,7 +48,7 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.Type == BakuganType.Knight && Game.BakuganIndex.Count(y => y != user && y.Attribute == Attribute.Aquos && y.OnField() && y.Owner.SideID == user.Owner.SideID) >= 2 && user.OnField() && user.Attribute == Attribute.Aquos;
 
-        public new int TypeId { get; } = 20;
+        public new int TypeId { get; private protected set; } = 20;
     }
 }
 

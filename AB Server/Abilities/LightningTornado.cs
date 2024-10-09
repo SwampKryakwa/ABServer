@@ -204,7 +204,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LightningTornadoEffect(User, Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]], Game, 1).Activate();
+                new LightningTornadoEffect(User, target, Game, 1).Activate();
 
             Dispose();
         }
@@ -212,6 +212,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Haos;
 
-        public new int TypeId { get; } = 10;
+        public new int TypeId { get; private protected set; } = 10;
     }
 }

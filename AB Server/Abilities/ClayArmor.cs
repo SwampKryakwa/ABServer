@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new int TypeId { get; } = 5;
+        public new int TypeId { get; private protected set; } = 5;
 
         public new void Resolve()
         {

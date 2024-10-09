@@ -322,134 +322,139 @@ namespace AB_Server
             // While a user hasn't visited the `shutdown` url, keep on handling requests
             while (runServer)
             {
-                // Will wait here until we hear from a connection
-                HttpListenerContext ctx = await listener.GetContextAsync();
-
-                // Peel out the requests and response objects
-                HttpListenerRequest request = ctx.Request;
-                HttpListenerResponse resp = ctx.Response;
-
-                // Write the response info
-                string disableSubmit = !runServer ? "disabled" : "";
-
-                StreamReader reader = new StreamReader(request.InputStream, Encoding.UTF8);
-                string body = reader.ReadToEnd();
-
-                if (request.HttpMethod == "GET")
+                try
                 {
-                    try
-                    {
-                        string key = request.Url.ToString();
+                    // Will wait here until we hear from a connection
+                    HttpListenerContext ctx = await listener.GetContextAsync();
 
-                        JObject postedJson = null;
+                    // Peel out the requests and response objects
+                    HttpListenerRequest request = ctx.Request;
+                    HttpListenerResponse resp = ctx.Response;
+
+                    // Write the response info
+                    string disableSubmit = !runServer ? "disabled" : "";
+
+                    StreamReader reader = new StreamReader(request.InputStream, Encoding.UTF8);
+                    string body = reader.ReadToEnd();
+
+                    if (request.HttpMethod == "GET")
+                    {
                         try
                         {
-                            postedJson = JObject.Parse(body);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
+                            string key = request.Url.ToString();
 
-                        string requestedResource = request.Url.ToString().Split('/')[^1];
+                            JObject postedJson = null;
+                            try
+                            {
+                                postedJson = JObject.Parse(body);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
 
-                        // Decode the key value
-                        if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
-                        {
-                            Console.WriteLine(key);
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            Console.WriteLine(body);
-                            Console.ForegroundColor = ConsoleColor.White;
-                        }
+                            string requestedResource = request.Url.ToString().Split('/')[^1];
 
-                        JObject answer = new();
-
-                        string GID;
-                        Game game;
-                        int player;
-                        switch (requestedResource)
-                        {
-                            case "ping":
-                                answer.Add("response", true);
-                                break;
-
-                            case "createroom":
-                                string room = RandomString(8);
-                                Rooms.Add(room, new Room((short)postedJson["playerCount"]));
-                                answer.Add("room", room);
-                                break;
-
-                            case "joinroom":
-                                if (Rooms.ContainsKey((string)postedJson["roomName"]))
-                                {
-                                    answer.Add("success", Rooms[(string)postedJson["roomName"]].AddPlayer((long)postedJson["UUID"], postedJson["userName"].ToString()));
-                                    break;
-                                }
-                                answer.Add("success", false);
-                                break;
-
-                            case "leaveroom":
-                                if (Rooms.ContainsKey((string)postedJson["roomName"]))
-                                {
-                                    Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]);
-                                    if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
-                                }
-                                break;
-
-                            case "getmyposition":
-                                answer.Add("position", Rooms[(string)postedJson["roomName"]].GetPosition((long)postedJson["UUID"]));
-                                break;
-
-                            case "updateready":
-                                try { answer.Add("canStart", Rooms[(string)postedJson["roomName"]].UpdateReady((long)postedJson["UUID"], (bool)postedJson["isReady"])); }
-                                catch
-                                {
-                                    Console.WriteLine(postedJson["roomName"]);
-                                    Console.WriteLine(postedJson["UUID"]);
-                                    Console.WriteLine(postedJson["isReady"]);
-                                }
-                                break;
-
-                            case "getplayerlist":
-                                answer.Add("players", new JArray(Rooms[(string)postedJson["roomName"]].UserNames));
-                                break;
-
-                            case "getallready":
-                                answer.Add("ready", new JArray(Rooms[(string)postedJson["roomName"]].IsReady));
-                                break;
-
-                            case "checkready":
-                                answer.Add("canStart", Rooms[(string)postedJson["roomName"]].AreAllReady());
-                                break;
-
-                            case "checkstarted":
-                                answer.Add("started", Rooms[(string)postedJson["roomName"]].Started);
-                                break;
-
-                            case "startroom":
-                                Rooms[(string)postedJson["roomName"]].Started = true;
-                                if (Rooms[(string)postedJson["roomName"]].Players.Contains((long)postedJson["UUID"]))
-                                {
-                                    answer.Add("successful", true);
-                                }
+                            // Decode the key value
+                            if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
+                            {
+                                Console.WriteLine(key);
+                                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                                Console.WriteLine(body);
+                                if (OperatingSystem.IsWindows())
+                                    Console.ForegroundColor = ConsoleColor.White;
                                 else
-                                    answer.Add("successful", false);
-                                break;
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                            }
 
-                            case "newgame":
-                                game = new((ushort)postedJson["playerCount"]);
-                                room = (string)postedJson["roomName"];
-                                GIDToGame.Add(room, game);
+                            JObject answer = new();
 
-                                answer.Add("gid", room);
-                                break;
+                            string GID;
+                            Game game;
+                            int player;
+                            switch (requestedResource)
+                            {
+                                case "ping":
+                                    answer.Add("response", true);
+                                    break;
 
-                            case "getsession":
-                                answer.Add("UUID", random.NextInt64());
+                                case "createroom":
+                                    string room = RandomString(8);
+                                    Rooms.Add(room, new Room((short)postedJson["playerCount"]));
+                                    answer.Add("room", room);
+                                    break;
 
-                                break;
+                                case "joinroom":
+                                    if (Rooms.ContainsKey((string)postedJson["roomName"]))
+                                    {
+                                        answer.Add("success", Rooms[(string)postedJson["roomName"]].AddPlayer((long)postedJson["UUID"], postedJson["userName"].ToString()));
+                                        break;
+                                    }
+                                    answer.Add("success", false);
+                                    break;
 
-                            case "join":
+                                case "leaveroom":
+                                    if (Rooms.ContainsKey((string)postedJson["roomName"]))
+                                    {
+                                        Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]);
+                                        if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
+                                    }
+                                    break;
+
+                                case "getmyposition":
+                                    answer.Add("position", Rooms[(string)postedJson["roomName"]].GetPosition((long)postedJson["UUID"]));
+                                    break;
+
+                                case "updateready":
+                                    try { answer.Add("canStart", Rooms[(string)postedJson["roomName"]].UpdateReady((long)postedJson["UUID"], (bool)postedJson["isReady"])); }
+                                    catch
+                                    {
+                                        Console.WriteLine(postedJson["roomName"]);
+                                        Console.WriteLine(postedJson["UUID"]);
+                                        Console.WriteLine(postedJson["isReady"]);
+                                    }
+                                    break;
+
+                                case "getplayerlist":
+                                    answer.Add("players", new JArray(Rooms[(string)postedJson["roomName"]].UserNames));
+                                    break;
+
+                                case "getallready":
+                                    answer.Add("ready", new JArray(Rooms[(string)postedJson["roomName"]].IsReady));
+                                    break;
+
+                                case "checkready":
+                                    answer.Add("canStart", Rooms[(string)postedJson["roomName"]].AreAllReady());
+                                    break;
+
+                                case "checkstarted":
+                                    answer.Add("started", Rooms[(string)postedJson["roomName"]].Started);
+                                    break;
+
+                                case "startroom":
+                                    Rooms[(string)postedJson["roomName"]].Started = true;
+                                    if (Rooms[(string)postedJson["roomName"]].Players.Contains((long)postedJson["UUID"]))
+                                    {
+                                        answer.Add("successful", true);
+                                    }
+                                    else
+                                        answer.Add("successful", false);
+                                    break;
+
+                                case "newgame":
+                                    game = new((ushort)postedJson["playerCount"]);
+                                    room = (string)postedJson["roomName"];
+                                    GIDToGame.Add(room, game);
+
+                                    answer.Add("gid", room);
+                                    break;
+
+                                case "getsession":
+                                    answer.Add("UUID", random.NextInt64());
+
+                                    break;
+
+                                case "join":
                                     GID = (string)postedJson["gid"];
                                     game = GIDToGame[GID];
                                     answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
@@ -459,71 +464,76 @@ namespace AB_Server
                                         Console.WriteLine("starting");
                                         new Thread(game.Initiate).Start();
                                     }
-                                
-                                break;
 
-                            case "getupdates":
-                                answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
-                                break;
+                                    break;
 
-                            case "checkturnstart":
-                                answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].activePlayer } });
-                                break;
+                                case "getupdates":
+                                    answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
+                                    break;
 
-                            case "getmoves":
-                                GID = (string)postedJson["gid"];
-                                game = GIDToGame[GID];
-                                player = (int)postedJson["playerID"];
+                                case "checkturnstart":
+                                    answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].activePlayer } });
+                                    break;
 
-                                answer.Add("moves", game.GetPossibleMoves(player));
+                                case "getmoves":
+                                    GID = (string)postedJson["gid"];
+                                    game = GIDToGame[GID];
+                                    player = (int)postedJson["playerID"];
 
-                                break;
+                                    answer.Add("moves", game.GetPossibleMoves(player));
 
-                            case "answer":
-                                GID = (string)postedJson["gid"];
-                                game = GIDToGame[GID];
-                                player = (int)postedJson["playerID"];
+                                    break;
 
-                                bool hasStarted = game.Started;
-                                game.IncomingSelection[player] = postedJson;
-                                game.awaitingAnswers[player]?.Invoke();
+                                case "answer":
+                                    GID = (string)postedJson["gid"];
+                                    game = GIDToGame[GID];
+                                    player = (int)postedJson["playerID"];
 
-                                break;
+                                    bool hasStarted = game.Started;
+                                    game.IncomingSelection[player] = postedJson;
+                                    game.awaitingAnswers[player]?.Invoke();
 
-                            case "move":
-                                GID = (string)postedJson["gid"];
-                                game = GIDToGame[GID];
-                                player = (int)postedJson["playerID"];
+                                    break;
 
-                                game.IncomingSelection[player] = postedJson;
-                                if (!game.doNotMakeStep)
-                                    game.GameStep();
-                                break;
+                                case "move":
+                                    GID = (string)postedJson["gid"];
+                                    game = GIDToGame[GID];
+                                    player = (int)postedJson["playerID"];
 
-                            case "leave":
-                                GID = (string)postedJson["gid"];
-                                game = GIDToGame[GID];
+                                    game.IncomingSelection[player] = postedJson;
+                                    if (!game.doNotMakeStep)
+                                        game.GameStep();
+                                    break;
 
-                                game.Left++;
-                                if (game.Left == game.PlayerCount)
-                                {
-                                    GIDToGame.Remove(GID);
-                                    game = null;
-                                }
-                                break;
+                                case "leave":
+                                    GID = (string)postedJson["gid"];
+                                    game = GIDToGame[GID];
+
+                                    game.Left++;
+                                    if (game.Left == game.PlayerCount)
+                                    {
+                                        GIDToGame.Remove(GID);
+                                        game = null;
+                                    }
+                                    break;
+                            }
+                            if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
+                                Console.WriteLine();
+                            byte[] data = Encoding.UTF8.GetBytes(answer.ToString());
+                            resp.ContentType = "text/html";
+                            resp.ContentEncoding = Encoding.UTF8;
+                            resp.ContentLength64 = data.LongLength;
+
+                            // Write out to the response stream (asynchronously), then close it
+                            await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                            resp.Close();
                         }
-                        if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
-                            Console.WriteLine();
-                        byte[] data = Encoding.UTF8.GetBytes(answer.ToString());
-                        resp.ContentType = "text/html";
-                        resp.ContentEncoding = Encoding.UTF8;
-                        resp.ContentLength64 = data.LongLength;
-
-                        // Write out to the response stream (asynchronously), then close it
-                        await resp.OutputStream.WriteAsync(data, 0, data.Length);
-                        resp.Close();
+                        catch (Exception e) { Console.WriteLine(e); }
                     }
-                    catch (Exception e) { Console.WriteLine(e); }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
                 }
             }
         }

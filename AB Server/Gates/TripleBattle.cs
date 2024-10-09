@@ -14,12 +14,13 @@
             CardId = cID;
         }
 
-        public new int TypeId { get; } = 1;
+        public new int TypeId { get; private protected set; } = 1;
 
         public new void Negate()
         {
             IsOpen = false;
             Negated = true;
+            AllowAnyPlayers = false;
 
             game.BakuganMoved -= OnBakuganMove;
             game.BakuganThrown -= OnBakuganStands;
@@ -31,6 +32,7 @@
         public new void Open()
         {
             IsOpen = true;
+            AllowAnyPlayers = true;
             if (Bakugans.Count < 3)
                 Freeze(this);
 
@@ -44,6 +46,7 @@
         public new void Remove()
         {
             IsOpen = false;
+            AllowAnyPlayers = false;
             TryUnfreeze(this);
 
             game.BakuganMoved -= OnBakuganMove;

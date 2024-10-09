@@ -150,6 +150,6 @@ namespace AB_Server.Abilities
 
         public new bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Pyrus && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
-        public new int TypeId { get; } = 2;
+        public new int TypeId { get; private protected set; } = 2;
     }
 }

@@ -119,6 +119,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Subterra;
 
-        public new int TypeId { get; } = 8;
+        public new int TypeId { get; private protected set; } = 8;
     }
 }

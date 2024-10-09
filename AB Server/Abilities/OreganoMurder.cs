@@ -106,7 +106,7 @@ namespace AB_Server.Abilities
 
     internal class OreganoMurder : AbilityCard, IAbilityCard, INegatable
     {
-        public new int TypeId { get; } = 13;
+        public new int TypeId { get; private protected set; } = 13;
 
         public OreganoMurder(int cID, Player owner)
         {

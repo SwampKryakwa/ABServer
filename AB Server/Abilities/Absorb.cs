@@ -118,6 +118,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Aquos;
 
-        public new int TypeId { get; } = 17;
+        public new int TypeId { get; private protected set; } = 17;
     }
 }

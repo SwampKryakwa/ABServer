@@ -1,5 +1,6 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Reflection.Metadata;
 
 namespace AB_Server.Abilities
 {
@@ -15,6 +16,9 @@ namespace AB_Server.Abilities
 
         public RapidFireEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
+            Console.WriteLine(user);
+            Console.WriteLine(target);
+            Console.WriteLine(game);
             User = user;
             this.game = game;
             this.target = target;
@@ -24,8 +28,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-
-
             int team = User.Owner.SideID;
 
             for (int i = 0; i < game.NewEvents.Length; i++)
@@ -102,7 +104,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -132,7 +134,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         private Bakugan target;
@@ -141,13 +143,6 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public void ActivateFusion()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -161,8 +156,8 @@ namespace AB_Server.Abilities
         }
 
         public new bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Pyrus && Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2;
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Pyrus && Game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != Owner.SideID) >= 2;
 
-        public new int TypeId { get; } = 3;
+        public new int TypeId { get; private protected set; } = 3;
     }
 }

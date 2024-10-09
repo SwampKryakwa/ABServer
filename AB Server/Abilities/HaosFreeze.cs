@@ -115,6 +115,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Haos;
 
-        public new int TypeId { get; } = 11;
+        public new int TypeId { get; private protected set; } = 11;
     }
 }

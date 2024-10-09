@@ -172,6 +172,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             !user.InGrave() && user.Attribute == Attribute.Ventus;
 
-        public new int TypeId { get; } = 18;
+        public new int TypeId { get; private protected set; } = 18;
     }
 }

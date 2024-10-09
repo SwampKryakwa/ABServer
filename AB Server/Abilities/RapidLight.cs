@@ -102,7 +102,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -132,7 +132,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Resolve;
+            Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
         private Bakugan target;
@@ -161,8 +161,8 @@ namespace AB_Server.Abilities
         }
 
         public new bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Haos && Game.BakuganIndex.Count(x => x.Owner.SideID != Owner.SideID) >= 2;
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Haos && Game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != Owner.SideID) >= 2;
 
-        public new int TypeId { get; } = 4;
+        public new int TypeId { get; private protected set; } = 4;
     }
 }

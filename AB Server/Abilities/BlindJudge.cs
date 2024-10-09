@@ -1,5 +1,6 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks.Dataflow;
 
 namespace AB_Server.Abilities
 {
@@ -20,7 +21,9 @@ namespace AB_Server.Abilities
             User = user;
             Game = game;
             Target = target;
-            battle = game.GateIndex.First(x => x.Bakugans.Contains(user));
+            Console.WriteLine(user);
+            Console.WriteLine(user.Position);
+            battle = (IGateCard)user.Position;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
             Card = card;
@@ -173,7 +176,7 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-
+            Console.WriteLine(User);
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -216,6 +219,6 @@ namespace AB_Server.Abilities
         public new bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Ventus;
 
-        public new int TypeId { get; } = 19;
+        public new int TypeId { get; private protected set; } = 19;
     }
 }

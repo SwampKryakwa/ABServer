@@ -16,7 +16,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int TypeId { get; } = 3;
+        public new int TypeId { get; private protected set; } = 3;
 
         public new void Negate()
         {

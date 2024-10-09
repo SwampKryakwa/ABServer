@@ -1,18 +1,20 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class LightSpiralEffect : INegatable
+    internal class CinderCoilEffect : INegatable
     {
         public int TypeId { get; }
         Bakugan User;
         Game game;
 
+        short boost = 0;
+
         IAbilityCard card;
 
         public Player Owner { get => User.Owner; }
 
-        public LightSpiralEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
+        public CinderCoilEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
             this.User = user;
             this.game = game;
@@ -28,7 +30,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 9 },
+                    { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -44,17 +46,40 @@ namespace AB_Server.Abilities
             game.NegatableAbilities.Add(this);
             game.TurnEnd += NegatabilityTurnover;
             game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
+            game.BakuganDestroyed += EffectOver;
+            game.BakuganPowerReset += Reset;
 
-            game.TurnEnd += Trigger;
+            game.BakuganBoosted += Trigger;
             User.affectingEffects.Add(this);
         }
 
-        public void Trigger()
+        public void Trigger(Bakugan target, short boost, object source)
         {
-            User.Owner.AbilityGrave.Remove(card);
-            User.Owner.AbilityHand.Add(card);
-            game.TurnEnd -= Trigger;
+            if (target == User && source != this)
+            {
+                target.Boost(400, this);
+                boost += 400;
+            }
+        }
+
+        public void Reset(Bakugan target)
+        {
+            if (target == User)
+                boost = 0;
+        }
+
+        public void EffectOver(Bakugan target, ushort owner)
+        {
+            if (target != User) return;
+            game.BakuganReturned -= FieldLeaveTurnover;
+            game.BakuganDestroyed -= EffectOver;
+
+            game.BakuganBoosted -= Trigger;
+            game.BakuganPowerReset -= Reset;
+            User.affectingEffects.Remove(this);
+            game.NegatableAbilities.Remove(this);
+
+            User.Boost((short)-boost, this);
         }
 
         //is not negatable after turn ends
@@ -70,35 +95,34 @@ namespace AB_Server.Abilities
         {
             if (leaver == User && User.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.TurnEnd -= Trigger;
+                game.BakuganDestroyed -= EffectOver;
             }
         }
 
         //remove when negated
         public void Negate()
         {
-            User.Boost(-50, this);
-
             if (User.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
+                game.BakuganDestroyed -= EffectOver;
 
-                game.TurnEnd -= Trigger;
+                game.BakuganBoosted -= Trigger;
+                game.BakuganPowerReset -= Reset;
+
+                User.affectingEffects.Remove(this);
             }
             game.NegatableAbilities.Remove(this);
+
+            User.Boost((short)-boost, this);
         }
     }
 
-    internal class LightSpiral : AbilityCard, IAbilityCard
+    internal class CinderCoil : AbilityCard, IAbilityCard
     {
 
-        public LightSpiral(int cID, Player owner)
+        public CinderCoil(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -108,14 +132,14 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LightSpiralEffect(User, Game, 0, this).Activate();
+                new CinderCoilEffect(User, Game, 0, this).Activate();
 
             Dispose();
         }
 
         public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Haos;
+            user.OnField() && user.Type == BakuganType.Serpent && user.Attribute == Attribute.Pyrus;
 
-        public new int TypeId { get; private protected set; } = 9;
+        public new int TypeId { get; private protected set; } = 22;
     }
 }

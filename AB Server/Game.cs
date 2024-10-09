@@ -232,7 +232,7 @@ namespace AB_Server
                     }
 
 
-                    if (!gateSelection.DisallowedPlayers[activePlayer])
+                    if (gateSelection.AllowAnyPlayers || !gateSelection.DisallowedPlayers[activePlayer])
                     {
                         Players[turnPlayer].HadThrownBakugan = true;
                         BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);

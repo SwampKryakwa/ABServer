@@ -100,7 +100,7 @@ namespace AB_Server.Abilities
 
     internal class FireTornado : AbilityCard, IAbilityCard, INegatable
     {
-        public new int TypeId { get; } = 1;
+        public new int TypeId { get; private protected set; } = 1;
 
         public FireTornado(int cID, Player owner)
         {

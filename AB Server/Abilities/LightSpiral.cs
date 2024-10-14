@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class LightSpiralEffect : INegatable
+    internal class LightSpiralEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -41,8 +41,8 @@ namespace AB_Server.Abilities
 
             User.Boost(50, this);
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
+            
+            
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
 
@@ -57,13 +57,6 @@ namespace AB_Server.Abilities
             game.TurnEnd -= Trigger;
         }
 
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
-        }
-
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
@@ -76,22 +69,6 @@ namespace AB_Server.Abilities
 
                 game.TurnEnd -= Trigger;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            User.Boost(-50, this);
-
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.TurnEnd -= Trigger;
-            }
-            game.NegatableAbilities.Remove(this);
         }
     }
 

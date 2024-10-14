@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class HaosFreezeEffect : INegatable
+    internal class LuminaFreezeEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public HaosFreezeEffect(Bakugan user, Game game, int typeID)
+        public LuminaFreezeEffect(Bakugan user, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -45,9 +45,6 @@ namespace AB_Server.Abilities
 
             game.BakuganAdded += Trigger;
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-
             game.BakuganPowerReset += ResetTurnover;
 
             User.affectingEffects.Add(this);
@@ -62,28 +59,6 @@ namespace AB_Server.Abilities
             }
         }
 
-        //remove when negated
-        public void Negate()
-        {
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganPowerReset -= ResetTurnover;
-
-                target.TryUnfreeze(this);
-
-                game.BakuganAdded -= Trigger;
-            }
-        }
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
-
-            game.BakuganAdded -= Trigger;
-        }
-
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
@@ -95,9 +70,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class HaosFreeze : AbilityCard, IAbilityCard
+    internal class LuminaFreeze : AbilityCard, IAbilityCard
     {
-        public HaosFreeze(int cID, Player owner)
+        public LuminaFreeze(int cID, Player owner)
         {
             CardId = cID;
             Owner = owner;
@@ -107,7 +82,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new HaosFreezeEffect(User, Game, TypeId).Activate();
+                new LuminaFreezeEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }

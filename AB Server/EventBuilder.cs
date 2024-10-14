@@ -80,7 +80,7 @@ namespace AB_Server
                 {
                     { "Type", "SetGate" },
                     { "type", card.TypeId },
-                    { "owner", card.Owner.ID },
+                    { "owner", card.Owner.Id },
                     { "posX", card.Position.X },
                     { "posY", card.Position.Y },
                     { "extra", extra }
@@ -89,7 +89,7 @@ namespace AB_Server
             {
                 { "Type", "SetGate" },
                 { "type", -1 },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
                 { "posX", card.Position.X },
                 { "posY", card.Position.Y }
             };
@@ -130,7 +130,7 @@ namespace AB_Server
             {
                 { "Type", "OpenGate" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
                 { "posX", card.Position.X },
                 { "posY", card.Position.Y },
                 { "extra", extra }
@@ -162,7 +162,7 @@ namespace AB_Server
             {
                 { "Type", "DiscardGate" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
                 { "extra", extra }
             };
         }
@@ -183,7 +183,7 @@ namespace AB_Server
             {
                 { "Type", "ActivateAbility" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
             };
         }
 
@@ -193,7 +193,7 @@ namespace AB_Server
             {
                 { "Type", "NegateAbility" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
             };
         }
 
@@ -203,7 +203,7 @@ namespace AB_Server
             {
                 { "Type", "DiscardAbility" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
             };
         }
 
@@ -213,7 +213,7 @@ namespace AB_Server
             {
                 { "Type", "RestoreAbility" },
                 { "type", card.TypeId },
-                { "owner", card.Owner.ID },
+                { "owner", card.Owner.Id },
             };
         }
 
@@ -227,7 +227,7 @@ namespace AB_Server
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
                 { "id", bakugan.BID },
-                { "owner", bakugan.Owner.ID },
+                { "owner", bakugan.Owner.Id },
                 { "posX", posX },
                 { "posY", posY },
             };
@@ -243,7 +243,7 @@ namespace AB_Server
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
                 { "id", bakugan.BID },
-                { "owner", bakugan.Owner.ID },
+                { "owner", bakugan.Owner.Id },
                 { "posX", posX },
                 { "posY", posY },
             };
@@ -258,7 +258,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID }
+                { "owner", bakugan.Owner.Id }
             };
         }
 
@@ -283,7 +283,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID },
+                { "owner", bakugan.Owner.Id },
                 { "posX", posX },
                 { "posY", posY },
             };
@@ -298,7 +298,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID }
+                { "owner", bakugan.Owner.Id }
             };
         }
 
@@ -311,7 +311,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID }
+                { "owner", bakugan.Owner.Id }
             };
         }
 
@@ -324,7 +324,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID }
+                { "owner", bakugan.Owner.Id }
             };
         }
 
@@ -337,7 +337,7 @@ namespace AB_Server
                 { "attribute", (int)bakugan.Attribute },
                 { "treatment", (int)bakugan.Treatment },
                 { "power", bakugan.Power },
-                { "owner", bakugan.Owner.ID }
+                { "owner", bakugan.Owner.Id }
             };
         }
 

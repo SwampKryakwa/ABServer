@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class RapidLightEffect : INegatable
+    internal class RapidLightEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -67,7 +67,7 @@ namespace AB_Server.Abilities
         {
             IAbilityCard ability = this;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 2 },
@@ -81,7 +81,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) } },
@@ -94,7 +94,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
@@ -102,7 +102,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -110,7 +110,7 @@ namespace AB_Server.Abilities
             User = user;
 
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -124,7 +124,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
@@ -132,22 +132,22 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         private Bakugan target;
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][1]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
         public void ActivateFusion()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }

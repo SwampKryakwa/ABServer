@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class DesertVortexEffect : INegatable
+    internal class DesertVortexEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
 
         public void Return(IGateCard target, ushort winner)
         {
-            if (winner == User.Owner.ID && source.OnField)
+            if (winner == User.Owner.Id && source.OnField)
                 User.Move(this.target);
             game.BattleOver -= Return;
         }
@@ -75,7 +75,7 @@ namespace AB_Server.Abilities
         {
             IAbilityCard ability = this;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -89,7 +89,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) } }
@@ -97,7 +97,7 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Setup2;
+            Game.awaitingAnswers[Owner.Id] = Setup2;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -105,7 +105,7 @@ namespace AB_Server.Abilities
             User = user;
 
             
-            Game.NewEvents[Owner.ID].Add(new JObject {
+            Game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
@@ -118,7 +118,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
@@ -126,14 +126,14 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void Setup2()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            Game.NewEvents[Owner.ID].Add(new JObject {
+            Game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
@@ -146,7 +146,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
@@ -154,14 +154,14 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         private GateCard target;
 
         public void Activate()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]].Position as GateCard;
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]].Position as GateCard;
 
             Game.CheckChain(Owner, this, User);
         }

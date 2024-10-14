@@ -54,7 +54,7 @@ namespace AB_Server.Gates
 
             if (EnterOrder[0].Length != 1)
             {
-                game.NewEvents[Owner.ID].Add(new JObject
+                game.NewEvents[Owner.Id].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
                         { "SelectionType", "BF" },
@@ -65,18 +65,18 @@ namespace AB_Server.Gates
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
                     });
-                game.awaitingAnswers[Owner.ID] = TryResolve;
+                game.awaitingAnswers[Owner.Id] = TryResolve;
                 return;
             }
 
             if (EnterOrder[^1].Length != 1)
             {
-                game.NewEvents[Owner.ID].Add(new JObject
+                game.NewEvents[Owner.Id].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
                         { "SelectionType", "BF" },
@@ -87,12 +87,12 @@ namespace AB_Server.Gates
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
                     });
-                game.awaitingAnswers[Owner.ID] = TryResolve;
+                game.awaitingAnswers[Owner.Id] = TryResolve;
                 return;
             }
         }
@@ -101,10 +101,10 @@ namespace AB_Server.Gates
         {
             if (first == null)
             {
-                first = game.BakuganIndex[(int)game.IncomingSelection[Owner.ID]["bakugan"]];
+                first = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["bakugan"]];
                 if (last == null)
                 {
-                    game.NewEvents[Owner.ID].Add(new JObject
+                    game.NewEvents[Owner.Id].Add(new JObject
                     {
                         { "Type", "StartSelectionGate" },
                         { "SelectionType", "BF" },
@@ -115,18 +115,18 @@ namespace AB_Server.Gates
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) }
                     });
-                    game.awaitingAnswers[Owner.ID] = TryResolve;
+                    game.awaitingAnswers[Owner.Id] = TryResolve;
                     return;
                 }
             }
 
             else if (last == null)
-                last = game.BakuganIndex[(int)game.IncomingSelection[Owner.ID]["bakugan"]];
+                last = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["bakugan"]];
 
             IsOpen = true;
 

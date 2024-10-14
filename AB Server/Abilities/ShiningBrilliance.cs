@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class ShiningBrillianceEffect : INegatable
+    internal class ShiningBrillianceEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -41,20 +41,6 @@ namespace AB_Server.Abilities
             {
                 b.PermaBoost(50, this);
                 User.affectingEffects.Add(this);
-            }
-
-            game.NegatableAbilities.Add(this);
-
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            game.NegatableAbilities.Remove(this);
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                User.PermaBoost(-50, this);
             }
         }
     }

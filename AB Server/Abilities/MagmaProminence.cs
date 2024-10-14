@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class MagmaSurfaceEffect : INegatable
+    internal class MagmaProminenceEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public MagmaSurfaceEffect(Bakugan user, IGateCard target, Game game, int typeID)
+        public MagmaProminenceEffect(Bakugan user, IGateCard target, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -25,8 +25,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-
-
             target.Negate();
 
             for (int i = 0; i < game.NewEvents.Length; i++)
@@ -65,14 +63,12 @@ namespace AB_Server.Abilities
                         { "Attribute", 5 },
                         { "Power", 100 }
                     }},
-                    { "Owner", target.Owner.ID },
+                    { "Owner", target.Owner.Id },
                     { "CID", target.CardId }
                 };
             }
 
             replacement.Open();
-
-            game.NegatableAbilities.Add(this);
         }
 
         public void Restore()
@@ -98,12 +94,6 @@ namespace AB_Server.Abilities
             }
             game.GateIndex[replacement.CardId] = target;
         }
-
-        //remove when negated
-        public void Negate()
-        {
-            Restore();
-        }
     }
 
     internal class MagmaProminence : AbilityCard, IAbilityCard
@@ -119,7 +109,7 @@ namespace AB_Server.Abilities
         {
             IAbilityCard ability = this;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 2 },
@@ -133,7 +123,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) } },
@@ -149,14 +139,14 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
 
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -173,22 +163,22 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = ActivateFusion;
+            Game.awaitingAnswers[Owner.Id] = ActivateFusion;
         }
 
         private IGateCard target;
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][1]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
         public void ActivateFusion()
         {
-            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["gate"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -196,7 +186,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new MagmaSurfaceEffect(User, target, Game, 1).Activate();
+                new MagmaProminenceEffect(User, target, Game, 1).Activate();
 
             Dispose();
         }

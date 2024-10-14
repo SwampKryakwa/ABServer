@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class FireJudgeEffect : INegatable
+    internal class FireJudgeEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -41,20 +41,7 @@ namespace AB_Server.Abilities
             }
             User.PermaBoost(100, this);
 
-            game.NegatableAbilities.Add(this);
-
             User.affectingEffects.Add(this);
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            game.NegatableAbilities.Remove(this);
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                User.PermaBoost(-100, this);
-            }
         }
     }
 

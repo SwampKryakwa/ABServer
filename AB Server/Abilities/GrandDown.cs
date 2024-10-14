@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class GrandDownEffect : INegatable
+    internal class GrandDownEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -49,7 +49,7 @@ namespace AB_Server.Abilities
         public void Negate() { }
     }
 
-    internal class GrandDown : AbilityCard, IAbilityCard, INegatable
+    internal class GrandDown : AbilityCard, IAbilityCard
     {
         public GrandDown(int cID, Player owner, int typeId)
         {

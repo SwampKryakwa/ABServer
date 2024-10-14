@@ -112,8 +112,18 @@ namespace AB_Server.Abilities
 
         protected void Dispose()
         {
-            Owner.AbilityHand.Remove(this);
+            Game.ActiveZone.Remove(this);
             Owner.AbilityGrave.Add(this);
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Card", TypeId },
+                    { "Owner", Owner.Id }
+                });
+            }
         }
 
 #pragma warning restore CS8618
@@ -141,8 +151,7 @@ namespace AB_Server.Abilities
 
         public void Setup(bool asCounter)
         {
-
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -156,13 +165,13 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID } })) }
                     }
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -175,7 +184,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -184,12 +193,5 @@ namespace AB_Server.Abilities
         {
             Console.WriteLine("OOOOOOOOOOOOOOOOOPS!");
         }
-    }
-
-    interface INegatable
-    {
-        public int TypeId { get; }
-        public Player Owner { get; }
-        public void Negate();
     }
 }

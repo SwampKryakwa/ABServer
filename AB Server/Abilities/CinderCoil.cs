@@ -2,7 +2,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class CinderCoilEffect : INegatable
+    internal class CinderCoilEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -41,10 +41,6 @@ namespace AB_Server.Abilities
                 });
             }
 
-            User.Boost(50, this);
-
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += EffectOver;
             game.BakuganPowerReset += Reset;
@@ -77,16 +73,8 @@ namespace AB_Server.Abilities
             game.BakuganBoosted -= Trigger;
             game.BakuganPowerReset -= Reset;
             User.affectingEffects.Remove(this);
-            game.NegatableAbilities.Remove(this);
 
             User.Boost((short)-boost, this);
-        }
-
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when goes to hand
@@ -98,24 +86,6 @@ namespace AB_Server.Abilities
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= EffectOver;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            if (User.affectingEffects.Contains(this))
-            {
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= EffectOver;
-
-                game.BakuganBoosted -= Trigger;
-                game.BakuganPowerReset -= Reset;
-
-                User.affectingEffects.Remove(this);
-            }
-            game.NegatableAbilities.Remove(this);
-
-            User.Boost((short)-boost, this);
         }
     }
 

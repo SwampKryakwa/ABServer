@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class WaterRefrainEffect : INegatable
+    internal class WaterRefrainEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -40,15 +40,10 @@ namespace AB_Server.Abilities
             }
             game.Players.ForEach(p => p.AbilityBlockers.Add(this));
 
-            game.NegatableAbilities.Add(this);
             game.TurnEnd += CheckEffectOver;
 
             User.affectingEffects.Add(this);
         }
-
-        //remove when negated
-        public void Negate() =>
-            game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
 
         //is not negatable after turn ends
         public void CheckEffectOver()

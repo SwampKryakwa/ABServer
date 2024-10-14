@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class CyclingMadnessEffect : INegatable
+    internal class CyclingMadnessEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -39,9 +39,6 @@ namespace AB_Server.Abilities
             }
 
             User.Boost(80, this);
-
-            Game.NegatableAbilities.Add(this);
-            Game.TurnEnd += NegatabilityTurnover;
             Game.BakuganReturned += FieldLeaveTurnover;
             Game.BakuganDestroyed += FieldLeaveTurnover;
 
@@ -56,13 +53,6 @@ namespace AB_Server.Abilities
             Game.BakuganDestroyed -= Trigger;
         }
 
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            Game.NegatableAbilities.Remove(this);
-            Game.TurnEnd -= NegatabilityTurnover;
-        }
-
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
@@ -75,22 +65,6 @@ namespace AB_Server.Abilities
 
                 Game.BakuganDestroyed -= Trigger;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            User.Boost(-80, this);
-
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                Game.BakuganReturned -= FieldLeaveTurnover;
-                Game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                Game.BakuganDestroyed -= Trigger;
-            }
-            Game.NegatableAbilities.Remove(this);
         }
     }
 

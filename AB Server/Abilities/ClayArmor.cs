@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class ClayArmorEffect : INegatable
+    internal class ClayArmorEffect
     {
         public int TypeId { get; }
         Bakugan user;
@@ -37,7 +37,6 @@ namespace AB_Server.Abilities
                 });
             }
 
-            game.NegatableAbilities.Add(this);
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
 
@@ -63,23 +62,9 @@ namespace AB_Server.Abilities
                 game.GateAdded -= Trigger;
             }
         }
-
-        //remove when negated
-        public void Negate()
-        {
-            if (user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.GateAdded -= Trigger;
-            }
-            game.NegatableAbilities.Remove(this);
-        }
     }
 
-    internal class ClayArmor : AbilityCard, IAbilityCard, INegatable
+    internal class ClayArmor : AbilityCard, IAbilityCard
     {
         public ClayArmor(int cID, Player owner)
         {

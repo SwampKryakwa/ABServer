@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class TornadoWallEffect : INegatable
+    internal class TornadoWallEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -53,9 +53,6 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
             game.BakuganPowerReset += ResetTurnover;
@@ -72,38 +69,6 @@ namespace AB_Server.Abilities
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            if (User.affectingEffects.Contains(this))
-            {
-                target.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                foreach (Bakugan b in game.BakuganIndex)
-                {
-                    if (b.Owner == User.Owner && b.affectingEffects.Contains(this))
-                    {
-                        b.Boost(-80, this);
-                        b.affectingEffects.Remove(this);
-                        return;
-                    }
-                    if (b.Owner.SideID != User.Owner.SideID && b.affectingEffects.Contains(this))
-                    {
-                        b.Boost(80, this);
-                        b.affectingEffects.Remove(this);
-                    }
-                }
-            }
-        }
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when power reset
@@ -131,7 +96,7 @@ namespace AB_Server.Abilities
         {
             IAbilityCard ability = this;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -145,20 +110,20 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID } })) },
                         { "SelectionHandBakugans", new JArray(Game.BakuganIndex.Where(x=> ability.BakuganIsValid(x) && x.InHand()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID } })) }
                     }
                 } }
             });
 
-            Game.awaitingAnswers[Owner.ID] = ability.Activate;
+            Game.awaitingAnswers[Owner.Id] = ability.Activate;
         }
 
         public new void Resolve()

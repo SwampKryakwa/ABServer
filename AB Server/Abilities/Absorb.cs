@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class AbsorbEffect : INegatable
+    internal class AbsorbEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -43,9 +43,6 @@ namespace AB_Server.Abilities
             }
             User.Boost(boost, this);
 
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
             game.BakuganPowerReset += ResetTurnover;
@@ -64,25 +61,6 @@ namespace AB_Server.Abilities
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            if (User.affectingEffects.Contains(this))
-            {
-                target.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                target.Boost((short)-boost, this);
-            }
-        }
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when power reset
@@ -110,7 +88,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new AbsorbEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]], Game, TypeId).Activate();
+                new AbsorbEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]], Game, TypeId).Activate();
 
             Dispose();
         }

@@ -89,7 +89,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class OreganoMurder : AbilityCard, IAbilityCard, INegatable
+    internal class OreganoMurder : AbilityCard, IAbilityCard
     {
         public new int TypeId { get; private protected set; }
 

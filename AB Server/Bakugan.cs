@@ -115,7 +115,7 @@ namespace AB_Server
             {
                 e.Add(new JObject {
                     { "Type", "BakuganPowerSetEvent" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Power", Power },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -127,7 +127,7 @@ namespace AB_Server
                 });
                 e.Add(new JObject {
                     { "Type", "BakuganPowerSetEvent" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Power", otherBakugan.Power },
                     { "Bakugan", new JObject {
                         { "Type", (int)otherBakugan.Type },
@@ -148,7 +148,7 @@ namespace AB_Server
             {
                 e.Add(new JObject {
                     { "Type", "BakuganBoostedEvent" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Boost", boost },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -170,7 +170,7 @@ namespace AB_Server
             {
                 e.Add(new JObject {
                     { "Type", "BakuganBoostedEvent" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Boost", boost },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -189,7 +189,7 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
             if (destination.ActiveBattle) InBattle = true;
             foreach (var e in game.NewEvents)
@@ -198,7 +198,7 @@ namespace AB_Server
                     { "Type", "BakuganAddedEvent" },
                     { "PosX", destination.Position.X },
                     { "PosY", destination.Position.Y },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -208,7 +208,7 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganAdded(this, Owner.ID, destination);
+            game.OnBakuganAdded(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
@@ -219,7 +219,7 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
             foreach (var e in game.NewEvents)
             {
@@ -227,7 +227,7 @@ namespace AB_Server
                     { "Type", "BakuganThrownEvent" },
                     { "PosX", destination.Position.X },
                     { "PosY", destination.Position.Y },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -237,7 +237,7 @@ namespace AB_Server
                     }
                 });
             }
-            game.OnBakuganThrown(this, Owner.ID, destination);
+            game.OnBakuganThrown(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
             InHands = false;
@@ -252,9 +252,9 @@ namespace AB_Server
             if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
             else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != this).ToArray();
 
-            if (!oldPosition.Bakugans.Any(x => x.Owner == Owner)) oldPosition.DisallowedPlayers[Owner.ID] = false;
+            if (!oldPosition.Bakugans.Any(x => x.Owner == Owner)) oldPosition.DisallowedPlayers[Owner.Id] = false;
 
-            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.DisallowedPlayers[Owner.Id] = true;
             if (destination.ActiveBattle) InBattle = true;
             destination.EnterOrder.Add([this]);
 
@@ -264,7 +264,7 @@ namespace AB_Server
                     { "Type", "BakuganMovedEvent" },
                     { "PosX", destination.Position.X },
                     { "PosY", destination.Position.Y },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -296,9 +296,9 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.ID] = true;
+            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
-            game.OnBakuganPlacedFromGrave(this, Owner.ID, destination);
+            game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
         }
@@ -309,7 +309,7 @@ namespace AB_Server
             Position.Remove(this);
             Position = Owner;
             Owner.Bakugans.Add(this);
-            game.OnBakuganRevived(this, Owner.ID);
+            game.OnBakuganRevived(this, Owner.Id);
             Power = BasePower;
             InHands = true;
         }
@@ -329,7 +329,7 @@ namespace AB_Server
                 e.Add(new JObject
                 {
                     { "Type", "BakuganRemoved" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -340,7 +340,7 @@ namespace AB_Server
                 });
             }
 
-            game.OnBakuganReturned(this, Owner.ID);
+            game.OnBakuganReturned(this, Owner.Id);
             Power = BasePower;
             InHands = true;
 
@@ -371,7 +371,7 @@ namespace AB_Server
                 e.Add(new JObject
                 {
                     { "Type", "BakuganRemoved" },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -382,7 +382,7 @@ namespace AB_Server
                 });
             }
 
-            game.OnBakuganDestroyed(this, Owner.ID);
+            game.OnBakuganDestroyed(this, Owner.Id);
             Power = BasePower;
             InHands = false;
         }

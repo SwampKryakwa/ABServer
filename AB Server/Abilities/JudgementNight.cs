@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class JudgementNightEffect : INegatable
+    internal class JudgementNightEffect
     {
         public int TypeId { get; }
         Bakugan User;

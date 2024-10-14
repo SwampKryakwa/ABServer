@@ -47,7 +47,7 @@ namespace AB_Server.Gates
                     { "Type", "GateOpenEvent" },
                     { "PosX", Position.X },
                     { "PosY", Position.Y },
-                    { "Owner", Owner.ID },
+                    { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", 0 },
                         { "Attribute", (int)Attribute },

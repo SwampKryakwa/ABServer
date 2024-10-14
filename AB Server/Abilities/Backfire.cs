@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class Backfire : AbilityCard, IAbilityCard, INegatable
+    internal class Backfire : AbilityCard, IAbilityCard
     {
         public Backfire(int cID, Player owner)
         {
@@ -59,7 +59,7 @@ namespace AB_Server.Abilities
         {
             IAbilityCard ability = this;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 2 },
@@ -73,7 +73,7 @@ namespace AB_Server.Abilities
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
+                                { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
                         )) } },
@@ -91,14 +91,14 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = Activate;
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
             
-            Game.NewEvents[Owner.ID].Add(new JObject
+            Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -116,25 +116,25 @@ namespace AB_Server.Abilities
                 }
             });
 
-            Game.awaitingAnswers[Owner.ID] = ActivateFusion;
+            Game.awaitingAnswers[Owner.Id] = ActivateFusion;
         }
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][1]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
         public void ActivateFusion()
         {
-            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["gate"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
-        public void Negate() =>
+        public new void Negate() =>
             counterNegated = true;
 
         public new void Resolve()

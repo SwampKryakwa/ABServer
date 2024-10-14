@@ -19,7 +19,7 @@ namespace AB_Server
     internal class Player : BakuganContainer
     {
 
-        public ushort ID;
+        public ushort Id;
         public ushort SideID = new();
         public string DisplayName;
         public List<object> AbilityBlockers = new();
@@ -46,7 +46,7 @@ namespace AB_Server
 
         public Player(ushort id, ushort sideID, Game game, string displayName)
         {
-            ID = id;
+            Id = id;
             SideID = sideID;
             this.game = game;
             BakuganGrave = new(this);
@@ -98,7 +98,7 @@ namespace AB_Server
 
         public bool HasThrowableBakugan()
         {
-            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[ID] == true) || (x?.AllowAnyPlayers == true)) && !HadThrownBakugan;
+            return Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => !(x?.DisallowedPlayers[Id] == true) || (x?.AllowAnyPlayers == true)) && !HadThrownBakugan;
         }
 
         public bool HasActivateableAbilities()

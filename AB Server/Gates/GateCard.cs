@@ -151,7 +151,7 @@ namespace AB_Server.Gates
                         { "GateData", new JObject {
                             { "Type", (this as IGateCard).TypeId } }
                         },
-                        { "Owner", Owner.ID },
+                        { "Owner", Owner.Id },
                         { "CID", CardId }
                     };
                     if (this is NormalGate normalGate)
@@ -175,12 +175,12 @@ namespace AB_Server.Gates
                         { "GateData", new JObject {
                             { "Type", -1 } }
                         },
-                        { "Owner", Owner.ID },
+                        { "Owner", Owner.Id },
                         { "CID", CardId }
                     });
                 }
             }
-            game.OnGateAdded(this, Owner.ID, posX, posY);
+            game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
         public void Open() { throw new NotImplementedException(); }
@@ -195,8 +195,8 @@ namespace AB_Server.Gates
             List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
-                Bakugans.FindAll(x => x.Owner.ID == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-                Bakugans.FindAll(x => x.Owner.ID == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
             }
 
             foreach (List<JObject> e in game.NewEvents)
@@ -278,7 +278,7 @@ namespace AB_Server.Gates
         public int CardId { get; set; }
         public bool OnField { get; set; }
         public bool IsOpen { get; set; }
-        public List<Bakugan> Bakugans { get; set; }
+        public new List<Bakugan> Bakugans { get; set; }
         public Player Owner { get; set; }
         public bool ActiveBattle { get; set; }
         public bool[] DisallowedPlayers { get; set; }

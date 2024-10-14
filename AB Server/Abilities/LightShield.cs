@@ -85,7 +85,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class LightShield : AbilityCard, IAbilityCard, INegatable
+    internal class LightShield : AbilityCard, IAbilityCard
     {
         public new int TypeId { get; private protected set; }
 

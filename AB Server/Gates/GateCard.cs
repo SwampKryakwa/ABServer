@@ -27,7 +27,7 @@ namespace AB_Server.Gates
 
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
-        public (int X, int Y) Position { get; set; }
+        public (int X, int Y) Position { get; set; } = (-1, -1);
         public bool[] DisallowedPlayers { get; set; }
         public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
@@ -189,6 +189,9 @@ namespace AB_Server.Gates
 
         public void Remove()
         {
+            IsOpen = false;
+            OnField = false;
+
             List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
@@ -258,19 +261,15 @@ namespace AB_Server.Gates
         {
             int DX = Math.Abs(pos1.X - pos2.X);
             int DY = Math.Abs(pos1.Y - pos2.Y);
-            return DX + DY == 1;
+            return (DX + DY) == 1;
         }
 
         public static bool AreTouching(IGateCard card1, IGateCard card2)
         {
-            if (!card1.OnField | card2.OnField) return false;
-            int X1 = card1.Position.X;
-            int Y1 = card1.Position.Y;
-            int X2 = card2.Position.X;
-            int Y2 = card2.Position.Y;
+            if (!card1.OnField || !card2.OnField) return false;
             int DX = Math.Abs(card1.Position.X - card2.Position.X);
             int DY = Math.Abs(card1.Position.Y - card2.Position.Y);
-            return DX + DY == 1;
+            return (DX + DY) == 1;
         }
     }
 

@@ -108,10 +108,10 @@ namespace AB_Server.Abilities
 
         public new int TypeId { get; private protected set; } = 15;
 
-        public new void Setup(bool asCounter)
+        public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -160,7 +160,7 @@ namespace AB_Server.Abilities
         {
             User = user;
 
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -188,7 +188,7 @@ namespace AB_Server.Abilities
 
         private Bakugan target;
 
-        public new void Activate()
+        public void Activate()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
@@ -210,7 +210,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            !user.InHands && user.Owner == Owner && user.Attribute == Attribute.Darkus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            !user.InHands && user.Owner == Owner && user.Attribute == Attribute.Darkon;
     }
 }

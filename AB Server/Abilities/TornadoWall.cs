@@ -40,7 +40,7 @@ namespace AB_Server.Abilities
             }
             foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField()))
             {
-                if (b.Owner == User.Owner && b.Attribute == Attribute.Ventus)
+                if (b.Owner == User.Owner && b.Attribute == Attribute.Zephyros)
                 {
                     b.Boost(80, this);
                     b.affectingEffects.Add(this);
@@ -130,7 +130,7 @@ namespace AB_Server.Abilities
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -169,8 +169,8 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            !user.InGrave() && user.Attribute == Attribute.Ventus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            !user.InGrave() && user.Attribute == Attribute.Zephyros;
 
         public new int TypeId { get; private protected set; } = 18;
     }

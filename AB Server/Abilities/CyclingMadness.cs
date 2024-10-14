@@ -111,8 +111,8 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Darkus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Attribute == Attribute.Darkon;
 
         public new int TypeId { get; private protected set; } = 14;
     }

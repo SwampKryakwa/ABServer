@@ -55,7 +55,7 @@ namespace AB_Server.Abilities
 
         public void Trigger(Bakugan target, short boost, object source)
         {
-            if (target == User && source != this)
+            if (target == User && source.GetType() != typeof(CinderCoilEffect))
             {
                 target.Boost(400, this);
                 boost += 400;
@@ -137,8 +137,8 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Serpent && user.Attribute == Attribute.Pyrus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.OnField() && user.Type == BakuganType.Serpent && user.Attribute == Attribute.Nova;
 
         public new int TypeId { get; private protected set; } = 22;
     }

@@ -3,19 +3,18 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class SpiritCanyonEffect : INegatable
+    internal class SpiritCanyonEffect
     {
         public int TypeId { get; }
-        Bakugan User;
+        Bakugan user;
         Game game;
         short boost;
 
-
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => user.Owner; }
 
         public SpiritCanyonEffect(Bakugan user, Game game, int typeID)
         {
-            this.User = user;
+            this.user = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
@@ -23,75 +22,52 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
-            boost = (short)(game.GateIndex.Count(x => game.Field.Cast<IGateCard>().Contains(x)) * 50);
+            int team = user.Owner.SideID;
+            boost = (short)(game.GateIndex.Count(x => x.OnField) * 50);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 8 },
-                    { "UserID", User.BID },
+                    { "Card", TypeId },
+                    { "UserID", user.BID },
                     { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
-                        { "Tretment", (int)User.Treatment },
-                        { "Power", User.Power }
+                        { "Type", (int)user.Type },
+                        { "Attribute", (int)user.Attribute },
+                        { "Tretment", (int)user.Treatment },
+                        { "Power", user.Power }
                     }}
                 });
             }
-            User.Boost(boost, this);
-
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
+            user.Boost(boost, this);
 
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
             game.BakuganPowerReset += ResetTurnover;
 
-            User.affectingEffects.Add(this);
+            user.affectingEffects.Add(this);
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == User && User.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
+                user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
             }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            game.NegatableAbilities.Remove(this);
-            if (User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                User.Boost((short)-boost, this);
-            }
-        }
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when power reset
         public void ResetTurnover(Bakugan leaver)
         {
-            if (leaver == User && User.affectingEffects.Contains(this))
+            if (leaver == user && user.affectingEffects.Contains(this))
             {
-                User.affectingEffects.Remove(this);
+                user.affectingEffects.Remove(this);
                 game.BakuganReturned -= FieldLeaveTurnover;
                 game.BakuganDestroyed -= FieldLeaveTurnover;
                 game.BakuganPowerReset -= ResetTurnover;
@@ -101,8 +77,9 @@ namespace AB_Server.Abilities
 
     internal class SpiritCanyon : AbilityCard, IAbilityCard
     {
-        public SpiritCanyon(int cID, Player owner)
+        public SpiritCanyon(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -116,9 +93,9 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Subterra;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.Attribute == Attribute.Subterra;
 
-        public new int TypeId { get; private protected set; } = 8;
+        public new int TypeId { get; private protected set; }
     }
 }

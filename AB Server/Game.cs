@@ -275,6 +275,7 @@ namespace AB_Server
                     {
                         dontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
+                        AbilityChain.Add(AbilityIndex[abilitySelection]);
                         AbilityIndex[abilitySelection].Setup(false);
                     }
                     break;
@@ -428,7 +429,7 @@ namespace AB_Server
                 { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
-                { "CanActivateAbility", Players[player].HasActivateableAbilities() },
+                { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
                 { "CanEndTurn", Players[player].CanEndTurn() },
                 { "CanEndBattle", Players[player].CanEndBattle() },
 
@@ -497,7 +498,10 @@ namespace AB_Server
         {
             int id = (int)IncomingSelection[player.ID]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
+            {
+                AbilityChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].Setup(true);
+            }
         }
 
         public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user)
@@ -544,6 +548,7 @@ namespace AB_Server
             int id = (int)IncomingSelection[player.ID]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
             {
+                AbilityChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].SetupFusion(ability, user);
             }
         }

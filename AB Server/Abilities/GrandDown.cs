@@ -3,16 +3,17 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class JudgementNightEffect : INegatable
+    internal class GrandDownEffect : INegatable
     {
         public int TypeId { get; }
-        Bakugan User;
+        public Bakugan User;
+        IGateCard target;
         Game game;
 
 
         public Player Owner { get => User.Owner; }
 
-        public JudgementNightEffect(Bakugan user, Game game, int typeID)
+        public GrandDownEffect(Bakugan user, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -22,12 +23,14 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
+            target = User.Position as IGateCard;
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 0 },
+                    { "Card", 2 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -37,25 +40,20 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(User)).DetermineWinner();
-            if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
-            {
-                game.isBattleGoing = false;
-                game.EndTurn();
-            }
-        }
-        //remove when negated
-        public void Negate()
-        {
 
+            if (target.IsOpen)
+                target.Negate();
         }
+
+        //remove when negated
+        public void Negate() { }
     }
 
-    internal class JudgementNight : AbilityCard, IAbilityCard
+    internal class GrandDown : AbilityCard, IAbilityCard, INegatable
     {
-
-        public JudgementNight(int cID, Player owner)
+        public GrandDown(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -64,14 +62,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new JudgementNightEffect(User, Game, TypeId).Activate();
+                new GrandDownEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Darkon;
+        public bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Darkon && user.InBattle;
 
-        public new int TypeId { get; private protected set; } = 16;
+        public new int TypeId { get; private protected set; } = 2;
     }
 }

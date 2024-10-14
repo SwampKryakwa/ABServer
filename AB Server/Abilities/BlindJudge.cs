@@ -46,7 +46,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            Boost = (short)(Game.BakuganIndex.Count(x => x.Attribute == Attribute.Ventus && x.Owner == User.Owner) * -100);
+            Boost = (short)(Game.BakuganIndex.Count(x => x.Attribute == Attribute.Zephyros && x.Owner == User.Owner) * -100);
 
             Target.Boost(Boost, this);
 
@@ -116,10 +116,10 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup()
+        public void Setup(bool asFusion)
         {
             IAbilityCard ability = this;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -148,8 +148,8 @@ namespace AB_Server.Abilities
         {
             User = user;
 
-            Game.AbilityChain.Add(this);
-            Game.AbilityChain.Add(this);
+            
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -202,7 +202,7 @@ namespace AB_Server.Abilities
 
         Bakugan target;
 
-        public new void Activate()
+        public void Activate()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
 
@@ -216,8 +216,8 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Ventus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.OnField() && user.Attribute == Attribute.Zephyros;
 
         public new int TypeId { get; private protected set; } = 19;
     }

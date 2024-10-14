@@ -6,22 +6,20 @@ namespace AB_Server
 {
     enum Attribute
     {
-        Pyrus,
-        Aquos,
-        Darkus,
-        Ventus,
-        Haos,
+        Nova,
+        Aqua,
+        Darkon,
+        Zephyros,
+        Lumina,
         Subterra,
         Clear
     }
     enum Treatment
     {
         None,
-        Clear,
-        Diamond,
-        Camo,
-        Lightup,
-        Golden
+        Flip,
+        Pearl,
+        Diamond
     }
     enum BakuganType
     {
@@ -171,7 +169,7 @@ namespace AB_Server
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
-                    { "Type", "BakuganPermaBoostedEvent" },
+                    { "Type", "BakuganBoostedEvent" },
                     { "Owner", Owner.ID },
                     { "Boost", boost },
                     { "Bakugan", new JObject {
@@ -192,7 +190,7 @@ namespace AB_Server
             Position = destination;
             destination.Bakugans.Add(this);
             destination.DisallowedPlayers[Owner.ID] = true;
-            destination.EnterOrder.Add(new Bakugan[] { this });
+            destination.EnterOrder.Add([this]);
             if (destination.ActiveBattle) InBattle = true;
             foreach (var e in game.NewEvents)
             {
@@ -258,7 +256,7 @@ namespace AB_Server
 
             destination.DisallowedPlayers[Owner.ID] = true;
             if (destination.ActiveBattle) InBattle = true;
-            destination.EnterOrder.Add(new Bakugan[] { this });
+            destination.EnterOrder.Add([this]);
 
             foreach (var e in game.NewEvents)
             {
@@ -280,7 +278,16 @@ namespace AB_Server
             destination.Bakugans.Add(this);
             Position = destination;
             game.OnBakuganMoved(this, destination);
-            game.isBattleGoing = destination.CheckBattles();
+
+            game.isBattleGoing = false;
+            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
+            {
+                if (gate.CheckBattles())
+                {
+                    game.isBattleGoing = true;
+                    break;
+                }
+            }
         }
 
         public void FromGrave(GateCard destination)
@@ -290,7 +297,7 @@ namespace AB_Server
             Position = destination;
             destination.Bakugans.Add(this);
             destination.DisallowedPlayers[Owner.ID] = true;
-            destination.EnterOrder.Add(new Bakugan[] { this });
+            destination.EnterOrder.Add([this]);
             game.OnBakuganPlacedFromGrave(this, Owner.ID, destination);
             game.isBattleGoing = destination.CheckBattles();
             Power = BasePower;
@@ -336,6 +343,16 @@ namespace AB_Server
             game.OnBakuganReturned(this, Owner.ID);
             Power = BasePower;
             InHands = true;
+
+            game.isBattleGoing = false;
+            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
+            {
+                if (gate.CheckBattles())
+                {
+                    game.isBattleGoing = true;
+                    break;
+                }
+            }
         }
 
         public void Destroy(List<Bakugan[]> entryOrder)

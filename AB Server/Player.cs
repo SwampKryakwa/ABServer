@@ -22,6 +22,7 @@ namespace AB_Server
         public ushort ID;
         public ushort SideID = new();
         public string DisplayName;
+        public List<object> AbilityBlockers = new();
 
         public List<Bakugan> Bakugans { get; } = new();
         public List<IAbilityCard> AbilityHand = new();

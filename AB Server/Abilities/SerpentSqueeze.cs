@@ -120,7 +120,7 @@ namespace AB_Server.Abilities
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -147,7 +147,7 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -212,6 +212,6 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) => user.InBattle && user.OnField() && user.Type == BakuganType.Serpent;
+        public bool IsActivateableFusion(Bakugan user) => user.InBattle && user.OnField() && user.Type == BakuganType.Serpent;
     }
 }

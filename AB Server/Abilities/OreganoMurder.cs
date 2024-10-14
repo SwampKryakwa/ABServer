@@ -1,17 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class ColourfulDeathEffect : INegatable
+    internal class OreganoMurderEffect
     {
         public int TypeId { get; }
         Bakugan user;
         Game game;
-        short boost;
+        List<Bakugan> affectedBakugan = new();
 
         public Player Owner { get => user.Owner; }
 
-        public ColourfulDeathEffect(Bakugan user, Game game, int typeID)
+        public OreganoMurderEffect(Bakugan user, Game game, int typeID)
         {
             this.user = user;
             this.game = game;
@@ -21,14 +22,12 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            boost = (short)(game.BakuganIndex.Count(x => x.OnField() && x != user) * 100);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 13 },
+                    { "Card", TypeId },
                     { "UserID", user.BID },
                     { "User", new JObject {
                         { "Type", (int)user.Type },
@@ -38,16 +37,16 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(boost, this);
+            user.Boost(100, this);
+            affectedBakugan.Add(user);
+            user.affectingEffects.Add(this);
 
-            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x != user))
+            foreach (Bakugan b in user.Position.Bakugans.Where(x => x.Owner.SideID != Owner.SideID))
             {
                 b.Boost(-100, this);
+                affectedBakugan.Add(b);
                 b.affectingEffects.Add(this);
             }
-
-            game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
 
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
@@ -60,35 +59,17 @@ namespace AB_Server.Abilities
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-            game.NegatableAbilities.Remove(this);
             if (user.affectingEffects.Contains(this))
             {
-                game.BakuganIndex.ForEach(x => x.affectingEffects.Remove(this));
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                user.Boost((short)-boost, this);
-                foreach (Bakugan b in game.BakuganIndex.Where(x => x.affectingEffects.Contains(this))) b.Boost(100, this);
+                user.affectingEffects.Remove(this);
+                affectedBakugan.Remove(leaver);
+                if (affectedBakugan.Count == 0)
+                {
+                    game.BakuganReturned -= FieldLeaveTurnover;
+                    game.BakuganDestroyed -= FieldLeaveTurnover;
+                    game.BakuganPowerReset -= ResetTurnover;
+                }
             }
-        }
-
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
         }
 
         //remove when power reset
@@ -97,19 +78,24 @@ namespace AB_Server.Abilities
             if (user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
+                affectedBakugan.Remove(leaver);
+                if (affectedBakugan.Count == 0)
+                {
+                    game.BakuganReturned -= FieldLeaveTurnover;
+                    game.BakuganDestroyed -= FieldLeaveTurnover;
+                    game.BakuganPowerReset -= ResetTurnover;
+                }
             }
         }
     }
 
     internal class OreganoMurder : AbilityCard, IAbilityCard, INegatable
     {
-        public new int TypeId { get; private protected set; } = 13;
+        public new int TypeId { get; private protected set; }
 
-        public OreganoMurder(int cID, Player owner)
+        public OreganoMurder(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -118,11 +104,11 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ColourfulDeathEffect(User, Game, TypeId).Activate();
+                new OreganoMurderEffect(User, Game, TypeId).Activate();
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Darkus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.Attribute == Attribute.Darkon && (user.Owner.BakuganOwned.Count(x => x == user || x.InGrave()) == user.Owner.BakuganOwned.Count);
     }
 }

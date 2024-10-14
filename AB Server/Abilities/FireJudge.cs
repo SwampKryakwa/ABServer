@@ -7,7 +7,6 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan User;
         Game game;
-        short boost;
 
 
         public Player Owner { get => User.Owner; }
@@ -24,14 +23,13 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             int team = User.Owner.SideID;
-            boost = (short)(game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != team) * 100);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 0 },
+                    { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -41,29 +39,11 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(boost, this);
+            User.PermaBoost(100, this);
 
             game.NegatableAbilities.Add(this);
-            game.TurnEnd += NegatabilityTurnover;
-
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
-            game.BakuganPowerReset += ResetTurnover;
 
             User.affectingEffects.Add(this);
-        }
-
-        //remove when goes to hand
-        //remove when goes to grave
-        public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
-        {
-            if (leaver == User && User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
         }
 
         //remove when negated
@@ -73,37 +53,16 @@ namespace AB_Server.Abilities
             if (User.affectingEffects.Contains(this))
             {
                 User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-                User.Boost((short)-boost, this);
-            }
-        }
-
-        //is not negatable after turn ends
-        public void NegatabilityTurnover()
-        {
-            game.NegatableAbilities.Remove(this);
-            game.TurnEnd -= NegatabilityTurnover;
-        }
-
-        //remove when power reset
-        public void ResetTurnover(Bakugan leaver)
-        {
-            if (leaver == User && User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
+                User.PermaBoost(-100, this);
             }
         }
     }
 
     internal class FireJudge : AbilityCard, IAbilityCard
     {
-        public FireJudge(int cID, Player owner)
+        public FireJudge(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -117,9 +76,9 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Pyrus;
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.Attribute == Attribute.Nova && user.InBattle;
 
-        public new int TypeId { get; private protected set; } = 0;
+        public new int TypeId { get; private protected set; }
     }
 }

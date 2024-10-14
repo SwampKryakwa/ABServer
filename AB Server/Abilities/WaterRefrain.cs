@@ -2,18 +2,18 @@
 
 namespace AB_Server.Abilities
 {
-    internal class ShiningBrillianceEffect : INegatable
+    internal class WaterRefrainEffect : INegatable
     {
         public int TypeId { get; }
         Bakugan User;
         Game game;
-
+        int turnsPassed = 0;
 
         public Player Owner { get => User.Owner; }
 
-        public ShiningBrillianceEffect(Bakugan user, Game game, int typeID)
+        public WaterRefrainEffect(Bakugan user, Game game, int typeID)
         {
-            this.User = user;
+            User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
@@ -21,12 +21,14 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
+            int team = User.Owner.SideID;
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 12 },
+                    { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -36,33 +38,34 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-
-            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x.Owner == User.Owner && x.Attribute == Attribute.Lumina))
-            {
-                b.PermaBoost(50, this);
-                User.affectingEffects.Add(this);
-            }
+            game.Players.ForEach(p => p.AbilityBlockers.Add(this));
 
             game.NegatableAbilities.Add(this);
+            game.TurnEnd += CheckEffectOver;
 
+            User.affectingEffects.Add(this);
         }
 
         //remove when negated
-        public void Negate()
+        public void Negate() =>
+            game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
+
+        //is not negatable after turn ends
+        public void CheckEffectOver()
         {
-            game.NegatableAbilities.Remove(this);
-            if (User.affectingEffects.Contains(this))
+            if (turnsPassed++ == 1)
             {
-                User.affectingEffects.Remove(this);
-                User.PermaBoost(-50, this);
+                game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
+                game.TurnEnd -= CheckEffectOver;
             }
         }
     }
 
-    internal class ShiningBrilliance : AbilityCard, IAbilityCard
+    internal class WaterRefrain : AbilityCard, IAbilityCard
     {
-        public ShiningBrilliance(int cID, Player owner)
+        public WaterRefrain(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -71,14 +74,14 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ShiningBrillianceEffect(User, Game, TypeId).Activate();
+                new WaterRefrainEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Lumina;
+            user.Attribute == Attribute.Aqua && user.OnField();
 
-        public new int TypeId { get; private protected set; } = 12;
+        public new int TypeId { get; private protected set; } = 0;
     }
 }

@@ -3,15 +3,16 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class ClayArmorEffect : INegatable
+    internal class LightShieldEffect
     {
         public int TypeId { get; }
         Bakugan user;
         Game game;
+        List<Bakugan> affectedBakugan = new();
 
         public Player Owner { get => user.Owner; }
 
-        public ClayArmorEffect(Bakugan user, Game game, int typeID)
+        public LightShieldEffect(Bakugan user, Game game, int typeID)
         {
             this.user = user;
             this.game = game;
@@ -26,7 +27,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 5 },
+                    { "Card", TypeId },
                     { "UserID", user.BID },
                     { "User", new JObject {
                         { "Type", (int)user.Type },
@@ -36,69 +37,74 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
+            foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Lumina))
+            {
+                b.Boost(-100, this);
+                affectedBakugan.Add(b);
+                b.affectingEffects.Add(this);
+            }
 
-            game.NegatableAbilities.Add(this);
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
+            game.BakuganPowerReset += ResetTurnover;
 
-            game.GateAdded += Trigger;
             user.affectingEffects.Add(this);
-        }
-
-        public void Trigger(IGateCard target, ushort owner, params int[] pos)
-        {
-            user.Boost(100, this);
         }
 
         //remove when goes to hand
         //remove when goes to grave
         public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
         {
-            if (leaver == user && user.affectingEffects.Contains(this))
+            if (user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.GateAdded -= Trigger;
+                affectedBakugan.Remove(leaver);
+                if (affectedBakugan.Count == 0)
+                {
+                    game.BakuganReturned -= FieldLeaveTurnover;
+                    game.BakuganDestroyed -= FieldLeaveTurnover;
+                    game.BakuganPowerReset -= ResetTurnover;
+                }
             }
         }
 
-        //remove when negated
-        public void Negate()
+        //remove when power reset
+        public void ResetTurnover(Bakugan leaver)
         {
             if (user.affectingEffects.Contains(this))
             {
                 user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-
-                game.GateAdded -= Trigger;
+                affectedBakugan.Remove(leaver);
+                if (affectedBakugan.Count == 0)
+                {
+                    game.BakuganReturned -= FieldLeaveTurnover;
+                    game.BakuganDestroyed -= FieldLeaveTurnover;
+                    game.BakuganPowerReset -= ResetTurnover;
+                }
             }
-            game.NegatableAbilities.Remove(this);
         }
     }
 
-    internal class ClayArmor : AbilityCard, IAbilityCard, INegatable
+    internal class LightShield : AbilityCard, IAbilityCard, INegatable
     {
-        public ClayArmor(int cID, Player owner)
+        public new int TypeId { get; private protected set; }
+
+        public LightShield(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
         }
 
-        public new int TypeId { get; private protected set; } = 5;
-
         public new void Resolve()
         {
             if (!counterNegated)
-                new ClayArmorEffect(User, Game, TypeId).Activate();
-
+                new LightShieldEffect(User, Game, TypeId).Activate();
             Dispose();
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Subterra;
+            user.OnField() && user.Attribute == Attribute.Lumina;
     }
 }

@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class BackfireEffect : INegatable
+    internal class BackfireEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -42,9 +42,6 @@ namespace AB_Server.Abilities
 
             target.Negate();
         }
-
-        //remove when negated
-        public void Negate() { }
     }
 
     internal class Backfire : AbilityCard, IAbilityCard, INegatable
@@ -61,7 +58,7 @@ namespace AB_Server.Abilities
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -100,7 +97,7 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-            Game.AbilityChain.Add(this);
+            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -122,7 +119,7 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = ActivateFusion;
         }
 
-        public new void Activate()
+        public void Activate()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
             target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["gate"]];
@@ -148,7 +145,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Pyrus && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
+        public bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Nova && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
         public new int TypeId { get; private protected set; } = 2;
     }

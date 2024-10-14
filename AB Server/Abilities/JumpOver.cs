@@ -1,39 +1,37 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks.Dataflow;
 
 namespace AB_Server.Abilities
 {
-    internal class RapidLightEffect : INegatable
+    internal class JumpOverEffect
     {
         public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        Bakugan User;
+        GateCard target;
         Game game;
-
 
         public Player Owner { get => User.Owner; }
 
-        public RapidLightEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public JumpOverEffect(Bakugan user, GateCard target, Game game, int typeID)
         {
             User = user;
             this.game = game;
             this.target = target;
+            Console.WriteLine(user);
+            Console.WriteLine(user.Position);
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
         }
 
         public void Activate()
         {
-
-
-            int team = User.Owner.SideID;
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 4 },
+                    { "Card", 2 },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -44,33 +42,27 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.AddFromHand(User.Position as GateCard);
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-
+            User.Move(target);
         }
     }
 
-    internal class RapidLight : AbilityCard, IAbilityCard
+    internal class JumpOver : AbilityCard, IAbilityCard
     {
-        public RapidLight(int cID, Player owner)
+        public JumpOver(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
         }
 
-        public void Setup(bool asCounter)
+        public void Setup(bool asFusion)
         {
             IAbilityCard ability = this;
-            
+
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 2 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -84,22 +76,34 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.ID },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ADDTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Nova) | (x.Attribute == Attribute.Lumina))).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
-                                { "BID", x.BID }
-                            }
                         )) }
-                    } }
-                }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.ID] = Setup2;
+        }
+
+        public void Setup2()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+
+            Game.NewEvents[Owner.ID].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "GF" },
+                        { "Message", "INFO_MOVETARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => (User.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
+                    }
+                } }
             });
 
             Game.awaitingAnswers[Owner.ID] = Activate;
@@ -109,25 +113,20 @@ namespace AB_Server.Abilities
         {
             User = user;
 
-            
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ADDTARGET" },
+                        { "SelectionType", "GF" },
+                        { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Nova) | (x.Attribute == Attribute.Lumina))).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.ID },
-                                { "BID", x.BID }
-                            }
-                        )) }
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && (User.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
                     }
                 } }
             });
@@ -135,19 +134,11 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.ID] = Activate;
         }
 
-        private Bakugan target;
+        IGateCard target;
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][1]["bakugan"]];
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public void ActivateFusion()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.ID]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -155,14 +146,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new RapidLightEffect(User, target, Game, 1).Activate();
-
+                new JumpOverEffect(User, target as GateCard, Game, TypeId).Activate();
             Dispose();
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Lumina && Game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != Owner.SideID) >= 2;
+            user.Attribute == Attribute.Zephyros && user.OnField();
 
-        public new int TypeId { get; private protected set; } = 4;
+        public new int TypeId { get; private protected set; }
     }
 }

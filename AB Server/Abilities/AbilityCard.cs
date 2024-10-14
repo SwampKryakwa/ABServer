@@ -6,29 +6,81 @@ namespace AB_Server.Abilities
     {
         static Func<int, Player, IAbilityCard>[] AbilityCtrs =
         [
-            (cID, owner) => new FireJudge(cID, owner),
-            (cID, owner) => new FireTornado(cID, owner),
-            (cID, owner) => new Backfire(cID, owner),
-            (cID, owner) => new RapidFire(cID, owner),
-            (cID, owner) => new RapidLight(cID, owner),
-            (cID, owner) => new ClayArmor(cID, owner),
-            (cID, owner) => new MagmaProminence(cID, owner),
-            (cID, owner) => new DesertVortex(cID, owner),
-            (cID, owner) => new SpiritCanyon(cID, owner),
-            (cID, owner) => new LightSpiral(cID, owner),
-            (cID, owner) => new LightningTornado(cID, owner),
-            (cID, owner) => new HaosFreeze(cID, owner),
-            (cID, owner) => new ShiningBrilliance(cID, owner),
-            (cID, owner) => new OreganoMurder(cID, owner),
-            (cID, owner) => new CyclingMadness(cID, owner),
-            (cID, owner) => new ChainsDes(cID, owner),
-            (cID, owner) => new JudgementNight(cID, owner),
-            (cID, owner) => new Absorb(cID, owner),
-            (cID, owner) => new TornadoWall(cID, owner),
-            (cID, owner) => new BlindJudge(cID, owner),
-            (cID, owner) => new TsunamiWave(cID, owner),
-            (cID, owner) => new SerpentSqueeze(cID, owner),
-            (cID, owner) => new CinderCoil(cID, owner)
+            //Set 1 Nova abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new FireJudge(cID, owner, 1),
+            (cID, owner) => new FireTornado(cID, owner, 2),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Aqua abilities
+            (cID, owner) => new WaterRefrain(cID, owner, 4),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new Liquify(cID, owner, 7),
+
+            //Set 1 Darkon abilities
+            (cID, owner) => new GrandDown(cID, owner, 8),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new OreganoMurder(cID, owner, 10),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Zephyros abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new BlowBack(cID, owner, 13),
+            (cID, owner) => new JumpOver(cID, owner, 14),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Lumina abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new LightShield(cID, owner, 17),
+            (cID, owner) => new HolyLight(cID, owner, 18),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Subterra abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new SpiritCanyon(cID, owner, 21),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Garrison abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Griffon abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Mantis abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new TwinMachete(cID, owner, 31),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Raptor abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Saurus abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Centipede abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            
+            //Set 1 Serpent abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Fairy abilities
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(),
+
+            //Set 1 Elephant abilities
+            (cID, owner) => throw new NotImplementedException(),
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)
@@ -89,7 +141,7 @@ namespace AB_Server.Abilities
 
         public void Setup(bool asCounter)
         {
-            Game.AbilityChain.Add(this);
+
             Game.NewEvents[Owner.ID].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -117,7 +169,7 @@ namespace AB_Server.Abilities
         {
             User = user;
 
-            Game.AbilityChain.Add(this);
+
             Game.CheckChain(Owner, this, user);
         }
 

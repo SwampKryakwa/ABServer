@@ -42,7 +42,7 @@ namespace AB_Server
         public List<IAbilityCard> AbilityChain { get; set; } = new();
 
         //All the event types in the game
-        public delegate void BakuganBoostedEffect(Bakugan target, short boost, object source);
+        public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
         public delegate void BakuganPowerResetEffect(Bakugan bakugan);
         public delegate void BakuganMovedEffect(Bakugan target, BakuganContainer pos);
         public delegate void BakuganReturnedEffect(Bakugan target, ushort owner);
@@ -71,7 +71,7 @@ namespace AB_Server
         public event BattleOverEffect BattleOver;
         public event TurnEndEffect TurnEnd;
 
-        public void OnBakuganBoosted(Bakugan target, short boost, object source) =>
+        public void OnBakuganBoosted(Bakugan target, Boost boost, object source) =>
             BakuganBoosted?.Invoke(target, boost, source);
         public void OnBakuganMoved(Bakugan target, BakuganContainer pos) =>
             BakuganMoved?.Invoke(target, pos);

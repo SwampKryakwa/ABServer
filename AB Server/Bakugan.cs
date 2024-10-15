@@ -1,6 +1,7 @@
 ﻿
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace AB_Server
 {
@@ -65,6 +66,12 @@ namespace AB_Server
         }
     }
 
+    class Boost
+    {
+        public int Value { get; set; }
+        public bool Active = true;
+    }
+
     internal class Bakugan
     {
         Game game;
@@ -76,7 +83,11 @@ namespace AB_Server
 
         public short DefaultPower { get; }
         public short BasePower;
-        public short Power;
+        public List<Boost> Boosts = new();
+        public int Power
+        {
+            get => BasePower + Boosts.Sum(b => b.Value);
+        }
 
         public Player Owner;
 
@@ -95,7 +106,6 @@ namespace AB_Server
             Type = type;
             DefaultPower = power;
             BasePower = power;
-            Power = power;
             this.game = game;
             this.BID = BID;
             BaseAttribute = attribute;
@@ -105,51 +115,15 @@ namespace AB_Server
             Position = owner;
         }
 
-        public int SwitchPowers(Bakugan otherBakugan)
+        public void Boost(Boost boost, object source)
         {
-            short newThisPower = otherBakugan.Power;
-            short newOtherPower = Power;
-            otherBakugan.Power = newOtherPower;
-            Power = newThisPower;
-            foreach (var e in game.NewEvents)
-            {
-                e.Add(new JObject {
-                    { "Type", "BakuganPowerSetEvent" },
-                    { "Owner", Owner.Id },
-                    { "Power", Power },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
-                        { "Treatment", (int)Treatment },
-                        { "Power", otherBakugan.Power },
-                        { "BID", BID } }
-                    }
-                });
-                e.Add(new JObject {
-                    { "Type", "BakuganPowerSetEvent" },
-                    { "Owner", Owner.Id },
-                    { "Power", otherBakugan.Power },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)otherBakugan.Type },
-                        { "Attribute", (int)otherBakugan.Attribute },
-                        { "Treatment", (int)otherBakugan.Treatment },
-                        { "Power", otherBakugan.Power },
-                        { "BID", otherBakugan.BID } }
-                    }
-                });
-            }
-            return newThisPower - newOtherPower;
-        }
-
-        public void Boost(short boost, object source)
-        {
-            Power += boost;
+            Boosts.Add(boost);
             foreach (var e in game.NewEvents)
             {
                 e.Add(new JObject {
                     { "Type", "BakuganBoostedEvent" },
                     { "Owner", Owner.Id },
-                    { "Boost", boost },
+                    { "Boost", boost.Value },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
                         { "Attribute", (int)Attribute },
@@ -162,27 +136,27 @@ namespace AB_Server
             game.OnBakuganBoosted(this, boost, source);
         }
 
-        public void PermaBoost(short boost, object source)
-        {
-            BasePower += boost;
-            Power += boost;
-            foreach (var e in game.NewEvents)
-            {
-                e.Add(new JObject {
-                    { "Type", "BakuganBoostedEvent" },
-                    { "Owner", Owner.Id },
-                    { "Boost", boost },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
-                        { "Treatment", (int)Treatment },
-                        { "Power", Power },
-                        { "BID", BID } }
-                    }
-                });
-            }
-            game.OnBakuganBoosted(this, boost, source);
-        }
+        //public void PermaBoost(short boost, object source)
+        //{
+        //    BasePower += boost;
+
+        //    foreach (var e in game.NewEvents)
+        //    {
+        //        e.Add(new JObject {
+        //            { "Type", "BakuganBoostedEvent" },
+        //            { "Owner", Owner.Id },
+        //            { "Boost", boost },
+        //            { "Bakugan", new JObject {
+        //                { "Type", (int)Type },
+        //                { "Attribute", (int)Attribute },
+        //                { "Treatment", (int)Treatment },
+        //                { "Power", Power },
+        //                { "BID", BID } }
+        //            }
+        //        });
+        //    }
+        //    game.OnBakuganBoosted(this, boost, source);
+        //}
 
         public void AddFromHand(GateCard destination)
         {
@@ -210,7 +184,6 @@ namespace AB_Server
             }
             game.OnBakuganAdded(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
-            Power = BasePower;
             InHands = false;
         }
 
@@ -239,7 +212,6 @@ namespace AB_Server
             }
             game.OnBakuganThrown(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
-            Power = BasePower;
             InHands = false;
         }
 
@@ -300,7 +272,6 @@ namespace AB_Server
             destination.EnterOrder.Add([this]);
             game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
-            Power = BasePower;
         }
 
         public void Revive()
@@ -310,7 +281,6 @@ namespace AB_Server
             Position = Owner;
             Owner.Bakugans.Add(this);
             game.OnBakuganRevived(this, Owner.Id);
-            Power = BasePower;
             InHands = true;
         }
 
@@ -340,8 +310,9 @@ namespace AB_Server
                 });
             }
 
+            Boosts.ForEach(x => x.Active = false);
+            Boosts.Clear();
             game.OnBakuganReturned(this, Owner.Id);
-            Power = BasePower;
             InHands = true;
 
             game.isBattleGoing = false;
@@ -382,8 +353,9 @@ namespace AB_Server
                 });
             }
 
+            Boosts.ForEach(x => x.Active = false);
+            Boosts.Clear();
             game.OnBakuganDestroyed(this, Owner.Id);
-            Power = BasePower;
             InHands = false;
         }
 

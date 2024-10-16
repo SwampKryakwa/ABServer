@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(100, this);
+            User.Boost(new Boost(100), this);
 
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
@@ -95,6 +95,6 @@ namespace AB_Server.Abilities
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Mantis;
 
-        public new int TypeId { get; private protected set; }
+        
     }
 }

@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
             }
             foreach (Bakugan b in game.BakuganIndex.Where(x => x.OnField() && x.Owner == Owner && x.Attribute == Attribute.Lumina))
             {
-                b.Boost(-100, this);
+                b.Boost(new Boost(-100), this);
                 affectedBakugan.Add(b);
                 b.affectingEffects.Add(this);
             }
@@ -87,7 +87,7 @@ namespace AB_Server.Abilities
 
     internal class LightShield : AbilityCard, IAbilityCard
     {
-        public new int TypeId { get; private protected set; }
+        
 
         public LightShield(int cID, Player owner, int typeId)
         {

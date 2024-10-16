@@ -27,11 +27,11 @@ namespace AB_Server.Gates
             Negated = true;
             if (first?.affectingEffects.Contains(this) == true)
             {
-                first.Boost(-100, this);
+                first.Boost(new Boost(100), this);
             }
             if (last?.affectingEffects.Contains(this) == true)
             {
-                last.Boost(-100, this);
+                last.Boost(new Boost(-100), this);
             }
         }
 
@@ -130,9 +130,9 @@ namespace AB_Server.Gates
 
             IsOpen = true;
 
-            first.Boost(100, this);
+            first.Boost(new Boost(100), this);
             first.affectingEffects.Add(this);
-            last.Boost(100, this);
+            last.Boost(new Boost(-100), this);
             last.affectingEffects.Add(this);
         }
 

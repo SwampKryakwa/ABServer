@@ -38,7 +38,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            User.Boost(80, this);
+            User.Boost(new Boost(80), this);
             Game.BakuganReturned += FieldLeaveTurnover;
             Game.BakuganDestroyed += FieldLeaveTurnover;
 
@@ -87,7 +87,5 @@ namespace AB_Server.Abilities
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Darkon;
-
-        public new int TypeId { get; private protected set; } = 14;
     }
 }

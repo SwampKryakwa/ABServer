@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan user;
         Game game;
-        short boost;
+        Boost boost;
 
         public Player Owner { get => user.Owner; }
 
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             int team = user.Owner.SideID;
-            boost = (short)(game.GateIndex.Count(x => x.OnField) * 50);
+            boost = new Boost(game.GateIndex.Count(x => x.OnField) * 50);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -96,6 +96,6 @@ namespace AB_Server.Abilities
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Subterra;
 
-        public new int TypeId { get; private protected set; }
+        
     }
 }

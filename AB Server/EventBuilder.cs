@@ -49,7 +49,7 @@ namespace AB_Server
             return new JObject
             {
                 { "SelectionType", "A" },
-                { "prompt", prompt },
+                { "Message", prompt },
                 { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "CID", x.CardId } } )) }
             };
         }

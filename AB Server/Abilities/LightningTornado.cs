@@ -40,8 +40,8 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(100, this);
-            target.Boost(-100, this);
+            User.Boost(new Boost(100), this);
+            target.Boost(new Boost(-100), this);
 
             
             
@@ -191,7 +191,5 @@ namespace AB_Server.Abilities
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Lumina;
-
-        public new int TypeId { get; private protected set; } = 10;
     }
 }

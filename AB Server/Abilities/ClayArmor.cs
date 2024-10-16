@@ -46,7 +46,7 @@ namespace AB_Server.Abilities
 
         public void Trigger(IGateCard target, ushort owner, params int[] pos)
         {
-            user.Boost(100, this);
+            user.Boost(new Boost(100), this);
         }
 
         //remove when goes to hand
@@ -72,8 +72,6 @@ namespace AB_Server.Abilities
             Owner = owner;
             Game = owner.game;
         }
-
-        public new int TypeId { get; private protected set; } = 5;
 
         public new void Resolve()
         {

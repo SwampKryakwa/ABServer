@@ -68,6 +68,11 @@ namespace AB_Server
 
     class Boost
     {
+        public Boost (int value)
+        {
+            Value = value;
+        }
+
         public int Value { get; set; }
         public bool Active = true;
     }
@@ -134,6 +139,26 @@ namespace AB_Server
                 });
             }
             game.OnBakuganBoosted(this, boost, source);
+        }
+
+        public void RemoveBoost(Boost boost, object source)
+        {
+            Boosts.Remove(boost);
+            foreach (var e in game.NewEvents)
+            {
+                e.Add(new JObject {
+                    { "Type", "BakuganBoostedEvent" },
+                    { "Owner", Owner.Id },
+                    { "Boost", -boost.Value },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID } }
+                    }
+                });
+            }
         }
 
         //public void PermaBoost(short boost, object source)
@@ -359,20 +384,14 @@ namespace AB_Server
             InHands = false;
         }
 
-        public bool OnField()
-        {
-            return typeof(IGateCard).IsAssignableFrom(Position.GetType());
-        }
+        public bool OnField() =>
+            typeof(IGateCard).IsAssignableFrom(Position.GetType());
 
-        public bool InHand()
-        {
-            return Position.GetType() == typeof(Player);
-        }
+        public bool InHand() =>
+            Position.GetType() == typeof(Player);
 
-        public bool InGrave()
-        {
-            return Position.GetType() == typeof(GraveBakugan);
-        }
+        public bool InGrave() =>
+            Position.GetType() == typeof(GraveBakugan);
 
         public bool HasNeighbourEnemies()
         {

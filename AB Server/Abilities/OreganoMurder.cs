@@ -37,13 +37,13 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(100, this);
+            user.Boost(new Boost(100), this);
             affectedBakugan.Add(user);
             user.affectingEffects.Add(this);
 
             foreach (Bakugan b in user.Position.Bakugans.Where(x => x.Owner.SideID != Owner.SideID))
             {
-                b.Boost(-100, this);
+                b.Boost(new Boost(-100), this);
                 affectedBakugan.Add(b);
                 b.affectingEffects.Add(this);
             }
@@ -91,7 +91,7 @@ namespace AB_Server.Abilities
 
     internal class OreganoMurder : AbilityCard, IAbilityCard
     {
-        public new int TypeId { get; private protected set; }
+        
 
         public OreganoMurder(int cID, Player owner, int typeId)
         {

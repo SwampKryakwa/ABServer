@@ -34,7 +34,7 @@ namespace AB_Server.Abilities
             (cID, owner) => throw new NotImplementedException(),
             (cID, owner) => new LightShield(cID, owner, 17),
             (cID, owner) => new HolyLight(cID, owner, 18),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new ShadeAbility(cID, owner, 19),
 
             //Set 1 Subterra abilities
             (cID, owner) => throw new NotImplementedException(),
@@ -87,16 +87,14 @@ namespace AB_Server.Abilities
         {
             return AbilityCtrs[type].Invoke(cID, owner);
         }
+        public bool counterNegated { get; set; } = false;
 
-        public int TypeId =>
-            throw new NotImplementedException();
+        public int TypeId { get; set; }
 
         public Game Game { get; set; }
         public Player Owner { get; set; }
 
         public int CardId { get; protected set; }
-
-        protected bool counterNegated = false;
 
         public Bakugan User { get; set; }
 
@@ -105,12 +103,7 @@ namespace AB_Server.Abilities
             Console.WriteLine("OOOOOOOOOOOOOOOOOPSIE!");
         }
 
-        public void Negate()
-        {
-            counterNegated = true;
-        }
-
-        protected void Dispose()
+        public void Dispose()
         {
             Game.ActiveZone.Remove(this);
             Owner.AbilityGrave.Add(this);
@@ -131,12 +124,13 @@ namespace AB_Server.Abilities
 
     interface IAbilityCard
     {
-        public int TypeId =>
-            throw new NotImplementedException();
+        public int TypeId { get; private protected set; }
 
         public Game Game { get; protected set; }
         public int CardId { get; }
         public Player Owner { get; protected set; }
+
+        protected bool counterNegated { get; set; }
 
         public bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
@@ -189,9 +183,12 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public void Resolve()
+        public void Resolve();
+
+        public void Negate(bool asCounter)
         {
-            Console.WriteLine("OOOOOOOOOOOOOOOOOPS!");
+            if (asCounter)
+                counterNegated = true;
         }
     }
 }

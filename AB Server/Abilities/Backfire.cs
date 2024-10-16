@@ -146,7 +146,5 @@ namespace AB_Server.Abilities
         }
 
         public bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Nova && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
-
-        public new int TypeId { get; private protected set; } = 2;
     }
 }

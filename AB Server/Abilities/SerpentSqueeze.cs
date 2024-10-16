@@ -83,7 +83,7 @@ namespace AB_Server.Abilities
 
     //internal class SerpentSqueeze : AbilityCard, IAbilityCard
     //{
-    //    public new int TypeId { get; private protected set; } = 21;
+    //     = 21;
 
     //    public SerpentSqueeze(int cID, Player owner)
     //    {

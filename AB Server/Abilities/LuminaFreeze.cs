@@ -89,7 +89,5 @@ namespace AB_Server.Abilities
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Lumina;
-
-        public new int TypeId { get; private protected set; } = 11;
     }
 }

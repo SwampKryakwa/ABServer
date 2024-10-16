@@ -160,6 +160,6 @@ namespace AB_Server.Abilities
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Aqua;
 
-        public new int TypeId { get; private protected set; }
+        
     }
 }

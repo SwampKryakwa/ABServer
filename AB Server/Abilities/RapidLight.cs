@@ -162,7 +162,5 @@ namespace AB_Server.Abilities
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Lumina && Game.BakuganIndex.Count(x => x.OnField() && x.Owner.SideID != Owner.SideID) >= 2;
-
-        public new int TypeId { get; private protected set; } = 4;
     }
 }

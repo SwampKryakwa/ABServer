@@ -27,7 +27,7 @@ namespace AB_Server.Gates
         {
             IsOpen = false;
             Negated = true;
-            game.BakuganIndex.Where(x => x.affectingEffects.Contains(this)).ToList().ForEach(x => x.Boost((short)-Power, this));
+            game.BakuganIndex.Where(x => x.affectingEffects.Contains(this)).ToList().ForEach(x => x.Boost(new Boost(-Power), this));
             game.BakuganIndex.ForEach(x => x.affectingEffects.Remove(this));
 
             game.BakuganMoved -= OnBakuganMove;
@@ -63,7 +63,7 @@ namespace AB_Server.Gates
             {
                 if (b.Attribute == Attribute)
                 {
-                    b.Boost(Power, this);
+                    b.Boost(new Boost(Power), this);
                     b.affectingEffects.Add(this);
                 }
             }
@@ -95,13 +95,13 @@ namespace AB_Server.Gates
                 if (!target.affectingEffects.Contains(this))
                 {
                     target.affectingEffects.Add(this);
-                    target.Boost(Power, this);
+                    target.Boost(new Boost(Power), this);
                 }
             }
             else if (target.affectingEffects.Contains(this) && pos != this)
             {
                 target.affectingEffects.Remove(this);
-                target.Boost((short)-Power, this);
+                target.Boost(new Boost(-Power), this);
             }
         }
 
@@ -112,7 +112,7 @@ namespace AB_Server.Gates
                 if (!target.affectingEffects.Contains(this))
                 {
                     target.affectingEffects.Add(this);
-                    target.Boost(Power, this);
+                    target.Boost(new Boost(Power), this);
                 }
             }
         }
@@ -120,10 +120,7 @@ namespace AB_Server.Gates
         public void OnBakuganLeaves(Bakugan target, ushort owner)
         {
             if (target.affectingEffects.Contains(this))
-            {
                 target.affectingEffects.Remove(this);
-                target.Boost((short)-Power, this);
-            }
         }
     }
 }

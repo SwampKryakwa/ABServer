@@ -39,8 +39,8 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(100, this);
-            target.Boost(-100, this);
+            User.Boost(new Boost(100), this);
+            target.Boost(new Boost(-100), this);
 
             game.BakuganReturned += FieldLeaveTurnover;
             game.BakuganDestroyed += FieldLeaveTurnover;
@@ -77,7 +77,6 @@ namespace AB_Server.Abilities
 
     internal class FireTornado : AbilityCard, IAbilityCard
     {
-        public new int TypeId { get; private protected set; } = 1;
 
         public FireTornado(int cID, Player owner, int typeId)
         {

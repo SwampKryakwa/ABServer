@@ -10,8 +10,8 @@ namespace AB_Server.Abilities
         Bakugan User;
         Bakugan Target;
         IGateCard battle;
-        Game Game;
-        short Boost;
+        Game game;
+        Boost boost;
         IAbilityCard Card;
 
         public Player Owner { get => User.Owner; }
@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
         public BlindJudgeEffect(Bakugan user, Bakugan target, Game game, int typeID, IAbilityCard card)
         {
             User = user;
-            Game = game;
+            this.game = game;
             Target = target;
             Console.WriteLine(user);
             Console.WriteLine(user.Position);
@@ -31,9 +31,9 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            for (int i = 0; i < game.NewEvents.Length; i++)
             {
-                Game.NewEvents[i].Add(new()
+                game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
                     { "Card", 19 },
@@ -46,14 +46,14 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            Boost = (short)(Game.BakuganIndex.Count(x => x.Attribute == Attribute.Zephyros && x.Owner == User.Owner) * -100);
+            boost = new Boost(game.BakuganIndex.Count(x => x.Attribute == Attribute.Zephyros && x.Owner == User.Owner) * -100);
 
-            Target.Boost(Boost, this);
+            Target.Boost(boost, this);
 
-            Game.BakuganReturned += FieldLeaveTurnover;
-            Game.BakuganDestroyed += FieldLeaveTurnover;
+            game.BakuganReturned += FieldLeaveTurnover;
+            game.BakuganDestroyed += FieldLeaveTurnover;
 
-            Game.BattleOver += Trigger;
+            game.BattleOver += Trigger;
             Target.affectingEffects.Add(this);
         }
 
@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
             {
                 User.Owner.AbilityGrave.Remove(Card);
                 User.Owner.AbilityHand.Add(Card);
-                Game.BattleOver -= Trigger;
+                game.BattleOver -= Trigger;
             }
         }
 
@@ -74,10 +74,10 @@ namespace AB_Server.Abilities
             if (leaver == Target && Target.affectingEffects.Contains(this))
             {
                 Target.affectingEffects.Remove(this);
-                Game.BakuganReturned -= FieldLeaveTurnover;
-                Game.BakuganDestroyed -= FieldLeaveTurnover;
+                game.BakuganReturned -= FieldLeaveTurnover;
+                game.BakuganDestroyed -= FieldLeaveTurnover;
 
-                Game.BattleOver -= Trigger;
+                game.BattleOver -= Trigger;
             }
         }
     }
@@ -94,7 +94,7 @@ namespace AB_Server.Abilities
         public void Setup(bool asFusion)
         {
             IAbilityCard ability = this;
-            
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -123,8 +123,8 @@ namespace AB_Server.Abilities
         {
             User = user;
 
-            
-            
+
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -190,10 +190,5 @@ namespace AB_Server.Abilities
                 new BlindJudgeEffect(User, target, Game, TypeId, this).Activate();
             Dispose();
         }
-
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.OnField() && user.Attribute == Attribute.Zephyros;
-
-        public new int TypeId { get; private protected set; } = 19;
     }
 }

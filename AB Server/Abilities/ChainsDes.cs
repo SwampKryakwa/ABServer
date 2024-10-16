@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         public Bakugan User;
         Bakugan target;
         Game game;
-        short boost;
+        Boost boost;
 
         public Player Owner { get => User.Owner; }
 
@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            boost = (short)(game.BakuganIndex.Count(x => x.OnField() && !x.InHands) * -100);
+            boost = new Boost(game.BakuganIndex.Count(x => x.OnField() && !x.InHands) * -100);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -84,7 +84,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new int TypeId { get; private protected set; }
+        
 
         public void Setup(bool asCounter)
         {

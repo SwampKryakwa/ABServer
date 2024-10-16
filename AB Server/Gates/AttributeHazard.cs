@@ -16,8 +16,6 @@
             Attribute = attribute;
         }
 
-        public new int TypeId { get; private protected set; } = 4;
-
         public new void Negate()
         {
             IsOpen = false;

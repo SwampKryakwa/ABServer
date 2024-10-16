@@ -8,15 +8,17 @@ namespace AB_Server.Abilities
         Bakugan User;
         Game game;
         int turnsPassed = 0;
+        AbilityCard card;
 
         public Player Owner { get => User.Owner; }
 
-        public WaterRefrainEffect(Bakugan user, Game game, int typeID)
+        public WaterRefrainEffect(Bakugan user, Game game, int typeID, AbilityCard card)
         {
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
+            this.card = card;
         }
 
         public void Activate()
@@ -52,12 +54,22 @@ namespace AB_Server.Abilities
             {
                 game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
                 game.TurnEnd -= CheckEffectOver;
+                card.Dispose();
             }
+        }
+
+        public void Negate()
+        {
+            game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
+            game.TurnEnd -= CheckEffectOver;
+            card.Dispose();
         }
     }
 
     internal class WaterRefrain : AbilityCard, IAbilityCard
     {
+        WaterRefrainEffect effect;
+
         public WaterRefrain(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
@@ -66,17 +78,26 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        public void Negate(bool asCounter)
+        {
+            if (asCounter)
+                counterNegated = true;
+            else
+                effect.Negate();
+        }
+
         public new void Resolve()
         {
-            if (!counterNegated)
-                new WaterRefrainEffect(User, Game, TypeId).Activate();
-
-            Dispose();
+            if (counterNegated)
+                Dispose();
+            else
+            {
+                effect = new WaterRefrainEffect(User, Game, TypeId, this);
+                effect.Activate();
+            }
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Aqua && user.OnField();
-
-        public new int TypeId { get; private protected set; } = 0;
     }
 }

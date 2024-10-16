@@ -110,6 +110,6 @@ namespace AB_Server.Abilities
     //    public bool IsActivateableFusion(Bakugan user) =>
     //        user.OnField() && user.Type == BakuganType.Serpent && user.Attribute == Attribute.Nova;
 
-    //    public new int TypeId { get; private protected set; } = 22;
+    //     = 22;
     //}
 }

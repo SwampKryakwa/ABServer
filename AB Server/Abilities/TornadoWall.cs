@@ -9,7 +9,6 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-
         public Player Owner { get => User.Owner; }
 
         public TornadoWallEffect(Bakugan user, Game game, int typeID)
@@ -42,13 +41,13 @@ namespace AB_Server.Abilities
             {
                 if (b.Owner == User.Owner && b.Attribute == Attribute.Zephyros)
                 {
-                    b.Boost(80, this);
+                    b.Boost(new Boost(80), this);
                     b.affectingEffects.Add(this);
                     continue;
                 }
                 if (b.Owner.SideID != User.Owner.SideID)
                 {
-                    b.Boost(-80, this);
+                    b.Boost(new Boost(-80), this);
                     b.affectingEffects.Add(this);
                 }
             }
@@ -136,7 +135,5 @@ namespace AB_Server.Abilities
 
         public bool IsActivateableFusion(Bakugan user) =>
             !user.InGrave() && user.Attribute == Attribute.Zephyros;
-
-        public new int TypeId { get; private protected set; } = 18;
     }
 }

@@ -7,7 +7,7 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan User;
         Game game;
-
+        Boost currentBoost;
 
         public Player Owner { get => User.Owner; }
 
@@ -39,14 +39,42 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.PermaBoost(100, this);
+            currentBoost = new Boost(100);
+            User.Boost(currentBoost, this);
+
+            game.BakuganDestroyed += OnBakuganLeaveField;
+            game.BakuganReturned += OnBakuganLeaveField;
 
             User.affectingEffects.Add(this);
+        }
+
+        private void OnBakuganLeaveField(Bakugan target, ushort owner)
+        {
+            if (target == User)
+            {
+                currentBoost = new Boost(100);
+                User.Boost(currentBoost, this);
+            }
+        }
+
+        public void Negate(AbilityCard card)
+        {
+            User.affectingEffects.Remove(this);
+
+            if (currentBoost.Active)
+            {
+                currentBoost.Active = false;
+                User.RemoveBoost(currentBoost, this);
+            }
+
+            card.Dispose();
         }
     }
 
     internal class FireJudge : AbilityCard, IAbilityCard
     {
+        FireJudgeEffect effect;
+
         public FireJudge(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
@@ -55,17 +83,26 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        public void Negate(bool asCounter)
+        {
+            if (asCounter)
+                counterNegated = true;
+            else
+                effect.Negate(this);
+        }
+
         public new void Resolve()
         {
-            if (!counterNegated)
-                new FireJudgeEffect(User, Game, TypeId).Activate();
-
-            Dispose();
+            if (counterNegated)
+                Dispose();
+            else
+            {
+                effect = new FireJudgeEffect(User, Game, TypeId);
+                effect.Activate();
+            }
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Nova && user.InBattle;
-
-        public new int TypeId { get; private protected set; }
     }
 }

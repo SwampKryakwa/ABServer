@@ -30,7 +30,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", TypeID },
+                    { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -42,14 +42,15 @@ namespace AB_Server.Abilities
             }
 
             target.AddFromHand(User.Position as GateCard);
-            User.Destroy(User.Position.EnterOrder);
+            User.Destroy((User.Position as GateCard).EnterOrder);
         }
     }
 
     internal class TributeSwitch : AbilityCard, IAbilityCard
     {
-        public TributeSwitch(int cID, Player owner)
+        public TributeSwitch(int cID, Player owner, int typeId)
         {
+            TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -80,7 +81,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BH" },
                         { "Message", "INFO_ADDTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Select(x =>
+                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -109,7 +110,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BH" },
                         { "Message", "INFO_ADDTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Select(x =>
+                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

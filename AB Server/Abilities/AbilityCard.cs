@@ -2,7 +2,12 @@
 
 namespace AB_Server.Abilities
 {
-    internal class AbilityCard : IAbilityCard
+	internal interface IActive
+	{
+		public void Negate(bool asCounter = false);
+	}
+	
+    internal class AbilityCard : IAbilityCard, IActive
     {
         static Func<int, Player, IAbilityCard>[] AbilityCtrs =
         [
@@ -43,13 +48,13 @@ namespace AB_Server.Abilities
             (cID, owner) => throw new NotImplementedException(), //23
 
             //Set 1 Garrison abilities
-            (cID, owner) => throw new NotImplementedException(), //24
-            (cID, owner) => throw new NotImplementedException(), //25
+            (cID, owner) => new CoreForcement(cID, owner, 24),
+            (cID, owner) => throw new NotImplementedException(),//25
 
             //Set 1 Griffon abilities
-            (cID, owner) => throw new NotImplementedException(), //26
-            (cID, owner) => throw new NotImplementedException(), //27
-            (cID, owner) => throw new NotImplementedException(), //28
+            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new TributeSwitch(cID, owner, 27),
+            (cID, owner) => new StunningRoar(cID, owner, 28),
 
             //Set 1 Mantis abilities
             (cID, owner) => throw new NotImplementedException(), //29

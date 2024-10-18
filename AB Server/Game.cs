@@ -22,7 +22,8 @@ namespace AB_Server
 
         public List<Player> Players;
         public GateCard[,] Field;
-        public List<IAbilityCard> ActiveZone = new();
+        public List<IActive> ActiveZone = new();
+        public int NextEffectId = 0;
 
         public GateCard? GetGateByCoord(int X, int Y)
         {

@@ -8,6 +8,7 @@ namespace AB_Server.Abilities
         Bakugan User;
         Game game;
         Boost currentBoost;
+        int effectId;
 
         public Player Owner { get => User.Owner; }
 
@@ -22,6 +23,7 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             int team = User.Owner.SideID;
+            game.ActiveZone.Add(this);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -37,7 +39,15 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" },
+                    { "Card", TypeId },
+                    { "Id", effectId },
+                    { "Owner", Owner.Id }
+                });
             }
+
             currentBoost = new Boost(150);
             User.Boost(currentBoost, this);
 
@@ -56,14 +66,24 @@ namespace AB_Server.Abilities
             }
         }
 
-        public void Negate(asCounter)
+        public void Negate(bool asCounter)
         {
             User.affectingEffects.Remove(this);
+            game.ActiveZone.Remove(this);
 
             if (currentBoost.Active)
             {
                 currentBoost.Active = false;
                 User.RemoveBoost(currentBoost, this);
+            }
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", effectId }
+                });
             }
         }
     }

@@ -2,13 +2,14 @@
 
 namespace AB_Server.Abilities
 {
-    internal class WaterRefrainEffect
+    internal class WaterRefrainEffect : IActive
     {
         public int TypeId { get; }
         Bakugan User;
         Game game;
-        int turnsPassed = 0;
         AbilityCard card;
+        int effectId;
+        int turnsPassed = 0;
 
         public Player Owner { get => User.Owner; }
 
@@ -19,11 +20,13 @@ namespace AB_Server.Abilities
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
             this.card = card;
+            effectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
             int team = User.Owner.SideID;
+            game.ActiveZone.Add(this);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -39,6 +42,13 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" },
+                    { "Card", TypeId },
+                    { "Id", effectId },
+                    { "Owner", Owner.Id }
+                });
             }
             game.Players.ForEach(p => p.AbilityBlockers.Add(this));
 
@@ -52,17 +62,35 @@ namespace AB_Server.Abilities
         {
             if (turnsPassed++ == 1)
             {
+                game.ActiveZone.Remove(this);
                 game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
                 game.TurnEnd -= CheckEffectOver;
-                card.Dispose();
+            }
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", effectId }
+                });
             }
         }
 
-        public void Negate()
+        public void Negate(bool asCounter)
         {
+            game.ActiveZone.Remove(this);
             game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
             game.TurnEnd -= CheckEffectOver;
-            card.Dispose();
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", effectId }
+                });
+            }
         }
     }
 
@@ -88,13 +116,13 @@ namespace AB_Server.Abilities
 
         public new void Resolve()
         {
-            if (counterNegated)
-                Dispose();
-            else
+            if (!counterNegated)
             {
                 effect = new WaterRefrainEffect(User, Game, TypeId, this);
                 effect.Activate();
             }
+
+            Dispose();
         }
 
         public bool IsActivateableFusion(Bakugan user) =>

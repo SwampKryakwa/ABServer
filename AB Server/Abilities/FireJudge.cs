@@ -8,21 +8,23 @@ namespace AB_Server.Abilities
         Bakugan User;
         Game game;
         Boost currentBoost;
+        int effectId;
 
         public Player Owner { get => User.Owner; }
 
         public FireJudgeEffect(Bakugan user, Game game, int typeID)
         {
-            Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
+            effectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
             int team = User.Owner.SideID;
+            game.ActiveZone.Add(this);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
@@ -38,7 +40,15 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" },
+                    { "Card", TypeId },
+                    { "Id", effectId },
+                    { "Owner", Owner.Id }
+                });
             }
+
             currentBoost = new Boost(100);
             User.Boost(currentBoost, this);
 
@@ -73,8 +83,7 @@ namespace AB_Server.Abilities
                 Game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectRemovedActiveZone" },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
+                    { "Id", effectId }
                 });
             }
         }

@@ -54,7 +54,7 @@ namespace AB_Server.Abilities
             //Set 1 Griffon abilities
             (cID, owner) => throw new NotImplementedException(),
             (cID, owner) => new TributeSwitch(cID, owner, 27),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new StunningRoar(cID, owner, 28),
 
             //Set 1 Mantis abilities
             (cID, owner) => throw new NotImplementedException(),

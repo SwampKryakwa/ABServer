@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Reflection.Metadata;
 
 namespace AB_Server.Abilities
 {
@@ -11,14 +10,10 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-
         public Player Owner { get => User.Owner; }
 
         public RapidFireEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
-            Console.WriteLine(user);
-            Console.WriteLine(target);
-            Console.WriteLine(game);
             User = user;
             this.game = game;
             this.target = target;
@@ -35,7 +30,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", 3 },
+                    { "Card", TypeID },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -47,12 +42,6 @@ namespace AB_Server.Abilities
             }
 
             target.AddFromHand(User.Position as GateCard);
-        }
-
-        //remove when negated
-        public void Negate()
-        {
-
         }
     }
 
@@ -72,7 +61,6 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 2 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -115,7 +103,6 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BH" },

@@ -7,80 +7,80 @@ namespace AB_Server.Abilities
         static Func<int, Player, IAbilityCard>[] AbilityCtrs =
         [
             //Set 1 Nova abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //0
             (cID, owner) => new FireJudge(cID, owner, 1),
             (cID, owner) => new FireTornado(cID, owner, 2),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //3
 
             //Set 1 Aqua abilities
             (cID, owner) => new WaterRefrain(cID, owner, 4),
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //5
+            (cID, owner) => throw new NotImplementedException(), //6
             (cID, owner) => new Liquify(cID, owner, 7),
 
             //Set 1 Darkon abilities
             (cID, owner) => new GrandDown(cID, owner, 8),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //9
             (cID, owner) => new OreganoMurder(cID, owner, 10),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //11
 
             //Set 1 Zephyros abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //12, Air battle, do later
             (cID, owner) => new BlowBack(cID, owner, 13),
             (cID, owner) => new JumpOver(cID, owner, 14),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //15
 
             //Set 1 Lumina abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //16
             (cID, owner) => new LightShield(cID, owner, 17),
             (cID, owner) => new HolyLight(cID, owner, 18),
             (cID, owner) => new ShadeAbility(cID, owner, 19),
 
             //Set 1 Subterra abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //20
             (cID, owner) => new SpiritCanyon(cID, owner, 21),
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new DesertHole(cID, owner, 22),
+            (cID, owner) => throw new NotImplementedException(), //23
 
             //Set 1 Garrison abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //24
+            (cID, owner) => throw new NotImplementedException(), //25
 
             //Set 1 Griffon abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //26
+            (cID, owner) => throw new NotImplementedException(), //27
+            (cID, owner) => throw new NotImplementedException(), //28
 
             //Set 1 Mantis abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //29
+            (cID, owner) => throw new NotImplementedException(), //30
             (cID, owner) => new TwinMachete(cID, owner, 31),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //32
 
             //Set 1 Raptor abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //33
+            (cID, owner) => throw new NotImplementedException(), //34
 
             //Set 1 Saurus abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //35
+            (cID, owner) => throw new NotImplementedException(), //36
 
             //Set 1 Centipede abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //37
+            (cID, owner) => throw new NotImplementedException(), //38
             
             //Set 1 Serpent abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //39
+            (cID, owner) => throw new NotImplementedException(), //40
+            (cID, owner) => throw new NotImplementedException(), //41
 
             //Set 1 Fairy abilities
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //42
+            (cID, owner) => throw new NotImplementedException(), //43
+            (cID, owner) => throw new NotImplementedException(), //44
 
             //Set 1 Elephant abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => throw new NotImplementedException(), //45
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)

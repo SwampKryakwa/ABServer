@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class TwinMacheteEffect
+    internal class DustVeilEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public TwinMacheteEffect(Bakugan user, Game game, int typeID)
+        public DustVeilEffect(Bakugan user, Game game, int typeID)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
@@ -36,13 +36,20 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(new Boost(100), this);
+
+            foreach (var bakugan in game.BakuganIndex)
+            {
+                if (bakugan.Owner == Owner)
+                    bakugan.Boost(new Boost(50), this);
+                else if (bakugan.Owner.SideID != Owner.SideID)
+                    bakugan.Boost(new Boost(-50), this);
+            }
         }
     }
 
-    internal class TwinMachete : AbilityCard, IAbilityCard
+    internal class PowderVeil : AbilityCard, IAbilityCard
     {
-        public TwinMachete(int cID, Player owner, int typeId)
+        public PowderVeil(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -53,17 +60,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new DustVeilEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new DustVeilEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Mantis;
+            user.OnField() && user.Type == BakuganType.Fairy;
 
-        
+
     }
 }

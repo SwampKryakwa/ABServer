@@ -2,18 +2,20 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class CinderCoilEffect : IActive
+    internal class SaurusGlowEffect : IActive
     {
         public int TypeId { get; }
         public int EffectId { get; }
         public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Game game;
+
+        Boost currentBoost;
         List<Boost> affectedBoosts = new();
 
         public Player Owner { get => User.Owner; }
 
-        public CinderCoilEffect(Bakugan user, Game game, int typeID)
+        public SaurusGlowEffect(Bakugan user, Game game, int typeID)
         {
             this.User = user;
             this.game = game;
@@ -49,21 +51,36 @@ namespace AB_Server.Abilities
                 });
             }
 
+
+            currentBoost = new Boost(100);
+            User.Boost(currentBoost, this);
+
+            game.BakuganDestroyed += OnBakuganLeaveField;
+            game.BakuganReturned += OnBakuganLeaveField;
             game.BakuganBoosted += Trigger;
+        }
+
+        private void OnBakuganLeaveField(Bakugan target, ushort owner)
+        {
+            if (target == User)
+            {
+                currentBoost = new Boost(100);
+                User.Boost(currentBoost, this);
+            }
         }
 
         public void Trigger(Bakugan target, Boost boost, object source)
         {
-            if (boost.Value > 0 && target == User && source.GetType() != typeof(CinderCoilEffect))
+            if (boost.Value > 0 && target == User && source.GetType() != typeof(SaurusGlowEffect))
             {
-                boost.Value += 400;
+                boost.Value += 50;
                 affectedBoosts.Add(boost);
                 foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
                         { "Owner", Owner.Id },
-                        { "Boost", 400 },
+                        { "Boost", 50 },
                         { "Bakugan", new JObject {
                             { "Type", (int)target.Type },
                             { "Attribute", (int)target.Attribute },
@@ -79,13 +96,22 @@ namespace AB_Server.Abilities
         public void Negate(bool asCounter)
         {
             game.ActiveZone.Remove(this);
+
+            game.BakuganDestroyed -= OnBakuganLeaveField;
+            game.BakuganReturned -= OnBakuganLeaveField;
             game.BakuganBoosted -= Trigger;
             int reduction = 0;
 
+            if (currentBoost.Active)
+            {
+                currentBoost.Active = false;
+                User.RemoveBoost(currentBoost, this);
+            }
+
             foreach (var boost in affectedBoosts.Where(x => x.Active))
             {
-                boost.Value -= 400;
-                reduction += 400;
+                boost.Value -= 50;
+                reduction += 50;
             }
 
             foreach (var e in game.NewEvents)
@@ -106,10 +132,10 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class CinderCoil : AbilityCard, IAbilityCard
+    internal class SaurusGlow : AbilityCard, IAbilityCard
     {
 
-        public CinderCoil(int cID, Player owner, int typeId)
+        public SaurusGlow(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -120,15 +146,15 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new CinderCoilEffect(User, Game, TypeId).Activate();
+                new SaurusGlowEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new CinderCoilEffect(User, Game, TypeId).Activate();
+            new SaurusGlowEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Serpent && user.Attribute == Attribute.Nova;
+            user.InBattle && user.Type == BakuganType.Saurus;
     }
 }

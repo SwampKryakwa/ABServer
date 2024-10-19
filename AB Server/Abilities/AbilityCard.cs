@@ -2,12 +2,23 @@
 
 namespace AB_Server.Abilities
 {
-	internal interface IActive
-	{
-		public void Negate(bool asCounter = false);
-	}
-	
-    internal class AbilityCard : IAbilityCard, IActive
+    internal enum ActiveType
+    {
+        Card,
+        Effect
+    }
+
+    internal interface IActive
+    {
+        public int EffectId { get; }
+        public int TypeId { get; }
+
+        public ActiveType ActiveType { get; }
+
+        public void Negate(bool asCounter = false);
+    }
+
+    internal class AbilityCard : IAbilityCard
     {
         static Func<int, Player, IAbilityCard>[] AbilityCtrs =
         [
@@ -21,23 +32,23 @@ namespace AB_Server.Abilities
             (cID, owner) => new WaterRefrain(cID, owner, 4),
             (cID, owner) => throw new NotImplementedException(), //5
             (cID, owner) => throw new NotImplementedException(), //6
-            (cID, owner) => new Liquify(cID, owner, 7),
+            (cID, owner) => new LiquidForm(cID, owner, 7),
 
             //Set 1 Darkon abilities
             (cID, owner) => new GrandDown(cID, owner, 8),
-            (cID, owner) => throw new NotImplementedException(), //9
+            (cID, owner) => new KillingCompanion(cID, owner, 9),
             (cID, owner) => new OreganoMurder(cID, owner, 10),
-            (cID, owner) => throw new NotImplementedException(), //11
+            (cID, owner) => new MergeShield(cID, owner, 11),
 
             //Set 1 Zephyros abilities
             (cID, owner) => throw new NotImplementedException(), //12, Air battle, do later
-            (cID, owner) => new BlowBack(cID, owner, 13),
+            (cID, owner) => new Blowback(cID, owner, 13),
             (cID, owner) => new JumpOver(cID, owner, 14),
             (cID, owner) => throw new NotImplementedException(), //15
 
             //Set 1 Lumina abilities
             (cID, owner) => throw new NotImplementedException(), //16
-            (cID, owner) => new LightShield(cID, owner, 17),
+            (cID, owner) => new LightningShield(cID, owner, 17),
             (cID, owner) => new HolyLight(cID, owner, 18),
             (cID, owner) => new ShadeAbility(cID, owner, 19),
 
@@ -53,8 +64,8 @@ namespace AB_Server.Abilities
 
             //Set 1 Griffon abilities
             (cID, owner) => throw new NotImplementedException(),
-            (cID, owner) => new TributeSwitch(cID, owner, 27),
-            (cID, owner) => new StunningRoar(cID, owner, 28),
+            (cID, owner) => new VicariousVictim(cID, owner, 27),
+            (cID, owner) => new DeafeningRoar(cID, owner, 28),
 
             //Set 1 Mantis abilities
             (cID, owner) => throw new NotImplementedException(), //29
@@ -64,10 +75,10 @@ namespace AB_Server.Abilities
 
             //Set 1 Raptor abilities
             (cID, owner) => throw new NotImplementedException(), //33
-            (cID, owner) => throw new NotImplementedException(), //34
+            (cID, owner) => new BurstReturn(cID, owner, 34),
 
             //Set 1 Saurus abilities
-            (cID, owner) => throw new NotImplementedException(), //35
+            (cID, owner) => new SaurusGlow(cID, owner, 35),
             (cID, owner) => throw new NotImplementedException(), //36
 
             //Set 1 Centipede abilities
@@ -76,13 +87,13 @@ namespace AB_Server.Abilities
             
             //Set 1 Serpent abilities
             (cID, owner) => throw new NotImplementedException(), //39
-            (cID, owner) => throw new NotImplementedException(), //40
+            (cID, owner) => new CinderCoil(cID, owner, 40),
             (cID, owner) => throw new NotImplementedException(), //41
 
             //Set 1 Fairy abilities
             (cID, owner) => throw new NotImplementedException(), //42
             (cID, owner) => throw new NotImplementedException(), //43
-            (cID, owner) => throw new NotImplementedException(), //44
+            (cID, owner) => new PowderVeil(cID, owner, 44),
 
             //Set 1 Elephant abilities
             (cID, owner) => throw new NotImplementedException(), //45
@@ -98,6 +109,11 @@ namespace AB_Server.Abilities
 
         public Game Game { get; set; }
         public Player Owner { get; set; }
+        public ActiveType ActiveType { get; } = ActiveType.Card;
+        public int EffectId { get => throw new NotImplementedException(); }
+
+        public IAbilityCard FusedTo { get; set; }
+        public IAbilityCard Fusion { get; set; }
 
         public int CardId { get; protected set; }
 
@@ -123,14 +139,19 @@ namespace AB_Server.Abilities
                 });
             }
         }
+        public void DoubleEffect() =>
+            throw new NotImplementedException();
 
+        public void Negate(bool asCounter)
+        {
+            if (asCounter)
+                counterNegated = true;
+        }
 #pragma warning restore CS8618
     }
 
-    interface IAbilityCard
+    interface IAbilityCard : IActive
     {
-        public int TypeId { get; private protected set; }
-
         public Game Game { get; protected set; }
         public int CardId { get; }
         public Player Owner { get; protected set; }
@@ -173,10 +194,14 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
+        public IAbilityCard FusedTo { get; set; }
+        public IAbilityCard Fusion { get; set; }
+
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.CheckChain(Owner, this, user);
         }
@@ -188,12 +213,10 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
+        public void DoubleEffect();
+
         public void Resolve();
 
-        public void Negate(bool asCounter)
-        {
-            if (asCounter)
-                counterNegated = true;
-        }
+        public void Negate(bool asCounter);
     }
 }

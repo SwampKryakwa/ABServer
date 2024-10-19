@@ -89,6 +89,8 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
@@ -145,13 +147,16 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public void Resolve(Bakugan user)
+        public void Resolve()
         {
             if (!counterNegated)
-                new DesertHoleEffect(user, target, Game, 1).Activate();
+                new DesertHoleEffect(User, target, Game, TypeId).Activate();
 
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new DesertHoleEffect(User, target, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.HasNeighbourEnemies() && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Subterra);

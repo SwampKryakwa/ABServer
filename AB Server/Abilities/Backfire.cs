@@ -97,7 +97,9 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-            
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },

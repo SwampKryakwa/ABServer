@@ -1,26 +1,26 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
+using System.Reflection.Metadata;
 
 namespace AB_Server.Abilities
 {
-    internal class ShadeAbilityEffect
+    internal class LiquifyEffect
     {
         public int TypeId { get; }
         public Bakugan User;
-        IAbilityCard target;
-        bool isCounter;
+        Bakugan target;
         Game game;
+
 
         public Player Owner { get => User.Owner; }
 
-        public ShadeAbilityEffect(Bakugan user, IAbilityCard target, bool isCounter, Game game, int typeID)
+        public LiquifyEffect(Bakugan user, Bakugan target, Game game, int typeID)
         {
             User = user;
             this.game = game;
             this.target = target;
-            this.isCounter = isCounter;
-            TypeId = typeID;
-
             user.UsedAbilityThisTurn = true;
+            TypeId = typeID;
         }
 
         public void Activate()
@@ -42,15 +42,15 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-
-            target.Negate(isCounter);
+            var position = User.Position as GateCard;
+            User.ToHand((User.Position as GateCard).EnterOrder);
+            target.AddFromHand(position);
         }
     }
 
-    internal class ShadeAbility : AbilityCard, IAbilityCard
+    internal class LiquidForm : AbilityCard, IAbilityCard
     {
-
-        public ShadeAbility(int cID, Player owner, int typeId)
+        public LiquidForm(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -58,18 +58,13 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        private IAbilityCard target;
-        private bool isCounter = false;
-
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            isCounter = asCounter;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -81,12 +76,40 @@ namespace AB_Server.Abilities
                                 { "Treatment", (int)x.Treatment },
                                 { "Power", x.Power },
                                 { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
+                                { "BID", x.BID }
+                            }
+                        )) } }
                 } }
             });
 
             Game.awaitingAnswers[Owner.Id] = Setup2;
+        }
+
+        public void Setup2()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            Game.NewEvents[Owner.Id].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ADDTARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Owner.Bakugans.Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID }
+                            }
+                        )) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -98,34 +121,32 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_ABILITYNEGATETARGET", Game.ActiveZone.ToArray())
+                    new JObject {
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ADDTARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Owner.Bakugans.Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID }
+                            }
+                        )) }
+                    }
                 } }
             });
 
             Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Count", 1 },
-                { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_ABILITYNEGATETARGET", Game.ActiveZone.ToArray())
-                } }
-            });
-
-            Game.awaitingAnswers[Owner.Id] = Activate;
-        }
+        private Bakugan target;
 
         public void Activate()
         {
-            target = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -133,14 +154,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId).Activate();
+                new LiquifyEffect(User, target, Game, 1).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId).Activate();
+                new LiquifyEffect(User, target, Game, 1).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) => user.OnField() && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Lumina);
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.InBattle && user.Attribute == Attribute.Aqua;
+
+        
     }
 }

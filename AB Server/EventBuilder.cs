@@ -54,6 +54,32 @@ namespace AB_Server
             };
         }
 
+        public static JObject ActiveSelection(string message, params IActive[] actives)
+        {
+            JArray jsonActives = new();
+
+            foreach (IActive active in actives)
+            {
+                if (active.ActiveType == ActiveType.Card)
+                {
+                    var activeCard = active as IAbilityCard;
+
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId } });
+                }
+                else
+                {
+                    jsonActives.Add(new JObject { { "Type", "E" }, { "CardType", active.TypeId }, { "EID", active.EffectId } });
+                }
+            }
+
+            return new JObject
+            {
+                { "SelectionType", "AC" },
+                { "Message", message },
+                { "SelectionAbilities", jsonActives }
+            };
+        }
+
         public static JObject SetGate(GateCard card, bool RevealInfo)
         {
             JObject extra = new();

@@ -5,10 +5,11 @@ namespace AB_Server.Abilities
     internal class CoreForcementEffect : IActive
     {
         public int TypeId { get; }
+        public int EffectId { get; }
+        public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Game game;
         Boost currentBoost;
-        int effectId;
 
         public Player Owner { get => User.Owner; }
 
@@ -18,11 +19,11 @@ namespace AB_Server.Abilities
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
+            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
             game.ActiveZone.Add(this);
 
             for (int i = 0; i < game.NewEvents.Length; i++)
@@ -39,11 +40,11 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                Game.NewEvents[i].Add(new()
+                game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectAddedActiveZone" },
                     { "Card", TypeId },
-                    { "Id", effectId },
+                    { "Id", EffectId },
                     { "Owner", Owner.Id }
                 });
             }
@@ -77,12 +78,15 @@ namespace AB_Server.Abilities
                 User.RemoveBoost(currentBoost, this);
             }
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            game.BakuganDestroyed -= OnBakuganLeaveField;
+            game.BakuganReturned -= OnBakuganLeaveField;
+
+            for (int i = 0; i < game.NewEvents.Length; i++)
             {
-                Game.NewEvents[i].Add(new()
+                game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectRemovedActiveZone" },
-                    { "Id", effectId }
+                    { "Id", EffectId }
                 });
             }
         }
@@ -107,13 +111,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-            {
-                effect = new CoreForcementEffect(User, Game, TypeId);
-                effect.Activate();
-            }
+                new CoreForcementEffect(User, Game, TypeId).Activate();
 			
 			Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new CoreForcementEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Type == BakuganType.Garrison && user.OnField();

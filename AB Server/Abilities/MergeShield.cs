@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class TwinMacheteEffect
+    internal class MergeShieldEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public TwinMacheteEffect(Bakugan user, Game game, int typeID)
+        public MergeShieldEffect(Bakugan user, Game game, int typeID)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
@@ -36,13 +36,14 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(new Boost(100), this);
+
+            User.Boost(new Boost(game.BakuganIndex.Where(x => x.OnField() && x != User).Sum(x => x.AdditionalPower)), this);
         }
     }
 
-    internal class TwinMachete : AbilityCard, IAbilityCard
+    internal class MergeShield : AbilityCard, IAbilityCard
     {
-        public TwinMachete(int cID, Player owner, int typeId)
+        public MergeShield(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -53,17 +54,15 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new MergeShieldEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new MergeShieldEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Mantis;
-
-        
+            user.InBattle && user.Attribute == Attribute.Darkon;
     }
 }

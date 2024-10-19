@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class TwinMacheteEffect
+    internal class BurstReturnEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -10,9 +10,8 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public TwinMacheteEffect(Bakugan user, Game game, int typeID)
+        public BurstReturnEffect(Bakugan user, Game game, int typeID)
         {
-            Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
@@ -21,6 +20,8 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
+            int team = User.Owner.SideID;
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -36,13 +37,17 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(new Boost(100), this);
+
+            User.Revive();
+
+            foreach (var bakugan in game.BakuganIndex.Where(x => x.OnField()))
+                bakugan.Boost(new Boost(-50), this);
         }
     }
 
-    internal class TwinMachete : AbilityCard, IAbilityCard
+    internal class BurstReturn : AbilityCard, IAbilityCard
     {
-        public TwinMachete(int cID, Player owner, int typeId)
+        public BurstReturn(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -50,20 +55,24 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        public void Negate(bool asCounter)
+        {
+            if (asCounter)
+                counterNegated = true;
+        }
+
         public new void Resolve()
         {
             if (!counterNegated)
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new BurstReturnEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new BurstReturnEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Mantis;
-
-        
+            user.Type == BakuganType.Raptor && user.InGrave();
     }
 }

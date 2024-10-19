@@ -113,6 +113,8 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -154,6 +156,9 @@ namespace AB_Server.Abilities
 
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new HolyLightEffect(User, target, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Lumina && user.OnField();

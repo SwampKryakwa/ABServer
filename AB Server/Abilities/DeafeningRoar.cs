@@ -1,9 +1,9 @@
-﻿using AB_Server.Gates;
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class OreganoMurderEffect
+    internal class StunningRoarEffect
     {
         public int TypeId { get; }
         Bakugan user;
@@ -12,7 +12,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => user.Owner; }
 
-        public OreganoMurderEffect(Bakugan user, Game game, int typeID)
+        public StunningRoarEffect(Bakugan user, Game game, int typeID)
         {
             this.user = user;
             this.game = game;
@@ -37,11 +37,8 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(new Boost(100), this);
-            affectedBakugan.Add(user);
-            user.affectingEffects.Add(this);
 
-            foreach (Bakugan b in user.Position.Bakugans.Where(x => x.Owner.SideID != Owner.SideID))
+            foreach (Bakugan b in game.BakuganIndex.Where(x => x.Owner.SideID != Owner.SideID && x.OnField()))
             {
                 b.Boost(new Boost(-100), this);
                 affectedBakugan.Add(b);
@@ -89,11 +86,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class OreganoMurder : AbilityCard, IAbilityCard
+    internal class DeafeningRoar : AbilityCard, IAbilityCard
     {
-        
-
-        public OreganoMurder(int cID, Player owner, int typeId)
+        public DeafeningRoar(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -104,14 +99,14 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new OreganoMurderEffect(User, Game, TypeId).Activate();
+                new StunningRoarEffect(User, Game, TypeId).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new OreganoMurderEffect(User, Game, TypeId).Activate();
+                new StunningRoarEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.Attribute == Attribute.Darkon && (user.Owner.BakuganOwned.Count(x => x == user || x.InGrave()) == user.Owner.BakuganOwned.Count);
+            user.OnField() && user.Type == BakuganType.Griffon;
     }
 }

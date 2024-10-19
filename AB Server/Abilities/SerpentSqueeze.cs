@@ -124,7 +124,9 @@ namespace AB_Server.Abilities
     //    public void SetupFusion(IAbilityCard parentCard, Bakugan user)
     //    {
     //        User = user;
-            
+            //FusedTo = parentCard;
+            //parentCard.Fusion = this;
+
     //        Game.NewEvents[Owner.Id].Add(new JObject
     //        {
     //            { "Type", "StartSelection" },
@@ -191,4 +193,4 @@ namespace AB_Server.Abilities
 
     //    public bool IsActivateableFusion(Bakugan user) => user.InBattle && user.OnField() && user.Type == BakuganType.Serpent;
     //}
-}
+    }

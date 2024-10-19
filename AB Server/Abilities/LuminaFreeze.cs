@@ -87,6 +87,9 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
+        public new void DoubleEffect() =>
+                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.OnField() && user.Attribute == Attribute.Lumina;
     }

@@ -85,11 +85,11 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class LightShield : AbilityCard, IAbilityCard
+    internal class LightningShield : AbilityCard, IAbilityCard
     {
         
 
-        public LightShield(int cID, Player owner, int typeId)
+        public LightningShield(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -103,6 +103,9 @@ namespace AB_Server.Abilities
                 new LightShieldEffect(User, Game, TypeId).Activate();
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new LightShieldEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Lumina;

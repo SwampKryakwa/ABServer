@@ -5,10 +5,11 @@ namespace AB_Server.Abilities
     internal class FireJudgeEffect : IActive
     {
         public int TypeId { get; }
+        public int EffectId { get; }
+        public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Game game;
         Boost currentBoost;
-        int effectId;
 
         public Player Owner { get => User.Owner; }
 
@@ -18,7 +19,7 @@ namespace AB_Server.Abilities
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
-            effectId = game.NextEffectId++;
+            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
@@ -40,11 +41,11 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                Game.NewEvents[i].Add(new()
+                game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectAddedActiveZone" },
                     { "Card", TypeId },
-                    { "Id", effectId },
+                    { "Id", EffectId },
                     { "Owner", Owner.Id }
                 });
             }
@@ -54,8 +55,6 @@ namespace AB_Server.Abilities
 
             game.BakuganDestroyed += OnBakuganLeaveField;
             game.BakuganReturned += OnBakuganLeaveField;
-
-            User.affectingEffects.Add(this);
         }
 
         private void OnBakuganLeaveField(Bakugan target, ushort owner)
@@ -69,8 +68,10 @@ namespace AB_Server.Abilities
 
         public void Negate(bool asCounter)
         {
-            User.affectingEffects.Remove(this);
             game.ActiveZone.Remove(this);
+
+            game.BakuganDestroyed -= OnBakuganLeaveField;
+            game.BakuganReturned -= OnBakuganLeaveField;
 
             if (currentBoost.Active)
             {
@@ -78,12 +79,12 @@ namespace AB_Server.Abilities
                 User.RemoveBoost(currentBoost, this);
             }
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            for (int i = 0; i < game.NewEvents.Length; i++)
             {
-                Game.NewEvents[i].Add(new()
+                game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectRemovedActiveZone" },
-                    { "Id", effectId }
+                    { "Id", EffectId }
                 });
             }
         }
@@ -108,13 +109,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-            {
-                effect = new FireJudgeEffect(User, Game, TypeId);
-                effect.Activate();
-            }
+                new FireJudgeEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+            new FireJudgeEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Nova && user.InBattle;

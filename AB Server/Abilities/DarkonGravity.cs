@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class TwinMacheteEffect
+    internal class DarkonGravityEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -10,7 +11,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public TwinMacheteEffect(Bakugan user, Game game, int typeID)
+        public DarkonGravityEffect(Bakugan user, Game game, int typeID)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
@@ -36,13 +37,14 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            User.Boost(new Boost(100), this);
+
+            Bakugan.MultiMove(game, User.Position as GateCard, game.BakuganIndex.Where(x => x != User && x.OnField()).ToArray());
         }
     }
 
-    internal class TwinMachete : AbilityCard, IAbilityCard
+    internal class DarkonGravity : AbilityCard, IAbilityCard
     {
-        public TwinMachete(int cID, Player owner, int typeId)
+        public DarkonGravity(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -53,17 +55,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new DarkonGravityEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new DarkonGravityEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Type == BakuganType.Mantis;
+            user.OnField() && user.Type == BakuganType.Centipede && user.Attribute == Attribute.Darkon && user.Owner.Bakugans.Count == 0;
 
-        
+
     }
 }

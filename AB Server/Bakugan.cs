@@ -68,7 +68,7 @@ namespace AB_Server
 
     class Boost
     {
-        public Boost (int value)
+        public Boost(int value)
         {
             Value = value;
         }
@@ -92,6 +92,10 @@ namespace AB_Server
         public int Power
         {
             get => BasePower + Boosts.Sum(b => b.Value);
+        }
+        public int AdditionalPower
+        {
+            get => Boosts.Sum(b => b.Value);
         }
 
         public Player Owner;
@@ -275,6 +279,61 @@ namespace AB_Server
             destination.Bakugans.Add(this);
             Position = destination;
             game.OnBakuganMoved(this, destination);
+
+            game.isBattleGoing = false;
+            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
+            {
+                if (gate.CheckBattles())
+                {
+                    game.isBattleGoing = true;
+                    break;
+                }
+            }
+        }
+
+        public static void MultiMove(Game game, GateCard destination, params Bakugan[] bakugans)
+        {
+            foreach (var bakugan in bakugans)
+            {
+                bakugan.Position.Remove(bakugan);
+                GateCard oldPosition = bakugan.Position as GateCard;
+
+                int f = oldPosition.EnterOrder.IndexOf(oldPosition.EnterOrder.First(x => x.Contains(bakugan)));
+                if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
+                else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != bakugan).ToArray();
+
+                if (!oldPosition.Bakugans.Any(x => x.Owner == bakugan.Owner)) oldPosition.DisallowedPlayers[bakugan.Owner.Id] = false;
+
+                foreach (var e in game.NewEvents)
+                {
+                    e.Add(new JObject {
+                        { "Type", "BakuganMovedEvent" },
+                        { "PosX", destination.Position.X },
+                        { "PosY", destination.Position.Y },
+                        { "Owner", bakugan.Owner.Id },
+                        { "Bakugan", new JObject {
+                            { "Type", (int)bakugan.Type },
+                            { "Attribute", (int)bakugan.Attribute },
+                            { "Treatment", (int)bakugan.Treatment },
+                            { "Power", bakugan.Power },
+                            { "BID", bakugan.BID } }
+                        }
+                    });
+                }
+
+                destination.DisallowedPlayers[bakugan.Owner.Id] = true;
+                if (destination.ActiveBattle) bakugan.InBattle = true;
+            }
+
+            destination.EnterOrder.Add(bakugans);
+
+
+            foreach (var bakugan in bakugans)
+            {
+                destination.Bakugans.Add(bakugan);
+                bakugan.Position = destination;
+                game.OnBakuganMoved(bakugan, destination);
+            }
 
             game.isBattleGoing = false;
             foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))

@@ -122,8 +122,8 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-
-
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -190,5 +190,8 @@ namespace AB_Server.Abilities
                 new BlindJudgeEffect(User, target, Game, TypeId, this).Activate();
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+            new BlindJudgeEffect(User, target, Game, TypeId, this).Activate();
     }
 }

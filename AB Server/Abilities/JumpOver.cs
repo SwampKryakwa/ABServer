@@ -112,6 +112,8 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -149,6 +151,9 @@ namespace AB_Server.Abilities
                 new JumpOverEffect(User, target as GateCard, Game, TypeId).Activate();
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new JumpOverEffect(User, target as GateCard, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField();

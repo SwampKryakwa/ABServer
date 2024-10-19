@@ -118,7 +118,9 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
-            
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -182,6 +184,9 @@ namespace AB_Server.Abilities
 
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+                new FireTornadoEffect(User, target, Game, 1).Activate();
 
         public bool IsActivateableFusion(Bakugan user) => user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
     }

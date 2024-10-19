@@ -43,9 +43,9 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class BlowBack : AbilityCard, IAbilityCard
+    internal class Blowback : AbilityCard, IAbilityCard
     {
-        public BlowBack(int cID, Player owner, int typeId)
+        public Blowback(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -113,6 +113,8 @@ namespace AB_Server.Abilities
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
         {
             User = user;
+            FusedTo = parentCard;
+            parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -154,6 +156,9 @@ namespace AB_Server.Abilities
 
             Dispose();
         }
+
+        public new void DoubleEffect() =>
+            new BlowBackEffect(User, target, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField();

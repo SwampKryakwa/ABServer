@@ -67,6 +67,9 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
+        public new void DoubleEffect() =>
+                new GrandDownEffect(User, Game, TypeId).Activate();
+
         public bool IsActivateableFusion(Bakugan user) => user.OnField() && user.Attribute == Attribute.Darkon && user.InBattle;
     }
 }

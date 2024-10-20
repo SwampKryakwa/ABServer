@@ -2,6 +2,7 @@
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace AB_Server
 {
@@ -49,6 +50,12 @@ namespace AB_Server
         Shredder,
         Sphinx,
         Worm
+    }
+
+    enum MoveSource
+    {
+        Game,
+        Effect
     }
 
     interface BakuganContainer
@@ -165,30 +172,11 @@ namespace AB_Server
             }
         }
 
-        //public void PermaBoost(short boost, object source)
-        //{
-        //    BasePower += boost;
-
-        //    foreach (var e in game.NewEvents)
-        //    {
-        //        e.Add(new JObject {
-        //            { "Type", "BakuganBoostedEvent" },
-        //            { "Owner", Owner.Id },
-        //            { "Boost", boost },
-        //            { "Bakugan", new JObject {
-        //                { "Type", (int)Type },
-        //                { "Attribute", (int)Attribute },
-        //                { "Treatment", (int)Treatment },
-        //                { "Power", Power },
-        //                { "BID", BID } }
-        //            }
-        //        });
-        //    }
-        //    game.OnBakuganBoosted(this, boost, source);
-        //}
-
-        public void AddFromHand(GateCard destination)
+        public void AddFromHand(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
+            if (destination.MovingInEffectBlocking.Count != 0)
+                return;
+
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
@@ -244,8 +232,15 @@ namespace AB_Server
             InHands = false;
         }
 
-        public void Move(GateCard destination)
+        public void Move(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
+            if (destination.MovingInEffectBlocking.Count != 0)
+                return;
+
+
+            if ((Position as GateCard).MovingInEffectBlocking.Count != 0)
+                return;
+
             Position.Remove(this);
             GateCard oldPosition = Position as GateCard;
 
@@ -291,10 +286,21 @@ namespace AB_Server
             }
         }
 
-        public static void MultiMove(Game game, GateCard destination, params Bakugan[] bakugans)
+        public static void MultiMove(Game game, GateCard destination, MoveSource mover, params Bakugan[] bakugans)
         {
+            if (destination.MovingInEffectBlocking.Count != 0)
+                return;
+
+            List<Bakugan> bakuganToMove = bakugans.ToList();
+
             foreach (var bakugan in bakugans)
             {
+                if ((bakugan.Position as GateCard).MovingInEffectBlocking.Count != 0)
+                {
+                    bakuganToMove.Remove(bakugan);
+                    continue;
+                }
+
                 bakugan.Position.Remove(bakugan);
                 GateCard oldPosition = bakugan.Position as GateCard;
 
@@ -325,10 +331,10 @@ namespace AB_Server
                 if (destination.ActiveBattle) bakugan.InBattle = true;
             }
 
-            destination.EnterOrder.Add(bakugans);
+            destination.EnterOrder.Add(bakuganToMove.ToArray());
 
 
-            foreach (var bakugan in bakugans)
+            foreach (var bakugan in bakuganToMove)
             {
                 destination.Bakugans.Add(bakugan);
                 bakugan.Position = destination;
@@ -346,11 +352,32 @@ namespace AB_Server
             }
         }
 
-        public void FromGrave(GateCard destination)
+        public void FromGrave(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
+            if (destination.MovingInEffectBlocking.Count != 0)
+                return;
+
             Defeated = false;
             Position.Remove(this);
             Position = destination;
+
+            foreach (var e in game.NewEvents)
+            {
+                e.Add(new JObject {
+                    { "Type", "BakuganMovedEvent" },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
+                    { "Owner", Owner.Id },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID } }
+                    }
+                });
+            }
+
             destination.Bakugans.Add(this);
             destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
@@ -368,8 +395,11 @@ namespace AB_Server
             InHands = true;
         }
 
-        public void ToHand(List<Bakugan[]> entryOrder)
+        public void ToHand(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
+            if ((Position as GateCard).MovingInEffectBlocking.Count != 0)
+                return;
+
             Position.Remove(this);
             Position = Owner;
             Owner.Bakugans.Add(this);
@@ -410,8 +440,11 @@ namespace AB_Server
             }
         }
 
-        public void Destroy(List<Bakugan[]> entryOrder)
+        public void Destroy(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
+            if ((Position as GateCard).MovingInEffectBlocking.Count != 0)
+                return;
+
             Defeated = true;
             Position.Remove(this);
             Position = Owner.BakuganGrave;

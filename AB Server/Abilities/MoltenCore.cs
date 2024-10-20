@@ -1,33 +1,32 @@
-﻿using AB_Server.Gates;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class LuminaFreezeEffect : IActive
+    internal class MoltenCoreEffect
     {
         public int TypeId { get; }
-        public int EffectId { get; }
-        public ActiveType ActiveType { get; } = ActiveType.Effect;
-        public Bakugan User;
+        Bakugan User;
         Game game;
-
-        GateCard target;
+        bool hasFusions;
+        bool isFusion;
+        IAbilityCard fusedTo;
 
         public Player Owner { get => User.Owner; }
 
-        public LuminaFreezeEffect(Bakugan user, Game game, int typeID)
+        public MoltenCoreEffect(Bakugan user, bool hasFusions, bool isFusion, IAbilityCard fusedTo, Game game, int typeID)
         {
+            Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
-            target = user.Position as GateCard;
+            this.hasFusions = hasFusions;
+            this.isFusion = isFusion;
+            this.fusedTo = fusedTo;
         }
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -43,32 +42,18 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            target.Freeze(this);
 
-            game.TurnEnd += Trigger;
-        }
+            if (hasFusions)
+                User.Boost(new Boost(100), this);
 
-        public void Trigger()
-        {
-            if (game.TurnPlayer == Owner.Id)
-            {
-                target.TryUnfreeze(this);
-
-                game.TurnEnd -= Trigger;
-            }
-        }
-
-        public void Negate(bool asCounter)
-        {
-            target.TryUnfreeze(this);
-
-            game.TurnEnd += Trigger;
+            if (isFusion)
+                fusedTo.DoubleEffect();
         }
     }
 
-    internal class LuminaFreeze : AbilityCard, IAbilityCard
+    internal class MoltenCore : AbilityCard, IAbilityCard
     {
-        public LuminaFreeze(int cID, Player owner, int typeId)
+        public MoltenCore(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -79,15 +64,15 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.Attribute == Attribute.Lumina;
+            user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
     }
 }

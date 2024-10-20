@@ -23,15 +23,15 @@ namespace AB_Server.Abilities
         static Func<int, Player, IAbilityCard>[] AbilityCtrs =
         [
             //Set 1 Nova abilities
-            (cID, owner) => throw new NotImplementedException(), //0
+            (cID, owner) => new FireWall(cID, owner, 0),
             (cID, owner) => new FireJudge(cID, owner, 1),
             (cID, owner) => new FireTornado(cID, owner, 2),
-            (cID, owner) => throw new NotImplementedException(), //3
+            (cID, owner) => new MoltenCore(cID, owner, 3),
 
             //Set 1 Aqua abilities
             (cID, owner) => new WaterRefrain(cID, owner, 4),
             (cID, owner) => throw new NotImplementedException(), //5
-            (cID, owner) => throw new NotImplementedException(), //6
+            (cID, owner) => new DiveMirage(cID, owner, 6),
             (cID, owner) => new LiquidForm(cID, owner, 7),
 
             //Set 1 Darkon abilities
@@ -44,10 +44,10 @@ namespace AB_Server.Abilities
             (cID, owner) => throw new NotImplementedException(), //12, Air battle, do later
             (cID, owner) => new Blowback(cID, owner, 13),
             (cID, owner) => new JumpOver(cID, owner, 14),
-            (cID, owner) => throw new NotImplementedException(), //15
+            (cID, owner) => new BlowAway(cID, owner, 15),
 
             //Set 1 Lumina abilities
-            (cID, owner) => throw new NotImplementedException(), //16
+            (cID, owner) => new LuminaFreeze(cID, owner, 16),
             (cID, owner) => new LightningShield(cID, owner, 17),
             (cID, owner) => new HolyLight(cID, owner, 18),
             (cID, owner) => new ShadeAbility(cID, owner, 19),
@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
             (cID, owner) => throw new NotImplementedException(),//25
 
             //Set 1 Griffon abilities
-            (cID, owner) => throw new NotImplementedException(),
+            (cID, owner) => new WingBurst(cID, owner, 26),
             (cID, owner) => new VicariousVictim(cID, owner, 27),
             (cID, owner) => new DeafeningRoar(cID, owner, 28),
 
@@ -71,7 +71,7 @@ namespace AB_Server.Abilities
             (cID, owner) => throw new NotImplementedException(), //29
             (cID, owner) => throw new NotImplementedException(), //30
             (cID, owner) => new TwinMachete(cID, owner, 31),
-            (cID, owner) => throw new NotImplementedException(), //32
+            (cID, owner) => new SliceCutter(cID, owner, 32),
 
             //Set 1 Raptor abilities
             (cID, owner) => throw new NotImplementedException(), //33
@@ -79,20 +79,20 @@ namespace AB_Server.Abilities
 
             //Set 1 Saurus abilities
             (cID, owner) => new SaurusGlow(cID, owner, 35),
-            (cID, owner) => throw new NotImplementedException(), //36
+            (cID, owner) => new SaurusRage(cID, owner, 36),
 
             //Set 1 Centipede abilities
             (cID, owner) => throw new NotImplementedException(), //37
             (cID, owner) => throw new NotImplementedException(), //38
             
             //Set 1 Serpent abilities
-            (cID, owner) => throw new NotImplementedException(), //39
+            (cID, owner) => new SerpentSqueeze(cID, owner, 39),
             (cID, owner) => new CinderCoil(cID, owner, 40),
-            (cID, owner) => throw new NotImplementedException(), //41
+            (cID, owner) => new BindingWhirlwind(cID, owner, 41),
 
             //Set 1 Fairy abilities
-            (cID, owner) => throw new NotImplementedException(), //42
-            (cID, owner) => throw new NotImplementedException(), //43
+            (cID, owner) => new ScarletTwister(cID, owner, 42),
+            (cID, owner) => new DarkMirage(cID, owner, 42),
             (cID, owner) => new PowderVeil(cID, owner, 44),
 
             //Set 1 Elephant abilities
@@ -126,7 +126,10 @@ namespace AB_Server.Abilities
 
         public void Dispose()
         {
-            Game.ActiveZone.Remove(this);
+            if (Owner.AbilityHand.Contains(this))
+                Owner.AbilityHand.Remove(this);
+            if (Game.ActiveZone.Contains(this))
+                Game.ActiveZone.Remove(this);
             Owner.AbilityGrave.Add(this);
 
             for (int i = 0; i < Game.NewEvents.Length; i++)
@@ -139,6 +142,23 @@ namespace AB_Server.Abilities
                 });
             }
         }
+
+        public void Retract()
+        {
+            Game.ActiveZone.Remove(this);
+            Owner.AbilityHand.Add(this);
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Card", TypeId },
+                    { "Owner", Owner.Id }
+                });
+            }
+        }
+
         public void DoubleEffect() =>
             throw new NotImplementedException();
 

@@ -33,6 +33,9 @@ namespace AB_Server.Gates
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
         public List<object> Freezing = new();
+        public List<object> OpenBlocking = new();
+        public List<object> MovingInEffectBlocking = new();
+        public List<object> MovingAwayEffectBlocking = new();
         public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
@@ -87,27 +90,20 @@ namespace AB_Server.Gates
             int winner = Array.IndexOf(teamTotals, teamTotals.Max());
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
-            {
                 if (b.Owner.SideID == winner)
-                {
                     b.ToHand(EnterOrder);
-                }
-
                 else
-                {
-                    b.Destroy(EnterOrder);
-                }
-            }
+                    b.Destroy(EnterOrder, MoveSource.Game);
+
 
             foreach (List<JObject> e in game.NewEvents)
-            {
                 e.Add(new JObject
                 {
                     { "Type", "BattleOver" },
                     { "IsDraw", false },
                     { "Victor", winner }
                 });
-            }
+
             game.OnBattleOver(this, (ushort)winner);
 
             game.Field[Position.X, Position.Y] = null;
@@ -118,17 +114,15 @@ namespace AB_Server.Gates
         void Draw()
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
-            {
                 b.ToHand(EnterOrder);
-            }
+
             foreach (List<JObject> e in game.NewEvents)
-            {
                 e.Add(new JObject
                 {
                     { "Type", "BattleOver" },
                     { "IsDraw", true }
                 });
-            }
+
             game.OnBattleOver(this, game.PlayerCount);
         }
 
@@ -160,9 +154,8 @@ namespace AB_Server.Gates
                         (obj["GateData"] as JObject).Add(new JProperty("Power", (int)normalGate.Power));
                     }
                     else if (this is NormalGate attributeHazard)
-                    {
                         (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)attributeHazard.Attribute));
-                    }
+
                     e.Add(obj);
                 }
                 else
@@ -200,14 +193,12 @@ namespace AB_Server.Gates
             }
 
             foreach (List<JObject> e in game.NewEvents)
-            {
                 e.Add(new JObject
                 {
                     { "Type", "GateRemoved" },
                     { "PosX", Position.X },
                     { "PosY", Position.Y }
                 });
-            }
         }
 
         public void ToGrave()
@@ -218,10 +209,8 @@ namespace AB_Server.Gates
             IsOpen = false;
         }
 
-        public bool IsOpenable()
-        {
-            return !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
-        }
+        public bool IsOpenable() =>
+            OpenBlocking.Count != 0 && !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
 
         public bool CheckBattles()
         {

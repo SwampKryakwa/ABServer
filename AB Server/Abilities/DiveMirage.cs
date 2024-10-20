@@ -1,30 +1,31 @@
-using AB_Server.Gates;
+﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks.Dataflow;
 
 namespace AB_Server.Abilities
 {
-    internal class TributeSwitchEffect
+    internal class DiveMirageEffect
     {
         public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        Bakugan User;
+        GateCard target;
         Game game;
 
         public Player Owner { get => User.Owner; }
 
-        public TributeSwitchEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public DiveMirageEffect(Bakugan user, GateCard target, Game game, int typeID)
         {
             User = user;
             this.game = game;
             this.target = target;
+            Console.WriteLine(user);
+            Console.WriteLine(user.Position);
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
         }
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -41,14 +42,25 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.FromGrave(User.Position as GateCard);
-            User.Destroy((User.Position as GateCard).EnterOrder);
+            User.Move(target);
+
+            if (!target.IsOpen)
+            {
+                target.OpenBlocking.Add(this);
+                game.TurnEnd += OnTurnEnd;
+            }
+        }
+
+        private void OnTurnEnd()
+        {
+            target.OpenBlocking.Remove(this);
+            game.TurnEnd -= OnTurnEnd;
         }
     }
 
-    internal class VicariousVictim : AbilityCard, IAbilityCard
+    internal class DiveMirage : AbilityCard, IAbilityCard
     {
-        public VicariousVictim(int cID, Player owner, int typeId)
+        public DiveMirage(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -56,10 +68,10 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asCounter)
+        public void Setup(bool asFusion)
         {
             IAbilityCard ability = this;
-            
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -76,22 +88,34 @@ namespace AB_Server.Abilities
                                 { "Owner", x.Owner.Id },
                                 { "BID", x.BID }
                             }
-                        )) } },
-                    new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ADDTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
                         )) }
-                    } }
-                }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.Id] = Setup2;
+        }
+
+        public void Setup2()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            Game.NewEvents[Owner.Id].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "GF" },
+                        { "Message", "INFO_MOVETARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => (User.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
+                    }
+                } }
             });
 
             Game.awaitingAnswers[Owner.Id] = Activate;
@@ -108,18 +132,15 @@ namespace AB_Server.Abilities
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ADDTARGET" },
+                        { "SelectionType", "GF" },
+                        { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && (User.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
                     }
                 } }
             });
@@ -127,12 +148,11 @@ namespace AB_Server.Abilities
             Game.awaitingAnswers[Owner.Id] = Activate;
         }
 
-        private Bakugan target;
+        IGateCard target;
 
         public void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][1]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -140,15 +160,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TributeSwitchEffect(User, target, Game, TypeId).Activate();
+                new DiveMirageEffect(User, target as GateCard, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TributeSwitchEffect(User, target, Game, TypeId).Activate();
+                new DiveMirageEffect(User, target as GateCard, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.OnField() && user.Attribute == Attribute.Lumina && user.Type == BakuganType.Griffon && user.Owner.BakuganGrave.Bakugans.Count > 0;
+            user.Attribute == Attribute.Aqua && user.OnField();
+
+
     }
 }

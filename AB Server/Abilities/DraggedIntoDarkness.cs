@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class DarkonGravityEffect
+    internal class DraggedIntoDarknessEffect
     {
         public int TypeId { get; }
         Bakugan User;
@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
 
         public Player Owner { get => User.Owner; }
 
-        public DarkonGravityEffect(Bakugan user, Game game, int typeID)
+        public DraggedIntoDarknessEffect(Bakugan user, Game game, int typeID)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
@@ -38,13 +38,13 @@ namespace AB_Server.Abilities
                 });
             }
 
-            Bakugan.MultiMove(game, User.Position as GateCard, game.BakuganIndex.Where(x => x != User && x.OnField()).ToArray());
+            Bakugan.MultiMove(game, User.Position as GateCard, MoveSource.Effect, game.BakuganIndex.Where(x => x != User && x.OnField()).ToArray());
         }
     }
 
-    internal class DarkonGravity : AbilityCard, IAbilityCard
+    internal class DraggedIntoDarkness : AbilityCard, IAbilityCard
     {
-        public DarkonGravity(int cID, Player owner, int typeId)
+        public DraggedIntoDarkness(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -55,13 +55,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new DarkonGravityEffect(User, Game, TypeId).Activate();
+                new DraggedIntoDarknessEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new DarkonGravityEffect(User, Game, TypeId).Activate();
+                new DraggedIntoDarknessEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Centipede && user.Attribute == Attribute.Darkon && user.Owner.Bakugans.Count == 0;

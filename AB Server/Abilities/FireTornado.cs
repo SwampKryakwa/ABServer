@@ -41,37 +41,6 @@ namespace AB_Server.Abilities
             }
             User.Boost(new Boost(100), this);
             target.Boost(new Boost(-100), this);
-
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
-            game.BakuganPowerReset += ResetTurnover;
-
-            User.affectingEffects.Add(this);
-        }
-
-        //remove when goes to hand
-        //remove when goes to grave
-        public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
-        {
-            if (leaver == User && User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
-        }
-
-        //remove when power reset
-        public void ResetTurnover(Bakugan leaver)
-        {
-            if (leaver == User && User.affectingEffects.Contains(this))
-            {
-                User.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
         }
     }
 
@@ -180,14 +149,15 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new FireTornadoEffect(User, target, Game, 1).Activate();
+                new FireTornadoEffect(User, target, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new FireTornadoEffect(User, target, Game, 1).Activate();
+                new FireTornadoEffect(User, target, Game, TypeId).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) => user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
+        public bool IsActivateableFusion(Bakugan user) => 
+            user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
     }
 }

@@ -1,33 +1,26 @@
-﻿using AB_Server.Gates;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class LuminaFreezeEffect : IActive
+    internal class SaurusRageEffect
     {
         public int TypeId { get; }
-        public int EffectId { get; }
-        public ActiveType ActiveType { get; } = ActiveType.Effect;
-        public Bakugan User;
+        Bakugan User;
         Game game;
-
-        GateCard target;
 
         public Player Owner { get => User.Owner; }
 
-        public LuminaFreezeEffect(Bakugan user, Game game, int typeID)
+        public SaurusRageEffect(Bakugan user, Game game, int typeID)
         {
+            Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
-            target = user.Position as GateCard;
         }
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -43,32 +36,13 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            target.Freeze(this);
-
-            game.TurnEnd += Trigger;
-        }
-
-        public void Trigger()
-        {
-            if (game.TurnPlayer == Owner.Id)
-            {
-                target.TryUnfreeze(this);
-
-                game.TurnEnd -= Trigger;
-            }
-        }
-
-        public void Negate(bool asCounter)
-        {
-            target.TryUnfreeze(this);
-
-            game.TurnEnd += Trigger;
+            User.Boost(new Boost(200), this);
         }
     }
 
-    internal class LuminaFreeze : AbilityCard, IAbilityCard
+    internal class SaurusRage : AbilityCard, IAbilityCard
     {
-        public LuminaFreeze(int cID, Player owner, int typeId)
+        public SaurusRage(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -79,15 +53,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new SaurusRageEffect(User, Game, TypeId).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new SaurusRageEffect(User, Game, TypeId).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.Attribute == Attribute.Lumina;
+            user.InBattle && user.Type == BakuganType.Saurus && user.Power < user.BasePower;
+
+
     }
 }

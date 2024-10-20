@@ -36,7 +36,7 @@ namespace AB_Server
         public List<IGateCard> GateIndex = new();
         public List<IAbilityCard> AbilityIndex = new();
 
-        ushort turnPlayer;
+        public ushort TurnPlayer;
         public ushort activePlayer { get; protected set; }
         public bool isBattleGoing = false;
 
@@ -155,8 +155,8 @@ namespace AB_Server
             {
                 Sides = Players.Select(x => x.SideID).ToArray();
 
-                turnPlayer = (ushort)new Random().Next(Players.Count);
-                activePlayer = turnPlayer;
+                TurnPlayer = (ushort)new Random().Next(Players.Count);
+                activePlayer = TurnPlayer;
 
                 for (int i = 0; i < Players.Count; i++)
                 {
@@ -227,7 +227,7 @@ namespace AB_Server
 
                     if (gateSelection == null)
                     {
-                        NewEvents[turnPlayer].Add(new JObject
+                        NewEvents[TurnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
@@ -237,11 +237,11 @@ namespace AB_Server
 
                     if (gateSelection.AllowAnyPlayers || !gateSelection.DisallowedPlayers[activePlayer])
                     {
-                        Players[turnPlayer].HadThrownBakugan = true;
+                        Players[TurnPlayer].HadThrownBakugan = true;
                         BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
                     }
                     else
-                        NewEvents[turnPlayer].Add(new JObject
+                        NewEvents[TurnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
@@ -252,14 +252,14 @@ namespace AB_Server
 
                     if (Field[posSelection.X, posSelection.Y] != null)
                     {
-                        NewEvents[turnPlayer].Add(new JObject
+                        NewEvents[TurnPlayer].Add(new JObject
                         {
                             { "Type", "InvalidAction" }
                         });
                     }
                     else
                     {
-                        Players[turnPlayer].HadSetGate = true;
+                        Players[TurnPlayer].HadSetGate = true;
                         GateIndex[(int)selection["gate"]].Set(posSelection.X, posSelection.Y);
                     }
 
@@ -280,7 +280,7 @@ namespace AB_Server
                         doNotMakeStep = true;
                         AbilityChain.Add(AbilityIndex[abilitySelection]);
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
-                        Players[turnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
+                        Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
 
                         for (int i = 0; i < NewEvents.Length; i++)
                         {
@@ -347,35 +347,23 @@ namespace AB_Server
 
                         isBattleGoing = false;
 
-                        TurnEnd?.Invoke();
-                        if (!Players[turnPlayer].HadThrownBakugan) Players[turnPlayer].HadSkippedTurn = true;
-
-                        turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
-                        activePlayer = turnPlayer;
-
-                        BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
-
-                        Players[turnPlayer].HadSetGate = false;
-                        Players[turnPlayer].HadThrownBakugan = false;
+                        EndTurn();
                     }
 
                     break;
                 case "end":
-                    if (Players[turnPlayer].CanEndTurn())
+                    if (Players[TurnPlayer].HadSkippedTurn && Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     {
-                        TurnEnd?.Invoke();
-                        if (!Players[turnPlayer].HadThrownBakugan) Players[turnPlayer].HadSkippedTurn = true;
+                        NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        break;
+                    }
 
-                        turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
-                        activePlayer = turnPlayer;
-
-                        BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
-
-                        Players[turnPlayer].HadSetGate = false;
-                        Players[turnPlayer].HadThrownBakugan = false;
+                    if (Players[TurnPlayer].CanEndTurn())
+                    {
+                        EndTurn();
                     }
                     else
-                        NewEvents[turnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
 
                     break;
             }
@@ -404,15 +392,40 @@ namespace AB_Server
 
         public void EndTurn()
         {
+            Console.WriteLine("Invoking turn end effects");
             TurnEnd?.Invoke();
 
-            turnPlayer = (ushort)((turnPlayer + 1) % PlayerCount);
-            activePlayer = turnPlayer;
+            Console.WriteLine("Trying to end turn");
+            if (isBattleGoing)
+            {
+                Console.WriteLine("Restarting battle");
+                activePlayer = TurnPlayer;
+                foreach (var e in NewEvents) e.Add(new JObject
+                        {
+                            { "Type", "PlayerTurnStart" },
+                            { "PID", activePlayer }
+                        });
+            }
+            else
+            {
+                if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
+                    Players[TurnPlayer].HadSkippedTurn = true;
 
-            BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
+                Console.WriteLine("Ending turn");
+                TurnPlayer = (ushort)((TurnPlayer + 1) % PlayerCount);
+                activePlayer = TurnPlayer;
 
-            Players[turnPlayer].HadSetGate = false;
-            Players[turnPlayer].HadThrownBakugan = false;
+                BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
+
+                if (!BakuganIndex.Any(x => x.InHand()))
+                    foreach (var bakugan in BakuganIndex.Where(x => x.OnField()))
+                        bakugan.ToHand((bakugan.Position as GateCard).EnterOrder);
+
+                Players[TurnPlayer].HadSetGate = false;
+                Players[TurnPlayer].HadThrownBakugan = false;
+                Players[TurnPlayer].HadUsedFusion = false;
+                Players[TurnPlayer].HadUsedCounter = false;
+            }
         }
 
         public JObject GetPossibleMoves(int player)
@@ -462,7 +475,7 @@ namespace AB_Server
 
         public void CheckChain(Player player, IAbilityCard ability, Bakugan user)
         {
-            if (!player.HadUsedFusion || !player.HasActivateableFusionAbilities(user))
+            if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
                 SuggestFusion(player, ability, user);
             else if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
             {

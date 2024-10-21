@@ -57,7 +57,7 @@ namespace AB_Server.Gates
 
         public void OnBakuganMove(Bakugan target, BakuganContainer pos)
         {
-            if (pos == this)
+            if (pos == this && target.Attribute != Attribute.Subterra)
                 affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
                     
             else if (affectedBakugan.Keys.Contains(target) && pos != this)
@@ -69,7 +69,7 @@ namespace AB_Server.Gates
 
         public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
         {
-            if (pos == this)
+            if (pos == this && target.Attribute != Attribute.Subterra)
                 affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
         }
 

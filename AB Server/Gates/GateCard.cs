@@ -7,11 +7,18 @@ namespace AB_Server.Gates
     {
         static Func<int, Player, IGateCard>[] GateCtrs =
         [
-            (x, y) => { throw new Exception("IncorrectGateCreation"); },
-            (x, y) => new TripleBattle(x, y),
-            (x, y) => new QuartetBattle(x, y),
-            (x, y) => new MindGhost(x, y),
-            (x, y) => { throw new Exception("IncorrectGateCreation"); },
+            (x, y) => new Aquamerge(x, y),
+            (x, y) => throw new NotImplementedException(), //Anastasis
+            (x, y) => throw new NotImplementedException(), //Cheering Battle
+            (x, y) => throw new NotImplementedException(), //Big Brawl
+            (x, y) => throw new NotImplementedException(), //Warlock
+            (x, y) => throw new NotImplementedException(), //Eye of Storm
+            (x, y) => throw new NotImplementedException(), //Quicksand Freeze
+            (x, y) => throw new NotImplementedException(), //Portal
+            (x, y) => throw new NotImplementedException(), //Supernova
+            (x, y) => throw new NotImplementedException(), //Level Down
+            (x, y) => throw new NotImplementedException(), //Transform
+            (x, y) => throw new NotImplementedException() // Third Judgement
         ];
 
         public static IGateCard CreateCard(Player owner, int cID, int type)

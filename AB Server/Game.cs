@@ -296,6 +296,7 @@ namespace AB_Server
                     }
                     break;
                 case "open":
+
                     IGateCard gateToOpen = GateIndex[(int)selection["gate"]];
 
                     if (gateToOpen == null)
@@ -305,7 +306,11 @@ namespace AB_Server
                     }
 
                     if (gateToOpen.IsOpenable())
+                    {
+                        dontThrowTurnStartEvent = true;
+                        doNotMakeStep = true;
                         gateToOpen.Open();
+                    }
                     else
                         NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
 
@@ -615,6 +620,11 @@ namespace AB_Server
             foreach (IAbilityCard ability in AbilityChain)
                 ability.Resolve();
             AbilityChain.Clear();
+            ContinueGame();
+        }
+
+        public void ContinueGame()
+        {
             doNotMakeStep = false;
             foreach (var playerEvents in NewEvents)
                 playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });

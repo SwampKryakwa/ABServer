@@ -232,6 +232,12 @@ namespace AB_Server
             InHands = false;
         }
 
+        public Attribute ChangeAttribute(Attribute newAttribute, object source) {
+            var oldAttribute = Attribute;
+            Attribute = newAttribute;
+            return oldAttribute;
+        }
+
         public void Move(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
             if (destination.MovingInEffectBlocking.Count != 0)

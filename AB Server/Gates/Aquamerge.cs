@@ -4,15 +4,16 @@ namespace AB_Server.Gates
 {
     internal class Aquamerge : GateCard, IGateCard
     {
+        Dictionary<Bakugan, Attribute> affectedBakugan;
+
         public Aquamerge(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
             DisallowedPlayers = new bool[game.PlayerCount];
             for (int i = 0; i < game.PlayerCount; i++)
-            {
                 DisallowedPlayers[i] = false;
-            }
+                
             CardId = cID;
         }
 
@@ -26,15 +27,59 @@ namespace AB_Server.Gates
 
         public new void Open()
         {
+            affectedBakugan = new();
+
+            foreach (var bakugan in Bakugans.Where(x => x.Attribute != Attribute.Subterra))
+                affectedBakugan.add(bakugan, bakugan.ChangeAttribute(Attribute.Aqua, this));
+
+            game.BakuganMoved += OnBakuganMove;
+            game.BakuganThrown += OnBakuganStands;
+            game.BakuganPlacedFromGrave += OnBakuganStands;
+            game.BakuganReturned += OnBakuganLeaves;
+            game.BakuganDestroyed += OnBakuganLeaves;
+
             game.ContinueGame();
         }
-
+        
         public new void Remove()
         {
-            IsOpen = false;
-            TryUnfreeze(this);
+            foreach (var bakugan in affectedBakugan.Keys)
+                bakugan.ChangeAttribute(affectedBakugan[bakugan], this);
+
+            game.BakuganMoved -= OnBakuganMove;
+            game.BakuganThrown -= OnBakuganStands;
+            game.BakuganPlacedFromGrave -= OnBakuganStands;
+            game.BakuganReturned -= OnBakuganLeaves;
+            game.BakuganDestroyed -= OnBakuganLeaves;
 
             base.Remove();
+        }
+
+        public void OnBakuganMove(Bakugan target, BakuganContainer pos)
+        {
+            if (pos == this)
+                affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
+                    
+            else if (affectedBakugan.Keys.Contains(target) && pos != this)
+            {
+                target.ChangeAttribute(affectedBakugan[target], this);
+                affectedBakugan.Remove(target);
+            }
+        }
+
+        public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
+        {
+            if (pos == this)
+                affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
+        }
+
+        public void OnBakuganLeaves(Bakugan target, ushort owner)
+        {
+            if (pos == this)
+            {
+                target.ChangeAttribute(affectedBakugan[target], this);
+                affectedBakugan.Remove(target);
+            }
         }
     }
 }

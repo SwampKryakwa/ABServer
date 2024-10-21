@@ -232,9 +232,26 @@ namespace AB_Server
             InHands = false;
         }
 
-        public Attribute ChangeAttribute(Attribute newAttribute, object source) {
+        public Attribute ChangeAttribute(Attribute newAttribute, object source)
+        {
+            Console.WriteLine(newAttribute);
             var oldAttribute = Attribute;
             Attribute = newAttribute;
+            foreach (var e in game.NewEvents)
+            {
+                e.Add(new JObject {
+                    { "Type", "BakuganAttributeChangeEvent" },
+                    { "Owner", Owner.Id },
+                    { "Attribute", (int)newAttribute },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID } }
+                    }
+                });
+            }
             return oldAttribute;
         }
 

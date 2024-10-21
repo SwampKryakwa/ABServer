@@ -86,19 +86,19 @@ namespace AB_Server
 
             switch (card.TypeId)
             {
-                case 0:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as NormalGate).Attribute },
-                        { "Power", (card as NormalGate).Power }
-                    };
-                    break;
-                case 4:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                    };
-                    break;
+                //case 0:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as NormalGate).Attribute },
+                //        { "Power", (card as NormalGate).Power }
+                //    };
+                //    break;
+                //case 4:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                //    };
+                //    break;
             }
 
             if (RevealInfo)

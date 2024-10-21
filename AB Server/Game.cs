@@ -168,14 +168,14 @@ namespace AB_Server
                         int type = p.GateHand[j].TypeId;
                         switch (type)
                         {
-                            case 0:
-                                Console.WriteLine(0);
-                                gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
-                                break;
-                            case 4:
-                                Console.WriteLine(4);
-                                gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
-                                break;
+                            //case 0:
+                            //    Console.WriteLine(0);
+                            //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
+                            //    break;
+                            //case 4:
+                            //    Console.WriteLine(4);
+                            //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
+                            //    break;
                             default:
                                 gates.Add(new JObject { { "Type", type } });
                                 break;
@@ -440,14 +440,14 @@ namespace AB_Server
             foreach (var gate in Players[player].SettableGates())
                 switch (gate.TypeId)
                 {
-                    case 0:
-                        Console.WriteLine(0);
-                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((NormalGate)gate).Attribute }, { "Power", ((NormalGate)gate).Power } });
-                        break;
-                    case 4:
-                        Console.WriteLine(4);
-                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((AttributeHazard)gate).Attribute } });
-                        break;
+                    //case 0:
+                    //    Console.WriteLine(0);
+                    //    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((NormalGate)gate).Attribute }, { "Power", ((NormalGate)gate).Power } });
+                    //    break;
+                    //case 4:
+                    //    Console.WriteLine(4);
+                    //    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((AttributeHazard)gate).Attribute } });
+                    //    break;
                     default:
                         gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId } });
                         break;

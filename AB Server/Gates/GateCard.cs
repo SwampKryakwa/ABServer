@@ -183,7 +183,21 @@ namespace AB_Server.Gates
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
-        public void Open() { throw new NotImplementedException(); }
+        public void Open()
+        {
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(new()
+                    {
+                        { "Type", "GateOpenEvent" },
+                        { "PosX", Position.X },
+                        { "PosY", Position.Y },
+                        { "GateData", new JObject {
+                            { "Type", (this as IGateCard).TypeId } }
+                        },
+                        { "Owner", Owner.Id },
+                        { "CID", CardId }
+                    });
+        }
 
         public void Negate() { throw new NotImplementedException(); }
 
@@ -217,7 +231,7 @@ namespace AB_Server.Gates
         }
 
         public bool IsOpenable() =>
-            OpenBlocking.Count != 0 && !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
+            OpenBlocking.Count == 0 && !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
 
         public bool CheckBattles()
         {

@@ -13,7 +13,7 @@ namespace AB_Server.Gates
             DisallowedPlayers = new bool[game.PlayerCount];
             for (int i = 0; i < game.PlayerCount; i++)
                 DisallowedPlayers[i] = false;
-                
+
             CardId = cID;
         }
 
@@ -30,7 +30,7 @@ namespace AB_Server.Gates
             affectedBakugan = new();
 
             foreach (var bakugan in Bakugans.Where(x => x.Attribute != Attribute.Subterra))
-                affectedBakugan.add(bakugan, bakugan.ChangeAttribute(Attribute.Aqua, this));
+                affectedBakugan.Add(bakugan, bakugan.ChangeAttribute(Attribute.Aqua, this));
 
             game.BakuganMoved += OnBakuganMove;
             game.BakuganThrown += OnBakuganStands;
@@ -38,9 +38,11 @@ namespace AB_Server.Gates
             game.BakuganReturned += OnBakuganLeaves;
             game.BakuganDestroyed += OnBakuganLeaves;
 
+            base.Open();
+
             game.ContinueGame();
         }
-        
+
         public new void Remove()
         {
             foreach (var bakugan in affectedBakugan.Keys)
@@ -58,8 +60,8 @@ namespace AB_Server.Gates
         public void OnBakuganMove(Bakugan target, BakuganContainer pos)
         {
             if (pos == this && target.Attribute != Attribute.Subterra)
-                affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
-                    
+                affectedBakugan.Add(target, target.ChangeAttribute(Attribute.Aqua, this));
+
             else if (affectedBakugan.Keys.Contains(target) && pos != this)
             {
                 target.ChangeAttribute(affectedBakugan[target], this);
@@ -70,12 +72,12 @@ namespace AB_Server.Gates
         public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
         {
             if (pos == this && target.Attribute != Attribute.Subterra)
-                affectedBakugan.add(target, target.ChangeAttribute(Attribute.Aqua, this));
+                affectedBakugan.Add(target, target.ChangeAttribute(Attribute.Aqua, this));
         }
 
         public void OnBakuganLeaves(Bakugan target, ushort owner)
         {
-            if (pos == this)
+            if (affectedBakugan.Keys.Contains(target))
             {
                 target.ChangeAttribute(affectedBakugan[target], this);
                 affectedBakugan.Remove(target);

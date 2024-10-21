@@ -82,12 +82,7 @@ namespace AB_Server
             foreach (JObject g in deck["gates"])
             {
                 IGateCard gate;
-                if ((int)g["Type"] == 0)
-                    gate = new NormalGate((Attribute)(int)g["Attribute"], (short)g["Power"], game.GateIndex.Count, game, player);
-                else if ((int)g["Type"] == 4)
-                    gate = new AttributeHazard(game.GateIndex.Count, player, (Attribute)(int)g["Attribute"]);
-                else
-                    gate = GateCard.CreateCard(player, game.GateIndex.Count, (int)g["Type"]);
+                gate = GateCard.CreateCard(player, game.GateIndex.Count, (int)g["Type"]);
 
                 player.GateHand.Add(gate);
                 game.GateIndex.Add(gate);

@@ -23,6 +23,13 @@ namespace AB_Server.Gates
         {
             IsOpen = false;
             Negated = true;
+
+            game.BakuganMoved -= OnBakuganMove;
+            game.BakuganThrown -= OnBakuganStands;
+            game.BakuganAdded -= OnBakuganStands;
+            game.BakuganPlacedFromGrave -= OnBakuganStands;
+            game.BakuganReturned -= OnBakuganLeaves;
+            game.BakuganDestroyed -= OnBakuganLeaves;
         }
 
         public new void Open()
@@ -34,6 +41,7 @@ namespace AB_Server.Gates
 
             game.BakuganMoved += OnBakuganMove;
             game.BakuganThrown += OnBakuganStands;
+            game.BakuganAdded += OnBakuganStands;
             game.BakuganPlacedFromGrave += OnBakuganStands;
             game.BakuganReturned += OnBakuganLeaves;
             game.BakuganDestroyed += OnBakuganLeaves;
@@ -50,6 +58,7 @@ namespace AB_Server.Gates
 
             game.BakuganMoved -= OnBakuganMove;
             game.BakuganThrown -= OnBakuganStands;
+            game.BakuganAdded -= OnBakuganStands;
             game.BakuganPlacedFromGrave -= OnBakuganStands;
             game.BakuganReturned -= OnBakuganLeaves;
             game.BakuganDestroyed -= OnBakuganLeaves;

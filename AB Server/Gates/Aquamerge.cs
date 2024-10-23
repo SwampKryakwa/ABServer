@@ -34,6 +34,8 @@ namespace AB_Server.Gates
 
         public new void Open()
         {
+            base.Open();
+
             affectedBakugan = new();
 
             foreach (var bakugan in Bakugans.Where(x => x.Attribute != Attribute.Subterra))
@@ -45,8 +47,6 @@ namespace AB_Server.Gates
             game.BakuganPlacedFromGrave += OnBakuganStands;
             game.BakuganReturned += OnBakuganLeaves;
             game.BakuganDestroyed += OnBakuganLeaves;
-
-            base.Open();
 
             game.ContinueGame();
         }

@@ -41,7 +41,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new MergeShield(cID, owner, 11),
 
             //Set 1 Zephyros abilities
-            (cID, owner) => throw new NotImplementedException(), //12, Air battle, do later
+            (cID, owner) => new AirBattle(cID, owner, 12),
             (cID, owner) => new Blowback(cID, owner, 13),
             (cID, owner) => new JumpOver(cID, owner, 14),
             (cID, owner) => new BlowAway(cID, owner, 15),
@@ -96,7 +96,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new PowderVeil(cID, owner, 44),
 
             //Set 1 Elephant abilities
-            (cID, owner) => throw new NotImplementedException(), //45
+            (cID, owner) => new NoseSlap(cID, owner, 45),
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)

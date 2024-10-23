@@ -324,23 +324,17 @@ namespace AB_Server
                     playersPassed++;
                     if (playersPassed == PlayerCount)
                     {
-                        foreach (var g in Field.Cast<GateCard?>())
-                        {
+                        foreach (var g in Field.Cast<IGateCard?>())
                             if (g?.ActiveBattle == true)
-                            {
                                 g.DetermineWinner();
-                            }
-                        }
 
                         int looser = -1;
                         foreach (var p in Players)
-                        {
                             if (!p.BakuganOwned.Any(x => !x.Defeated))
                             {
                                 looser = p.Id;
                                 break;
                             }
-                        }
 
                         if (looser != -1)
                         {

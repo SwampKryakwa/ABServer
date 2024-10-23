@@ -37,7 +37,7 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            game.Field.Cast<GateCard>().First(x => x.Bakugans.Contains(User)).DetermineWinner();
+            game.Field.Cast<IGateCard>().First(x => x.Bakugans.Contains(User)).DetermineWinner();
             if (!game.Field.Cast<GateCard>().Any(x => x.ActiveBattle))
             {
                 game.isBattleGoing = false;

@@ -8,17 +8,17 @@ namespace AB_Server.Gates
         static Func<int, Player, IGateCard>[] GateCtrs =
         [
             (x, y) => new Aquamerge(x, y),
-            (x, y) => throw new NotImplementedException(), //Anastasis
-            (x, y) => throw new NotImplementedException(), //Cheering Battle
-            (x, y) => throw new NotImplementedException(), //Big Brawl
-            (x, y) => throw new NotImplementedException(), //Warlock
-            (x, y) => throw new NotImplementedException(), //Eye of Storm
-            (x, y) => throw new NotImplementedException(), //Quicksand Freeze
-            (x, y) => throw new NotImplementedException(), //Portal
-            (x, y) => throw new NotImplementedException(), //Supernova
-            (x, y) => throw new NotImplementedException(), //Level Down
-            (x, y) => throw new NotImplementedException(), //Transform
-            (x, y) => throw new NotImplementedException() // Third Judgement
+            (x, y) => new Anastasis(x, y),
+            (x, y) => throw new NotImplementedException(), //2, Cheering Battle
+            (x, y) => throw new NotImplementedException(), //3, Big Brawl
+            (x, y) => throw new NotImplementedException(), //4, Warlock
+            (x, y) => throw new NotImplementedException(), //5, Eye of Storm
+            (x, y) => new QuicksandFreeze(x, y),
+            (x, y) => throw new NotImplementedException(), //7, Portal
+            (x, y) => throw new NotImplementedException(), //8,  Supernova
+            (x, y) => throw new NotImplementedException(), //9, Level Down
+            (x, y) => throw new NotImplementedException(), //10, Transform
+            (x, y) => throw new NotImplementedException()  //11, Third Judgement
         ];
 
         public static IGateCard CreateCard(Player owner, int cID, int type)
@@ -118,7 +118,7 @@ namespace AB_Server.Gates
             (this as IGateCard).Remove();
         }
 
-        void Draw()
+        private protected void Draw()
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 b.ToHand(EnterOrder);

@@ -104,6 +104,8 @@ namespace AB_Server
         bool Over = false;
         public int Left = 0;
 
+        public bool DontThrowTurnStartEvent = false;
+
         public Game(ushort playerCount)
         {
             Field = new GateCard[2, 3];
@@ -218,7 +220,7 @@ namespace AB_Server
 
             string moveType = selection["Type"].ToString();
 
-            bool dontThrowTurnStartEvent = false;
+            DontThrowTurnStartEvent = false;
             if (moveType != "pass") playersPassed = 0;
             switch (moveType)
             {
@@ -276,7 +278,7 @@ namespace AB_Server
                     }
                     else
                     {
-                        dontThrowTurnStartEvent = true;
+                        DontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
                         AbilityChain.Add(AbilityIndex[abilitySelection]);
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
@@ -296,7 +298,6 @@ namespace AB_Server
                     }
                     break;
                 case "open":
-
                     IGateCard gateToOpen = GateIndex[(int)selection["gate"]];
 
                     if (gateToOpen == null)
@@ -307,7 +308,7 @@ namespace AB_Server
 
                     if (gateToOpen.IsOpenable())
                     {
-                        dontThrowTurnStartEvent = true;
+                        DontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
                         gateToOpen.Open();
                     }
@@ -371,22 +372,8 @@ namespace AB_Server
                 activePlayer = (ushort)((activePlayer + 1) % PlayerCount);
             }
             if (Over) return;
-            if (dontThrowTurnStartEvent)
-                for (int i = 0; i < NewEvents.Length; i++)
-                {
-                    if (i != activePlayer)
-                        NewEvents[i].Add(new JObject
-                        {
-                            { "Type", "PlayerTurnStart" },
-                            { "PID", activePlayer }
-                        });
-                }
-            else
-                foreach (var e in NewEvents) e.Add(new JObject
-                        {
-                            { "Type", "PlayerTurnStart" },
-                            { "PID", activePlayer }
-                        });
+            if (!DontThrowTurnStartEvent)
+                ContinueGame();
         }
 
         public void EndTurn()
@@ -619,6 +606,7 @@ namespace AB_Server
 
         public void ContinueGame()
         {
+            Console.WriteLine("Game step over");
             doNotMakeStep = false;
             foreach (var playerEvents in NewEvents)
                 playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });

@@ -51,7 +51,7 @@ namespace AB_Server.Gates
             if (OpenBlocking.Count != 0)
                 return;
             
-            if (pos.IsTouching(this))
+            if (IsTouching(pos as GateCard))
             {
                 this.target = target;
                 Open();
@@ -62,17 +62,18 @@ namespace AB_Server.Gates
         {
             game.BakuganThrown -= OnBakuganStands;
             game.BakuganAdded -= OnBakuganStands;
-            
+            game.DontThrowTurnStartEvent = true;
+
             base.Open();
 
-            Game.NewEvents[Owner.Id].Add(new JObject {
+            game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => this.IsTouching(x as GateCard)).Select(x => new JObject {
+                        { "SelectionGates", new JArray(game.GateIndex.Where(x => this.IsTouching(x as GateCard)).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },
@@ -82,12 +83,12 @@ namespace AB_Server.Gates
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Resolve;
+            game.awaitingAnswers[Owner.Id] = Resolve;
         }
 
         public void Resolve()
         {
-            target.Move(Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]]);
+            target.Move(game.GateIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["gate"]] as GateCard);
 
             game.ContinueGame();
         }

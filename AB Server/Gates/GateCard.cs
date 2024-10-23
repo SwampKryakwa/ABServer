@@ -12,7 +12,7 @@ namespace AB_Server.Gates
             (x, y) => throw new NotImplementedException(), //2, Cheering Battle
             (x, y) => throw new NotImplementedException(), //3, Big Brawl
             (x, y) => throw new NotImplementedException(), //4, Warlock
-            (x, y) => throw new NotImplementedException(), //5, Eye of Storm
+            (x, y) => new EyeOfStorm(x, y),
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => throw new NotImplementedException(), //7, Portal
             (x, y) => throw new NotImplementedException(), //8, Supernova

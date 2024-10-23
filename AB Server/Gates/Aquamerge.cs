@@ -23,10 +23,19 @@ namespace AB_Server.Gates
         {
             IsOpen = false;
             Negated = true;
+
+            game.BakuganMoved -= OnBakuganMove;
+            game.BakuganThrown -= OnBakuganStands;
+            game.BakuganAdded -= OnBakuganStands;
+            game.BakuganPlacedFromGrave -= OnBakuganStands;
+            game.BakuganReturned -= OnBakuganLeaves;
+            game.BakuganDestroyed -= OnBakuganLeaves;
         }
 
         public new void Open()
         {
+            base.Open();
+
             affectedBakugan = new();
 
             foreach (var bakugan in Bakugans.Where(x => x.Attribute != Attribute.Subterra))
@@ -34,11 +43,10 @@ namespace AB_Server.Gates
 
             game.BakuganMoved += OnBakuganMove;
             game.BakuganThrown += OnBakuganStands;
+            game.BakuganAdded += OnBakuganStands;
             game.BakuganPlacedFromGrave += OnBakuganStands;
             game.BakuganReturned += OnBakuganLeaves;
             game.BakuganDestroyed += OnBakuganLeaves;
-
-            base.Open();
 
             game.ContinueGame();
         }
@@ -50,6 +58,7 @@ namespace AB_Server.Gates
 
             game.BakuganMoved -= OnBakuganMove;
             game.BakuganThrown -= OnBakuganStands;
+            game.BakuganAdded -= OnBakuganStands;
             game.BakuganPlacedFromGrave -= OnBakuganStands;
             game.BakuganReturned -= OnBakuganLeaves;
             game.BakuganDestroyed -= OnBakuganLeaves;

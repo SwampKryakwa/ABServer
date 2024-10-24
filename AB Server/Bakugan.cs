@@ -117,6 +117,8 @@ namespace AB_Server
         public bool InHands = true;
         public bool UsedAbilityThisTurn = false;
 
+        public bool StickOnce = false;
+
         public Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
         {
             Type = type;
@@ -411,7 +413,7 @@ namespace AB_Server
 
         public void ToHand(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
-            if ((Position as GateCard).MovingInEffectBlocking.Count != 0)
+            if ((Position as GateCard).MovingAwayEffectBlocking.Count != 0)
                 return;
 
             Position.Remove(this);

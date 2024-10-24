@@ -92,11 +92,8 @@ namespace AB_Server.Gates
             int winner = Array.IndexOf(teamTotals, teamTotals.Max());
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                if (b.Owner.SideID == winner)
-                    b.ToHand(EnterOrder);
-                else
+                if (b.Owner.SideID != winner)
                     b.Destroy(EnterOrder, MoveSource.Game);
-
 
             foreach (List<JObject> e in game.NewEvents)
                 e.Add(new JObject
@@ -107,6 +104,9 @@ namespace AB_Server.Gates
                 });
 
             game.OnBattleOver(this, (ushort)winner);
+
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                b.ToHand(EnterOrder);
 
             game.Field[Position.X, Position.Y] = null;
 

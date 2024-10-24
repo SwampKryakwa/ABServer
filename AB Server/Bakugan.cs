@@ -117,6 +117,8 @@ namespace AB_Server
         public bool InHands = true;
         public bool UsedAbilityThisTurn = false;
 
+        public bool StickOnce = false;
+
         public Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
         {
             Type = type;
@@ -180,7 +182,6 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
             if (destination.ActiveBattle) InBattle = true;
             foreach (var e in game.NewEvents)
@@ -209,7 +210,6 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
             foreach (var e in game.NewEvents)
             {
@@ -271,9 +271,6 @@ namespace AB_Server
             if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
             else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != this).ToArray();
 
-            if (!oldPosition.Bakugans.Any(x => x.Owner == Owner)) oldPosition.DisallowedPlayers[Owner.Id] = false;
-
-            destination.DisallowedPlayers[Owner.Id] = true;
             if (destination.ActiveBattle) InBattle = true;
             destination.EnterOrder.Add([this]);
 
@@ -331,8 +328,6 @@ namespace AB_Server
                 if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
                 else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != bakugan).ToArray();
 
-                if (!oldPosition.Bakugans.Any(x => x.Owner == bakugan.Owner)) oldPosition.DisallowedPlayers[bakugan.Owner.Id] = false;
-
                 foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
@@ -350,7 +345,6 @@ namespace AB_Server
                     });
                 }
 
-                destination.DisallowedPlayers[bakugan.Owner.Id] = true;
                 if (destination.ActiveBattle) bakugan.InBattle = true;
             }
 
@@ -402,7 +396,6 @@ namespace AB_Server
             }
 
             destination.Bakugans.Add(this);
-            destination.DisallowedPlayers[Owner.Id] = true;
             destination.EnterOrder.Add([this]);
             game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
             game.isBattleGoing = destination.CheckBattles();
@@ -420,7 +413,7 @@ namespace AB_Server
 
         public void ToHand(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
-            if ((Position as GateCard).MovingInEffectBlocking.Count != 0)
+            if ((Position as GateCard).MovingAwayEffectBlocking.Count != 0)
                 return;
 
             Position.Remove(this);

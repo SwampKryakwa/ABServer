@@ -13,11 +13,6 @@ namespace AB_Server.Gates
             Power = power;
             this.game = game;
             Owner = owner;
-            DisallowedPlayers = new bool[game.PlayerCount];
-            for (int i = 0; i < game.PlayerCount; i++)
-            {
-                DisallowedPlayers[i] = false;
-            }
             CardId = cID;
         }
 

@@ -6,11 +6,6 @@
         {
             game = owner.game;
             Owner = owner;
-            DisallowedPlayers = new bool[game.PlayerCount];
-            for (int i = 0; i < game.PlayerCount; i++)
-            {
-                DisallowedPlayers[i] = false;
-            }
             CardId = cID;
         }
 

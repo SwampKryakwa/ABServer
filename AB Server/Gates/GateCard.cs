@@ -16,9 +16,9 @@ namespace AB_Server.Gates
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => throw new NotImplementedException(), //7, Portal
             (x, y) => throw new NotImplementedException(), //8, Supernova
-            (x, y) => throw new NotImplementedException(), //9, Level Down
+            (x, y) => new LevelDown(x, y),
             (x, y) => throw new NotImplementedException(), //10, Transform
-            (x, y) => throw new NotImplementedException()  //11, Third Judgement
+            (x, y) => new ThirdJudgement(x, y),
         ];
 
         public static IGateCard CreateCard(Player owner, int cID, int type)
@@ -35,7 +35,6 @@ namespace AB_Server.Gates
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
         public (int X, int Y) Position { get; set; } = (-1, -1);
-        public bool[] DisallowedPlayers { get; set; }
         public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
@@ -71,10 +70,6 @@ namespace AB_Server.Gates
 
         public void DetermineWinner()
         {
-            for (int i = 0; i < DisallowedPlayers.Length; i++)
-            {
-                DisallowedPlayers[i] = false;
-            }
             foreach (Bakugan b in Bakugans)
             {
                 b.InBattle = false;
@@ -97,11 +92,8 @@ namespace AB_Server.Gates
             int winner = Array.IndexOf(teamTotals, teamTotals.Max());
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                if (b.Owner.SideID == winner)
-                    b.ToHand(EnterOrder);
-                else
+                if (b.Owner.SideID != winner)
                     b.Destroy(EnterOrder, MoveSource.Game);
-
 
             foreach (List<JObject> e in game.NewEvents)
                 e.Add(new JObject
@@ -112,6 +104,9 @@ namespace AB_Server.Gates
                 });
 
             game.OnBattleOver(this, (ushort)winner);
+
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                b.ToHand(EnterOrder);
 
             game.Field[Position.X, Position.Y] = null;
 
@@ -291,7 +286,6 @@ namespace AB_Server.Gates
         public new List<Bakugan> Bakugans { get; set; }
         public Player Owner { get; set; }
         public bool ActiveBattle { get; set; }
-        public bool[] DisallowedPlayers { get; set; }
         public bool AllowAnyPlayers { get; set; }
         public (int X, int Y) Position { get; set; }
 

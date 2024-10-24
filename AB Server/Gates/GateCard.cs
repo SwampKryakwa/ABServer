@@ -16,9 +16,9 @@ namespace AB_Server.Gates
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => throw new NotImplementedException(), //7, Portal
             (x, y) => throw new NotImplementedException(), //8, Supernova
-            (x, y) => throw new NotImplementedException(), //9, Level Down
+            (x, y) => new LevelDown(x, y),
             (x, y) => throw new NotImplementedException(), //10, Transform
-            (x, y) => throw new NotImplementedException()  //11, Third Judgement
+            (x, y) => new ThirdJudgement(x, y),
         ];
 
         public static IGateCard CreateCard(Player owner, int cID, int type)

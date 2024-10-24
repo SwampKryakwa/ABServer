@@ -47,7 +47,6 @@ namespace AB_Server.Abilities
             game.Field[target.Position.X, target.Position.Y] = replacement as GateCard;
             game.GateIndex[target.CardId] = replacement;
 
-            replacement.DisallowedPlayers = target.DisallowedPlayers;
             replacement.Position = target.Position;
             replacement.Bakugans = target.Bakugans;
             replacement.ActiveBattle = target.ActiveBattle;
@@ -73,7 +72,6 @@ namespace AB_Server.Abilities
 
         public void Restore()
         {
-            target.DisallowedPlayers = replacement.DisallowedPlayers;
             target.Position = replacement.Position;
             target.Bakugans = replacement.Bakugans;
             target.ActiveBattle = replacement.ActiveBattle;

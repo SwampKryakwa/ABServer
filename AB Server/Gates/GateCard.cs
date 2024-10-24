@@ -35,7 +35,6 @@ namespace AB_Server.Gates
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
         public (int X, int Y) Position { get; set; } = (-1, -1);
-        public bool[] DisallowedPlayers { get; set; }
         public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
@@ -71,10 +70,6 @@ namespace AB_Server.Gates
 
         public void DetermineWinner()
         {
-            for (int i = 0; i < DisallowedPlayers.Length; i++)
-            {
-                DisallowedPlayers[i] = false;
-            }
             foreach (Bakugan b in Bakugans)
             {
                 b.InBattle = false;
@@ -291,7 +286,6 @@ namespace AB_Server.Gates
         public new List<Bakugan> Bakugans { get; set; }
         public Player Owner { get; set; }
         public bool ActiveBattle { get; set; }
-        public bool[] DisallowedPlayers { get; set; }
         public bool AllowAnyPlayers { get; set; }
         public (int X, int Y) Position { get; set; }
 

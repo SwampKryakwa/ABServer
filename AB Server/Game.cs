@@ -235,16 +235,8 @@ namespace AB_Server
                     }
 
 
-                    if (gateSelection.AllowAnyPlayers || !gateSelection.DisallowedPlayers[activePlayer])
-                    {
-                        Players[TurnPlayer].HadThrownBakugan = true;
-                        BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
-                    }
-                    else
-                        NewEvents[TurnPlayer].Add(new JObject
-                        {
-                            { "Type", "InvalidAction" }
-                        });
+                    Players[TurnPlayer].HadThrownBakugan = true;
+                    BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
 
                     break;
                 case "set":

@@ -9,9 +9,9 @@ namespace AB_Server.Gates
         [
             (x, y) => new Aquamerge(x, y),
             (x, y) => new Anastasis(x, y),
-            (x, y) => throw new NotImplementedException(), //2, Cheering Battle
+            (x, y) => new CheeringBattle(x, y),
             (x, y) => throw new NotImplementedException(), //3, Big Brawl
-            (x, y) => throw new NotImplementedException(), //4, Warlock
+            (x, y) => new Warlock(x, y),
             (x, y) => new EyeOfStorm(x, y),
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => throw new NotImplementedException(), //7, Portal
@@ -103,7 +103,7 @@ namespace AB_Server.Gates
                     { "Victor", winner }
                 });
 
-            game.OnBattleOver(this, (ushort)winner);
+            game.OnBattleOver(this);
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 b.ToHand(EnterOrder);

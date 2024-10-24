@@ -58,6 +58,7 @@ namespace AB_Server
         {
             JArray jsonActives = new();
 
+            int id = 0;
             foreach (IActive active in actives)
             {
                 if (active.ActiveType == ActiveType.Card)

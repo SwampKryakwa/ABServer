@@ -63,7 +63,7 @@ namespace AB_Server.Gates
                     { "Victor", winner }
                 });
 
-                game.OnBattleOver(this, (ushort)winner);
+                game.OnBattleOver(this);
 
                 game.Field[Position.X, Position.Y] = null;
 

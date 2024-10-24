@@ -1,3 +1,6 @@
+using Newtonsoft.Json.Linq;
+using System.Reflection;
+
 namespace AB_Server.Gates
 {
     internal class ThirdJudgement : GateCard, IGateCard
@@ -45,16 +48,15 @@ namespace AB_Server.Gates
 
             int winnerPower = Bakugans.Max(x => x.Power);
 
-            if (!Bakugans.Any(x => x < winnerPower))
+            if (!Bakugans.Any(x => x.Power < winnerPower))
             {
+                game.OnBattleOver(this);
                 Draw();
                 return;
             }
 
-            int winner = Array.IndexOf(teamTotals, teamTotals.Max());
-
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                if (b.Power != winner)
+                if (b.Power != winnerPower)
                     b.Destroy(EnterOrder, MoveSource.Game);
 
 
@@ -63,10 +65,10 @@ namespace AB_Server.Gates
                 {
                     { "Type", "BattleOver" },
                     { "IsDraw", false },
-                    { "Victor", winner }
+                    { "Victor", Bakugans.First(x=>x.Power == winnerPower).Owner.Id }
                 });
 
-            game.OnBattleOver(this, (ushort)winner);
+            game.OnBattleOver(this);
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                     b.ToHand(EnterOrder);

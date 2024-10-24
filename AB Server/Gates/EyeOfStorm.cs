@@ -68,7 +68,7 @@ namespace AB_Server.Gates
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_MOVETARGET" },
+                        { "Message", "INFO_GATE_MOVETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(game.GateIndex.Where(x => this.IsTouching(x as GateCard)).Select(x => new JObject {
                             { "Type", x.TypeId },

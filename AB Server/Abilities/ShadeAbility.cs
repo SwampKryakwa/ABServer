@@ -6,13 +6,13 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public Bakugan User;
-        IAbilityCard target;
+        IActive target;
         bool isCounter;
         Game game;
 
         public Player Owner { get => User.Owner; }
 
-        public ShadeAbilityEffect(Bakugan user, IAbilityCard target, bool isCounter, Game game, int typeID)
+        public ShadeAbilityEffect(Bakugan user, IActive target, bool isCounter, Game game, int typeID)
         {
             User = user;
             this.game = game;
@@ -49,7 +49,6 @@ namespace AB_Server.Abilities
 
     internal class ShadeAbility : AbilityCard, IAbilityCard
     {
-
         public ShadeAbility(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
@@ -58,7 +57,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        private IAbilityCard target;
+        private IActive target;
         private bool isCounter = false;
 
         public void Setup(bool asCounter)
@@ -69,7 +68,6 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -125,7 +123,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            target = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+            target = Game.ActiveZone.First(x => x.EffectId == (int)Game.IncomingSelection[Owner.Id]["array"][0]["active"]);
 
             Game.CheckChain(Owner, this, User);
         }

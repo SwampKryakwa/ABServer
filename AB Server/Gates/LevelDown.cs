@@ -24,12 +24,12 @@ namespace AB_Server.Gates
         {
             base.Open();
 
-            Game.NewEvents[Owner.Id].Add(new JObject {
+            game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "INFO_BOOSTTARGET" },
+                        { "Message", "INFO_GATE_TARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -42,12 +42,12 @@ namespace AB_Server.Gates
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Resolve;
+            game.awaitingAnswers[Owner.Id] = Resolve;
         }
 
         public void Resolve()
         {
-            Bakugan target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            Bakugan target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             if (target.Power > 400)
                 target.Boost(new Boost(400 - target.Power), this);

@@ -90,13 +90,13 @@ namespace AB_Server.Abilities
                         { "Message", "INFO_ADDTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InHands && x.Owner == Owner && ((x.Attribute == Attribute.Nova) | (x.Attribute == Attribute.Lumina))).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
+                        new JObject { { "Type", (int)x.Type },
+                            { "Attribute", (int)x.Attribute },
+                            { "Treatment", (int)x.Treatment },
+                            { "Power", x.Power },
+                            { "Owner", x.Owner.Id },
+                            { "BID", x.BID }
+                        }
                         )) }
                     } }
                 }

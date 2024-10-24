@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
 
     internal interface IActive
     {
-        public int EffectId { get; }
+        public int EffectId { get; set; }
         public int TypeId { get; }
 
         public ActiveType ActiveType { get; }
@@ -110,7 +110,7 @@ namespace AB_Server.Abilities
         public Game Game { get; set; }
         public Player Owner { get; set; }
         public ActiveType ActiveType { get; } = ActiveType.Card;
-        public int EffectId { get => throw new NotImplementedException(); }
+        public int EffectId { get; set; }
 
         public IAbilityCard FusedTo { get; set; }
         public IAbilityCard Fusion { get; set; }

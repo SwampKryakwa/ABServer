@@ -54,7 +54,7 @@ namespace AB_Server
         public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, BakuganContainer pos);
         public delegate void GateAddedEffect(IGateCard target, ushort owner, params int[] pos);
         public delegate void GateRemovedEffect(IGateCard target, ushort owner, params int[] pos);
-        public delegate void BattleOverEffect(IGateCard target, ushort winner);
+        public delegate void BattleOverEffect(IGateCard target);
         public delegate void TurnEndEffect();
 
         //All the events in the game
@@ -95,8 +95,8 @@ namespace AB_Server
             GateAdded?.Invoke(target, owner, pos);
         public void OnGateRemoved(IGateCard target, ushort owner, params int[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
-        public void OnBattleOver(IGateCard target, ushort winner) =>
-            BattleOver?.Invoke(target, winner);
+        public void OnBattleOver(IGateCard target) =>
+            BattleOver?.Invoke(target);
 
         public Action[] awaitingAnswers;
 
@@ -273,6 +273,7 @@ namespace AB_Server
                         DontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
                         AbilityChain.Add(AbilityIndex[abilitySelection]);
+                        AbilityIndex[abilitySelection].EffectId = NextEffectId++;
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
                         Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
 
@@ -507,6 +508,7 @@ namespace AB_Server
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
             {
                 AbilityChain.Add(AbilityIndex[id]);
+                AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
                 player.AbilityHand.Remove(AbilityIndex[id]);
 
@@ -569,6 +571,7 @@ namespace AB_Server
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
             {
                 AbilityChain.Add(AbilityIndex[id]);
+                AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
                 player.AbilityHand.Remove(AbilityIndex[id]);
 

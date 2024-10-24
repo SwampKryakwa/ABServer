@@ -21,7 +21,7 @@ namespace AB_Server.Gates
             if (target != this)
                 return;
             
-            game.OnBattleOver -= this;
+            game.BattleOver -= OnBattleOver;
             Open();
         }
 
@@ -74,7 +74,7 @@ namespace AB_Server.Gates
                     { "Victor", winner }
                 });
 
-            game.OnBattleOver(this, (ushort)winner);
+            game.OnBattleOver(this);
 
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 b.ToHand(EnterOrder);

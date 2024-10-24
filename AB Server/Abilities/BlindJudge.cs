@@ -57,7 +57,7 @@ namespace AB_Server.Abilities
             Target.affectingEffects.Add(this);
         }
 
-        public void Trigger(IGateCard target, ushort winner)
+        public void Trigger(IGateCard target)
         {
             if (battle == target)
             {

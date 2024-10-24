@@ -125,7 +125,7 @@ namespace AB_Server.Abilities
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
-                { "Type", "StartSelection" },
+                { "Type", "StartSelection" }, { "SourceType", "A" },
                 { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {

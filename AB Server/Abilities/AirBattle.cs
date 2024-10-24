@@ -61,7 +61,8 @@ namespace AB_Server.Abilities
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
-                { "Type", "StartSelection" },
+                game.OnBattleOver(this);
+                { "SourceType", "A" },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -90,7 +91,7 @@ namespace AB_Server.Abilities
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
-                { "Type", "StartSelection" },
+                game.OnBattleOver(this);
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -120,7 +121,7 @@ namespace AB_Server.Abilities
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
-                { "Type", "StartSelection" },
+                game.OnBattleOver(this);
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },

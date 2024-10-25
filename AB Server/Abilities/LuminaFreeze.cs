@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
     internal class LuminaFreezeEffect : IActive
     {
         public int TypeId { get; }
-        public int EffectId { get; }
+        public int EffectId { get; set; }
         public ActiveType ActiveType { get; } = ActiveType.Effect;
         public Bakugan User;
         Game game;

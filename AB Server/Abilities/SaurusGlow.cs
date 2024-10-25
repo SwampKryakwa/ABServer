@@ -5,7 +5,7 @@ namespace AB_Server.Abilities
     internal class SaurusGlowEffect : IActive
     {
         public int TypeId { get; }
-        public int EffectId { get; }
+        public int EffectId { get; set; }
         public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Game game;

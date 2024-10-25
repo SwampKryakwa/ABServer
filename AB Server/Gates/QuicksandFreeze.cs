@@ -16,7 +16,7 @@ namespace AB_Server.Gates
             game.BattleOver += OnBattleOver;
         }
 
-        void OnBattleOver(IGateCard target, ushort winner)
+        void OnBattleOver(IGateCard target)
         {
             if (target != this)
                 return;

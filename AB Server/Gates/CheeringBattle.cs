@@ -48,7 +48,10 @@ namespace AB_Server.Gates
 
         public void Resolve()
         {
-            game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]].AddFromHand(this);
+            var target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target.AddFromHand(this);
+            var newPower = int.Parse(target.Power.ToString().Substring(1));
+            target.Boost(newPower - Power);
 
             game.ContinueGame();
         }

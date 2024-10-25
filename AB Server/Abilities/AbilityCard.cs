@@ -60,7 +60,7 @@ namespace AB_Server.Abilities
 
             //Set 1 Garrison abilities
             (cID, owner) => new CoreForcement(cID, owner, 24),
-            (cID, owner) => throw new NotImplementedException(),//25
+            (cID, owner) => new LuminaAlliance(cID, owner, 25),
 
             //Set 1 Griffon abilities
             (cID, owner) => new WingBurst(cID, owner, 26),
@@ -68,8 +68,8 @@ namespace AB_Server.Abilities
             (cID, owner) => new DeafeningRoar(cID, owner, 28),
 
             //Set 1 Mantis abilities
-            (cID, owner) => throw new NotImplementedException(), //29
-            (cID, owner) => throw new NotImplementedException(), //30
+            (cID, owner) => new Marionette(cID, owner, 29),
+            (cID, owner) => new SlingBlazer(cID, owner, 30),
             (cID, owner) => new TwinMachete(cID, owner, 31),
             (cID, owner) => new SliceCutter(cID, owner, 32),
 

@@ -83,7 +83,7 @@ namespace AB_Server.Abilities
 
             //Set 1 Centipede abilities
             (cID, owner) => throw new NotImplementedException(), //37
-            (cID, owner) => throw new NotImplementedException(), //38
+            (cID, owner) => new DraggedIntoDarkness(cID, owner, 38),
             
             //Set 1 Serpent abilities
             (cID, owner) => new SerpentSqueeze(cID, owner, 39),

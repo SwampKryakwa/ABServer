@@ -125,7 +125,7 @@ namespace AB_Server.Gates
                     { "IsDraw", true }
                 });
 
-            game.OnBattleOver(this, game.PlayerCount);
+            game.OnBattleOver(this);
         }
 
         public void Set(int posX, int posY)

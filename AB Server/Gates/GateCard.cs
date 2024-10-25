@@ -17,7 +17,7 @@ namespace AB_Server.Gates
             (x, y) => throw new NotImplementedException(), //7, Portal
             (x, y) => throw new NotImplementedException(), //8, Supernova
             (x, y) => new LevelDown(x, y),
-            (x, y) => throw new NotImplementedException(), //10, Transform
+            (x, y) => new Transform(x, y),
             (x, y) => new ThirdJudgement(x, y),
         ];
 

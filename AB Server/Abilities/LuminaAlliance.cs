@@ -129,7 +129,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "PW" },
                         { "Message", "INFO_AMOUNTTRANSFER" },
                         { "MinPower", 0 },
-                        { "MaxPower", Garrison.Power }
+                        { "MaxPower", User.Power }
                     }
                 } }
             });

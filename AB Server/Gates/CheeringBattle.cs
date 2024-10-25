@@ -51,7 +51,7 @@ namespace AB_Server.Gates
             var target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
             target.AddFromHand(this);
             var newPower = int.Parse(target.Power.ToString().Substring(1));
-            target.Boost(newPower - Power);
+            target.Boost(new Boost(newPower - target.Power), this);
 
             game.ContinueGame();
         }

@@ -96,7 +96,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position == Position).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position == User.Position).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -153,7 +153,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position == Position).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position == User.Position).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

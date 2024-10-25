@@ -20,8 +20,6 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             this.moveTarget = moveTarget;
-            Console.WriteLine(user);
-            Console.WriteLine(user.Position);
             user.UsedAbilityThisTurn = true;
             TypeId = typeID;
         }
@@ -128,7 +126,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => (User.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x != target.Position).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },

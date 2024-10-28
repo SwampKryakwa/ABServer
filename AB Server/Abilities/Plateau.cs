@@ -42,7 +42,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            foreach (var gate in GateIndex)
+            foreach (var gate in game.GateIndex)
                 gate.OpenBlocking.Add(this);
 
             game.BakuganReturned += OnBakuganLeaves;

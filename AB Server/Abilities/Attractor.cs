@@ -101,7 +101,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=> x.Owner == Owner && x.Position != user.Position && !(x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=> x.Owner == Owner && x.Position != User.Position && !(x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -127,7 +127,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=> x.Owner == Owner && x.Position != user.Position && !(x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=> x.Owner == Owner && x.Position != User.Position && !(x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

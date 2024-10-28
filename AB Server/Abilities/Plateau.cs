@@ -42,7 +42,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            foreach (var gate in game.GateIndex)
+            foreach (GateCard gate in game.GateIndex)
                 gate.OpenBlocking.Add(this);
 
             game.BakuganReturned += OnBakuganLeaves;
@@ -53,7 +53,7 @@ namespace AB_Server.Abilities
         {
             if (!game.BakuganIndex.Any(x => x.OnField() && x.Attribute == Attribute.Subterra))
             {
-                foreach (var gate in GateIndex)
+                foreach (GateCard gate in game.GateIndex)
                     gate.OpenBlocking.Remove(this);
 
                 game.BakuganReturned -= OnBakuganLeaves;

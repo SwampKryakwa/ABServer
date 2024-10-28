@@ -34,7 +34,7 @@ namespace AB_Server.Gates
 
             foreach (var bakugan in Bakugans)
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
@@ -64,7 +64,7 @@ namespace AB_Server.Gates
         {
             if (pos == this)
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
@@ -84,7 +84,7 @@ namespace AB_Server.Gates
             }
             else if (target.affectingEffects.Contains(this))
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
@@ -108,7 +108,7 @@ namespace AB_Server.Gates
         {
             if (pos == this)
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
@@ -128,7 +128,7 @@ namespace AB_Server.Gates
             }
             else if (target.affectingEffects.Contains(this))
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
@@ -150,9 +150,9 @@ namespace AB_Server.Gates
 
         public void OnBakuganLeaves(Bakugan target, ushort owner)
         {
-            if (pos == this)
+            if (target.affectingEffects.Contains(this))
             {
-                foreach (var e in Game.NewEvents)
+                foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },

@@ -53,10 +53,10 @@ namespace AB_Server.Abilities
             ((cID, owner) => new ShadeAbility(cID, owner, 19), ShadeAbility.HasValidTargets),
 
             //Set 1 Subterra abilities
-            ((cID, owner) => throw new NotImplementedException(), (x) => false),//20
+            ((cID, owner) => new Copycat(cID, owner, 20), Copycat.HasValidTargets),
             ((cID, owner) => new SpiritCanyon(cID, owner, 21), SpiritCanyon.HasValidTargets),
             ((cID, owner) => new DesertHole(cID, owner, 22), DesertHole.HasValidTargets),
-            ((cID, owner) => throw new NotImplementedException(), (x) => false), //23
+            ((cID, owner) => new Plateau(cID, owner, 23), Plateau.HasValidTargets),
 
             //Set 1 Garrison abilities
             ((cID, owner) => new CoreForcement(cID, owner, 24), CoreForcement.HasValidTargets),
@@ -82,7 +82,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new SaurusRage(cID, owner, 36), SaurusRage.HasValidTargets),
 
             //Set 1 Centipede abilities
-            ((cID, owner) => throw new NotImplementedException(), (x) => false), //37
+            ((cID, owner) => new Attractor(cID, owner, 37), Attractor.HasValidTargets),
             ((cID, owner) => new DraggedIntoDarkness(cID, owner, 38), DraggedIntoDarkness.HasValidTargets),
             
             //Set 1 Serpent abilities

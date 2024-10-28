@@ -15,7 +15,7 @@ namespace AB_Server.Gates
             (x, y) => new EyeOfStorm(x, y),
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => throw new NotImplementedException(), //7, Portal
-            (x, y) => throw new NotImplementedException(), //8, Supernova
+            (x, y) => new Supernova(x, y),
             (x, y) => new LevelDown(x, y),
             (x, y) => new Transform(x, y),
             (x, y) => new ThirdJudgement(x, y),

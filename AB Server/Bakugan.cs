@@ -96,13 +96,14 @@ namespace AB_Server
         public short DefaultPower { get; }
         public short BasePower;
         public List<Boost> Boosts = new();
+        public int PowerModifier = 1;
         public int Power
         {
-            get => BasePower + Boosts.Sum(b => b.Value);
+            get => (BasePower + Boosts.Sum(b => b.Value)) * PowerModifier;
         }
         public int AdditionalPower
         {
-            get => Boosts.Sum(b => b.Value);
+            get => Boosts.Sum(b => b.Value) * PowerModifier;
         }
 
         public Player Owner;
@@ -148,6 +149,7 @@ namespace AB_Server
             if (IsDummy) return;
 
             Boosts.Add(boost);
+            
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
@@ -164,6 +166,9 @@ namespace AB_Server
                 });
             }
             Game.OnBakuganBoosted(this, boost, source);
+
+            if (PowerModifier < 0)
+                boost.Value *= -1;
         }
 
         public void RemoveBoost(Boost boost, object source)

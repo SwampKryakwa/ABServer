@@ -9,14 +9,14 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public WingBurstEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public WingBurstEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -149,7 +149,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new WingBurstEffect(User, target, Game, TypeId).Activate();
+                new WingBurstEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             if (Fusion == null)
                 Dispose();
@@ -158,9 +158,20 @@ namespace AB_Server.Abilities
         }
 
         public new void DoubleEffect() =>
-                new WingBurstEffect(User, target, Game, TypeId).Activate();
+                new WingBurstEffect(User, target, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Position.Bakugans.Any(x => x.Owner.SideID != user.Owner.SideID);
     }
 }

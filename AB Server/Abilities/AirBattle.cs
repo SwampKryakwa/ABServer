@@ -12,13 +12,14 @@ namespace AB_Server.Abilities
 
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public AirBattleEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public AirBattleEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -116,7 +117,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -154,17 +155,26 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new AirBattleEffect(User, target, Game, TypeId).Activate();
+                new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-            new AirBattleEffect(User, target, Game, TypeId).Activate();
+            new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
 
-        
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && x.Owner.SideID != user.Owner.SideID);
     }
 }

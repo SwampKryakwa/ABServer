@@ -13,8 +13,9 @@ namespace AB_Server.Abilities
         Game game;
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public LuminaAllianceEffect(Bakugan user, Bakugan target, int power, Game game, int typeID)
+        public LuminaAllianceEffect(Bakugan user, Bakugan target, int power, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
@@ -22,7 +23,7 @@ namespace AB_Server.Abilities
             this.power = power;
             Console.WriteLine(user);
             Console.WriteLine(user.Position);
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -141,7 +142,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -179,14 +180,25 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LuminaAllianceEffect(User, target, boost, Game, TypeId).Activate();
+                new LuminaAllianceEffect(User, target, boost, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new LuminaAllianceEffect(User, target, boost, Game, TypeId).Activate();
+                new LuminaAllianceEffect(User, target, boost, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Lumina && user.Type == BakuganType.Garrison && user.OnField();
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(x => x != user && x.OnField() && x.Position != user.Position && x.Owner.SideID == user.Owner.SideID);
     }
 }

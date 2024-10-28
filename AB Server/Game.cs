@@ -229,13 +229,13 @@ namespace AB_Server
 
                     if (gateSelection == null)
                     {
+                        Console.WriteLine($"Gate {selection["posX"]} {selection["posY"]} is null");
                         NewEvents[TurnPlayer].Add(new JObject
                         {
-                            { "Type", "InvalidAction" }
+                            ["Type"] = "InvalidAction"
                         });
                         break;
                     }
-
 
                     Players[TurnPlayer].HadThrownBakugan = true;
                     BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
@@ -248,7 +248,7 @@ namespace AB_Server
                     {
                         NewEvents[TurnPlayer].Add(new JObject
                         {
-                            { "Type", "InvalidAction" }
+                            ["Type"] = "InvalidAction"
                         });
                     }
                     else
@@ -265,7 +265,7 @@ namespace AB_Server
                     {
                         NewEvents[activePlayer].Add(new JObject
                         {
-                            { "Type", "InvalidAction" }
+                            ["Type"] = "InvalidAction"
                         });
                     }
                     else
@@ -281,9 +281,11 @@ namespace AB_Server
                         {
                             NewEvents[i].Add(new()
                             {
-                                { "Type", "AbilityAddedActiveZone" },
-                                { "Card", AbilityIndex[abilitySelection].TypeId },
-                                { "Owner", AbilityIndex[abilitySelection].Owner.Id }
+                                ["Type"] = "AbilityAddedActiveZone",
+                                ["IsCopy"] = AbilityIndex[abilitySelection].IsCopy,
+                                ["Id"] = AbilityIndex[abilitySelection].EffectId,
+                                ["Card"] = AbilityIndex[abilitySelection].TypeId,
+                                ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
                             });
                         }
 
@@ -515,11 +517,13 @@ namespace AB_Server
                 for (int i = 0; i < NewEvents.Length; i++)
                 {
                     NewEvents[i].Add(new()
-                            {
-                                { "Type", "AbilityAddedActiveZone" },
-                                { "Card", AbilityIndex[id].TypeId },
-                                { "Owner", AbilityIndex[id].Owner.Id }
-                            });
+                    {
+                        ["Type"] = "AbilityAddedActiveZone",
+                        ["IsCopy"] = AbilityIndex[id].IsCopy,
+                        ["Id"] = AbilityIndex[id].EffectId,
+                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["Owner"] = AbilityIndex[id].Owner.Id
+                    });
                 }
 
                 AbilityIndex[id].Setup(true);
@@ -570,7 +574,7 @@ namespace AB_Server
             int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
             {
-                AbilityChain.Add(AbilityIndex[id]);
+                AbilityChain.Insert(AbilityChain.IndexOf(ability) + 1, AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
                 player.AbilityHand.Remove(AbilityIndex[id]);
@@ -578,11 +582,13 @@ namespace AB_Server
                 for (int i = 0; i < NewEvents.Length; i++)
                 {
                     NewEvents[i].Add(new()
-                            {
-                                { "Type", "AbilityAddedActiveZone" },
-                                { "Card", AbilityIndex[id].TypeId },
-                                { "Owner", AbilityIndex[id].Owner.Id }
-                            });
+                    {
+                        ["Type"] = "AbilityAddedActiveZone",
+                        ["IsCopy"] = AbilityIndex[id].IsCopy,
+                        ["Id"] = AbilityIndex[id].EffectId,
+                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["Owner"] = AbilityIndex[id].Owner.Id
+                    });
                 }
 
                 AbilityIndex[id].SetupFusion(ability, user);

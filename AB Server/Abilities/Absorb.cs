@@ -11,14 +11,14 @@ namespace AB_Server.Abilities
         Boost boost;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public AbsorbEffect(Bakugan user, Game game, int typeID)
+        public AbsorbEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new AbsorbEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]], Game, TypeId).Activate();
+                new AbsorbEffect(Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]], Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

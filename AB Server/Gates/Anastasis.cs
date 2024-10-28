@@ -27,7 +27,7 @@ namespace AB_Server.Gates
             game.ContinueGame();
         }
 
-        public void DetermineWinner()
+        public new void DetermineWinner()
         {
             if (IsOpen)
             {

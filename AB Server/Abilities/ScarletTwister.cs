@@ -11,13 +11,14 @@ namespace AB_Server.Abilities
         Game game;
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public ScarletTwisterEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public ScarletTwisterEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -60,7 +61,7 @@ namespace AB_Server.Abilities
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
-            
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -88,7 +89,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -149,15 +150,26 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ScarletTwisterEffect(User, target, Game, TypeId).Activate();
+                new ScarletTwisterEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new ScarletTwisterEffect(User, target, Game, TypeId).Activate();
+                new ScarletTwisterEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) => 
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
+
+        public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Zephyros && user.Type == BakuganType.Fairy;
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.GateIndex.Cast<GateCard>().Any(x => (user.Position as GateCard).IsTouching(x) && x.Bakugans.Count > 0);
     }
 }

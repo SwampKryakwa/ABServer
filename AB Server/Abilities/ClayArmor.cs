@@ -9,13 +9,13 @@ namespace AB_Server.Abilities
         Bakugan user;
         Game game;
 
-        public Player Owner { get => user.Owner; }
+        public Player Owner { get => user.Owner; } bool IsCopy;
 
-        public ClayArmorEffect(Bakugan user, Game game, int typeID)
+        public ClayArmorEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             this.user = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -76,7 +76,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ClayArmorEffect(User, Game, TypeId).Activate();
+                new ClayArmorEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

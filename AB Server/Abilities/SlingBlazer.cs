@@ -12,15 +12,15 @@ namespace AB_Server.Abilities
         GateCard moveTarget;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public SlingBlazerEffect(Bakugan user, Bakugan target, GateCard moveTarget, Game game, int typeID)
+        public SlingBlazerEffect(Bakugan user, Bakugan target, GateCard moveTarget, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
             this.moveTarget = moveTarget;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -143,7 +143,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -181,16 +181,25 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new SlingBlazerEffect(User, target, moveTarget as GateCard, Game, TypeId).Activate();
+                new SlingBlazerEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new SlingBlazerEffect(User, target, moveTarget as GateCard, Game, TypeId).Activate();
+                new SlingBlazerEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Type == BakuganType.Mantis && user.InBattle;
 
-
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Position.Bakugans.Any(x => x.Owner.SideID != user.Owner.SideID);
     }
 }

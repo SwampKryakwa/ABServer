@@ -8,14 +8,14 @@ namespace AB_Server.Abilities
         Bakugan User;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public MergeShieldEffect(Bakugan user, Game game, int typeID)
+        public MergeShieldEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -54,13 +54,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new MergeShieldEffect(User, Game, TypeId).Activate();
+                new MergeShieldEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new MergeShieldEffect(User, Game, TypeId).Activate();
+                new MergeShieldEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Darkon;

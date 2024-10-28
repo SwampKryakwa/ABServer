@@ -8,13 +8,13 @@ namespace AB_Server.Abilities
         Bakugan User;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public BurstReturnEffect(Bakugan user, Game game, int typeID)
+        public BurstReturnEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -64,13 +64,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new BurstReturnEffect(User, Game, TypeId).Activate();
+                new BurstReturnEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new BurstReturnEffect(User, Game, TypeId).Activate();
+                new BurstReturnEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Type == BakuganType.Raptor && user.InGrave();

@@ -12,14 +12,14 @@ namespace AB_Server.Abilities
         Game game;
         Dictionary<Bakugan, Boost> AffectedBakugan = new();
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public FireWallEffect(Bakugan user, Game game, int typeID)
+        public FireWallEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -43,7 +43,7 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" },
+                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
                     { "Card", TypeId },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
@@ -118,13 +118,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new FireWallEffect(User, Game, TypeId).Activate();
+                new FireWallEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new FireWallEffect(User, Game, TypeId).Activate();
+                new FireWallEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Nova;

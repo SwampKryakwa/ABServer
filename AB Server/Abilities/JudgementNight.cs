@@ -10,13 +10,13 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public JudgementNightEffect(Bakugan user, Game game, int typeID)
+        public JudgementNightEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -64,7 +64,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new JudgementNightEffect(User, Game, TypeId).Activate();
+                new JudgementNightEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

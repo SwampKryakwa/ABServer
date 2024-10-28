@@ -11,8 +11,9 @@ namespace AB_Server.Abilities
         Game game;
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public ShadeAbilityEffect(Bakugan user, IActive target, bool isCounter, Game game, int typeID)
+        public ShadeAbilityEffect(Bakugan user, IActive target, bool isCounter, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
@@ -20,7 +21,7 @@ namespace AB_Server.Abilities
             this.isCounter = isCounter;
             TypeId = typeID;
 
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
         }
 
         public void Activate()
@@ -91,7 +92,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -131,14 +132,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId).Activate();
+                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId).Activate();
+                new ShadeAbilityEffect(User, target, isCounter, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) => user.OnField() && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Lumina);
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.ActiveZone.Count != 0;
     }
 }

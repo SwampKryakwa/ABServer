@@ -9,14 +9,14 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public TornadoWallEffect(Bakugan user, Game game, int typeID)
+        public TornadoWallEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -128,7 +128,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TornadoWallEffect(User, Game, 1).Activate();
+                new TornadoWallEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

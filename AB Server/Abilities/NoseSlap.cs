@@ -12,13 +12,14 @@ namespace AB_Server.Abilities
 
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public NoseSlapEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public NoseSlapEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -116,9 +117,9 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
-            Game.NewEvents[Owner.Id].Add(new JObject
+            user.Game.NewEvents[user.Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
@@ -126,7 +127,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ValidTarget).Select(x =>
+                        { "SelectionBakugans", new JArray(user.Game.BakuganIndex.Where(ValidTarget).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -139,7 +140,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            user.Game.awaitingAnswers[user.Owner.Id] = Activate;
         }
 
         private Bakugan target;
@@ -154,18 +155,29 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new NoseSlapEffect(User, target, Game, TypeId).Activate();
+                new NoseSlapEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-            new NoseSlapEffect(User, target, Game, TypeId).Activate();
+            new NoseSlapEffect(User, target, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(ValidTarget);
+            user.Attribute == Attribute.Zephyros && user.OnField() && user.Game.BakuganIndex.Any(ValidTarget);
 
         public bool ValidTarget(Bakugan target) =>
             target.Owner.SideID != Owner.SideID && target.OnField() && (target.Position as GateCard).IsTouching(User.Position as GateCard);
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Position is GateCard && user.Game.BakuganIndex.Any(target => target.Owner.SideID != user.Owner.SideID && target.OnField() && (target.Position as GateCard).IsTouching(user.Position as GateCard));
     }
 }

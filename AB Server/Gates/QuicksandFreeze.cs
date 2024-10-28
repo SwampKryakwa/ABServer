@@ -12,8 +12,6 @@ namespace AB_Server.Gates
             Owner = owner;
 
             CardId = cID;
-
-            game.BattleOver += OnBattleOver;
         }
 
         void OnBattleOver(IGateCard target)
@@ -23,6 +21,13 @@ namespace AB_Server.Gates
             
             game.BattleOver -= OnBattleOver;
             Open();
+        }
+
+        public new void Set(int posX, int poxY)
+        {
+            game.BattleOver += OnBattleOver;
+
+            base.Set(posX, poxY);
         }
 
         public new int TypeId { get; private protected set; } = 6;
@@ -39,7 +44,7 @@ namespace AB_Server.Gates
             base.Open();
         }
 
-        public void DetermineWinner()
+        public new void DetermineWinner()
         {
             foreach (Bakugan b in Bakugans)
             {

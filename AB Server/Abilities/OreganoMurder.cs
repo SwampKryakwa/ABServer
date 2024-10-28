@@ -10,13 +10,13 @@ namespace AB_Server.Abilities
         Game game;
         List<Bakugan> affectedBakugan = new();
 
-        public Player Owner { get => user.Owner; }
+        public Player Owner { get => user.Owner; } bool IsCopy;
 
-        public OreganoMurderEffect(Bakugan user, Game game, int typeID)
+        public OreganoMurderEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             this.user = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -104,12 +104,12 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new OreganoMurderEffect(User, Game, TypeId).Activate();
+                new OreganoMurderEffect(User, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new OreganoMurderEffect(User, Game, TypeId).Activate();
+                new OreganoMurderEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Darkon && (user.Owner.BakuganOwned.Count(x => x == user || x.InGrave()) == user.Owner.BakuganOwned.Count);

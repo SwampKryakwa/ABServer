@@ -11,14 +11,14 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public BlowBackEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public BlowBackEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -94,7 +94,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField() && (x.Attribute == Attribute.Zephyros || x == User)).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -114,7 +114,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -124,7 +124,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField() && (x.Attribute == Attribute.Zephyros || x == User)).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -152,17 +152,23 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new BlowBackEffect(User, target, Game, TypeId).Activate();
+                new BlowBackEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-            new BlowBackEffect(User, target, Game, TypeId).Activate();
+            new BlowBackEffect(User, target, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField();
-
-        
     }
 }

@@ -9,14 +9,14 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public SliceCutterEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public SliceCutterEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -148,13 +148,21 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new SliceCutterEffect(User, target, Game, TypeId).Activate();
+                new SliceCutterEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new SliceCutterEffect(User, target, Game, TypeId).Activate();
+                new SliceCutterEffect(User, target, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            if (target == bakugan)
+                target = Bakugan.GetDummy();
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Fairy && user.Attribute == Attribute.Darkon && Game.BakuganIndex.Any(x => x.OnField());

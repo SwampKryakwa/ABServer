@@ -10,14 +10,14 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public LightningTornadoEffect(Bakugan user, Bakugan target, Game game, int typeID)
+        public LightningTornadoEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -121,7 +121,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -185,7 +185,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LightningTornadoEffect(User, target, Game, 1).Activate();
+                new LightningTornadoEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

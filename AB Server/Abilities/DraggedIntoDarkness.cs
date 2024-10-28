@@ -1,5 +1,6 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Numerics;
 
 namespace AB_Server.Abilities
 {
@@ -8,15 +9,17 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan User;
         Game game;
+        List<Bakugan> ignoredBakugan;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public DraggedIntoDarknessEffect(Bakugan user, Game game, int typeID)
+        public DraggedIntoDarknessEffect(Bakugan user, List<Bakugan> ignoredBakugan, Game game, int typeID, bool IsCopy)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            this.ignoredBakugan = ignoredBakugan;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -38,7 +41,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            Bakugan.MultiMove(game, User.Position as GateCard, MoveSource.Effect, game.BakuganIndex.Where(x => x != User && x.OnField()).ToArray());
+            Bakugan.MultiMove(game, User.Position as GateCard, MoveSource.Effect, game.BakuganIndex.Where(x => x != User && x.OnField() && !ignoredBakugan.Contains(x)).ToArray());
         }
     }
 
@@ -52,16 +55,53 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        List<Bakugan> ignoredBakugan;
+
+        public void Setup(bool asCounter)
+        {
+            IAbilityCard ability = this;
+
+            ignoredBakugan = new();
+            Game.NewEvents[Owner.Id].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "BF" },
+                        { "Message", "INFO_ABILITYUSER" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            Game.awaitingAnswers[Owner.Id] = ability.Activate;
+        }
+
         public new void Resolve()
         {
             if (!counterNegated)
-                new DraggedIntoDarknessEffect(User, Game, TypeId).Activate();
+                new DraggedIntoDarknessEffect(User, ignoredBakugan, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new DraggedIntoDarknessEffect(User, Game, TypeId).Activate();
+                new DraggedIntoDarknessEffect(User, ignoredBakugan, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            ignoredBakugan.Add(bakugan);
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Centipede && user.Attribute == Attribute.Darkon && user.Owner.Bakugans.Count == 0;

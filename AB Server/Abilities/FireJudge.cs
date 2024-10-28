@@ -11,13 +11,13 @@ namespace AB_Server.Abilities
         Game game;
         Boost currentBoost;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public FireJudgeEffect(Bakugan user, Game game, int typeID)
+        public FireJudgeEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -43,7 +43,7 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" },
+                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
                     { "Card", TypeId },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
@@ -103,13 +103,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new FireJudgeEffect(User, Game, TypeId).Activate();
+                new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-            new FireJudgeEffect(User, Game, TypeId).Activate();
+            new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Nova && user.InBattle;

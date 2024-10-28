@@ -13,13 +13,13 @@ namespace AB_Server.Abilities
         Boost currentBoost;
         List<Boost> affectedBoosts = new();
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public SaurusGlowEffect(Bakugan user, Game game, int typeID)
+        public SaurusGlowEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
-            this.User = user;
+            User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" },
+                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
                     { "Card", TypeId },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
@@ -146,13 +146,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new SaurusGlowEffect(User, Game, TypeId).Activate();
+                new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-            new SaurusGlowEffect(User, Game, TypeId).Activate();
+            new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Type == BakuganType.Saurus;

@@ -10,13 +10,13 @@ namespace AB_Server.Abilities
         Game game;
         Boost boost;
 
-        public Player Owner { get => user.Owner; }
+        public Player Owner { get => user.Owner; } bool IsCopy;
 
-        public SpiritCanyonEffect(Bakugan user, Game game, int typeID)
+        public SpiritCanyonEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             this.user = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -88,13 +88,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new SpiritCanyonEffect(User, Game, TypeId).Activate();
+                new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new SpiritCanyonEffect(User, Game, TypeId).Activate();
+                new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Subterra;

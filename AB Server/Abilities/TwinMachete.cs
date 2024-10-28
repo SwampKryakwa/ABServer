@@ -9,13 +9,14 @@ namespace AB_Server.Abilities
         Game game;
 
         public Player Owner { get => User.Owner; }
+        bool IsCopy;
 
-        public TwinMacheteEffect(Bakugan user, Game game, int typeID)
+        public TwinMacheteEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -53,17 +54,18 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new TwinMacheteEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new TwinMacheteEffect(User, Game, TypeId).Activate();
+                new TwinMacheteEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Mantis;
 
-        
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(x => x.OnField());
     }
 }

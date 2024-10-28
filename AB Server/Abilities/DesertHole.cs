@@ -9,16 +9,18 @@ namespace AB_Server.Abilities
         public Bakugan User;
         GateCard target;
         Game game;
+        List<Bakugan> ignoredBakugan;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public DesertHoleEffect(Bakugan user, GateCard target, Game game, int typeID)
+        public DesertHoleEffect(Bakugan user, GateCard target, List<Bakugan> ignoredBakugan, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            this.ignoredBakugan = ignoredBakugan;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -44,7 +46,8 @@ namespace AB_Server.Abilities
 
             if (target.Owner != Owner)
                 foreach (var bakugan in target.Bakugans.Where(x => x.Owner.SideID != Owner.SideID))
-                    bakugan.Boost(new Boost(-50), this);
+                    if (!ignoredBakugan.Contains(bakugan))
+                        bakugan.Boost(new Boost(-50), this);
         }
     }
 
@@ -57,8 +60,11 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        List<Bakugan> ignoredBakugan;
+
         public void Setup(bool asCounter)
         {
+            ignoredBakugan = new();
             IAbilityCard ability = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject {
@@ -90,7 +96,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
@@ -150,15 +156,25 @@ namespace AB_Server.Abilities
         public void Resolve()
         {
             if (!counterNegated)
-                new DesertHoleEffect(User, target, Game, TypeId).Activate();
+                new DesertHoleEffect(User, target, ignoredBakugan, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new DesertHoleEffect(User, target, Game, TypeId).Activate();
+            new DesertHoleEffect(User, target, ignoredBakugan, Game, TypeId, IsCopy).Activate();
+
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+            ignoredBakugan.Add(bakugan);
+        }
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.HasNeighbourEnemies() && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Subterra);
+
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.GateIndex.Cast<GateCard>().Any(x => (user.Position as GateCard).IsTouching(x));
     }
 }

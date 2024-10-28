@@ -1,25 +1,27 @@
-﻿using AB_Server.Gates;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class BindingWhirlwindEffect
+    internal class FrameFireEffect
     {
         public int TypeId { get; }
         public Bakugan User;
-        Bakugan target;
+        IAbilityCard target;
+        bool isCounter;
         Game game;
 
         public Player Owner { get => User.Owner; }
         bool IsCopy;
 
-        public BindingWhirlwindEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public FrameFireEffect(Bakugan user, IAbilityCard target, bool isCounter, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            this.isCounter = isCounter;
             TypeId = typeID;
+
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
         }
 
         public void Activate()
@@ -42,16 +44,14 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.Boost(new Boost(-100), this);
-            if (target.Power == 0)
-                User.AddFromHand(target.Position as GateCard);
+            User.Boost(new Boost(100), this);
+            target.DoNotAffect(User);
         }
     }
 
-    internal class BindingWhirlwind : AbilityCard, IAbilityCard
+    internal class FrameFire : AbilityCard, IAbilityCard
     {
-
-        public BindingWhirlwind(int cID, Player owner, int typeId)
+        public FrameFire(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -59,16 +59,17 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        private Bakugan target;
+        private IAbilityCard target;
+        private bool isCounter = false;
 
         public void Setup(bool asCounter)
         {
             IAbilityCard ability = this;
+            isCounter = asCounter;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
@@ -98,18 +99,7 @@ namespace AB_Server.Abilities
             {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_DECREASETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField()).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
+                    EventBuilder.ActiveSelection("INFO_ABILITYNEGATETARGET", Game.ActiveZone.Where(x => x.ActiveType == ActiveType.Card).ToArray())
                 } }
             });
 
@@ -119,23 +109,12 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_DECREASETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField()).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
+                    EventBuilder.ActiveSelection("INFO_ABILITYNEGATETARGET", Game.ActiveZone.Where(x => x.ActiveType == ActiveType.Card).ToArray())
                 } }
             });
 
@@ -144,7 +123,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = (IAbilityCard)Game.ActiveZone.First(x => x.EffectId == (int)Game.IncomingSelection[Owner.Id]["array"][0]["active"]);
 
             Game.CheckChain(Owner, this, User);
         }
@@ -152,26 +131,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new BindingWhirlwindEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new FrameFireEffect(User, target, isCounter, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new BindingWhirlwindEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new FrameFireEffect(User, target, isCounter, Game, TypeId, IsCopy).Activate();
 
-        public new void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
-
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.InHand() && user.Type == BakuganType.Serpent && Game.BakuganIndex.Any(x => x.OnField());
+        public bool IsActivateableFusion(Bakugan user) => user.InBattle && user.Attribute == Attribute.Nova && user.Type == BakuganType.Raptor;
 
         public static bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField());
+            user.Game.ActiveZone.Any(x => x.ActiveType == ActiveType.Card);
     }
 }

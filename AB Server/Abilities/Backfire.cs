@@ -11,14 +11,14 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public BackfireEffect(Bakugan user, IGateCard target, Game game, int typeID)
+        public BackfireEffect(Bakugan user, IGateCard target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -98,7 +98,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -142,7 +142,7 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new BackfireEffect(User, target, Game, TypeId).Activate();
+                new BackfireEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }

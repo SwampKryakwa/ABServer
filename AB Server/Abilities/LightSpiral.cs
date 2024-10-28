@@ -10,13 +10,13 @@ namespace AB_Server.Abilities
 
         IAbilityCard card;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
         public LightSpiralEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
-            this.User = user;
+            User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             this.card = card;
         }

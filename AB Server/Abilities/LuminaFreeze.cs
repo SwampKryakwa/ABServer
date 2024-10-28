@@ -13,13 +13,13 @@ namespace AB_Server.Abilities
 
         GateCard target;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public LuminaFreezeEffect(Bakugan user, Game game, int typeID)
+        public LuminaFreezeEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             target = user.Position as GateCard;
         }
@@ -79,13 +79,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new LuminaFreezeEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new LuminaFreezeEffect(User, Game, TypeId).Activate();
+                new LuminaFreezeEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && user.Attribute == Attribute.Lumina;

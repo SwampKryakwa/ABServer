@@ -9,13 +9,13 @@ namespace AB_Server.Abilities
         Game Game;
         IAbilityCard Card;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
         public CyclingMadnessEffect(Bakugan user, Game game, int typeID, IAbilityCard card)
         {
             User = user;
             Game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             Card = card;
         }

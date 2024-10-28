@@ -20,90 +20,91 @@ namespace AB_Server.Abilities
 
     internal class AbilityCard : IAbilityCard
     {
-        static Func<int, Player, IAbilityCard>[] AbilityCtrs =
+        public static (Func<int, Player, IAbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
         [
             //Set 1 Nova abilities
-            (cID, owner) => new FireWall(cID, owner, 0),
-            (cID, owner) => new FireJudge(cID, owner, 1),
-            (cID, owner) => new FireTornado(cID, owner, 2),
-            (cID, owner) => new MoltenCore(cID, owner, 3),
+            ((cID, owner) => new FireWall(cID, owner, 0), FireWall.HasValidTargets),
+            ((cID, owner) => new FireJudge(cID, owner, 1), FireJudge.HasValidTargets),
+            ((cID, owner) => new FireTornado(cID, owner, 2), FireTornado.HasValidTargets),
+            ((cID, owner) => new MoltenCore(cID, owner, 3), MoltenCore.HasValidTargets),
 
             //Set 1 Aqua abilities
-            (cID, owner) => new WaterRefrain(cID, owner, 4),
-            (cID, owner) => throw new NotImplementedException(), //5
-            (cID, owner) => new DiveMirage(cID, owner, 6),
-            (cID, owner) => new LiquidForm(cID, owner, 7),
+            ((cID, owner) => new WaterRefrain(cID, owner, 4), WaterRefrain.HasValidTargets),
+            ((cID, owner) => new TidalInsight(cID, owner, 5), TidalInsight.HasValidTargets),
+            ((cID, owner) => new DiveMirage(cID, owner, 6), DiveMirage.HasValidTargets),
+            ((cID, owner) => new LiquidForm(cID, owner, 7), LiquidForm.HasValidTargets),
 
             //Set 1 Darkon abilities
-            (cID, owner) => new GrandDown(cID, owner, 8),
-            (cID, owner) => new KillingCompanion(cID, owner, 9),
-            (cID, owner) => new OreganoMurder(cID, owner, 10),
-            (cID, owner) => new MergeShield(cID, owner, 11),
+            ((cID, owner) => new GrandDown(cID, owner, 8), GrandDown.HasValidTargets),
+            ((cID, owner) => new KillingCompanion(cID, owner, 9), KillingCompanion.HasValidTargets),
+            ((cID, owner) => new OreganoMurder(cID, owner, 10), OreganoMurder.HasValidTargets),
+            ((cID, owner) => new MergeShield(cID, owner, 11), MergeShield.HasValidTargets),
 
             //Set 1 Zephyros abilities
-            (cID, owner) => new AirBattle(cID, owner, 12),
-            (cID, owner) => new Blowback(cID, owner, 13),
-            (cID, owner) => new JumpOver(cID, owner, 14),
-            (cID, owner) => new BlowAway(cID, owner, 15),
+            ((cID, owner) => new AirBattle(cID, owner, 12), AirBattle.HasValidTargets),
+            ((cID, owner) => new Blowback(cID, owner, 13), Blowback.HasValidTargets),
+            ((cID, owner) => new JumpOver(cID, owner, 14), JumpOver.HasValidTargets),
+            ((cID, owner) => new BlowAway(cID, owner, 15), BlowAway.HasValidTargets),
 
             //Set 1 Lumina abilities
-            (cID, owner) => new LuminaFreeze(cID, owner, 16),
-            (cID, owner) => new LightningShield(cID, owner, 17),
-            (cID, owner) => new HolyLight(cID, owner, 18),
-            (cID, owner) => new ShadeAbility(cID, owner, 19),
+            ((cID, owner) => new LuminaFreeze(cID, owner, 16), LuminaFreeze.HasValidTargets),
+            ((cID, owner) => new LightningShield(cID, owner, 17), LightningShield.HasValidTargets),
+            ((cID, owner) => new HolyLight(cID, owner, 18), HolyLight.HasValidTargets),
+            ((cID, owner) => new ShadeAbility(cID, owner, 19), ShadeAbility.HasValidTargets),
 
             //Set 1 Subterra abilities
-            (cID, owner) => throw new NotImplementedException(), //20
-            (cID, owner) => new SpiritCanyon(cID, owner, 21),
-            (cID, owner) => new DesertHole(cID, owner, 22),
-            (cID, owner) => throw new NotImplementedException(), //23
+            ((cID, owner) => throw new NotImplementedException(), (x) => false),//20
+            ((cID, owner) => new SpiritCanyon(cID, owner, 21), SpiritCanyon.HasValidTargets),
+            ((cID, owner) => new DesertHole(cID, owner, 22), DesertHole.HasValidTargets),
+            ((cID, owner) => throw new NotImplementedException(), (x) => false), //23
 
             //Set 1 Garrison abilities
-            (cID, owner) => new CoreForcement(cID, owner, 24),
-            (cID, owner) => new LuminaAlliance(cID, owner, 25),
+            ((cID, owner) => new CoreForcement(cID, owner, 24), CoreForcement.HasValidTargets),
+            ((cID, owner) => new LuminaAlliance(cID, owner, 25), LuminaAlliance.HasValidTargets),
 
             //Set 1 Griffon abilities
-            (cID, owner) => new WingBurst(cID, owner, 26),
-            (cID, owner) => new VicariousVictim(cID, owner, 27),
-            (cID, owner) => new DeafeningRoar(cID, owner, 28),
+            ((cID, owner) => new WingBurst(cID, owner, 26), WingBurst.HasValidTargets),
+            ((cID, owner) => new VicariousVictim(cID, owner, 27), VicariousVictim.HasValidTargets),
+            ((cID, owner) => new DeafeningRoar(cID, owner, 28), DeafeningRoar.HasValidTargets),
 
             //Set 1 Mantis abilities
-            (cID, owner) => new Marionette(cID, owner, 29),
-            (cID, owner) => new SlingBlazer(cID, owner, 30),
-            (cID, owner) => new TwinMachete(cID, owner, 31),
-            (cID, owner) => new SliceCutter(cID, owner, 32),
+            ((cID, owner) => new Marionette(cID, owner, 29), Marionette.HasValidTargets),
+            ((cID, owner) => new SlingBlazer(cID, owner, 30), SlingBlazer.HasValidTargets),
+            ((cID, owner) => new TwinMachete(cID, owner, 31), TwinMachete.HasValidTargets),
+            ((cID, owner) => new SliceCutter(cID, owner, 32), SliceCutter.HasValidTargets),
 
             //Set 1 Raptor abilities
-            (cID, owner) => throw new NotImplementedException(), //33
-            (cID, owner) => new BurstReturn(cID, owner, 34),
+            ((cID, owner) => new FrameFire(cID, owner, 33), FrameFire.HasValidTargets),
+            ((cID, owner) => new BurstReturn(cID, owner, 34), BurstReturn.HasValidTargets),
 
             //Set 1 Saurus abilities
-            (cID, owner) => new SaurusGlow(cID, owner, 35),
-            (cID, owner) => new SaurusRage(cID, owner, 36),
+            ((cID, owner) => new SaurusGlow(cID, owner, 35), SaurusGlow.HasValidTargets),
+            ((cID, owner) => new SaurusRage(cID, owner, 36), SaurusRage.HasValidTargets),
 
             //Set 1 Centipede abilities
-            (cID, owner) => throw new NotImplementedException(), //37
-            (cID, owner) => new DraggedIntoDarkness(cID, owner, 38),
+            ((cID, owner) => throw new NotImplementedException(), (x) => false), //37
+            ((cID, owner) => new DraggedIntoDarkness(cID, owner, 38), DraggedIntoDarkness.HasValidTargets),
             
             //Set 1 Serpent abilities
-            (cID, owner) => new SerpentSqueeze(cID, owner, 39),
-            (cID, owner) => new CinderCoil(cID, owner, 40),
-            (cID, owner) => new BindingWhirlwind(cID, owner, 41),
+            ((cID, owner) => new SerpentSqueeze(cID, owner, 39), SerpentSqueeze.HasValidTargets),
+            ((cID, owner) => new CinderCoil(cID, owner, 40), CinderCoil.HasValidTargets),
+            ((cID, owner) => new BindingWhirlwind(cID, owner, 41), BindingWhirlwind.HasValidTargets),
 
             //Set 1 Fairy abilities
-            (cID, owner) => new ScarletTwister(cID, owner, 42),
-            (cID, owner) => new DarkMirage(cID, owner, 42),
-            (cID, owner) => new PowderVeil(cID, owner, 44),
+            ((cID, owner) => new ScarletTwister(cID, owner, 42), ScarletTwister.HasValidTargets),
+            ((cID, owner) => new DarkMirage(cID, owner, 42), DarkMirage.HasValidTargets),
+            ((cID, owner) => new PowderVeil(cID, owner, 44), PowderVeil.HasValidTargets),
 
             //Set 1 Elephant abilities
-            (cID, owner) => new NoseSlap(cID, owner, 45),
+            ((cID, owner) => new NoseSlap(cID, owner, 45), NoseSlap.HasValidTargets)
         ];
 
         public static IAbilityCard CreateCard(Player owner, int cID, int type)
         {
-            return AbilityCtrs[type].Invoke(cID, owner);
+            return AbilityCtrs[type].constructor.Invoke(cID, owner);
         }
         public bool counterNegated { get; set; } = false;
+        public bool IsCopy { get; set; } = false;
 
         public int TypeId { get; set; }
 
@@ -124,19 +125,26 @@ namespace AB_Server.Abilities
             Console.WriteLine("OOOOOOOOOOOOOOOOOPSIE!");
         }
 
+        public new void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+        }
+
         public void Dispose()
         {
             if (Owner.AbilityHand.Contains(this))
                 Owner.AbilityHand.Remove(this);
             if (Game.ActiveZone.Contains(this))
                 Game.ActiveZone.Remove(this);
-            Owner.AbilityGrave.Add(this);
+            if (!IsCopy)
+                Owner.AbilityGrave.Add(this);
 
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
                     { "Card", TypeId },
                     { "Owner", Owner.Id }
                 });
@@ -146,13 +154,14 @@ namespace AB_Server.Abilities
         public void Retract()
         {
             Game.ActiveZone.Remove(this);
-            Owner.AbilityHand.Add(this);
+            if (!IsCopy)
+                Owner.AbilityHand.Add(this);
 
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
                     { "Card", TypeId },
                     { "Owner", Owner.Id }
                 });
@@ -161,6 +170,9 @@ namespace AB_Server.Abilities
 
         public void DoubleEffect() =>
             throw new NotImplementedException();
+
+        public static bool HasValidTargets(Bakugan user) =>
+            true;
 
         public void Negate(bool asCounter)
         {
@@ -177,6 +189,7 @@ namespace AB_Server.Abilities
         public Player Owner { get; protected set; }
 
         protected bool counterNegated { get; set; }
+        public bool IsCopy { get; set; }
 
         public bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
@@ -221,7 +234,8 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.CheckChain(Owner, this, user);
         }
@@ -237,6 +251,9 @@ namespace AB_Server.Abilities
 
         public void Resolve();
 
-        public void Negate(bool asCounter);
+        public void DoNotAffect(Bakugan bakugan);
+
+        public static bool HasValidTargets(Bakugan user) =>
+            true;
     }
 }

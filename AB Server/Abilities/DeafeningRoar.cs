@@ -3,20 +3,20 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class StunningRoarEffect
+    internal class DeafeningRoarEffect
     {
         public int TypeId { get; }
         Bakugan user;
         Game game;
         List<Bakugan> affectedBakugan = new();
 
-        public Player Owner { get => user.Owner; }
+        public Player Owner { get => user.Owner; } bool IsCopy;
 
-        public StunningRoarEffect(Bakugan user, Game game, int typeID)
+        public DeafeningRoarEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             this.user = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -99,12 +99,12 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new StunningRoarEffect(User, Game, TypeId).Activate();
+                new DeafeningRoarEffect(User, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new StunningRoarEffect(User, Game, TypeId).Activate();
+                new DeafeningRoarEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Type == BakuganType.Griffon;

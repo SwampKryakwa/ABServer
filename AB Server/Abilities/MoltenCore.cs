@@ -11,14 +11,14 @@ namespace AB_Server.Abilities
         bool isFusion;
         IAbilityCard fusedTo;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public MoltenCoreEffect(Bakugan user, bool hasFusions, bool isFusion, IAbilityCard fusedTo, Game game, int typeID)
+        public MoltenCoreEffect(Bakugan user, bool hasFusions, bool isFusion, IAbilityCard fusedTo, Game game, int typeID, bool IsCopy)
         {
             Console.WriteLine(typeof(FireJudgeEffect));
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             this.hasFusions = hasFusions;
             this.isFusion = isFusion;
@@ -64,13 +64,13 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId).Activate();
+                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId).Activate();
+                new MoltenCoreEffect(User, Fusion != null, FusedTo != null, FusedTo, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);

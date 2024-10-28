@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
         Boost boost;
         IAbilityCard Card;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
         public BlindJudgeEffect(Bakugan user, Bakugan target, Game game, int typeID, IAbilityCard card)
         {
@@ -24,7 +24,7 @@ namespace AB_Server.Abilities
             Console.WriteLine(user);
             Console.WriteLine(user.Position);
             battle = (IGateCard)user.Position;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
             Card = card;
         }
@@ -123,7 +123,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {

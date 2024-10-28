@@ -10,13 +10,13 @@ namespace AB_Server.Abilities
         Game game;
         List<Bakugan> affectedBakugan = new();
 
-        public Player Owner { get => user.Owner; }
+        public Player Owner { get => user.Owner; } bool IsCopy;
 
-        public LightShieldEffect(Bakugan user, Game game, int typeID)
+        public LightShieldEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             this.user = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -100,12 +100,12 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new LightShieldEffect(User, Game, TypeId).Activate();
+                new LightShieldEffect(User, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new LightShieldEffect(User, Game, TypeId).Activate();
+                new LightShieldEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.OnField() && user.Attribute == Attribute.Lumina;

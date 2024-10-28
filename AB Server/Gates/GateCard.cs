@@ -180,6 +180,7 @@ namespace AB_Server.Gates
 
         public void Open()
         {
+            IsOpen = true;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(new()
                     {

@@ -11,16 +11,16 @@ namespace AB_Server.Abilities
         GateCard target;
         Game game;
 
-        public Player Owner { get => User.Owner; }
+        public Player Owner { get => User.Owner; } bool IsCopy;
 
-        public JumpOverEffect(Bakugan user, GateCard target, Game game, int typeID)
+        public JumpOverEffect(Bakugan user, GateCard target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
             this.target = target;
             Console.WriteLine(user);
             Console.WriteLine(user.Position);
-            user.UsedAbilityThisTurn = true;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -113,7 +113,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             FusedTo = parentCard;
-            parentCard.Fusion = this;
+            if (parentCard != null) parentCard.Fusion = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -148,16 +148,17 @@ namespace AB_Server.Abilities
         public new void Resolve()
         {
             if (!counterNegated)
-                new JumpOverEffect(User, target as GateCard, Game, TypeId).Activate();
+                new JumpOverEffect(User, target as GateCard, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public new void DoubleEffect() =>
-                new JumpOverEffect(User, target as GateCard, Game, TypeId).Activate();
+                new JumpOverEffect(User, target as GateCard, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField();
 
-        
+        public static bool HasValidTargets(Bakugan user) =>
+            user.Game.GateIndex.Cast<GateCard>().Any(x => (user.Position as GateCard).IsTouching(x));
     }
 }

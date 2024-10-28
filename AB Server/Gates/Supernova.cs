@@ -38,14 +38,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
+                        { "Owner", bakugan.Owner.Id },
                         { "Boost", -(bakugan.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)bakugan.Type },
+                            { "Attribute", (int)bakugan.Attribute },
+                            { "Treatment", (int)bakugan.Treatment },
+                            { "Power", bakugan.Power },
+                            { "BID", bakugan.BID } }
                         }
                     });
                 }
@@ -68,14 +68,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
+                        { "Owner", target.Owner.Id },
+                        { "Boost", -(target.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)target.Type },
+                            { "Attribute", (int)target.Attribute },
+                            { "Treatment", (int)target.Treatment },
+                            { "Power", target.Power },
+                            { "BID", target.BID } }
                         }
                     });
                 }
@@ -88,14 +88,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
+                        { "Owner", target.Owner.Id },
+                        { "Boost", -(target.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)target.Type },
+                            { "Attribute", (int)target.Attribute },
+                            { "Treatment", (int)target.Treatment },
+                            { "Power", target.Power },
+                            { "BID", target.BID } }
                         }
                     });
                 }
@@ -112,14 +112,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
+                        { "Owner", target.Owner.Id },
+                        { "Boost", -(target.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)target.Type },
+                            { "Attribute", (int)target.Attribute },
+                            { "Treatment", (int)target.Treatment },
+                            { "Power", target.Power },
+                            { "BID", target.BID } }
                         }
                     });
                 }
@@ -132,14 +132,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
+                        { "Owner", target.Owner.Id },
+                        { "Boost", -(target.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)target.Type },
+                            { "Attribute", (int)target.Attribute },
+                            { "Treatment", (int)target.Treatment },
+                            { "Power", target.Power },
+                            { "BID", target.BID } }
                         }
                     });
                 }
@@ -156,14 +156,14 @@ namespace AB_Server.Gates
                 {
                     e.Add(new JObject {
                         { "Type", "BakuganBoostedEvent" },
-                        { "Owner", Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
+                        { "Owner", target.Owner.Id },
+                        { "Boost", -(target.Power * 2) },
                         { "Bakugan", new JObject {
-                            { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
-                            { "Treatment", (int)Treatment },
-                            { "Power", Power },
-                            { "BID", BID } }
+                            { "Type", (int)target.Type },
+                            { "Attribute", (int)target.Attribute },
+                            { "Treatment", (int)target.Treatment },
+                            { "Power", target.Power },
+                            { "BID", target.BID } }
                         }
                     });
                 }

@@ -82,7 +82,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup2;
+            Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -110,7 +110,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup3;
+            Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
         Bakugan target;
@@ -127,7 +127,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x != target.Position).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x != target.Position).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },
@@ -137,7 +137,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -167,7 +167,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup3;
+            Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
         IGateCard moveTarget;

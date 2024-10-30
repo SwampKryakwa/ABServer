@@ -25,14 +25,13 @@ namespace AB_Server.Gates
             base.Open();
 
             game.NewEvents[Owner.Id].Add(new JObject {
-                { "Type", "StartSelection" }, { "SourceType", "A" },
-                { "SourceType", "G" },
+                { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.Where(x=>x.ActiveType == Abilities.ActiveType.Effect).ToArray())
                 } }
             });
 
-            game.awaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Resolve;
         }
 
         public void Resolve()
@@ -42,9 +41,7 @@ namespace AB_Server.Gates
             game.ContinueGame();
         }
 
-        public new void Remove()
-        {
-            base.Remove();
-        }
+        public new bool IsOpenable() =>
+            base.IsOpenable() && game.ActiveZone.Any(x => x.ActiveType == Abilities.ActiveType.Effect);
     }
 }

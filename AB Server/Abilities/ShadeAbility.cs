@@ -85,7 +85,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup2;
+            Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -103,7 +103,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public void Setup2()
@@ -119,7 +119,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public void Activate()
@@ -140,7 +140,7 @@ namespace AB_Server.Abilities
         public new void DoubleEffect() =>
                 new ShadeAbilityEffect(User, target, isCounter, Game, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) => user.OnField() && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Lumina);
+        public bool IsActivateableFusion(Bakugan user) => user.OnField() && Game.ActiveZone.Count != 0 && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Lumina);
 
         public static bool HasValidTargets(Bakugan user) =>
             user.Game.ActiveZone.Count != 0;

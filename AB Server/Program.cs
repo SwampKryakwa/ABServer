@@ -491,7 +491,7 @@ namespace AB_Server
 
                                     bool hasStarted = game.Started;
                                     game.IncomingSelection[player] = postedJson;
-                                    game.awaitingAnswers[player]?.Invoke();
+                                    game.AwaitingAnswers[player]?.Invoke();
 
                                     break;
 

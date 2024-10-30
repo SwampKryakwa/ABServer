@@ -4,8 +4,6 @@ namespace AB_Server.Gates
 {
     internal class Supernova : GateCard, IGateCard
     {
-        bool effectTriggered = false;
-
         public Supernova(int cID, Player owner)
         {
             game = owner.game;

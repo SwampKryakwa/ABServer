@@ -122,7 +122,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = ability.Activate;
+            Game.AwaitingAnswers[Owner.Id] = ability.Activate;
         }
 
         public new void Resolve()

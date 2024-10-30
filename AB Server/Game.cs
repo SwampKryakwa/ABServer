@@ -98,7 +98,7 @@ namespace AB_Server
         public void OnBattleOver(IGateCard target) =>
             BattleOver?.Invoke(target);
 
-        public Action[] awaitingAnswers;
+        public Action[] AwaitingAnswers;
 
         public bool Started = false;
         bool Over = false;
@@ -111,7 +111,7 @@ namespace AB_Server
             Field = new GateCard[2, 3];
             PlayerCount = playerCount;
             NewEvents = new List<JObject>[playerCount];
-            awaitingAnswers = new Action[playerCount];
+            AwaitingAnswers = new Action[playerCount];
             Players = new();
             IncomingSelection = new JObject[playerCount];
             for (ushort i = 0; i < playerCount; i++)
@@ -188,7 +188,7 @@ namespace AB_Server
                 }
 
                 for (int i = 0; i < PlayerCount; i++)
-                    awaitingAnswers[i] = () =>
+                    AwaitingAnswers[i] = () =>
                     {
                         if (IncomingSelection.Contains(null)) return;
                         for (int i = 0; i < IncomingSelection.Length; i++)
@@ -491,7 +491,7 @@ namespace AB_Server
             else
             {
                 player.HadUsedCounter = true;
-                awaitingAnswers[player.Id] = () => ResolveCounter(player);
+                AwaitingAnswers[player.Id] = () => ResolveCounter(player);
 
                 NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
@@ -499,7 +499,7 @@ namespace AB_Server
 
         public void SuggestCounter(Player player, IAbilityCard ability, Player user)
         {
-            awaitingAnswers[player.Id] = () => CheckCounter(player, ability, user);
+            AwaitingAnswers[player.Id] = () => CheckCounter(player, ability, user);
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.
                 CounterSelectionEvent(user.Id, ability.TypeId)));
         }
@@ -534,7 +534,7 @@ namespace AB_Server
         {
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FUSIONPROMPT")));
 
-            awaitingAnswers[player.Id] = () => CheckFusion(player, ability, user);
+            AwaitingAnswers[player.Id] = () => CheckFusion(player, ability, user);
         }
 
         public void CheckFusion(Player player, IAbilityCard ability, Bakugan user)
@@ -564,7 +564,7 @@ namespace AB_Server
             }
 
             player.HadUsedFusion = true;
-            awaitingAnswers[player.Id] = () => ResolveFusion(player, ability, user);
+            AwaitingAnswers[player.Id] = () => ResolveFusion(player, ability, user);
 
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateableFusion(user)).ToArray())));
         }

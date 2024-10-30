@@ -92,7 +92,7 @@ namespace AB_Server.Abilities
 
             //Set 1 Fairy abilities
             ((cID, owner) => new ScarletTwister(cID, owner, 42), ScarletTwister.HasValidTargets),
-            ((cID, owner) => new DarkMirage(cID, owner, 42), DarkMirage.HasValidTargets),
+            ((cID, owner) => new DarkMirage(cID, owner, 43), DarkMirage.HasValidTargets),
             ((cID, owner) => new PowderVeil(cID, owner, 44), PowderVeil.HasValidTargets),
 
             //Set 1 Elephant abilities
@@ -224,7 +224,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public IAbilityCard FusedTo { get; set; }

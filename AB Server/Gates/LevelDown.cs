@@ -42,7 +42,7 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.awaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Resolve;
         }
 
         public void Resolve()

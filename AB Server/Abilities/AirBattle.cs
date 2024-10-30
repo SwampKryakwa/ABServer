@@ -81,7 +81,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup2;
+            Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -110,7 +110,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -140,7 +140,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         private Bakugan target;

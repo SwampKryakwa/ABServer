@@ -149,7 +149,7 @@ namespace AB_Server
             if (IsDummy) return;
 
             Boosts.Add(boost);
-            
+
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
@@ -371,12 +371,9 @@ namespace AB_Server
                         }
                     });
                 }
-
-                if (destination.ActiveBattle) bakugan.InBattle = true;
             }
 
             destination.EnterOrder.Add(bakuganToMove.ToArray());
-
 
             foreach (var bakugan in bakuganToMove)
             {
@@ -387,13 +384,59 @@ namespace AB_Server
 
             game.isBattleGoing = false;
             foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
-            {
                 if (gate.CheckBattles())
-                {
                     game.isBattleGoing = true;
-                    break;
+
+            foreach (var bakugan in bakugans)
+                if (destination.ActiveBattle) bakugan.InBattle = true;
+        }
+
+        public static void MultiAdd(Game game, GateCard destination, MoveSource mover, params Bakugan[] bakugans)
+        {
+            if (destination.MovingInEffectBlocking.Count != 0)
+                return;
+
+            List<Bakugan> bakuganToAdd = bakugans.ToList();
+
+            foreach (var bakugan in bakugans)
+            {
+                bakugan.Position.Remove(bakugan);
+
+                foreach (var e in game.NewEvents)
+                {
+                    e.Add(new JObject {
+                        { "Type", "BakuganAddedEvent" },
+                        { "PosX", destination.Position.X },
+                        { "PosY", destination.Position.Y },
+                        { "Owner", bakugan.Owner.Id },
+                        { "Bakugan", new JObject {
+                            { "Type", (int)bakugan.Type },
+                            { "Attribute", (int)bakugan.Attribute },
+                            { "Treatment", (int)bakugan.Treatment },
+                            { "Power", bakugan.Power },
+                            { "BID", bakugan.BID } }
+                        }
+                    });
                 }
             }
+
+            destination.EnterOrder.Add(bakuganToAdd.ToArray());
+
+
+            foreach (var bakugan in bakuganToAdd)
+            {
+                destination.Bakugans.Add(bakugan);
+                bakugan.Position = destination;
+                game.OnBakuganMoved(bakugan, destination);
+            }
+
+            game.isBattleGoing = false;
+            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
+                if (gate.CheckBattles())
+                    game.isBattleGoing = true;
+
+            foreach (var bakugan in bakugans)
+                if (destination.ActiveBattle) bakugan.InBattle = true;
         }
 
         public void FromGrave(GateCard destination, MoveSource mover = MoveSource.Effect)

@@ -65,7 +65,7 @@ namespace AB_Server
                 {
                     var activeCard = active as IAbilityCard;
 
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {

@@ -42,7 +42,7 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.awaitingAnswers[Owner.Id] = Setup;
+            game.AwaitingAnswers[Owner.Id] = Setup;
         }
 
         Bakugan target;
@@ -55,7 +55,7 @@ namespace AB_Server.Gates
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
+                        { "SelectionType", "BH" },
                         { "Message", "INFO_GATE_BOOSTTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Owner.Bakugans.Select(x =>
@@ -70,7 +70,7 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.awaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Resolve;
         }
 
         public void Resolve()

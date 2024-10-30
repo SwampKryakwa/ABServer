@@ -81,7 +81,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Setup2;
+            Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -110,7 +110,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.awaitingAnswers[Owner.Id] = Activate;
+            Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
         public void SetupFusion(IAbilityCard parentCard, Bakugan user)
@@ -140,7 +140,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            user.Game.awaitingAnswers[user.Owner.Id] = Activate;
+            user.Game.AwaitingAnswers[user.Owner.Id] = Activate;
         }
 
         private Bakugan target;
@@ -172,7 +172,7 @@ namespace AB_Server.Abilities
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && user.Game.BakuganIndex.Any(ValidTarget);
+            user.Type == BakuganType.Elephant && user.OnField() && user.Game.BakuganIndex.Any(ValidTarget);
 
         public bool ValidTarget(Bakugan target) =>
             target.Owner.SideID != Owner.SideID && target.OnField() && (target.Position as GateCard).IsTouching(User.Position as GateCard);

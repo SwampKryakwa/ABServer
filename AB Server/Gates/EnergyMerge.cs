@@ -65,7 +65,7 @@ namespace AB_Server.Gates
                             }
                         )) }
                     });
-                game.awaitingAnswers[Owner.Id] = TryResolve;
+                game.AwaitingAnswers[Owner.Id] = TryResolve;
                 return;
             }
 
@@ -87,7 +87,7 @@ namespace AB_Server.Gates
                             }
                         )) }
                     });
-                game.awaitingAnswers[Owner.Id] = TryResolve;
+                game.AwaitingAnswers[Owner.Id] = TryResolve;
                 return;
             }
         }
@@ -115,7 +115,7 @@ namespace AB_Server.Gates
                             }
                         )) }
                     });
-                    game.awaitingAnswers[Owner.Id] = TryResolve;
+                    game.AwaitingAnswers[Owner.Id] = TryResolve;
                     return;
                 }
             }

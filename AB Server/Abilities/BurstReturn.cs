@@ -55,6 +55,33 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        public void Setup(bool asCounter)
+        {
+            var ability = this as IAbilityCard;
+
+            Game.NewEvents[Owner.Id].Add(new JObject
+            {
+                { "Type", "StartSelection" },
+                { "Count", 1 },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ABILITYUSER" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            Game.AwaitingAnswers[Owner.Id] = ability.Activate;
+        }
+
         public void Negate(bool asCounter)
         {
             if (asCounter)

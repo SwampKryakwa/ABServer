@@ -10,11 +10,11 @@ namespace AB_Server.Gates
             (x, y) => new Aquamerge(x, y),
             (x, y) => new Anastasis(x, y),
             (x, y) => new CheeringBattle(x, y),
-            (x, y) => throw new NotImplementedException(), //3, Big Brawl
+            (x, y) => new BigBrawl(x, y),
             (x, y) => new Warlock(x, y),
             (x, y) => new EyeOfStorm(x, y),
             (x, y) => new QuicksandFreeze(x, y),
-            (x, y) => throw new NotImplementedException(), //7, Portal
+            (x, y) => new Portal(x, y),
             (x, y) => new Supernova(x, y),
             (x, y) => new LevelDown(x, y),
             (x, y) => new Transform(x, y),

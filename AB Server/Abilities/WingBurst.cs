@@ -151,7 +151,7 @@ namespace AB_Server.Abilities
             if (!counterNegated)
                 new WingBurstEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-            if (Fusion == null)
+            if (Fusion == null || counterNegated)
                 Dispose();
             else
                 Retract();
@@ -169,7 +169,7 @@ namespace AB_Server.Abilities
         }
 
         public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && !user.Owner.BakuganOwned.Any(x => x.Attribute != Attribute.Nova);
+            user.InBattle && user.Type == BakuganType.Griffon && user.Attribute == Attribute.Nova;
 
         public static bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(x => x.Owner.SideID != user.Owner.SideID);

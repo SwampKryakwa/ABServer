@@ -46,7 +46,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class Marionette : AbilityCard, IAbilityCard
+    internal class Marionette : AbilityCard
     {
         public Marionette(int cID, Player owner, int typeId)
         {
@@ -56,9 +56,9 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asFusion)
+        public override void Setup(bool asFusion)
         {
-            IAbilityCard ability = this;
+            AbilityCard ability = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -126,7 +126,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => (target.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => target.Position != x).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },
@@ -139,7 +139,7 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
+        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
         {
             User = user;
             FusedTo = parentCard;
@@ -169,23 +169,23 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
-        IGateCard moveTarget;
+        GateCard moveTarget;
 
-        public void Activate()
+        public new void Activate()
         {
             moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
             if (!counterNegated)
                 new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
                 new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
 
         public new void DoNotAffect(Bakugan bakugan)
@@ -196,8 +196,8 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Type == BakuganType.Mantis && user.OnField();
+        public override bool IsActivateableFusion(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.OnField();
 
         public static bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.Owner.SideID != user.Owner.SideID && x.Position != user.Position);

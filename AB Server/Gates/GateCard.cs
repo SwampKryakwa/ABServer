@@ -3,25 +3,25 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
 {
-    internal class GateCard : IGateCard
+    internal class GateCard
     {
-        static Func<int, Player, IGateCard>[] GateCtrs =
+        static Func<int, Player, GateCard>[] GateCtrs =
         [
-            (x, y) => new Aquamerge(x, y),
-            (x, y) => new Anastasis(x, y),
-            (x, y) => new CheeringBattle(x, y),
-            (x, y) => new BigBrawl(x, y),
-            (x, y) => new Warlock(x, y),
-            (x, y) => new EyeOfStorm(x, y),
-            (x, y) => new QuicksandFreeze(x, y),
-            (x, y) => new Portal(x, y),
-            (x, y) => new Supernova(x, y),
-            (x, y) => new LevelDown(x, y),
-            (x, y) => new Transform(x, y),
-            (x, y) => new ThirdJudgement(x, y),
+            //(x, y) => new Aquamerge(x, y),
+            //(x, y) => new Anastasis(x, y),
+            //(x, y) => new CheeringBattle(x, y),
+            //(x, y) => new BigBrawl(x, y),
+            //(x, y) => new Warlock(x, y),
+            //(x, y) => new EyeOfStorm(x, y),
+            //(x, y) => new QuicksandFreeze(x, y),
+            //(x, y) => new Portal(x, y),
+            //(x, y) => new Supernova(x, y),
+            //(x, y) => new LevelDown(x, y),
+            //(x, y) => new Transform(x, y),
+            //(x, y) => new ThirdJudgement(x, y),
         ];
 
-        public static IGateCard CreateCard(Player owner, int cID, int type)
+        public static GateCard CreateCard(Player owner, int cID, int type)
         {
             return GateCtrs[type].Invoke(cID, owner);
         }
@@ -68,7 +68,7 @@ namespace AB_Server.Gates
             game.isBattleGoing |= CheckBattles();
         }
 
-        public void DetermineWinner()
+        public virtual void DetermineWinner()
         {
             foreach (Bakugan b in Bakugans)
             {
@@ -110,10 +110,10 @@ namespace AB_Server.Gates
 
             game.Field[Position.X, Position.Y] = null;
 
-            (this as IGateCard).Remove();
+            (this as GateCard).Remove();
         }
 
-        private protected void Draw()
+        private protected virtual void Draw()
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 b.ToHand(EnterOrder);
@@ -145,18 +145,18 @@ namespace AB_Server.Gates
                         { "PosX", posX },
                         { "PosY", posY },
                         { "GateData", new JObject {
-                            { "Type", (this as IGateCard).TypeId } }
+                            { "Type", (this as GateCard).TypeId } }
                         },
                         { "Owner", Owner.Id },
                         { "CID", CardId }
                     };
-                    if (this is NormalGate normalGate)
-                    {
-                        (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)normalGate.Attribute));
-                        (obj["GateData"] as JObject).Add(new JProperty("Power", (int)normalGate.Power));
-                    }
-                    else if (this is NormalGate attributeHazard)
-                        (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)attributeHazard.Attribute));
+                    //if (this is NormalGate normalGate)
+                    //{
+                    //    (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)normalGate.Attribute));
+                    //    (obj["GateData"] as JObject).Add(new JProperty("Power", (int)normalGate.Power));
+                    //}
+                    //else if (this is AttributeHazard attributeHazard)
+                    //    (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)attributeHazard.Attribute));
 
                     e.Add(obj);
                 }
@@ -178,7 +178,7 @@ namespace AB_Server.Gates
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
-        public void Open()
+        public virtual void Open()
         {
             IsOpen = true;
             for (int i = 0; i < game.PlayerCount; i++)
@@ -188,16 +188,16 @@ namespace AB_Server.Gates
                         { "PosX", Position.X },
                         { "PosY", Position.Y },
                         { "GateData", new JObject {
-                            { "Type", (this as IGateCard).TypeId } }
+                            { "Type", (this as GateCard).TypeId } }
                         },
                         { "Owner", Owner.Id },
                         { "CID", CardId }
                     });
         }
 
-        public void Negate() { throw new NotImplementedException(); }
+        public virtual void Negate() { throw new NotImplementedException(); }
 
-        public void Remove()
+        public virtual void Remove()
         {
             IsOpen = false;
             OnField = false;
@@ -218,7 +218,7 @@ namespace AB_Server.Gates
                 });
         }
 
-        public void ToGrave()
+        public virtual void ToGrave()
         {
             Remove();
             Owner.GateGrave.Add(this);
@@ -226,10 +226,10 @@ namespace AB_Server.Gates
             IsOpen = false;
         }
 
-        public bool IsOpenable() =>
+        public virtual bool IsOpenable() =>
             OpenBlocking.Count == 0 && !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
 
-        public bool CheckBattles()
+        public virtual bool CheckBattles()
         {
             if (IsFrozen) return false;
 
@@ -250,10 +250,10 @@ namespace AB_Server.Gates
             return numbSides.Where(x => x > 0).Count() >= 2;
         }
 
-        public int TypeId =>
+        public virtual int TypeId =>
             throw new NotImplementedException();
 
-        public bool IsTouching(IGateCard card)
+        public bool IsTouching(GateCard card)
         {
             return AreTouching(this, card);
         }
@@ -270,34 +270,12 @@ namespace AB_Server.Gates
             return (DX + DY) == 1;
         }
 
-        public static bool AreTouching(IGateCard card1, IGateCard card2)
+        public static bool AreTouching(GateCard card1, GateCard card2)
         {
             if (!card1.OnField || !card2.OnField) return false;
             int DX = Math.Abs(card1.Position.X - card2.Position.X);
             int DY = Math.Abs(card1.Position.Y - card2.Position.Y);
             return (DX + DY) == 1;
         }
-    }
-
-    interface IGateCard : BakuganContainer
-    {
-        public int CardId { get; set; }
-        public bool OnField { get; set; }
-        public bool IsOpen { get; set; }
-        public new List<Bakugan> Bakugans { get; set; }
-        public Player Owner { get; set; }
-        public bool ActiveBattle { get; set; }
-        public bool AllowAnyPlayers { get; set; }
-        public (int X, int Y) Position { get; set; }
-
-        public int TypeId { get; }
-        public void Set(int posX, int posY);
-        public void Open();
-        public void Negate();
-        public void Remove();
-        public void DetermineWinner();
-
-        public bool IsOpenable() { return false; }
-        public bool CheckBattles();
     }
 }

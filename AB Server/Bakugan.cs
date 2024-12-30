@@ -573,7 +573,7 @@ namespace AB_Server
         }
 
         public bool OnField() =>
-            typeof(IGateCard).IsAssignableFrom(Position.GetType());
+            typeof(GateCard).IsAssignableFrom(Position.GetType());
 
         public bool InHand() =>
             Position.GetType() == typeof(Player);

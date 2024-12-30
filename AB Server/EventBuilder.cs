@@ -44,7 +44,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject AbilitySelection(string prompt, params IAbilityCard[] abilities)
+        public static JObject AbilitySelection(string prompt, params AbilityCard[] abilities)
         {
             return new JObject
             {
@@ -63,7 +63,7 @@ namespace AB_Server
             {
                 if (active.ActiveType == ActiveType.Card)
                 {
-                    var activeCard = active as IAbilityCard;
+                    var activeCard = active ;
 
                     jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId }, { "EID", active.EffectId } });
                 }
@@ -138,19 +138,19 @@ namespace AB_Server
 
             switch (card.TypeId)
             {
-                case 0:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as NormalGate).Attribute },
-                        { "Power", (card as NormalGate).Power }
-                    };
-                    break;
-                case 4:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                    };
-                    break;
+                //case 0:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as NormalGate).Attribute },
+                //        { "Power", (card as NormalGate).Power }
+                //    };
+                //    break;
+                //case 4:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                //    };
+                //    break;
             }
 
             return new JObject
@@ -170,19 +170,19 @@ namespace AB_Server
 
             switch (card.TypeId)
             {
-                case 0:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as NormalGate).Attribute },
-                        { "Power", (card as NormalGate).Power }
-                    };
-                    break;
-                case 4:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                    };
-                    break;
+                //case 0:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as NormalGate).Attribute },
+                //        { "Power", (card as NormalGate).Power }
+                //    };
+                //    break;
+                //case 4:
+                //    extra = new JObject
+                //    {
+                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+                //    };
+                //    break;
             }
 
             return new JObject

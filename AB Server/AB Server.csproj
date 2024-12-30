@@ -9,6 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Abilities\Legacy abilities\**" />
+    <Compile Remove="Gates\Legacy gates\**" />
+    <EmbeddedResource Remove="Abilities\Legacy abilities\**" />
+    <EmbeddedResource Remove="Gates\Legacy gates\**" />
+    <None Remove="Abilities\Legacy abilities\**" />
+    <None Remove="Gates\Legacy gates\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 

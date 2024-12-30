@@ -8,21 +8,28 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server
 {
+    enum ActivationWindow : byte
+    {
+        Normal,
+        BattleStart,
+        BattleEnd,
+        TurnEnd,
+    }
     internal class Game
     {
         public List<JObject>[] NewEvents { get; set; }
         public JObject[] IncomingSelection;
-        public Dictionary<long, int> UidToPid = new();
+        public Dictionary<long, int> UidToPid = [];
 
         public ushort PlayerCount;
         ushort loggedPlayers = 0;
         ushort playersPassed = 0;
 
-        Dictionary<long, ushort> UUIDToPid = new();
+        Dictionary<long, ushort> UUIDToPid = [];
 
         public List<Player> Players;
         public GateCard[,] Field;
-        public List<IActive> ActiveZone = new();
+        public List<IActive> ActiveZone = [];
         public int NextEffectId = 0;
 
         public GateCard? GetGateByCoord(int X, int Y)
@@ -32,15 +39,16 @@ namespace AB_Server
         }
 
         public ushort[] Sides;
-        public List<Bakugan> BakuganIndex = new();
-        public List<IGateCard> GateIndex = new();
-        public List<IAbilityCard> AbilityIndex = new();
+        public List<Bakugan> BakuganIndex = [];
+        public List<GateCard> GateIndex = [];
+        public List<AbilityCard> AbilityIndex = [];
 
         public ushort TurnPlayer;
-        public ushort activePlayer { get; protected set; }
+        public ushort ActivePlayer { get; protected set; }
         public bool isBattleGoing = false;
+        public ActivationWindow CurrentWindow = ActivationWindow.Normal;
 
-        public List<IAbilityCard> AbilityChain { get; set; } = new();
+        public List<AbilityCard> AbilityChain { get; set; } = [];
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
@@ -52,9 +60,9 @@ namespace AB_Server
         public delegate void BakuganThrownEffect(Bakugan target, ushort owner, BakuganContainer pos);
         public delegate void BakuganAddedEffect(Bakugan target, ushort owner, BakuganContainer pos);
         public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, BakuganContainer pos);
-        public delegate void GateAddedEffect(IGateCard target, ushort owner, params int[] pos);
-        public delegate void GateRemovedEffect(IGateCard target, ushort owner, params int[] pos);
-        public delegate void BattleOverEffect(IGateCard target);
+        public delegate void GateAddedEffect(GateCard target, ushort owner, params int[] pos);
+        public delegate void GateRemovedEffect(GateCard target, ushort owner, params int[] pos);
+        public delegate void BattleOverEffect(GateCard target);
         public delegate void TurnEndEffect();
 
         //All the events in the game
@@ -76,13 +84,13 @@ namespace AB_Server
             BakuganBoosted?.Invoke(target, boost, source);
         public void OnBakuganMoved(Bakugan target, BakuganContainer pos) =>
             BakuganMoved?.Invoke(target, pos);
-        public void OnBakuganAdded(Bakugan target, ushort owner, BakuganContainer pos)
+        public void OnBakuganAdded(Bakugan target, ushort owner, BakuganContainer pos) =>
+            BakuganAdded?.Invoke(target, owner, pos);
+        public void OnBakuganThrown(Bakugan target, ushort owner, BakuganContainer pos)
         {
             BakuganAdded?.Invoke(target, owner, pos);
             BakuganThrown?.Invoke(target, owner, pos);
         }
-        public void OnBakuganThrown(Bakugan target, ushort owner, BakuganContainer pos) =>
-            BakuganThrown?.Invoke(target, owner, pos);
         public void OnBakuganPlacedFromGrave(Bakugan target, ushort owner, BakuganContainer pos) =>
             BakuganPlacedFromGrave?.Invoke(target, owner, pos);
         public void OnBakuganReturned(Bakugan target, ushort owner) =>
@@ -91,11 +99,11 @@ namespace AB_Server
             BakuganDestroyed?.Invoke(target, owner);
         public void OnBakuganRevived(Bakugan target, ushort owner) =>
             BakuganRevived?.Invoke(target, owner);
-        public void OnGateAdded(IGateCard target, ushort owner, params int[] pos) =>
+        public void OnGateAdded(GateCard target, ushort owner, params int[] pos) =>
             GateAdded?.Invoke(target, owner, pos);
-        public void OnGateRemoved(IGateCard target, ushort owner, params int[] pos) =>
+        public void OnGateRemoved(GateCard target, ushort owner, params int[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
-        public void OnBattleOver(IGateCard target) =>
+        public void OnBattleOver(GateCard target) =>
             BattleOver?.Invoke(target);
 
         public Action[] AwaitingAnswers;
@@ -158,7 +166,7 @@ namespace AB_Server
                 Sides = Players.Select(x => x.SideID).ToArray();
 
                 TurnPlayer = (ushort)new Random().Next(Players.Count);
-                activePlayer = TurnPlayer;
+                ActivePlayer = TurnPlayer;
 
                 for (int i = 0; i < Players.Count; i++)
                 {
@@ -202,7 +210,7 @@ namespace AB_Server
                         }
 
                         foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x => x.DisplayName).ToArray()) } });
-                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
+                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
                         Started = true;
                     };
             }
@@ -216,7 +224,7 @@ namespace AB_Server
 
         public void GameStep()
         {
-            JObject selection = IncomingSelection[activePlayer];
+            JObject selection = IncomingSelection[ActivePlayer];
 
             string moveType = selection["Type"].ToString();
 
@@ -263,7 +271,7 @@ namespace AB_Server
 
                     if (!AbilityIndex[abilitySelection].IsActivateable())
                     {
-                        NewEvents[activePlayer].Add(new JObject
+                        NewEvents[ActivePlayer].Add(new JObject
                         {
                             ["Type"] = "InvalidAction"
                         });
@@ -293,11 +301,11 @@ namespace AB_Server
                     }
                     break;
                 case "open":
-                    IGateCard gateToOpen = GateIndex[(int)selection["gate"]];
+                    GateCard gateToOpen = GateIndex[(int)selection["gate"]];
 
                     if (gateToOpen == null)
                     {
-                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
                     }
 
@@ -308,19 +316,19 @@ namespace AB_Server
                         gateToOpen.Open();
                     }
                     else
-                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
 
                     break;
                 case "pass":
                     if (!isBattleGoing)
                     {
-                        NewEvents[activePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
                     }
                     playersPassed++;
                     if (playersPassed == PlayerCount)
                     {
-                        foreach (var g in Field.Cast<IGateCard?>())
+                        foreach (var g in Field.Cast<GateCard?>())
                             if (g?.ActiveBattle == true)
                                 g.DetermineWinner();
 
@@ -364,7 +372,7 @@ namespace AB_Server
             }
             if (isBattleGoing)
             {
-                activePlayer = (ushort)((activePlayer + 1) % PlayerCount);
+                ActivePlayer = (ushort)((ActivePlayer + 1) % PlayerCount);
             }
             if (Over) return;
             if (!DontThrowTurnStartEvent)
@@ -380,11 +388,11 @@ namespace AB_Server
             if (isBattleGoing)
             {
                 Console.WriteLine("Restarting battle");
-                activePlayer = TurnPlayer;
+                ActivePlayer = TurnPlayer;
                 foreach (var e in NewEvents) e.Add(new JObject
                         {
                             { "Type", "PlayerTurnStart" },
-                            { "PID", activePlayer }
+                            { "PID", ActivePlayer }
                         });
             }
             else
@@ -394,7 +402,7 @@ namespace AB_Server
 
                 Console.WriteLine("Ending turn");
                 TurnPlayer = (ushort)((TurnPlayer + 1) % PlayerCount);
-                activePlayer = TurnPlayer;
+                ActivePlayer = TurnPlayer;
 
                 BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
@@ -454,7 +462,7 @@ namespace AB_Server
             return moves;
         }
 
-        public void CheckChain(Player player, IAbilityCard ability, Bakugan user)
+        public void CheckChain(Player player, AbilityCard ability, Bakugan user)
         {
             if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
                 SuggestFusion(player, ability, user);
@@ -479,7 +487,57 @@ namespace AB_Server
             else ResolveChain();
         }
 
-        public void CheckCounter(Player player, IAbilityCard ability, Player user)
+        public void SuggestWindow(ActivationWindow window, int startingPlayer, int player)
+        {
+            CurrentWindow = window;
+            var currentPlayer = Players[player];
+
+            if (currentPlayer.HasActivateableAbilities())
+            {
+                AwaitingAnswers[player] = () => CheckWindow(startingPlayer, player);
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent(window.ToString().ToUpper() + "WINDOWPROMPT")));
+            }
+            else
+            {
+                if (++player >= PlayerCount) player = 0;
+
+                if (player == startingPlayer) ContinueGame();
+                else SuggestWindow(window, startingPlayer, player);
+            }
+        }
+
+        public void CheckWindow(int startingPlayer, int player)
+        {
+            if ((bool)IncomingSelection[player]["array"][0]["answer"])
+            {
+
+            }
+            else
+            {
+                if (++player >= PlayerCount) player = 0;
+
+                if (player == startingPlayer) ContinueGame();
+                else SuggestWindow(CurrentWindow, startingPlayer, player);
+            }
+        }
+
+        public void ResolveWindow(Player player)
+        {
+            int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
+            if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
+            {
+                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection(CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+            }
+        }
+
+        public void SuggestCounter(Player player, AbilityCard ability, Player user)
+        {
+            AwaitingAnswers[player.Id] = () => CheckCounter(player, ability, user);
+            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.
+                CounterSelectionEvent(user.Id, ability.TypeId)));
+        }
+
+        public void CheckCounter(Player player, AbilityCard ability, Player user)
         {
             if (!(bool)IncomingSelection[player.Id]["array"][0]["answer"])
             {
@@ -495,13 +553,6 @@ namespace AB_Server
 
                 NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
-        }
-
-        public void SuggestCounter(Player player, IAbilityCard ability, Player user)
-        {
-            AwaitingAnswers[player.Id] = () => CheckCounter(player, ability, user);
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.
-                CounterSelectionEvent(user.Id, ability.TypeId)));
         }
 
         public void ResolveCounter(Player player)
@@ -530,14 +581,14 @@ namespace AB_Server
             }
         }
 
-        public void SuggestFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void SuggestFusion(Player player, AbilityCard ability, Bakugan user)
         {
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FUSIONPROMPT")));
 
             AwaitingAnswers[player.Id] = () => CheckFusion(player, ability, user);
         }
 
-        public void CheckFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void CheckFusion(Player player, AbilityCard ability, Bakugan user)
         {
             if (!(bool)IncomingSelection[player.Id]["array"][0]["answer"])
             {
@@ -569,7 +620,7 @@ namespace AB_Server
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateableFusion(user)).ToArray())));
         }
 
-        public void ResolveFusion(Player player, IAbilityCard ability, Bakugan user)
+        public void ResolveFusion(Player player, AbilityCard ability, Bakugan user)
         {
             int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
@@ -599,7 +650,7 @@ namespace AB_Server
         {
             Console.WriteLine("Resolving chain");
             AbilityChain.Reverse();
-            foreach (IAbilityCard ability in AbilityChain)
+            foreach (AbilityCard ability in AbilityChain)
                 ability.Resolve();
             AbilityChain.Clear();
             ContinueGame();
@@ -610,7 +661,7 @@ namespace AB_Server
             Console.WriteLine("Game step over");
             doNotMakeStep = false;
             foreach (var playerEvents in NewEvents)
-                playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", activePlayer } });
+                playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
         }
     }
 }

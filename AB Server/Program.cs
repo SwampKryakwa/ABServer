@@ -472,7 +472,7 @@ namespace AB_Server
                                     break;
 
                                 case "checkturnstart":
-                                    answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].activePlayer } });
+                                    answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].ActivePlayer } });
                                     break;
 
                                 case "getmoves":

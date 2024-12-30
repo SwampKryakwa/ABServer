@@ -3,7 +3,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
 {
-    internal class GateCard
+    internal class GateCard : BakuganContainer
     {
         static Func<int, Player, GateCard>[] GateCtrs =
         [

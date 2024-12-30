@@ -1,19 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
-{
-    internal enum ActiveType
-    {
-        Card,
-        Effect
-    }
-
-    internal interface IActive
+{internal interface IActive
     {
         public int EffectId { get; set; }
         public int TypeId { get; }
-
-        public ActiveType ActiveType { get; }
 
         public void Negate(bool asCounter = false);
     }
@@ -110,7 +101,6 @@ namespace AB_Server.Abilities
 
         public Game Game { get; set; }
         public Player Owner { get; set; }
-        public ActiveType ActiveType { get; } = ActiveType.Card;
         public int EffectId { get; set; }
 
         public AbilityCard FusedTo { get; set; }

@@ -61,11 +61,11 @@ namespace AB_Server
             int id = 0;
             foreach (IActive active in actives)
             {
-                if (active.ActiveType == ActiveType.Card)
+                if (active is AbilityCard activeAbility)
                 {
                     var activeCard = active ;
 
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {

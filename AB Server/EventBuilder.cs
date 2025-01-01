@@ -34,13 +34,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject CounterSelectionEvent(int userId, int abilityId)
+        public static JObject CounterSelectionEvent(int userId, int abilityId, char counterableType)
         {
             return new JObject
             {
                 { "SelectionType", "R" },
                 { "user", userId },
-                { "ability", abilityId }
+                { "ability", abilityId },
+                { "counterableType", counterableType }
             };
         }
 
@@ -58,12 +59,11 @@ namespace AB_Server
         {
             JArray jsonActives = new();
 
-            int id = 0;
             foreach (IActive active in actives)
             {
                 if (active is AbilityCard activeAbility)
                 {
-                    var activeCard = active ;
+                    var activeCard = active;
 
                     jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
@@ -85,22 +85,22 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.TypeId)
-            {
-                //case 0:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as NormalGate).Attribute },
-                //        { "Power", (card as NormalGate).Power }
-                //    };
-                //    break;
-                //case 4:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                //    };
-                //    break;
-            }
+            //switch (card.TypeId)
+            //{
+            //    //case 0:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
+            //    //        { "Power", (card as NormalGate).Power }
+            //    //    };
+            //    //    break;
+            //    //case 4:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+            //    //    };
+            //    //    break;
+            //}
 
             if (RevealInfo)
                 return new JObject
@@ -136,22 +136,22 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.TypeId)
-            {
-                //case 0:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as NormalGate).Attribute },
-                //        { "Power", (card as NormalGate).Power }
-                //    };
-                //    break;
-                //case 4:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                //    };
-                //    break;
-            }
+            //switch (card.TypeId)
+            //{
+            //    //case 0:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
+            //    //        { "Power", (card as NormalGate).Power }
+            //    //    };
+            //    //    break;
+            //    //case 4:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+            //    //    };
+            //    //    break;
+            //}
 
             return new JObject
             {
@@ -168,22 +168,22 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.TypeId)
-            {
-                //case 0:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as NormalGate).Attribute },
-                //        { "Power", (card as NormalGate).Power }
-                //    };
-                //    break;
-                //case 4:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                //    };
-                //    break;
-            }
+            //switch (card.TypeId)
+            //{
+            //    //case 0:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
+            //    //        { "Power", (card as NormalGate).Power }
+            //    //    };
+            //    //    break;
+            //    //case 4:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+            //    //    };
+            //    //    break;
+            //}
 
             return new JObject
             {

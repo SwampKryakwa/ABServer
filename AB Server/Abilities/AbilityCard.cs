@@ -1,15 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
-{internal interface IActive
-    {
-        public int EffectId { get; set; }
-        public int TypeId { get; }
-
-        public void Negate(bool asCounter = false);
-    }
-
-    internal class AbilityCard : IActive
+{
+    internal class AbilityCard : IActive, IChainable
     {
         public static (Func<int, Player, AbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
         [

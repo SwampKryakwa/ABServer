@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Abilities;
+using Newtonsoft.Json.Linq;
 using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
 {
-    internal class GateCard : BakuganContainer
+    internal class GateCard : IBakuganContainer, IActive, IChainable
     {
         static Func<int, Player, GateCard>[] GateCtrs =
         [
@@ -45,6 +46,7 @@ namespace AB_Server.Gates
         public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
+        bool counterNegated = false;
 
 
         public void Freeze(object frozer)
@@ -55,7 +57,7 @@ namespace AB_Server.Gates
 
             for (int i = 0; i < game.Field.GetLength(0); i++)
                 for (int j = 0; j < game.Field.GetLength(1); j++)
-                    if (game.Field[i, j] != null && game.Field[i, j].ActiveBattle) return;
+                    if (game.Field[i, j] is GateCard battleGate && battleGate.ActiveBattle) return;
 
             game.isBattleGoing = false;
             game.EndTurn();
@@ -110,7 +112,7 @@ namespace AB_Server.Gates
 
             game.Field[Position.X, Position.Y] = null;
 
-            (this as GateCard).Remove();
+            Remove();
         }
 
         private protected virtual void Draw()
@@ -145,7 +147,7 @@ namespace AB_Server.Gates
                         { "PosX", posX },
                         { "PosY", posY },
                         { "GateData", new JObject {
-                            { "Type", (this as GateCard).TypeId } }
+                            { "Type", TypeId } }
                         },
                         { "Owner", Owner.Id },
                         { "CID", CardId }
@@ -178,9 +180,11 @@ namespace AB_Server.Gates
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
-        public virtual void Open()
+        public void Open()
         {
             IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(new()
                     {
@@ -188,21 +192,22 @@ namespace AB_Server.Gates
                         { "PosX", Position.X },
                         { "PosY", Position.Y },
                         { "GateData", new JObject {
-                            { "Type", (this as GateCard).TypeId } }
+                            { "Type", TypeId } }
                         },
                         { "Owner", Owner.Id },
                         { "CID", CardId }
                     });
+            game.CheckChain(Owner, this);
         }
 
-        public virtual void Negate() { throw new NotImplementedException(); }
+        public virtual void Resolve() =>
+            throw new NotImplementedException();
 
         public virtual void Remove()
         {
             IsOpen = false;
             OnField = false;
 
-            List<Bakugan> bakuganToSort;
             for (int i = 0; i < game.PlayerCount; i++)
             {
                 Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
@@ -253,6 +258,8 @@ namespace AB_Server.Gates
         public virtual int TypeId =>
             throw new NotImplementedException();
 
+        public int EffectId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public bool IsTouching(GateCard card)
         {
             return AreTouching(this, card);
@@ -276,6 +283,11 @@ namespace AB_Server.Gates
             int DX = Math.Abs(card1.Position.X - card2.Position.X);
             int DY = Math.Abs(card1.Position.Y - card2.Position.Y);
             return (DX + DY) == 1;
+        }
+
+        public void Negate(bool asCounter = false)
+        {
+            if (asCounter) counterNegated = true;
         }
     }
 }

@@ -56,6 +56,9 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        Bakugan target;
+        GateCard moveTarget;
+
         public override void Setup(bool asFusion)
         {
             AbilityCard ability = this;
@@ -112,8 +115,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
-        Bakugan target;
-
         public void Setup3()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
@@ -169,8 +170,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
-        GateCard moveTarget;
-
         public new void Activate()
         {
             moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
@@ -181,12 +180,12 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
+                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
+                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
 
         public new void DoNotAffect(Bakugan bakugan)
         {

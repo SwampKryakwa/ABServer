@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server
 {
-    internal class GraveBakugan : BakuganContainer
+    internal class GraveBakugan : IBakuganContainer
     {
         public Player Player;
 
@@ -16,7 +16,7 @@ namespace AB_Server
         }
     }
 
-    internal class Player : BakuganContainer
+    internal class Player : IBakuganContainer
     {
 
         public ushort Id;
@@ -53,7 +53,7 @@ namespace AB_Server
             DisplayName = displayName;
         }
 
-        public static Player FromJson(ushort id, ushort sideID, JObject deck, Game game, string displayName)
+        public static Player FromJson(ushort id, ushort sideID, dynamic deck, Game game, string displayName)
         {
             Player player = new(id, sideID, game, displayName);
 
@@ -79,7 +79,7 @@ namespace AB_Server
                 game.AbilityIndex.Add(abi);
             }
 
-            foreach (JObject g in deck["gates"])
+            foreach (dynamic g in deck["gates"])
             {
                 GateCard gate;
                 gate = GateCard.CreateCard(player, game.GateIndex.Count, (int)g["Type"]);
@@ -105,9 +105,9 @@ namespace AB_Server
 
         public bool HasOpenableGates()
         {
-            foreach (GateCard g in game.Field)
+            foreach (GateCard? gate in game.Field)
             {
-                if (g != null)
+                if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this)
                         return true;
             }
@@ -128,9 +128,9 @@ namespace AB_Server
         public List<GateCard> OpenableGates()
         {
             List<GateCard> openableGates = new();
-            foreach (GateCard g in game.Field)
+            foreach (GateCard? gate in game.Field)
             {
-                if (g != null)
+                if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this)
                         openableGates.Add(g);
             }

@@ -42,7 +42,8 @@ namespace AB_Server.Abilities
             }
 
             if (target.Power < User.Power)
-                target.Destroy((target.Position as GateCard).EnterOrder);
+                if (target.Position is GateCard positionGate)
+                    target.Destroy(positionGate.EnterOrder);
         }
     }
 

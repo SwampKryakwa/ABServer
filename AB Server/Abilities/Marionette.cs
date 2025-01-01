@@ -200,6 +200,6 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.OnField();
 
         public static bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.Owner.SideID != user.Owner.SideID && x.Position != user.Position);
+            user.Game.BakuganIndex.Any(x => user.IsEnemyOf(x) && x.Position != user.Position);
     }
 }

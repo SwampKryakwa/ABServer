@@ -581,10 +581,13 @@ namespace AB_Server
         public bool InGrave() =>
             Position.GetType() == typeof(GraveBakugan);
 
+        public bool IsEnemyOf(Bakugan bakugan) =>
+            Owner.SideID != bakugan.Owner.SideID;
+
         public bool HasNeighbourEnemies()
         {
             if (!OnField() ||
-                !Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField())) return false;
+                !Game.BakuganIndex.Any(x => IsEnemyOf(x) && x.OnField())) return false;
             (int X, int Y) = (Position as GateCard).Position;
 
             if (Game.GetGateByCoord(X - 1, Y) != null) return true;

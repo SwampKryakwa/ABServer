@@ -35,7 +35,7 @@ namespace AB_Server.Gates
 
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
-        public (int X, int Y) Position { get; set; } = (-1, -1);
+        public (byte X, byte Y) Position { get; set; } = (255, 255);
         public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
         public bool IsFrozen = false;
@@ -130,7 +130,7 @@ namespace AB_Server.Gates
             game.OnBattleOver(this);
         }
 
-        public void Set(int posX, int posY)
+        public void Set(byte posX, byte posY)
         {
             game.Field[posX, posY] = this;
             OnField = true;
@@ -288,6 +288,8 @@ namespace AB_Server.Gates
         public void Negate(bool asCounter = false)
         {
             if (asCounter) counterNegated = true;
+            Negated = true;
+            IsOpen = false;
         }
     }
 }

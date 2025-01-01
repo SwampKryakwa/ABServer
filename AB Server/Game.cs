@@ -60,9 +60,10 @@ namespace AB_Server
         public delegate void BakuganThrownEffect(Bakugan target, ushort owner, IBakuganContainer pos);
         public delegate void BakuganAddedEffect(Bakugan target, ushort owner, IBakuganContainer pos);
         public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, IBakuganContainer pos);
-        public delegate void GateAddedEffect(GateCard target, ushort owner, params int[] pos);
-        public delegate void GateRemovedEffect(GateCard target, ushort owner, params int[] pos);
+        public delegate void GateAddedEffect(GateCard target, ushort owner, params byte[] pos);
+        public delegate void GateRemovedEffect(GateCard target, ushort owner, params byte[] pos);
         public delegate void BattleOverEffect(GateCard target);
+        public delegate void TurnAboutToEndEffect();
         public delegate void TurnEndEffect();
 
         //All the events in the game
@@ -78,6 +79,7 @@ namespace AB_Server
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
         public event BattleOverEffect BattleOver;
+        public event TurnAboutToEndEffect TurnAboutToEnd;
         public event TurnEndEffect TurnEnd;
 
         public void OnBakuganBoosted(Bakugan target, Boost boost, object source) =>
@@ -99,9 +101,9 @@ namespace AB_Server
             BakuganDestroyed?.Invoke(target, owner);
         public void OnBakuganRevived(Bakugan target, ushort owner) =>
             BakuganRevived?.Invoke(target, owner);
-        public void OnGateAdded(GateCard target, ushort owner, params int[] pos) =>
+        public void OnGateAdded(GateCard target, ushort owner, params byte[] pos) =>
             GateAdded?.Invoke(target, owner, pos);
-        public void OnGateRemoved(GateCard target, ushort owner, params int[] pos) =>
+        public void OnGateRemoved(GateCard target, ushort owner, params byte[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
         public void OnBattleOver(GateCard target) =>
             BattleOver?.Invoke(target);
@@ -199,11 +201,11 @@ namespace AB_Server
                     AwaitingAnswers[i] = () =>
                     {
                         if (IncomingSelection.Contains(null)) return;
-                        for (int i = 0; i < IncomingSelection.Length; i++)
+                        for (byte i = 0; i < IncomingSelection.Length; i++)
                         {
                             dynamic selection = IncomingSelection[i];
 
-                            Players[i].GateHand[(int)selection["gate"]].Set(i, 1);
+                            Players[i].GateHand[(byte)selection["gate"]].Set(i, 1);
                         }
 
                         foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x => x.DisplayName).ToArray()) } });
@@ -245,7 +247,7 @@ namespace AB_Server
                     }
                     break;
                 case "set":
-                    (int X, int Y) posSelection = ((int)selection["posX"], (int)selection["posY"]);
+                    (byte X, byte Y) posSelection = ((byte)selection["posX"], (byte)selection["posY"]);
 
                     if (Field[posSelection.X, posSelection.Y] != null)
                     {
@@ -257,7 +259,7 @@ namespace AB_Server
                     else
                     {
                         Players[TurnPlayer].HadSetGate = true;
-                        GateIndex[(int)selection["gate"]].Set(posSelection.X, posSelection.Y);
+                        GateIndex[(byte)selection["gate"]].Set(posSelection.X, posSelection.Y);
                     }
 
                     break;
@@ -374,15 +376,14 @@ namespace AB_Server
                 ContinueGame();
         }
 
+        bool turnEnding = false;
+
         public void EndTurn()
         {
-            Console.WriteLine("Invoking turn end effects");
-            TurnEnd?.Invoke();
+            TurnAboutToEnd?.Invoke();
 
-            Console.WriteLine("Trying to end turn");
             if (isBattleGoing)
             {
-                Console.WriteLine("Restarting battle");
                 ActivePlayer = TurnPlayer;
                 foreach (var e in NewEvents) e.Add(new JObject
                         {
@@ -392,10 +393,10 @@ namespace AB_Server
             }
             else
             {
+                TurnEnd?.Invoke();
                 if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     Players[TurnPlayer].HadSkippedTurn = true;
 
-                Console.WriteLine("Ending turn");
                 TurnPlayer = (ushort)((TurnPlayer + 1) % PlayerCount);
                 ActivePlayer = TurnPlayer;
 
@@ -529,7 +530,8 @@ namespace AB_Server
         {
             if ((bool)IncomingSelection[player]["array"][0]["answer"])
             {
-
+                AwaitingAnswers[player] = () => ResolveWindow(Players[player]);
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection(CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
             else
             {
@@ -545,7 +547,24 @@ namespace AB_Server
             int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
-                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection(CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                CardChain.Add(AbilityIndex[id]);
+                AbilityIndex[id].EffectId = NextEffectId++;
+                ActiveZone.Add(AbilityIndex[id]);
+                player.AbilityHand.Remove(AbilityIndex[id]);
+
+                for (int i = 0; i < NewEvents.Length; i++)
+                {
+                    NewEvents[i].Add(new()
+                    {
+                        ["Type"] = "AbilityAddedActiveZone",
+                        ["IsCopy"] = AbilityIndex[id].IsCopy,
+                        ["Id"] = AbilityIndex[id].EffectId,
+                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["Owner"] = AbilityIndex[id].Owner.Id
+                    });
+                }
+
+                AbilityIndex[id].Setup(true);
             }
         }
 

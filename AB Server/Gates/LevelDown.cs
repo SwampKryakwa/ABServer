@@ -2,7 +2,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class LevelDown : GateCard, IGateCard
+    internal class LevelDown : GateCard
     {
         public LevelDown(int cID, Player owner)
         {
@@ -12,13 +12,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int TypeId { get; private protected set; } = 9;
-
-        public new void Negate()
-        {
-            IsOpen = false;
-            Negated = true;
-        }
+        public override int TypeId { get; } = 9;
 
         public new void Open()
         {

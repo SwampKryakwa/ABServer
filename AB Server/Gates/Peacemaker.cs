@@ -16,14 +16,19 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
+        public override int TypeId { get; } = 9;
+
         public override void Resolve()
         {
-            
+
         }
 
         public override void DetermineWinner()
         {
-            Draw();
+            if (IsOpen)
+                Draw();
+            else
+                base.DetermineWinner();
         }
     }
 }

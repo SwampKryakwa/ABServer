@@ -174,7 +174,7 @@ namespace AB_Server
     //                        break;
 
     //                    case "newgame":
-    //                        game = new((ushort)postedJson["playerCount"]);
+    //                        game = new((byte)postedJson["playerCount"]);
     //                        room = (string)postedJson["roomName"];
     //                        GIDToGame.Add(room, game);
 
@@ -436,7 +436,7 @@ namespace AB_Server
                                         break;
 
                                     case "newgame":
-                                        game = new((ushort)postedJson["playerCount"]);
+                                        game = new((byte)postedJson["playerCount"]);
                                         room = (string)postedJson["roomName"];
                                         GIDToGame.Add(room, game);
 

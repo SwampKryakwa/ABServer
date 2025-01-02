@@ -19,8 +19,8 @@ namespace AB_Server
     internal class Player : IBakuganContainer
     {
 
-        public ushort Id;
-        public ushort SideID = new();
+        public byte Id;
+        public byte SideID = new();
         public string DisplayName;
         public List<object> AbilityBlockers = new();
 
@@ -44,7 +44,7 @@ namespace AB_Server
 
         public Game game;
 
-        public Player(ushort id, ushort sideID, Game game, string displayName)
+        public Player(byte id, byte sideID, Game game, string displayName)
         {
             Id = id;
             SideID = sideID;
@@ -53,7 +53,7 @@ namespace AB_Server
             DisplayName = displayName;
         }
 
-        public static Player FromJson(ushort id, ushort sideID, dynamic deck, Game game, string displayName)
+        public static Player FromJson(byte id, byte sideID, dynamic deck, Game game, string displayName)
         {
             Player player = new(id, sideID, game, displayName);
 
@@ -150,7 +150,7 @@ namespace AB_Server
         public bool CanEndBattle() =>
             game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
 
-        /*public static Player FromJSON(JObject playerJson, ushort playerID)
+        /*public static Player FromJSON(JObject playerJson, byte playerID)
         {
             dynamic playerObject = playerJson;
             Player player = new Player(playerID);

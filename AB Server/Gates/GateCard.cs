@@ -76,7 +76,7 @@ namespace AB_Server.Gates
             {
                 b.InBattle = false;
             }
-            int[] teamTotals = new int[game.Sides.Length];
+            int[] teamTotals = new int[game.SideCount];
             for (int i = 0; i < game.PlayerCount; i++) teamTotals[i] = 0;
             foreach (var b in Bakugans)
             {
@@ -85,49 +85,58 @@ namespace AB_Server.Gates
 
             int winnerPower = teamTotals.Max();
 
-            if (teamTotals.Count(x => x == winnerPower) > 1)
+            if (teamTotals.Count(x => x == winnerPower) == 1)
             {
-                Draw();
-                return;
-            }
+                int winner = Array.IndexOf(teamTotals, teamTotals.Max());
 
-            int winner = Array.IndexOf(teamTotals, teamTotals.Max());
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                    if (b.Owner.SideID != winner)
+                        b.Destroy(EnterOrder, MoveSource.Game);
 
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                if (b.Owner.SideID != winner)
-                    b.Destroy(EnterOrder, MoveSource.Game);
-
-            foreach (List<JObject> e in game.NewEvents)
-                e.Add(new JObject
+                foreach (List<JObject> e in game.NewEvents)
+                    e.Add(new JObject
                 {
                     { "Type", "BattleOver" },
                     { "IsDraw", false },
                     { "Victor", winner }
                 });
+            }
 
-            game.OnBattleOver(this);
-
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                b.ToHand(EnterOrder);
-
-            game.Field[Position.X, Position.Y] = null;
-
-            Remove();
+            game.BattlesToEnd.Add(this);
         }
 
-        private protected virtual void Draw()
+        public virtual void Dispose()
         {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                b.ToHand(EnterOrder);
+            if (ActiveBattle)
+            {
 
-            foreach (List<JObject> e in game.NewEvents)
-                e.Add(new JObject
+                foreach (List<JObject> e in game.NewEvents)
+                    e.Add(new JObject
                 {
                     { "Type", "BattleOver" },
                     { "IsDraw", true }
                 });
+            }
 
-            game.OnBattleOver(this);
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                b.ToHand(EnterOrder);
+
+            IsOpen = false;
+            OnField = false;
+
+            for (int i = 0; i < game.PlayerCount; i++)
+            {
+                Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+            }
+
+            foreach (List<JObject> e in game.NewEvents)
+                e.Add(new JObject
+                {
+                    { "Type", "GateRemoved" },
+                    { "PosX", Position.X },
+                    { "PosY", Position.Y }
+                });
         }
 
         public void Set(byte posX, byte posY)
@@ -180,7 +189,7 @@ namespace AB_Server.Gates
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
-        public void Open()
+        public virtual void Open()
         {
             IsOpen = true;
             game.ActiveZone.Add(this);
@@ -203,34 +212,6 @@ namespace AB_Server.Gates
         public virtual void Resolve() =>
             throw new NotImplementedException();
 
-        public virtual void Remove()
-        {
-            IsOpen = false;
-            OnField = false;
-
-            for (int i = 0; i < game.PlayerCount; i++)
-            {
-                Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-                Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-            }
-
-            foreach (List<JObject> e in game.NewEvents)
-                e.Add(new JObject
-                {
-                    { "Type", "GateRemoved" },
-                    { "PosX", Position.X },
-                    { "PosY", Position.Y }
-                });
-        }
-
-        public virtual void ToGrave()
-        {
-            Remove();
-            Owner.GateGrave.Add(this);
-            game.Field[Position.X, Position.Y] = null;
-            IsOpen = false;
-        }
-
         public virtual bool IsOpenable() =>
             OpenBlocking.Count == 0 && !Negated && OnField && Bakugans.Count >= 2 && !IsOpen;
 
@@ -249,10 +230,19 @@ namespace AB_Server.Gates
             if (isBattle)
             {
                 Bakugans.ForEach(x => x.InBattle = true);
-                ActiveBattle = true;
+
+                if (!ActiveBattle)
+                {
+                    game.BattlesToStart.Add(this);
+                }
             }
 
             return numbSides.Where(x => x > 0).Count() >= 2;
+        }
+
+        public void StartBattle()
+        {
+            ActiveBattle = true;
         }
 
         public virtual int TypeId =>

@@ -21,11 +21,12 @@ namespace AB_Server
         public dynamic[] IncomingSelection;
         public Dictionary<long, int> UidToPid = [];
 
-        public ushort PlayerCount;
-        ushort loggedPlayers = 0;
-        ushort playersPassed = 0;
+        public byte PlayerCount;
+        public byte SideCount;
+        byte loggedPlayers = 0;
+        byte playersPassed = 0;
 
-        Dictionary<long, ushort> UUIDToPid = [];
+        Dictionary<long, byte> UUIDToPid = [];
 
         public List<Player> Players;
         public GateCard?[,] Field;
@@ -38,31 +39,34 @@ namespace AB_Server
             return Field[X, Y];
         }
 
-        public ushort[] Sides;
+        //Indexes
         public List<Bakugan> BakuganIndex = [];
         public List<GateCard> GateIndex = [];
         public List<AbilityCard> AbilityIndex = [];
 
-        public ushort TurnPlayer;
-        public ushort ActivePlayer { get; protected set; }
+        public byte TurnPlayer;
+        public byte ActivePlayer { get; protected set; }
         public bool isBattleGoing = false;
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
 
         public List<IChainable> CardChain { get; set; } = [];
+        public List<GateCard> BattlesToStart = [];
+        public List<GateCard> BattlesToEnd = [];
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
         public delegate void BakuganPowerResetEffect(Bakugan bakugan);
         public delegate void BakuganMovedEffect(Bakugan target, IBakuganContainer pos);
-        public delegate void BakuganReturnedEffect(Bakugan target, ushort owner);
-        public delegate void BakuganDestroyedEffect(Bakugan target, ushort owner);
-        public delegate void BakuganRevivedEffect(Bakugan target, ushort owner);
-        public delegate void BakuganThrownEffect(Bakugan target, ushort owner, IBakuganContainer pos);
-        public delegate void BakuganAddedEffect(Bakugan target, ushort owner, IBakuganContainer pos);
-        public delegate void BakuganPlacedFromGraveEffect(Bakugan target, ushort owner, IBakuganContainer pos);
-        public delegate void GateAddedEffect(GateCard target, ushort owner, params byte[] pos);
-        public delegate void GateRemovedEffect(GateCard target, ushort owner, params byte[] pos);
-        public delegate void BattleOverEffect(GateCard target);
+        public delegate void BakuganReturnedEffect(Bakugan target, byte owner);
+        public delegate void BakuganDestroyedEffect(Bakugan target, byte owner);
+        public delegate void BakuganRevivedEffect(Bakugan target, byte owner);
+        public delegate void BakuganThrownEffect(Bakugan target, byte owner, IBakuganContainer pos);
+        public delegate void BakuganAddedEffect(Bakugan target, byte owner, IBakuganContainer pos);
+        public delegate void BakuganPlacedFromGraveEffect(Bakugan target, byte owner, IBakuganContainer pos);
+        public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
+        public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
+        public delegate void BattlesStartedEffect();
+        public delegate void BattlesOverEffect();
         public delegate void TurnAboutToEndEffect();
         public delegate void TurnEndEffect();
 
@@ -78,7 +82,8 @@ namespace AB_Server
         public event BakuganPlacedFromGraveEffect BakuganPlacedFromGrave;
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
-        public event BattleOverEffect BattleOver;
+        public event BattlesStartedEffect BattlesStarted;
+        public event BattlesOverEffect BattlesOver;
         public event TurnAboutToEndEffect TurnAboutToEnd;
         public event TurnEndEffect TurnEnd;
 
@@ -86,27 +91,25 @@ namespace AB_Server
             BakuganBoosted?.Invoke(target, boost, source);
         public void OnBakuganMoved(Bakugan target, IBakuganContainer pos) =>
             BakuganMoved?.Invoke(target, pos);
-        public void OnBakuganAdded(Bakugan target, ushort owner, IBakuganContainer pos) =>
+        public void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos) =>
             BakuganAdded?.Invoke(target, owner, pos);
-        public void OnBakuganThrown(Bakugan target, ushort owner, IBakuganContainer pos)
+        public void OnBakuganThrown(Bakugan target, byte owner, IBakuganContainer pos)
         {
             BakuganAdded?.Invoke(target, owner, pos);
             BakuganThrown?.Invoke(target, owner, pos);
         }
-        public void OnBakuganPlacedFromGrave(Bakugan target, ushort owner, IBakuganContainer pos) =>
+        public void OnBakuganPlacedFromGrave(Bakugan target, byte owner, IBakuganContainer pos) =>
             BakuganPlacedFromGrave?.Invoke(target, owner, pos);
-        public void OnBakuganReturned(Bakugan target, ushort owner) =>
+        public void OnBakuganReturned(Bakugan target, byte owner) =>
             BakuganReturned?.Invoke(target, owner);
-        public void OnBakuganDestroyed(Bakugan target, ushort owner) =>
+        public void OnBakuganDestroyed(Bakugan target, byte owner) =>
             BakuganDestroyed?.Invoke(target, owner);
-        public void OnBakuganRevived(Bakugan target, ushort owner) =>
+        public void OnBakuganRevived(Bakugan target, byte owner) =>
             BakuganRevived?.Invoke(target, owner);
-        public void OnGateAdded(GateCard target, ushort owner, params byte[] pos) =>
+        public void OnGateAdded(GateCard target, byte owner, params byte[] pos) =>
             GateAdded?.Invoke(target, owner, pos);
-        public void OnGateRemoved(GateCard target, ushort owner, params byte[] pos) =>
+        public void OnGateRemoved(GateCard target, byte owner, params byte[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
-        public void OnBattleOver(GateCard target) =>
-            BattleOver?.Invoke(target);
 
         public Action[] AwaitingAnswers;
 
@@ -116,7 +119,7 @@ namespace AB_Server
 
         public bool DontThrowTurnStartEvent = false;
 
-        public Game(ushort playerCount)
+        public Game(byte playerCount)
         {
             Field = new GateCard[2, 3];
             PlayerCount = playerCount;
@@ -124,7 +127,7 @@ namespace AB_Server
             AwaitingAnswers = new Action[playerCount];
             Players = new();
             IncomingSelection = new JObject[playerCount];
-            for (ushort i = 0; i < playerCount; i++)
+            for (byte i = 0; i < playerCount; i++)
             {
                 NewEvents[i] = new List<JObject>();
             }
@@ -138,7 +141,7 @@ namespace AB_Server
             return loggedPlayers - 1;
         }
 
-        public ushort GetPid(long UUID)
+        public byte GetPid(long UUID)
         {
             return UUIDToPid[UUID];
         }
@@ -165,9 +168,9 @@ namespace AB_Server
         {
             try
             {
-                Sides = Players.Select(x => x.SideID).ToArray();
+                SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
 
-                TurnPlayer = (ushort)new Random().Next(Players.Count);
+                TurnPlayer = (byte)new Random().Next(Players.Count);
                 ActivePlayer = TurnPlayer;
 
                 for (int i = 0; i < Players.Count; i++)
@@ -239,7 +242,6 @@ namespace AB_Server
                     }
                     else
                     {
-                        Console.WriteLine($"Gate {selection["posX"]} {selection["posY"]} is null");
                         NewEvents[TurnPlayer].Add(new JObject
                         {
                             ["Type"] = "InvalidAction"
@@ -361,6 +363,7 @@ namespace AB_Server
                     if (Players[TurnPlayer].CanEndTurn())
                     {
                         EndTurn();
+                        DontThrowTurnStartEvent = true;
                     }
                     else
                         NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
@@ -369,14 +372,37 @@ namespace AB_Server
             }
             if (isBattleGoing)
             {
-                ActivePlayer = (ushort)((ActivePlayer + 1) % PlayerCount);
+                ActivePlayer = (byte)((ActivePlayer + 1) % PlayerCount);
             }
             if (Over) return;
             if (!DontThrowTurnStartEvent)
                 ContinueGame();
         }
 
-        bool turnEnding = false;
+        public void ContinueGame()
+        {
+            if (BattlesToStart.Count != 0)
+            {
+                SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
+                BattlesStarted?.Invoke();
+                BattlesToStart.ForEach(x => x.StartBattle());
+                BattlesToStart.Clear();
+            }
+            else if (BattlesToEnd.Count == 0)
+            {
+                SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
+                BattlesOver?.Invoke();
+                BattlesToEnd.ForEach(x => x.Dispose());
+                BattlesToEnd.Clear();
+            }
+            else
+            {
+                CurrentWindow = ActivationWindow.Normal;
+                doNotMakeStep = false;
+                foreach (var playerEvents in NewEvents)
+                    playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+            }
+        }
 
         public void EndTurn()
         {
@@ -397,7 +423,7 @@ namespace AB_Server
                 if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     Players[TurnPlayer].HadSkippedTurn = true;
 
-                TurnPlayer = (ushort)((TurnPlayer + 1) % PlayerCount);
+                TurnPlayer = (byte)((TurnPlayer + 1) % PlayerCount);
                 ActivePlayer = TurnPlayer;
 
                 BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
@@ -411,6 +437,7 @@ namespace AB_Server
                 Players[TurnPlayer].HadThrownBakugan = false;
                 Players[TurnPlayer].HadUsedFusion = false;
                 Players[TurnPlayer].HadUsedCounter = false;
+                SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
             }
         }
 
@@ -683,22 +710,17 @@ namespace AB_Server
             }
         }
 
+        public bool ExecutingChain = false;
         public void ResolveChain()
         {
-            Console.WriteLine("Resolving chain");
-            CardChain.Reverse();
-            foreach (IChainable card in CardChain)
-                card.Resolve();
-            CardChain.Clear();
-            ContinueGame();
-        }
+            ExecutingChain = true;
 
-        public void ContinueGame()
-        {
-            Console.WriteLine("Game step over");
-            doNotMakeStep = false;
-            foreach (var playerEvents in NewEvents)
-                playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+            CardChain.Reverse();
+            CardChain.ForEach(card => card.Resolve());
+            CardChain.Clear();
+
+            ExecutingChain = false;
+            ContinueGame();
         }
     }
 }

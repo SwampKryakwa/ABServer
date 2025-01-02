@@ -26,7 +26,9 @@ namespace AB_Server.Gates
         public override void DetermineWinner()
         {
             if (IsOpen)
-                Draw();
+            {
+                game.BattlesToEnd.Add(this);
+            }
             else
                 base.DetermineWinner();
         }

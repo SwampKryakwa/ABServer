@@ -14,9 +14,23 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 9;
 
-        public new void Open()
+        public override void Open()
         {
-            base.Open();
+            IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(new()
+                    {
+                        { "Type", "GateOpenEvent" },
+                        { "PosX", Position.X },
+                        { "PosY", Position.Y },
+                        { "GateData", new JObject {
+                            { "Type", TypeId } }
+                        },
+                        { "Owner", Owner.Id },
+                        { "CID", CardId }
+                    });
 
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
@@ -36,24 +50,22 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.AwaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Setup;
         }
 
-        public void Resolve()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+        Bakugan target;
 
-            if (target.Power > 400)
-                target.Boost(new Boost(400 - target.Power), this);
-            else
+        public void Setup()
+        {
+            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            game.CheckChain(Owner, this);
+        }
+
+        public override void Resolve()
+        {
+            if (target.Power >= 400)
                 target.Boost(new Boost(-100), this);
-
-            game.ContinueGame();
-        }
-
-        public new void Remove()
-        {
-            base.Remove();
         }
     }
 }

@@ -73,9 +73,9 @@ namespace AB_Server
         }
     }
 
-    class Boost(int value)
+    class Boost(short value)
     {
-        public int Value { get; set; } = value;
+        public short Value { get; set; } = value;
         public bool Active = true;
     }
 

@@ -8,18 +8,8 @@ namespace AB_Server.Gates
     {
         static Func<int, Player, GateCard>[] GateCtrs =
         [
-            //(x, y) => new Aquamerge(x, y),
-            //(x, y) => new Anastasis(x, y),
-            //(x, y) => new CheeringBattle(x, y),
-            //(x, y) => new BigBrawl(x, y),
-            //(x, y) => new Warlock(x, y),
-            //(x, y) => new EyeOfStorm(x, y),
-            //(x, y) => new QuicksandFreeze(x, y),
-            //(x, y) => new Portal(x, y),
-            //(x, y) => new Supernova(x, y),
-            //(x, y) => new LevelDown(x, y),
-            //(x, y) => new Transform(x, y),
-            //(x, y) => new ThirdJudgement(x, y),
+            (x, y) => new LevelDown(x, y),
+            (x, y) => new Peacemaker(x, y)
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)

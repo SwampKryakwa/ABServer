@@ -6,6 +6,11 @@ namespace AB_Server.Abilities
     {
         public static (Func<int, Player, AbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
         [
+            //Set 1 attribute abilities
+            ((cID, owner) => new FireJudge(cID, owner, 0), FireJudge.HasValidTargets),
+            ((cID, owner) => new SpiritCanyon(cID, owner, 1), SpiritCanyon.HasValidTargets),
+            ((cID, owner) => new HolyLight(cID, owner, 2), HolyLight.HasValidTargets),
+
             ////Set 1 Nova abilities
             //((cID, owner) => new FireWall(cID, owner, 0), FireWall.HasValidTargets),
             //((cID, owner) => new FireJudge(cID, owner, 1), FireJudge.HasValidTargets),
@@ -111,6 +116,8 @@ namespace AB_Server.Abilities
             throw new NotImplementedException();
         public virtual bool IsActivateableCounter() => IsActivateable();
 
+        public static bool HasValidTargets(Bakugan user) => true;
+
         public virtual void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(new JObject
@@ -152,7 +159,6 @@ namespace AB_Server.Abilities
 
             Game.CheckChain(Owner, this, User);
         }
-
 
         public virtual void Resolve()
         {

@@ -198,7 +198,7 @@ namespace AB_Server.Abilities
         public override bool IsActivateableFusion(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.OnField();
 
-        public static bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => user.IsEnemyOf(x) && x.Position != user.Position);
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
     }
 }

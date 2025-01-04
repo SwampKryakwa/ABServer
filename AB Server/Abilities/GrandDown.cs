@@ -3,22 +3,22 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class LeapStingEffect
+    internal class GrandDownEffect
     {
         public int TypeId { get; }
         public Bakugan User;
-        Bakugan target;
+        GateCard target;
         Game game;
 
 
         public Player Owner { get => User.Owner; }
         bool IsCopy;
 
-        public LeapStingEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public GrandDownEffect(Bakugan user, GateCard target, Game game, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             this.target = target;
+            this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -41,15 +41,13 @@ namespace AB_Server.Abilities
                 });
             }
 
-            if (target.Power < User.Power)
-                if (target.Position is GateCard positionGate)
-                    target.Destroy(positionGate.EnterOrder);
+            target.Negate();
         }
     }
 
-    internal class LeapSting : AbilityCard
+    internal class GrandDown : AbilityCard
     {
-        public LeapSting(int cID, Player owner, int typeId)
+        public GrandDown(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -98,15 +96,12 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
                     }
                 } }
             });
@@ -128,15 +123,12 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
+                            { "Type", x.TypeId },
+                            { "PosX", x.Position.X },
+                            { "PosY", x.Position.Y },
+                            { "CID", x.CardId }
+                        })) }
                     }
                 } }
             });
@@ -144,11 +136,11 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        private Bakugan target;
+        private GateCard target;
 
         public new void Activate()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -156,26 +148,18 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
+                new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon;
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
+            user.Game.GateIndex.Any(x => x.OnField && x.IsOpen);
     }
 }

@@ -97,17 +97,6 @@ namespace AB_Server.Gates
 
         public virtual void Dispose()
         {
-            if (ActiveBattle)
-            {
-
-                foreach (List<JObject> e in game.NewEvents)
-                    e.Add(new JObject
-                {
-                    { "Type", "BattleOver" },
-                    { "IsDraw", true }
-                });
-            }
-
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 b.ToHand(EnterOrder);
 

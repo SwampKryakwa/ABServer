@@ -171,7 +171,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganGrave.Bakugans.Count != 0;

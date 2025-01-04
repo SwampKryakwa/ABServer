@@ -1,9 +1,10 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace AB_Server.Abilities
 {
-    internal class LeapStingEffect
+    internal class BlowbackEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -14,7 +15,7 @@ namespace AB_Server.Abilities
         public Player Owner { get => User.Owner; }
         bool IsCopy;
 
-        public LeapStingEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public BlowbackEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
@@ -41,15 +42,14 @@ namespace AB_Server.Abilities
                 });
             }
 
-            if (target.Power < User.Power)
-                if (target.Position is GateCard positionGate)
-                    target.Destroy(positionGate.EnterOrder);
+            if (target.Position is GateCard positionGate)
+                target.ToHand(positionGate.EnterOrder);
         }
     }
 
-    internal class LeapSting : AbilityCard
+    internal class Blowback : AbilityCard
     {
-        public LeapSting(int cID, Player owner, int typeId)
+        public Blowback(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -98,7 +98,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -128,7 +128,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -156,15 +156,15 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new BlowbackEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
+            new BlowbackEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-        public override void DoNotAffect(Bakugan bakugan)
+        public new void DoNotAffect(Bakugan bakugan)
         {
             if (User == bakugan)
                 User = Bakugan.GetDummy();
@@ -173,9 +173,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
+            user.Attribute == Attribute.Zephyros && user.OnField();
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
+            user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());
     }
 }

@@ -63,6 +63,6 @@ namespace AB_Server.Abilities
             new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Nova && user.InBattle;
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Nova && user.OnField();
     }
 }

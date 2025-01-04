@@ -10,6 +10,13 @@ namespace AB_Server.Abilities
             ((cID, owner) => new FireJudge(cID, owner, 0), FireJudge.HasValidTargets),
             ((cID, owner) => new SpiritCanyon(cID, owner, 1), SpiritCanyon.HasValidTargets),
             ((cID, owner) => new HolyLight(cID, owner, 2), HolyLight.HasValidTargets),
+            ((cID, owner) => new GrandDown(cID, owner, 3), GrandDown.HasValidTargets),
+            ((cID, owner) => new WaterRefrain(cID, owner, 4), WaterRefrain.HasValidTargets),
+            ((cID, owner) => new Blowback(cID, owner, 5), Blowback.HasValidTargets),
+
+            //Set 1 Bakugan abilities
+            ((cID, owner) => new Marionette(cID, owner, 6), Marionette.HasValidTargets),
+            ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
 
             ////Set 1 Nova abilities
             //((cID, owner) => new FireWall(cID, owner, 0), FireWall.HasValidTargets),

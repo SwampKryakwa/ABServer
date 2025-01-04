@@ -64,7 +64,7 @@ namespace AB_Server.Abilities
                 new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.Attribute == Attribute.Subterra;
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Subterra;
 
 
     }

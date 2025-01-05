@@ -16,7 +16,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public override int TypeId { get; } = 9;
+        public override int TypeId { get; } = 1;
 
         public override void Resolve()
         {

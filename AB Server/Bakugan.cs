@@ -6,7 +6,7 @@ using System.Reflection.Metadata;
 
 namespace AB_Server
 {
-    enum Attribute
+    enum Attribute : byte
     {
         Nova,
         Aqua,
@@ -16,43 +16,22 @@ namespace AB_Server
         Subterra,
         Clear
     }
-    enum Treatment
+    enum Treatment : byte
     {
         None,
         Flip,
         Pearl,
         Diamond
     }
-    enum BakuganType
+    enum BakuganType : sbyte
     {
-        BeeStriker,
-        Cancer,
-        Centipede,
-        Crow,
-        ElCondor,
-        Elephant,
-        Fairy,
-        Gargoyle,
-        Garrison,
+        None = -1,
         Glorius,
-        Griffon,
-        Jackal,
-        Juggernaut,
-        Knight,
         Laserman,
-        Limulus,
-        Mantis,
-        Raptor,
-        Sidewinder,
-        Saurus,
-        Scorpion,
-        Serpent,
-        Shredder,
-        Sphinx,
-        Worm
+        Mantis
     }
 
-    enum MoveSource
+    enum MoveSource : byte
     {
         Game,
         Effect
@@ -132,7 +111,7 @@ namespace AB_Server
 
         public static Bakugan GetDummy()
         {
-            var dummy = new Bakugan(BakuganType.Fairy, 0, Attribute.Clear, Treatment.None, null, null, -1)
+            var dummy = new Bakugan(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)
             {
                 IsDummy = true
             };
@@ -218,7 +197,7 @@ namespace AB_Server
                 });
             }
             Game.OnBakuganAdded(this, Owner.Id, destination);
-            Game.isBattleGoing = destination.CheckBattles();
+            destination.CheckBattles();
             InHands = false;
         }
 
@@ -247,7 +226,7 @@ namespace AB_Server
                 });
             }
             Game.OnBakuganThrown(this, Owner.Id, destination);
-            Game.isBattleGoing = destination.CheckBattles();
+            destination.CheckBattles();
             InHands = false;
         }
 

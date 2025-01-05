@@ -34,13 +34,13 @@ namespace AB_Server
             };
         }
 
-        public static JObject CounterSelectionEvent(int userId, int abilityId, char counterableType)
+        public static JObject CounterSelectionEvent(int userId, int cardId, char counterableType)
         {
             return new JObject
             {
                 { "SelectionType", "R" },
                 { "user", userId },
-                { "ability", abilityId },
+                { "card", cardId },
                 { "counterableType", counterableType }
             };
         }

@@ -51,7 +51,7 @@ namespace AB_Server
 
         public List<IChainable> CardChain { get; set; } = [];
         public List<GateCard> BattlesToStart = [];
-        public List<GateCard> BattlesToEnd = [];
+        public List<GateCard> BattlesToEnd { get; } = [];
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
@@ -382,23 +382,25 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
-            if (BattlesToStart.Count != 0)
-            {
-                if (!WindowSuggested)
-                {
-                    SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
-                    WindowSuggested = true;
-                }
-                else
-                {
-                    WindowSuggested = false;
-                    BattlesStarted?.Invoke();
-                    BattlesToStart.ForEach(x => x.StartBattle());
-                    BattlesToStart.Clear();
-                    ContinueGame();
-                }
-            }
-            else if (BattlesToEnd.Count == 0)
+            //if (BattlesToStart.Count != 0)
+            //{
+            //    if (!WindowSuggested)
+            //    {
+            //        SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
+            //        WindowSuggested = true;
+            //    }
+            //    else
+            //    {
+            //        WindowSuggested = false;
+            //        BattlesStarted?.Invoke();
+            //        BattlesToStart.ForEach(x => x.StartBattle());
+            //        isBattleGoing = true;
+            //        BattlesToStart.Clear();
+            //        ContinueGame();
+            //    }
+            //}
+            //else
+            if (BattlesToEnd.Count != 0)
             {
                 if (!WindowSuggested)
                 {

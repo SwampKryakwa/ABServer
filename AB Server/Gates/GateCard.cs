@@ -85,11 +85,11 @@ namespace AB_Server.Gates
 
                 foreach (List<JObject> e in game.NewEvents)
                     e.Add(new JObject
-                {
-                    { "Type", "BattleOver" },
-                    { "IsDraw", false },
-                    { "Victor", winner }
-                });
+                    {
+                        { "Type", "BattleOver" },
+                        { "IsDraw", false },
+                        { "Victor", winner }
+                    });
             }
 
             game.BattlesToEnd.Add(this);
@@ -208,10 +208,12 @@ namespace AB_Server.Gates
 
             if (isBattle)
             {
+                Console.WriteLine("Must have a battle");
                 Bakugans.ForEach(x => x.InBattle = true);
 
                 if (!ActiveBattle)
                 {
+                    Console.WriteLine("Battle yet to be started... Adding battle to the initialization list");
                     game.BattlesToStart.Add(this);
                 }
             }

@@ -379,21 +379,44 @@ namespace AB_Server
                 ContinueGame();
         }
 
+        bool WindowSuggested = false;
         public void ContinueGame()
         {
             if (BattlesToStart.Count != 0)
             {
-                SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
-                BattlesStarted?.Invoke();
-                BattlesToStart.ForEach(x => x.StartBattle());
-                BattlesToStart.Clear();
+                if (!WindowSuggested)
+                {
+                    SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
+                    WindowSuggested = true;
+                }
+                else
+                {
+                    WindowSuggested = false;
+                    BattlesStarted?.Invoke();
+                    BattlesToStart.ForEach(x => x.StartBattle());
+                    BattlesToStart.Clear();
+                    ContinueGame();
+                }
             }
             else if (BattlesToEnd.Count == 0)
             {
-                SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
-                BattlesOver?.Invoke();
-                BattlesToEnd.ForEach(x => x.Dispose());
-                BattlesToEnd.Clear();
+                if (!WindowSuggested)
+                {
+                    SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
+                    WindowSuggested = true;
+                }
+                else
+                {
+                    WindowSuggested = false;
+                    BattlesOver?.Invoke();
+                    BattlesToEnd.ForEach(x =>
+                    {
+                        if (!x.CheckBattles())
+                            x.Dispose();
+                    });
+                    BattlesToEnd.Clear();
+                    ContinueGame();
+                }
             }
             else
             {
@@ -591,7 +614,7 @@ namespace AB_Server
                     });
                 }
 
-                AbilityIndex[id].Setup(true);
+                AbilityIndex[id].Setup(false);
             }
         }
 

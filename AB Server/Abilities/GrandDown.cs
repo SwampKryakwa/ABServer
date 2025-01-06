@@ -86,14 +86,13 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            AbilityCard ability = this;
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
+                        { "SelectionType", "GF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
@@ -120,7 +119,7 @@ namespace AB_Server.Abilities
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
+                        { "SelectionType", "GF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
@@ -140,7 +139,7 @@ namespace AB_Server.Abilities
 
         public new void Activate()
         {
-            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }

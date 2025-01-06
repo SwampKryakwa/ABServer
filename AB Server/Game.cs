@@ -382,30 +382,30 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
-            //if (BattlesToStart.Count != 0)
-            //{
-            //    if (!WindowSuggested)
-            //    {
-            //        SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
-            //        WindowSuggested = true;
-            //    }
-            //    else
-            //    {
-            //        WindowSuggested = false;
-            //        BattlesStarted?.Invoke();
-            //        BattlesToStart.ForEach(x => x.StartBattle());
-            //        isBattleGoing = true;
-            //        BattlesToStart.Clear();
-            //        ContinueGame();
-            //    }
-            //}
-            //else
+            if (BattlesToStart.Count != 0)
+            {
+                if (!WindowSuggested)
+                {
+                    WindowSuggested = true;
+                    SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
+                }
+                else
+                {
+                    WindowSuggested = false;
+                    BattlesStarted?.Invoke();
+                    BattlesToStart.ForEach(x => x.StartBattle());
+                    isBattleGoing = true;
+                    BattlesToStart.Clear();
+                    ContinueGame();
+                }
+            }
+            else
             if (BattlesToEnd.Count != 0)
             {
                 if (!WindowSuggested)
                 {
-                    SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
                     WindowSuggested = true;
+                    SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
                 }
                 else
                 {

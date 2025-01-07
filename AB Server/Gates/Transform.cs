@@ -2,9 +2,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class LevelDown : GateCard
+    internal class Transform : GateCard
     {
-        public LevelDown(int cID, Player owner)
+        public Transform(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
@@ -12,7 +12,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public override int TypeId { get; } = 0;
+        public new int TypeId { get; private protected set; } = 4;
 
         public override void Open()
         {
@@ -64,8 +64,8 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Power >= 400)
-                target.Boost(new Boost(-100), this);
+            if (!counterNegated && target.Position == this)
+                target.Boost(new Boost((short)(Owner.Bakugans.MaxBy(x => x.Power).Power - target.Power)), this);
         }
     }
 }

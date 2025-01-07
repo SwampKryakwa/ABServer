@@ -61,7 +61,7 @@ namespace AB_Server.Abilities
 
         public override void Setup(bool asFusion)
         {
-            AbilityCard ability = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -71,7 +71,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

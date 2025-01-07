@@ -1,10 +1,10 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class LevelDown : GateCard
+    internal class CheeringBattle : GateCard
     {
-        public LevelDown(int cID, Player owner)
+        public CheeringBattle(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
@@ -12,7 +12,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public override int TypeId { get; } = 0;
+        public new int TypeId { get; private protected set; } = 3;
 
         public override void Open()
         {
@@ -36,16 +36,17 @@ namespace AB_Server.Gates
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
+                        { "SelectionType", "BH" },
                         { "Message", "INFO_GATE_TARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
+                        { "SelectionBakugans", new JArray(Owner.Bakugans.Select(x =>
+                        new JObject { { "Type", (int)x.Type },
+                            { "Attribute", (int)x.Attribute },
+                            { "Treatment", (int)x.Treatment },
+                            { "Power", x.Power },
+                            { "Owner", x.Owner.Id },
+                            { "BID", x.BID } }
+                        )) }
                     }
                 } }
             });
@@ -59,13 +60,19 @@ namespace AB_Server.Gates
         {
             target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            game.CheckChain(Owner, this);
+            game.ResolveChain();
         }
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Power >= 400)
-                target.Boost(new Boost(-100), this);
+            if (!counterNegated && target.InHands)
+            {
+                target.AddFromHand(this);
+                var newPower = int.Parse(target.Power.ToString().Substring(1));
+                target.Boost(new Boost((short)(newPower - target.Power)), this);
+            }
+
+            game.ContinueGame();
         }
     }
 }

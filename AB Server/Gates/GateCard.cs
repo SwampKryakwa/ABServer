@@ -9,7 +9,11 @@ namespace AB_Server.Gates
         static Func<int, Player, GateCard>[] GateCtrs =
         [
             (x, y) => new LevelDown(x, y),
-            (x, y) => new Peacemaker(x, y)
+            (x, y) => new Peacemaker(x, y),
+            (x, y) => new Warlock(x, y),
+            (x, y) => new CheeringBattle(x, y),
+            (x, y) => new Transform(x, y),
+
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)
@@ -36,7 +40,7 @@ namespace AB_Server.Gates
         public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
-        bool counterNegated = false;
+        protected bool counterNegated = false;
 
 
         public void Freeze(object frozer)
@@ -97,25 +101,29 @@ namespace AB_Server.Gates
 
         public virtual void Dispose()
         {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                b.ToHand(EnterOrder);
-
-            IsOpen = false;
-            OnField = false;
-
-            for (int i = 0; i < game.PlayerCount; i++)
+            if (!CheckBattles())
             {
-                Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-                Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-            }
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                    b.ToHand(EnterOrder);
 
-            foreach (List<JObject> e in game.NewEvents)
-                e.Add(new JObject
+                IsOpen = false;
+                OnField = false;
+
+                for (int i = 0; i < game.PlayerCount; i++)
+                {
+                    Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                    Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
+                }
+
+                foreach (List<JObject> e in game.NewEvents)
+                    e.Add(new JObject
                 {
                     { "Type", "GateRemoved" },
                     { "PosX", Position.X },
                     { "PosY", Position.Y }
                 });
+            }
+            else game.ContinueGame();
         }
 
         public void Set(byte posX, byte posY)

@@ -17,6 +17,7 @@ namespace AB_Server.Abilities
             //Set 1 Bakugan abilities
             ((cID, owner) => new Marionette(cID, owner, 6), Marionette.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
+            ((cID, owner) => new BruteUltimatum(cID, owner, 8), BruteUltimatum.HasValidTargets),
 
             ////Set 1 Nova abilities
             //((cID, owner) => new FireWall(cID, owner, 0), FireWall.HasValidTargets),

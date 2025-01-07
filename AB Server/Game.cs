@@ -327,29 +327,31 @@ namespace AB_Server
                     playersPassed++;
                     if (playersPassed == PlayerCount)
                     {
+                        Console.WriteLine("Determining winners of the battles");
                         foreach (var g in Field.Cast<GateCard?>())
                             if (g?.ActiveBattle == true)
                                 g.DetermineWinner();
 
-                        int looser = -1;
+                        int loser = -1;
                         foreach (var p in Players)
                             if (!p.BakuganOwned.Any(x => !x.Defeated))
                             {
-                                looser = p.Id;
+                                loser = p.Id;
                                 break;
                             }
 
-                        if (looser != -1)
+                        if (loser != -1)
                         {
                             for (int i = 0; i < PlayerCount; i++)
-                                NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Victor", Players.First(x => x.Id != looser).Id } });
+                                NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Victor", Players.First(x => x.Id != loser).Id } });
                             Over = true;
                             break;
                         }
 
                         isBattleGoing = false;
 
-                        EndTurn();
+                        WindowSuggested = false;
+                        playersPassed = 0;
                     }
 
                     break;
@@ -386,11 +388,13 @@ namespace AB_Server
             {
                 if (!WindowSuggested)
                 {
+                    Console.WriteLine("Trying to suggest battle start window...");
                     WindowSuggested = true;
                     SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
                 }
                 else
                 {
+                    Console.WriteLine("Starting battles...");
                     WindowSuggested = false;
                     BattlesStarted?.Invoke();
                     BattlesToStart.ForEach(x => x.StartBattle());
@@ -404,20 +408,24 @@ namespace AB_Server
             {
                 if (!WindowSuggested)
                 {
+                    Console.WriteLine("Trying to suggest battle end window...");
                     WindowSuggested = true;
                     SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
                 }
                 else
                 {
+                    Console.WriteLine("Resolving battles...");
                     WindowSuggested = false;
                     BattlesOver?.Invoke();
                     BattlesToEnd.ForEach(x =>
                     {
                         if (!x.CheckBattles())
                             x.Dispose();
+                        else
+                            isBattleGoing = true;
                     });
                     BattlesToEnd.Clear();
-                    ContinueGame();
+                    EndTurn();
                 }
             }
             else
@@ -462,6 +470,8 @@ namespace AB_Server
                 Players[TurnPlayer].HadThrownBakugan = false;
                 Players[TurnPlayer].HadUsedFusion = false;
                 Players[TurnPlayer].HadUsedCounter = false;
+
+                Console.WriteLine("Trying to suggest turn end window...");
                 SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
             }
         }
@@ -513,6 +523,7 @@ namespace AB_Server
 
         public void CheckChain(Player player, AbilityCard ability, Bakugan user)
         {
+            Console.WriteLine("Checking chain...");
             if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
                 SuggestFusion(player, ability, user);
             else if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
@@ -538,6 +549,7 @@ namespace AB_Server
 
         public void CheckChain(Player player, GateCard gate)
         {
+            Console.WriteLine("Checking chain...");
             if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
             {
                 int next = player.Id + 1;
@@ -563,17 +575,22 @@ namespace AB_Server
         {
             CurrentWindow = window;
             var currentPlayer = Players[player];
+            Console.WriteLine("Checking if player id " + player + " can use this window...");
 
             if (currentPlayer.HasActivateableAbilities())
             {
                 AwaitingAnswers[player] = () => CheckWindow(startingPlayer, player);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent(window.ToString().ToUpper() + "WINDOWPROMPT")));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
             }
             else
             {
                 if (++player >= PlayerCount) player = 0;
 
-                if (player == startingPlayer) ContinueGame();
+                if (player == startingPlayer)
+                {
+                    Console.WriteLine("No player can use this window. Continuining the game...");
+                    ContinueGame();
+                }
                 else SuggestWindow(window, startingPlayer, player);
             }
         }
@@ -583,7 +600,7 @@ namespace AB_Server
             if ((bool)IncomingSelection[player]["array"][0]["answer"])
             {
                 AwaitingAnswers[player] = () => ResolveWindow(Players[player]);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection(CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
             else
             {
@@ -622,6 +639,7 @@ namespace AB_Server
 
         public void SuggestCounter(Player player, IActive card, Player user)
         {
+            Console.WriteLine("Suggesting counter");
             AwaitingAnswers[player.Id] = () => CheckCounter(player, card, user);
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (card is GateCard) ? 'G' : 'A')));
         }
@@ -672,6 +690,7 @@ namespace AB_Server
 
         public void SuggestFusion(Player player, AbilityCard ability, Bakugan user)
         {
+            Console.WriteLine("Suggesting fusion...");
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FUSIONPROMPT")));
 
             AwaitingAnswers[player.Id] = () => CheckFusion(player, ability, user);
@@ -738,13 +757,20 @@ namespace AB_Server
         public bool ExecutingChain = false;
         public void ResolveChain()
         {
+            Console.WriteLine("Resolveing chain");
             ExecutingChain = true;
 
             CardChain.Reverse();
-            CardChain.ForEach(card => card.Resolve());
+            CardChain.ForEach(card =>
+            {
+                Console.WriteLine("Resolving card " + card.GetType().Name);
+                card.Resolve();
+            });
             CardChain.Clear();
 
             ExecutingChain = false;
+
+            Console.WriteLine("Continuing the game");
             ContinueGame();
         }
     }

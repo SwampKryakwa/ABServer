@@ -1,10 +1,16 @@
+﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AB_Server.Gates
 {
-    internal class LevelDown : GateCard
+    internal class Warlock : GateCard
     {
-        public LevelDown(int cID, Player owner)
+        public Warlock(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
@@ -12,7 +18,7 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public override int TypeId { get; } = 0;
+        public override int TypeId { get; } = 2;
 
         public override void Open()
         {
@@ -34,38 +40,28 @@ namespace AB_Server.Gates
 
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
+                { "Count", 1 },
                 { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_GATE_TARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
+                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.ToArray())
                 } }
             });
 
             game.AwaitingAnswers[Owner.Id] = Setup;
         }
 
-        Bakugan target;
+        IActive target;
 
         public void Setup()
         {
-            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = game.ActiveZone[(int)game.IncomingSelection[Owner.Id]["array"][0]["active"]];
 
             game.CheckChain(Owner, this);
         }
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Power >= 400)
-                target.Boost(new Boost(-100), this);
+            if (!counterNegated)
+                target.Negate();
         }
     }
 }

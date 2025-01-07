@@ -92,7 +92,7 @@ namespace AB_Server
         }
 
         public bool HasThrowableBakugan() =>
-            Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
+            Bakugans.Count != 0 && game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
 
         public bool HasActivateableAbilities() =>
             AbilityHand.Any(x => x.IsActivateable());

@@ -57,7 +57,7 @@ namespace AB_Server.Abilities
 
         public override void Setup(bool asCounter)
         {
-            AbilityCard ability = this;
+
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -67,7 +67,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -93,7 +93,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "Message", "INFO_GATENEGATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },
@@ -120,7 +120,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "Message", "INFO_GATENEGATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },
@@ -156,7 +156,7 @@ namespace AB_Server.Abilities
                 new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon;
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(x => x.OnField && x.IsOpen);

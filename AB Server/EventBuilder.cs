@@ -63,13 +63,11 @@ namespace AB_Server
             {
                 if (active is AbilityCard activeAbility)
                 {
-                    var activeCard = active;
-
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {
-                    jsonActives.Add(new JObject { { "Type", "E" }, { "CardType", active.TypeId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "E" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "EID", active.EffectId } });
                 }
             }
 

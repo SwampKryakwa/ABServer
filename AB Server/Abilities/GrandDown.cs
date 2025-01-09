@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Onwer { get; set; }
         bool IsCopy;
 
         public GrandDownEffect(Bakugan user, GateCard target, Game game, int typeID, bool IsCopy)

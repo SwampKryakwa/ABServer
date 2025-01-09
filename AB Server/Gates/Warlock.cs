@@ -25,6 +25,7 @@ namespace AB_Server.Gates
             IsOpen = true;
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(new()
                     {

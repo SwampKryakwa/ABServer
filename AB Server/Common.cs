@@ -11,6 +11,8 @@ namespace AB_Server
         public int EffectId { get; set; }
         public int TypeId { get; }
 
+        public Player Owner { get; set; }
+
         public void Negate(bool asCounter = false);
     }
 

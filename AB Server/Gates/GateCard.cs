@@ -64,12 +64,23 @@ namespace AB_Server.Gates
             game.isBattleGoing |= CheckBattles();
         }
 
+        public bool BattleOver = false;
+
         public virtual void DetermineWinner()
         {
             foreach (Bakugan b in Bakugans)
-            {
                 b.InBattle = false;
-            }
+            ActiveBattle = false;
+
+            var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
+
+            if (Bakugans.Count == 1) return;
+            if (numSides > 1) DetermineWinnerNormalBattle();
+            else if (numSides == 1) DetermineWinnerFakeBattle();
+        }
+
+        public virtual void DetermineWinnerNormalBattle()
+        {
             int[] teamTotals = new int[game.SideCount];
             for (int i = 0; i < game.PlayerCount; i++) teamTotals[i] = 0;
             foreach (var b in Bakugans)
@@ -86,15 +97,31 @@ namespace AB_Server.Gates
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                     if (b.Owner.SideID != winner)
                         b.Destroy(EnterOrder, MoveSource.Game);
-
-                foreach (List<JObject> e in game.NewEvents)
-                    e.Add(new JObject
-                    {
-                        { "Type", "BattleOver" },
-                        { "IsDraw", false },
-                        { "Victor", winner }
-                    });
             }
+
+            game.BattlesToEnd.Add(this);
+        }
+
+        public virtual void DetermineWinnerFakeBattle()
+        {
+            int winnerPower = Bakugans.MaxBy(x => x.Power).Power;
+
+            if (Bakugans.Any(x => x.Power < winnerPower)) FakeBattleNormal(winnerPower);
+            else FakeBattleDraw();
+        }
+
+        public virtual void FakeBattleNormal(int winnerPower)
+        {
+            foreach (Bakugan b in Bakugans.Where(x => x.Power < winnerPower))
+                b.ToHand(EnterOrder);
+
+            game.BattlesToEnd.Add(this);
+        }
+
+        public virtual void FakeBattleDraw()
+        {
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                b.ToHand(EnterOrder);
 
             game.BattlesToEnd.Add(this);
         }
@@ -181,6 +208,7 @@ namespace AB_Server.Gates
             IsOpen = true;
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(new()
                     {
@@ -204,15 +232,9 @@ namespace AB_Server.Gates
 
         public virtual bool CheckBattles()
         {
-            if (IsFrozen) return false;
+            if (IsFrozen || BattleOver) return false;
 
-            int[] numbSides = new int[game.PlayerCount];
-            for (int i = 0; i < numbSides.Length; i++) numbSides[i] = 0;
-
-            foreach (var b in Bakugans)
-                numbSides[b.Owner.SideID]++;
-
-            bool isBattle = numbSides.Where(x => x > 0).Count() >= 2;
+            bool isBattle = Bakugans.Count > 1;
 
             if (isBattle)
             {
@@ -226,7 +248,7 @@ namespace AB_Server.Gates
                 }
             }
 
-            return numbSides.Where(x => x > 0).Count() >= 2;
+            return isBattle;
         }
 
         public void StartBattle()
@@ -237,7 +259,7 @@ namespace AB_Server.Gates
         public virtual int TypeId =>
             throw new NotImplementedException();
 
-        public int EffectId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int EffectId { get; set; }
 
         public bool IsTouching(GateCard card)
         {

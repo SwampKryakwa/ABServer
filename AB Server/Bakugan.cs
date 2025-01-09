@@ -177,6 +177,7 @@ namespace AB_Server
 
             Position.Remove(this);
             Position = destination;
+            destination.BattleOver = false;
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
             if (destination.ActiveBattle) InBattle = true;
@@ -207,6 +208,7 @@ namespace AB_Server
 
             Position.Remove(this);
             Position = destination;
+            destination.BattleOver = false;
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
             foreach (var e in Game.NewEvents)

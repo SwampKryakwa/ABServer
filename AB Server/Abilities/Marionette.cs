@@ -12,7 +12,8 @@ namespace AB_Server.Abilities
         GateCard moveTarget;
         Game game;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Onwer { get; set; }
+        bool IsCopy;
 
         public MarionetteEffect(Bakugan user, Bakugan target, GateCard moveTarget, Game game, int typeID, bool IsCopy)
         {

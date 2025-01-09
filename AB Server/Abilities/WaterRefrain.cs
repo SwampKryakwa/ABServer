@@ -10,7 +10,8 @@ namespace AB_Server.Abilities
         Game game;
         int turnsPassed = 0;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Owner { get; set; }
+        bool IsCopy;
 
         public WaterRefrainEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {

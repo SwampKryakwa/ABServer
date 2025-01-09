@@ -27,6 +27,7 @@ namespace AB_Server.Gates
         {
             if (IsOpen)
             {
+                BattleOver = true;
                 game.BattlesToEnd.Add(this);
             }
             else

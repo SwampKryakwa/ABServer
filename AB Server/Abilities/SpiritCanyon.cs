@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
         Game game;
         Boost boost;
 
-        public Player Owner { get => user.Owner; }
+        public Player Onwer { get; set; }
         bool IsCopy;
 
         public SpiritCanyonEffect(Bakugan user, Game game, int typeID, bool IsCopy)

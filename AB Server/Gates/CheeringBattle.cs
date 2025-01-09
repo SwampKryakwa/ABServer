@@ -12,13 +12,14 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int TypeId { get; private protected set; } = 3;
+        public override int TypeId { get; } = 3;
 
         public override void Open()
         {
             IsOpen = true;
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(new()
                     {

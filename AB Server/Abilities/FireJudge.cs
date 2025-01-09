@@ -2,14 +2,16 @@
 
 namespace AB_Server.Abilities
 {
-    internal class FireJudgeEffect
+    internal class FireJudgeEffect : IActive
     {
         public int TypeId { get; }
+        public int EffectId { get; set; }
         Bakugan User;
         Game game;
         Boost currentBoost;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Owner { get; set; }
+        bool IsCopy;
 
         public FireJudgeEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
@@ -17,10 +19,14 @@ namespace AB_Server.Abilities
             this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
+            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
+            int team = User.Owner.SideID;
+            game.ActiveZone.Add(this);
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -35,9 +41,52 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
+                    { "Card", TypeId },
+                    { "Id", EffectId },
+                    { "Owner", Owner.Id }
+                });
             }
 
-            User.Boost(new Boost(100), this);
+            currentBoost = new Boost(100);
+            User.Boost(currentBoost, this);
+
+            game.BakuganDestroyed += OnBakuganLeaveField;
+            game.BakuganReturned += OnBakuganLeaveField;
+        }
+
+        private void OnBakuganLeaveField(Bakugan target, byte owner)
+        {
+            if (target == User)
+            {
+                currentBoost = new Boost(100);
+                User.Boost(currentBoost, this);
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            game.BakuganDestroyed -= OnBakuganLeaveField;
+            game.BakuganReturned -= OnBakuganLeaveField;
+
+            if (currentBoost.Active)
+            {
+                currentBoost.Active = false;
+                User.RemoveBoost(currentBoost, this);
+            }
+
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", EffectId }
+                });
+            }
         }
     }
 

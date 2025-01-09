@@ -24,7 +24,8 @@ namespace AB_Server
         public byte PlayerCount;
         public byte SideCount;
         byte loggedPlayers = 0;
-        byte playersPassed = 0;
+        byte playersPassedCount = 0;
+        readonly List<Player> playersPassed = [];
 
         Dictionary<long, byte> UUIDToPid = [];
 
@@ -231,7 +232,7 @@ namespace AB_Server
             string moveType = selection["Type"].ToString();
 
             DontThrowTurnStartEvent = false;
-            if (moveType != "pass") playersPassed = 0;
+            if (moveType != "pass") playersPassedCount = 0;
             switch (moveType)
             {
                 case "throw":
@@ -324,8 +325,15 @@ namespace AB_Server
                         NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
                     }
-                    playersPassed++;
-                    if (playersPassed == PlayerCount)
+                    playersPassed.Add(Players[ActivePlayer]);
+
+                    var battlingPlayers = Players.Where(x => x.HasBattlingBakugan());
+                    var allBattlingPlayersPassed = true;
+                    foreach (var player in battlingPlayers)
+                    {
+                        if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
+                    }
+                    if (allBattlingPlayersPassed)
                     {
                         Console.WriteLine("Determining winners of the battles");
                         foreach (var g in Field.Cast<GateCard?>())
@@ -351,7 +359,7 @@ namespace AB_Server
                         isBattleGoing = false;
 
                         WindowSuggested = false;
-                        playersPassed = 0;
+                        playersPassedCount = 0;
                     }
 
                     break;
@@ -374,7 +382,8 @@ namespace AB_Server
             }
             if (isBattleGoing)
             {
-                ActivePlayer = (byte)((ActivePlayer + 1) % PlayerCount);
+                while (!Players[++ActivePlayer].HasBattlingBakugan())
+                    if (ActivePlayer > PlayerCount) ActivePlayer = 0;
             }
             if (Over) return;
             if (!DontThrowTurnStartEvent)
@@ -508,10 +517,10 @@ namespace AB_Server
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
                 { "CanEndTurn", Players[player].CanEndTurn() },
-                { "CanEndBattle", Players[player].CanEndBattle() },
+                { "CanEndBattle", Players[player].HasBattlingBakugan() },
 
                 { "IsASkip", !Players[player].HadThrownBakugan },
-                { "IsAPass", isBattleGoing && playersPassed != (PlayerCount - 1) },
+                { "IsAPass", isBattleGoing && playersPassedCount < (Players.Count(x=>x.HasBattlingBakugan()) - 1) },
 
                 { "SettableGates", gateArray },
                 { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId } })) },

@@ -147,8 +147,8 @@ namespace AB_Server
             return !game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan || !HadSkippedTurn);
         }
 
-        public bool CanEndBattle() =>
-            game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
+        public bool HasBattlingBakugan() =>
+            BakuganOwned.Any(x => && x.InBattle);
 
         /*public static Player FromJSON(JObject playerJson, ushort playerID)
         {

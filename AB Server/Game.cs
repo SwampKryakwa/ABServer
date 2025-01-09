@@ -441,7 +441,7 @@ namespace AB_Server
                 { "CanThrowBakugan", Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
                 { "CanEndTurn", Players[player].CanEndTurn() },
-                { "CanEndBattle", Players[player].CanEndBattle() },
+                { "CanEndBattle", isBattleGoing },
 
                 { "IsASkip", !Players[player].HadThrownBakugan },
                 { "IsAPass", isBattleGoing && playersPassed != (PlayerCount - 1) },

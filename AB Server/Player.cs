@@ -148,7 +148,7 @@ namespace AB_Server
         }
 
         public bool HasBattlingBakugan() =>
-            BakuganOwned.Any(x => x.InBattle);
+            game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
 
         /*public static Player FromJSON(JObject playerJson, byte playerID)
         {

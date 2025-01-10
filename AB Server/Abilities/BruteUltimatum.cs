@@ -263,7 +263,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && Game.Players.Any(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && Game.Players.Any(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.Players.Any(x => x.Bakugans.Count != 0 && x.SideID != user.Owner.SideID);

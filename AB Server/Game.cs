@@ -382,8 +382,14 @@ namespace AB_Server
             }
             if (isBattleGoing)
             {
-                while (!Players[++ActivePlayer].HasBattlingBakugan())
-                    if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+                while (true)
+                {
+                    ActivePlayer++;
+                    Console.WriteLine("Checking if Player Id " + ActivePlayer + " is in a battle");
+                    if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+                    if (Players[ActivePlayer].HasBattlingBakugan()) break;
+                }
+                Console.WriteLine("Player Id " + ActivePlayer + " is in a battle, changing priority");
             }
             if (Over) return;
             if (!DontThrowTurnStartEvent)
@@ -419,7 +425,10 @@ namespace AB_Server
                 {
                     Console.WriteLine("Trying to suggest battle end window...");
                     WindowSuggested = true;
-                    SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
+                    if (BattlesToEnd.Any(x => !x.CheckBattles()))
+                        SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
+                    else
+                        ContinueGame();
                 }
                 else
                 {

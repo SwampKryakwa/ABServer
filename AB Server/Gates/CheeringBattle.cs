@@ -75,5 +75,8 @@ namespace AB_Server.Gates
 
             game.ContinueGame();
         }
+
+        public override bool IsOpenable() =>
+            base.IsOpenable() && Owner.Bakugans.Count > 0;
     }
 }

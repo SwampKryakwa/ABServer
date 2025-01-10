@@ -92,6 +92,7 @@ namespace AB_Server
         public bool InHands = true;
         public bool UsedAbilityThisTurn = false;
         public bool IsDummy = false;
+        public bool JustEndedBattle = false;
 
         public bool StickOnce = false;
 

@@ -65,10 +65,11 @@ namespace AB_Server
                                     Console.WriteLine(key);
                                     Console.ForegroundColor = ConsoleColor.DarkYellow;
                                     Console.WriteLine(body);
-                                    if (OperatingSystem.IsWindows())
-                                        Console.ForegroundColor = ConsoleColor.White;
-                                    else
-                                        Console.ForegroundColor = ConsoleColor.Black;
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                    //if (OperatingSystem.IsWindows())
+                                    //    Console.ForegroundColor = ConsoleColor.White;
+                                    //else
+                                    //    Console.ForegroundColor = ConsoleColor.Black;
                                 }
 
                                 JObject answer = new();

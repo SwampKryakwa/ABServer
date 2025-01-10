@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
             TypeId = typeID;
         }
 

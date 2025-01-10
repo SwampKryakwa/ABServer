@@ -93,8 +93,8 @@ namespace AB_Server.Abilities
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },
@@ -123,8 +123,8 @@ namespace AB_Server.Abilities
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },

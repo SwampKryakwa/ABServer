@@ -172,6 +172,10 @@ namespace AB_Server
 
                                         break;
 
+                                    case "getroomnicknames":
+                                        answer.Add("nicknames", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].Players.Select(x => x.DisplayName)));
+                                        break;
+
                                     case "getupdates":
                                         answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
                                         break;

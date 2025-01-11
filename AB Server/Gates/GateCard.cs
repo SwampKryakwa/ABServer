@@ -70,12 +70,12 @@ namespace AB_Server.Gates
         {
             foreach (Bakugan b in Bakugans)
             {
-                b.InBattle = false;
                 b.JustEndedBattle = true;
             }
             ActiveBattle = false;
 
             var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
+            BattleOver = true;
 
             if (Bakugans.Count == 1) return;
             if (numSides > 1) DetermineWinnerNormalBattle();
@@ -255,13 +255,16 @@ namespace AB_Server.Gates
             if (isBattle)
             {
                 Console.WriteLine("Must have a battle");
-                Bakugans.ForEach(x => x.InBattle = true);
 
                 if (!ActiveBattle)
                 {
                     Console.WriteLine("Battle yet to be started... Adding battle to the initialization list");
                     game.BattlesToStart.Add(this);
                 }
+            }
+            else
+            {
+                ActiveBattle = false;
             }
 
             return isBattle;

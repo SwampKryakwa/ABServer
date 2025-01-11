@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
             this.game = game;
             this.target = target;
             this.moveTarget = moveTarget;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 

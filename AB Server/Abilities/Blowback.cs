@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -173,7 +173,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField();
+            user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());

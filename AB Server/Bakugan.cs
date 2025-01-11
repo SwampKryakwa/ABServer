@@ -87,7 +87,14 @@ namespace AB_Server
         public Treatment Treatment;
 
         public IBakuganContainer Position;
-        public bool InBattle = false;
+        public bool InBattle
+        {
+            get {
+                if (Position is GateCard gatePosition)
+                    return gatePosition.ActiveBattle;
+                return false;
+            }
+        }
         public bool Defeated = false;
         public bool InHands = true;
         public bool UsedAbilityThisTurn = false;
@@ -181,7 +188,6 @@ namespace AB_Server
             destination.BattleOver = false;
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
-            if (destination.ActiveBattle) InBattle = true;
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
@@ -199,7 +205,8 @@ namespace AB_Server
                 });
             }
             Game.OnBakuganAdded(this, Owner.Id, destination);
-            destination.CheckBattles();
+            if (destination.CheckBattles())
+                Game.isBattleGoing = true;
             InHands = false;
         }
 
@@ -229,7 +236,8 @@ namespace AB_Server
                 });
             }
             Game.OnBakuganThrown(this, Owner.Id, destination);
-            destination.CheckBattles();
+            if (destination.CheckBattles())
+                Game.isBattleGoing = true;
             InHands = false;
         }
 
@@ -277,7 +285,6 @@ namespace AB_Server
                 if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
                 else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != this).ToArray();
 
-                if (destination.ActiveBattle) InBattle = true;
                 destination.EnterOrder.Add([this]);
 
                 foreach (var e in Game.NewEvents)
@@ -373,9 +380,6 @@ namespace AB_Server
             foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
                 if (gate.CheckBattles())
                     game.isBattleGoing = true;
-
-            foreach (var bakugan in bakugans)
-                if (destination.ActiveBattle) bakugan.InBattle = true;
         }
 
         public static void MultiAdd(Game game, GateCard destination, MoveSource mover, params Bakugan[] bakugans)
@@ -422,8 +426,6 @@ namespace AB_Server
                 if (gate.CheckBattles())
                     game.isBattleGoing = true;
 
-            foreach (var bakugan in bakugans)
-                if (destination.ActiveBattle) bakugan.InBattle = true;
         }
 
         public void FromGrave(GateCard destination, MoveSource mover = MoveSource.Effect)
@@ -457,7 +459,7 @@ namespace AB_Server
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
-            Game.isBattleGoing = destination.CheckBattles();
+            Game.isBattleGoing |= destination.CheckBattles();
         }
 
         public void Revive()

@@ -43,7 +43,7 @@ namespace AB_Server.Gates
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.ToArray())
+                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
                 } }
             });
 
@@ -54,7 +54,7 @@ namespace AB_Server.Gates
 
         public void Setup()
         {
-            target = game.ActiveZone[(int)game.IncomingSelection[Owner.Id]["array"][0]["active"]];
+            target = game.ActiveZone.First(x => x.EffectId == (int)game.IncomingSelection[Owner.Id]["array"][0]["active"]);
 
             game.CheckChain(Owner, this);
         }

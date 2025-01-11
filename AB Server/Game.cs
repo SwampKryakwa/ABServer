@@ -47,7 +47,7 @@ namespace AB_Server
 
         public byte TurnPlayer;
         public byte ActivePlayer { get; protected set; }
-        public bool isBattleGoing = false;
+        public bool isBattleGoing { get; set; } = false;
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
 
         public List<IChainable> CardChain { get; set; } = [];
@@ -232,7 +232,8 @@ namespace AB_Server
             string moveType = selection["Type"].ToString();
 
             DontThrowTurnStartEvent = false;
-            if (moveType != "pass") playersPassedCount = 0;
+            if (moveType != "pass")
+                playersPassed.Clear();
             switch (moveType)
             {
                 case "throw":
@@ -243,6 +244,7 @@ namespace AB_Server
                     }
                     else
                     {
+                        Console.WriteLine("Invalid action: throw at null");
                         NewEvents[TurnPlayer].Add(new JObject
                         {
                             ["Type"] = "InvalidAction"
@@ -335,6 +337,7 @@ namespace AB_Server
                     }
                     if (allBattlingPlayersPassed)
                     {
+                        playersPassed.Clear();
                         Console.WriteLine("Determining winners of the battles");
                         foreach (var g in Field.Cast<GateCard?>())
                             if (g?.ActiveBattle == true)
@@ -382,14 +385,26 @@ namespace AB_Server
             }
             if (isBattleGoing)
             {
+                var startPlayer = ActivePlayer;
                 while (true)
                 {
                     ActivePlayer++;
                     Console.WriteLine("Checking if Player Id " + ActivePlayer + " is in a battle");
                     if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
-                    if (Players[ActivePlayer].HasBattlingBakugan()) break;
+                    if (Players[ActivePlayer].HasBattlingBakugan())
+                    {
+                        Console.WriteLine("Player Id " + ActivePlayer + " is in a battle, changing priority");
+                        break;
+                    }
+                    if (startPlayer == ActivePlayer)
+                    {
+                        Console.WriteLine("No players are battling");
+                        isBattleGoing = false;
+                        EndTurn();
+                        DontThrowTurnStartEvent = true;
+                        break;
+                    }
                 }
-                Console.WriteLine("Player Id " + ActivePlayer + " is in a battle, changing priority");
             }
             if (Over) return;
             if (!DontThrowTurnStartEvent)
@@ -523,7 +538,7 @@ namespace AB_Server
             {
                 { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
-                { "CanThrowBakugan", Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
+                { "CanThrowBakugan", !isBattleGoing && Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
                 { "CanEndTurn", Players[player].CanEndTurn() },
                 { "CanEndBattle", Players[player].HasBattlingBakugan() },

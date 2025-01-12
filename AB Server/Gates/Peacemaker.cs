@@ -18,20 +18,14 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 1;
 
-        public override void Resolve()
+        public override void DetermineWinnerNormalBattle()
         {
-
+            game.BattlesToEnd.Add(this);
         }
 
-        public override void DetermineWinner()
+        public override void DetermineWinnerFakeBattle()
         {
-            if (IsOpen)
-            {
-                BattleOver = true;
-                game.BattlesToEnd.Add(this);
-            }
-            else
-                base.DetermineWinner();
+            FakeBattleDraw();
         }
     }
 }

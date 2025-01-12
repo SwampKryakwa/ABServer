@@ -238,8 +238,9 @@ namespace AB_Server.Gates
             game.CheckChain(Owner, this);
         }
 
-        public virtual void Resolve() =>
-            throw new NotImplementedException();
+        public virtual void Resolve()
+        {
+        }
 
         public virtual bool IsOpenable() =>
             OpenBlocking.Count == 0 && !Negated && OnField && ActiveBattle && !IsOpen;

@@ -123,7 +123,7 @@ namespace AB_Server.Abilities
                     { "Selections", new JArray {
                         new JObject {
                             { "SelectionType", "BH" },
-                            { "Message", "INFO_ABILITYUSER" },
+                            { "Message", "INFO_ABILITYTARGET" },
                             { "Ability", TypeId },
                             { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
                                 new JObject {
@@ -154,7 +154,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BH" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
                         { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
                             new JObject {
@@ -213,7 +213,7 @@ namespace AB_Server.Abilities
                     { "Selections", new JArray {
                         new JObject {
                             { "SelectionType", "BH" },
-                            { "Message", "INFO_ABILITYUSER" },
+                            { "Message", "INFO_ABILITYTARGET" },
                             { "Ability", TypeId },
                             { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
                                 new JObject {

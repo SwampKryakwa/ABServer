@@ -180,6 +180,16 @@ namespace AB_Server
                                         answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
                                         break;
 
+                                    case "sendchatmessage":
+                                        foreach (var updates in GIDToGame[(string)postedJson["gid"]].NewEvents)
+                                            updates.Add(new JObject
+                                            {
+                                                { "Type", "NewMessage" },
+                                                { "Sender", postedJson["pid"] },
+                                                { "Text", postedJson["text"] }
+                                            });
+                                        break;
+
                                     case "checkturnstart":
                                         answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].ActivePlayer } });
                                         break;

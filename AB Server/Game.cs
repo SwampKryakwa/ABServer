@@ -488,6 +488,7 @@ namespace AB_Server
                 {
                     Console.WriteLine("Resolving battles...");
                     WindowSuggested = false;
+                    isBattleGoing = false;
                     BattlesOver?.Invoke();
                     BattlesToEnd.ForEach(x =>
                     {
@@ -557,7 +558,8 @@ namespace AB_Server
                 Players[TurnPlayer].HadSetGate = false;
                 Players[TurnPlayer].HadThrownBakugan = false;
                 Players[TurnPlayer].HadUsedFusion = false;
-                Players[TurnPlayer].HadUsedCounter = false;
+                foreach (Player player in Players)
+                    player.HadUsedCounter = false;
 
                 currentTurn++;
                 for (int i = 0; i < PlayerCount; i++)

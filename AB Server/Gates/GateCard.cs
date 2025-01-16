@@ -167,7 +167,7 @@ namespace AB_Server.Gates
             else game.ContinueGame();
         }
 
-        public void Set(byte posX, byte posY)
+        public virtual void Set(byte posX, byte posY)
         {
             game.Field[posX, posY] = this;
             OnField = true;

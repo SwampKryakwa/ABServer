@@ -89,7 +89,8 @@ namespace AB_Server
         public IBakuganContainer Position;
         public bool InBattle
         {
-            get {
+            get
+            {
                 if (Position is GateCard gatePosition)
                     return gatePosition.ActiveBattle;
                 return false;
@@ -191,6 +192,15 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
+                    { "Type", "BakuganRemovedFromHand" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
+                    { "Attribute", (int)Attribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "BID", BID }
+                });
+                e.Add(new JObject {
                     { "Type", "BakuganAddedEvent" },
                     { "PosX", destination.Position.X },
                     { "PosY", destination.Position.Y },
@@ -221,6 +231,15 @@ namespace AB_Server
             destination.EnterOrder.Add([this]);
             foreach (var e in Game.NewEvents)
             {
+                e.Add(new JObject {
+                    { "Type", "BakuganRemovedFromHand" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
+                    { "Attribute", (int)Attribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "BID", BID }
+                });
                 e.Add(new JObject {
                     { "Type", "BakuganThrownEvent" },
                     { "PosX", destination.Position.X },
@@ -253,6 +272,7 @@ namespace AB_Server
                 e.Add(new JObject {
                     { "Type", "BakuganAttributeChangeEvent" },
                     { "Owner", Owner.Id },
+                    { "OldAttribute", (int)oldAttribute },
                     { "Attribute", (int)newAttribute },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
@@ -494,17 +514,17 @@ namespace AB_Server
                 foreach (List<JObject> e in Game.NewEvents)
                 {
                     e.Add(new JObject
-                {
-                    { "Type", "BakuganRemoved" },
-                    { "Owner", Owner.Id },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
-                        { "Treatment", (int)Treatment },
-                        { "Power", Power },
-                        { "BID", BID } }
-                    }
-                });
+                    {
+                        { "Type", "BakuganRemoved" },
+                        { "Owner", Owner.Id },
+                        { "Bakugan", new JObject {
+                            { "Type", (int)Type },
+                            { "Attribute", (int)Attribute },
+                            { "Treatment", (int)Treatment },
+                            { "Power", Power },
+                            { "BID", BID } }
+                        }
+                    });
                 }
 
                 Boosts.ForEach(x => x.Active = false);

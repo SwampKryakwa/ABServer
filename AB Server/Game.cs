@@ -18,7 +18,7 @@ namespace AB_Server
     internal class Game
     {
         public List<JObject>[] NewEvents { get; set; }
-        public dynamic[] IncomingSelection;
+        public dynamic?[] IncomingSelection;
         public Dictionary<long, int> UidToPid = [];
 
         public byte PlayerCount;
@@ -26,6 +26,7 @@ namespace AB_Server
         byte loggedPlayers = 0;
         byte playersPassedCount = 0;
         readonly List<Player> playersPassed = [];
+        int currentTurn = 1;
 
         Dictionary<long, byte> UUIDToPid = [];
 
@@ -45,7 +46,7 @@ namespace AB_Server
         public List<GateCard> GateIndex = [];
         public List<AbilityCard> AbilityIndex = [];
 
-        public byte TurnPlayer;
+        public byte TurnPlayer { get; set; }
         public byte ActivePlayer { get; protected set; }
         public bool isBattleGoing { get; set; } = false;
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
@@ -204,16 +205,31 @@ namespace AB_Server
                 for (int i = 0; i < PlayerCount; i++)
                     AwaitingAnswers[i] = () =>
                     {
+                        Console.Write("");
                         if (IncomingSelection.Contains(null)) return;
-                        for (byte i = 0; i < IncomingSelection.Length; i++)
+                        for (byte j = 0; j < IncomingSelection.Length; j++)
                         {
-                            dynamic selection = IncomingSelection[i];
+                            dynamic selection = IncomingSelection[j];
+                            int id = (int)selection["gate"];
 
-                            Players[i].GateHand[(byte)selection["gate"]].Set(i, 1);
+                            for (int i = 0; i < NewEvents.Length; i++)
+                            {
+                                NewEvents[i].Add(new()
+                                {
+                                    ["Type"] = "GateRemovedFromHand",
+                                    ["Id"] = id,
+                                    ["Card"] = GateIndex[id].TypeId,
+                                    ["Owner"] = GateIndex[id].Owner.Id
+                                });
+                            }
+                            Players[j].GateHand[(byte)selection["gate"]].Set(j, 1);
                         }
 
-                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerNamesInfo" }, { "Info", new JArray(Players.Select(x => x.DisplayName).ToArray()) } });
-                        foreach (List<JObject> e in NewEvents) e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+                        foreach (List<JObject> e in NewEvents)
+                        {
+                            e.Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
+                            e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+                        }
                         Started = true;
                     };
             }
@@ -264,7 +280,20 @@ namespace AB_Server
                     else
                     {
                         Players[TurnPlayer].HadSetGate = true;
-                        GateIndex[(byte)selection["gate"]].Set(posSelection.X, posSelection.Y);
+
+                        var id = (byte)selection["gate"];
+                        for (int i = 0; i < NewEvents.Length; i++)
+                        {
+                            NewEvents[i].Add(new()
+                            {
+                                ["Type"] = "GateRemovedFromHand",
+                                ["Id"] = id,
+                                ["Card"] = GateIndex[id].TypeId,
+                                ["Owner"] = GateIndex[id].Owner.Id
+                            });
+                        }
+
+                        GateIndex[id].Set(posSelection.X, posSelection.Y);
                     }
 
                     break;
@@ -287,6 +316,17 @@ namespace AB_Server
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
                         Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
 
+                        for (int i = 0; i < NewEvents.Length; i++)
+                        {
+                            NewEvents[i].Add(new()
+                            {
+                                ["Type"] = "AbilityRemovedFromHand",
+                                ["IsCopy"] = AbilityIndex[abilitySelection].IsCopy,
+                                ["Id"] = AbilityIndex[abilitySelection].EffectId,
+                                ["Card"] = AbilityIndex[abilitySelection].TypeId,
+                                ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
+                            });
+                        }
                         for (int i = 0; i < NewEvents.Length; i++)
                         {
                             NewEvents[i].Add(new()
@@ -400,8 +440,6 @@ namespace AB_Server
                     {
                         Console.WriteLine("No players are battling");
                         isBattleGoing = false;
-                        EndTurn();
-                        DontThrowTurnStartEvent = true;
                         break;
                     }
                 }
@@ -414,6 +452,8 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
+            Console.WriteLine("Initializing next game step...");
+            Console.WriteLine("Turn player: " + TurnPlayer);
             if (BattlesToStart.Count != 0)
             {
                 if (!WindowSuggested)
@@ -433,8 +473,7 @@ namespace AB_Server
                     ContinueGame();
                 }
             }
-            else
-            if (BattlesToEnd.Count != 0)
+            else if (BattlesToEnd.Count != 0)
             {
                 if (!WindowSuggested)
                 {
@@ -458,7 +497,17 @@ namespace AB_Server
                             isBattleGoing = true;
                     });
                     BattlesToEnd.Clear();
-                    EndTurn();
+
+                    // Check if new battles have started
+                    if (BattlesToStart.Count != 0)
+                    {
+                        ContinueGame();
+                    }
+                    else
+                    {
+                        // Ensure the turn ends after resolving battles
+                        EndTurn();
+                    }
                 }
             }
             else
@@ -472,11 +521,15 @@ namespace AB_Server
 
         public void EndTurn()
         {
+            playersPassed.Clear();
+
             TurnAboutToEnd?.Invoke();
 
+            Console.WriteLine("Checking is battle is still going...");
             if (isBattleGoing)
             {
                 ActivePlayer = TurnPlayer;
+                Console.WriteLine("Battle is still going, continuinging battles");
                 foreach (var e in NewEvents) e.Add(new JObject
                         {
                             { "Type", "PlayerTurnStart" },
@@ -485,12 +538,14 @@ namespace AB_Server
             }
             else
             {
+                Console.WriteLine("Ending turn...");
                 TurnEnd?.Invoke();
                 if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     Players[TurnPlayer].HadSkippedTurn = true;
 
-                TurnPlayer = (byte)((TurnPlayer + 1) % PlayerCount);
+                if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
                 ActivePlayer = TurnPlayer;
+                Console.WriteLine($"Initializing Player {TurnPlayer}'s turn");
 
                 BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
@@ -503,6 +558,10 @@ namespace AB_Server
                 Players[TurnPlayer].HadThrownBakugan = false;
                 Players[TurnPlayer].HadUsedFusion = false;
                 Players[TurnPlayer].HadUsedCounter = false;
+
+                currentTurn++;
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
 
                 Console.WriteLine("Trying to suggest turn end window...");
                 SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
@@ -544,7 +603,7 @@ namespace AB_Server
                 { "CanEndBattle", Players[player].HasBattlingBakugan() },
 
                 { "IsASkip", !Players[player].HadThrownBakugan },
-                { "IsAPass", isBattleGoing && playersPassedCount < (Players.Count(x=>x.HasBattlingBakugan()) - 1) },
+                { "IsAPass", isBattleGoing && playersPassed.Count < (Players.Count(x=>x.HasBattlingBakugan()) - 1) },
 
                 { "SettableGates", gateArray },
                 { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId } })) },
@@ -658,6 +717,17 @@ namespace AB_Server
                 {
                     NewEvents[i].Add(new()
                     {
+                        ["Type"] = "AbilityRemovedFromHand",
+                        ["IsCopy"] = AbilityIndex[id].IsCopy,
+                        ["Id"] = AbilityIndex[id].EffectId,
+                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["Owner"] = AbilityIndex[id].Owner.Id
+                    });
+                }
+                for (int i = 0; i < NewEvents.Length; i++)
+                {
+                    NewEvents[i].Add(new()
+                    {
                         ["Type"] = "AbilityAddedActiveZone",
                         ["IsCopy"] = AbilityIndex[id].IsCopy,
                         ["Id"] = AbilityIndex[id].EffectId,
@@ -705,6 +775,17 @@ namespace AB_Server
                 ActiveZone.Add(AbilityIndex[id]);
                 player.AbilityHand.Remove(AbilityIndex[id]);
 
+                for (int i = 0; i < NewEvents.Length; i++)
+                {
+                    NewEvents[i].Add(new()
+                    {
+                        ["Type"] = "AbilityRemovedFromHand",
+                        ["IsCopy"] = AbilityIndex[id].IsCopy,
+                        ["Id"] = AbilityIndex[id].EffectId,
+                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["Owner"] = AbilityIndex[id].Owner.Id
+                    });
+                }
                 for (int i = 0; i < NewEvents.Length; i++)
                 {
                     NewEvents[i].Add(new()

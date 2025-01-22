@@ -416,6 +416,15 @@ namespace AB_Server
                 foreach (var e in game.NewEvents)
                 {
                     e.Add(new JObject {
+                        { "Type", "BakuganRemovedFromHand" },
+                        { "Owner", bakugan.Owner.Id },
+                        { "BakuganType", (int)bakugan.Type },
+                        { "Attribute", (int)bakugan.Attribute },
+                        { "Treatment", (int)bakugan.Treatment },
+                        { "Power", bakugan.Power },
+                        { "BID", bakugan.BID }
+                    });
+                    e.Add(new JObject {
                         { "Type", "BakuganAddedEvent" },
                         { "PosX", destination.Position.X },
                         { "PosY", destination.Position.Y },
@@ -485,6 +494,16 @@ namespace AB_Server
         public void Revive()
         {
             if (IsDummy) return;
+            foreach (List<JObject> e in Game.NewEvents)
+                e.Add(new JObject {
+                    { "Type", "BakuganAddedToHand" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
+                    { "Attribute", (int)Attribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "BID", BID }
+                });
 
             Defeated = false;
             Position.Remove(this);
@@ -524,6 +543,15 @@ namespace AB_Server
                             { "Power", Power },
                             { "BID", BID } }
                         }
+                    });
+                    e.Add(new JObject {
+                        { "Type", "BakuganAddedToHand" },
+                        { "Owner", Owner.Id },
+                        { "BakuganType", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID }
                     });
                 }
 

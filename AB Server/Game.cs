@@ -199,27 +199,49 @@ namespace AB_Server
                         }
                     }
                     if (NewEvents[i].Count == 0)
+                    {
                         NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
+                        NewEvents[i].Add(new JObject
+                        {
+                            ["Type"] = "InitializeHand",
+                            ["Bakugans"] = new JArray(Players[i].Bakugans.Select(b => new JObject
+                            {
+                                ["BID"] = b.BID,
+                                ["Type"] = (int)b.Type,
+                                ["Attribute"] = (int)b.Attribute,
+                                ["Treatment"] = (int)b.Treatment,
+                                ["Power"] = b.Power
+                            })),
+                            ["Abilities"] = new JArray(Players[i].AbilityHand.Select(a => new JObject
+                            {
+                                ["CID"] = a.CardId,
+                                ["Type"] = a.TypeId
+                            })),
+                            ["Gates"] = new JArray(Players[i].GateHand.Select(g => new JObject
+                            {
+                                ["CID"] = g.CardId,
+                                ["Type"] = g.TypeId
+                            }))
+                        });
+                    }
                 }
 
                 for (int i = 0; i < PlayerCount; i++)
                     AwaitingAnswers[i] = () =>
                     {
-                        Console.Write("");
                         if (IncomingSelection.Contains(null)) return;
                         for (byte j = 0; j < IncomingSelection.Length; j++)
                         {
                             dynamic selection = IncomingSelection[j];
                             int id = (int)selection["gate"];
 
-                            for (int i = 0; i < NewEvents.Length; i++)
+                            for (int k = 0; k < NewEvents.Length; k++)
                             {
-                                NewEvents[i].Add(new()
+                                NewEvents[k].Add(new()
                                 {
                                     ["Type"] = "GateRemovedFromHand",
-                                    ["Id"] = id,
-                                    ["Card"] = GateIndex[id].TypeId,
-                                    ["Owner"] = GateIndex[id].Owner.Id
+                                    ["CID"] = Players[j].GateHand[(byte)selection["gate"]].CardId,
+                                    ["Owner"] = j
                                 });
                             }
                             Players[j].GateHand[(byte)selection["gate"]].Set(j, 1);
@@ -287,8 +309,7 @@ namespace AB_Server
                             NewEvents[i].Add(new()
                             {
                                 ["Type"] = "GateRemovedFromHand",
-                                ["Id"] = id,
-                                ["Card"] = GateIndex[id].TypeId,
+                                ["CID"] = id,
                                 ["Owner"] = GateIndex[id].Owner.Id
                             });
                         }
@@ -321,9 +342,7 @@ namespace AB_Server
                             NewEvents[i].Add(new()
                             {
                                 ["Type"] = "AbilityRemovedFromHand",
-                                ["IsCopy"] = AbilityIndex[abilitySelection].IsCopy,
-                                ["Id"] = AbilityIndex[abilitySelection].EffectId,
-                                ["Card"] = AbilityIndex[abilitySelection].TypeId,
+                                ["CID"] = AbilityIndex[abilitySelection].CardId,
                                 ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
                             });
                         }
@@ -720,9 +739,7 @@ namespace AB_Server
                     NewEvents[i].Add(new()
                     {
                         ["Type"] = "AbilityRemovedFromHand",
-                        ["IsCopy"] = AbilityIndex[id].IsCopy,
-                        ["Id"] = AbilityIndex[id].EffectId,
-                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["CID"] = AbilityIndex[id].CardId,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }
@@ -782,9 +799,7 @@ namespace AB_Server
                     NewEvents[i].Add(new()
                     {
                         ["Type"] = "AbilityRemovedFromHand",
-                        ["IsCopy"] = AbilityIndex[id].IsCopy,
-                        ["Id"] = AbilityIndex[id].EffectId,
-                        ["Card"] = AbilityIndex[id].TypeId,
+                        ["CID"] = AbilityIndex[id].CardId,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }

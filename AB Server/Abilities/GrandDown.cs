@@ -57,8 +57,6 @@ namespace AB_Server.Abilities
 
         public override void Setup(bool asCounter)
         {
-
-
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },

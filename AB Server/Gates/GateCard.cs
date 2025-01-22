@@ -312,6 +312,19 @@ namespace AB_Server.Gates
             if (asCounter) counterNegated = true;
             Negated = true;
             IsOpen = false;
+
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(new()
+                    {
+                        { "Type", "GateNegateEvent" },
+                        { "PosX", Position.X },
+                        { "PosY", Position.Y },
+                        { "GateData", new JObject {
+                            { "Type", TypeId } }
+                        },
+                        { "Owner", Owner.Id },
+                        { "CID", CardId }
+                    });
         }
     }
 }

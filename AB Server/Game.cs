@@ -263,10 +263,8 @@ namespace AB_Server
 
         public bool doNotMakeStep = false;
 
-        public void GameStep()
+        public void GameStep(JObject selection)
         {
-            dynamic selection = IncomingSelection[ActivePlayer];
-
             string moveType = selection["Type"].ToString();
 
             DontThrowTurnStartEvent = false;

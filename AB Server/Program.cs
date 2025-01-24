@@ -219,9 +219,8 @@ namespace AB_Server
                                         game = GIDToGame[GID];
                                         player = (int)postedJson["playerID"];
 
-                                        game.IncomingSelection[player] = postedJson;
                                         if (!game.doNotMakeStep)
-                                            game.GameStep();
+                                            game.GameStep(postedJson);
                                         break;
 
                                     case "leave":

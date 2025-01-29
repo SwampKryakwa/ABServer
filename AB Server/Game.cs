@@ -177,12 +177,12 @@ namespace AB_Server
 
                 for (int i = 0; i < Players.Count; i++)
                 {
-                    var p = Players[i];
+                    var player = Players[i];
                     JArray gates = new();
 
-                    for (int j = 0; j < p.GateHand.Count; j++)
+                    for (int j = 0; j < player.GateHand.Count; j++)
                     {
-                        int type = p.GateHand[j].TypeId;
+                        int type = player.GateHand[j].TypeId;
                         switch (type)
                         {
                             //case 0:
@@ -198,13 +198,18 @@ namespace AB_Server
                                 break;
                         }
                     }
+
                     if (NewEvents[i].Count == 0)
                     {
+                        for (int j = 0; j < PlayerCount; j++)
+                        {
+                            NewEvents[i].Add(new JObject { { "Type", "PlayerGatesColors" }, { "Player", j }, { "Color", Players[j].playerColor } });
+                        }
                         NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
                         NewEvents[i].Add(new JObject
                         {
                             ["Type"] = "InitializeHand",
-                            ["Bakugans"] = new JArray(Players[i].Bakugans.Select(b => new JObject
+                            ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
                             {
                                 ["BID"] = b.BID,
                                 ["Type"] = (int)b.Type,
@@ -212,12 +217,12 @@ namespace AB_Server
                                 ["Treatment"] = (int)b.Treatment,
                                 ["Power"] = b.Power
                             })),
-                            ["Abilities"] = new JArray(Players[i].AbilityHand.Select(a => new JObject
+                            ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
                             {
                                 ["CID"] = a.CardId,
                                 ["Type"] = a.TypeId
                             })),
-                            ["Gates"] = new JArray(Players[i].GateHand.Select(g => new JObject
+                            ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
                             {
                                 ["CID"] = g.CardId,
                                 ["Type"] = g.TypeId
@@ -635,9 +640,10 @@ namespace AB_Server
         public void CheckChain(Player player, AbilityCard ability, Bakugan user)
         {
             Console.WriteLine("Checking chain...");
-            if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
-                SuggestFusion(player, ability, user);
-            else if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
+            //if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
+            //    SuggestFusion(player, ability, user);
+            //else 
+            if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
             {
                 int next = player.Id + 1;
                 if (next == PlayerCount) next = 0;

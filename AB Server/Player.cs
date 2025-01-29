@@ -44,6 +44,8 @@ namespace AB_Server
 
         public Game game;
 
+        public byte playerColor;
+
         public Player(byte id, byte sideID, Game game, string displayName)
         {
             Id = id;
@@ -59,18 +61,23 @@ namespace AB_Server
 
             //player.DisplayName = deck["dispName"].ToString();
 
-            foreach (dynamic b in deck["bakugans"])
-            {
-                int type = (int)b["Type"];
-                short power = (short)b["Power"];
-                int attr = (int)b["Attribute"];
-                int treatment = (int)b["Treatment"];
+            if (deck["deck_color"] != null)
+                player.playerColor = deck["deck_color"];
+            else
+                player.playerColor = 0;
 
-                Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, player, game, game.BakuganIndex.Count);
-                game.BakuganIndex.Add(bak);
-                player.Bakugans.Add(bak);
-                player.BakuganOwned.Add(bak);
-            }
+                foreach (dynamic b in deck["bakugans"])
+                {
+                    int type = (int)b["Type"];
+                    short power = (short)b["Power"];
+                    int attr = (int)b["Attribute"];
+                    int treatment = (int)b["Treatment"];
+
+                    Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, player, game, game.BakuganIndex.Count);
+                    game.BakuganIndex.Add(bak);
+                    player.Bakugans.Add(bak);
+                    player.BakuganOwned.Add(bak);
+                }
 
             foreach (int a in deck["abilities"])
             {

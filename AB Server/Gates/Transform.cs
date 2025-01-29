@@ -40,7 +40,7 @@ namespace AB_Server.Gates
                         { "SelectionType", "BF" },
                         { "Message", "INFO_GATE_TARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Select(x =>
+                        { "SelectionBakugans", new JArray(Bakugans.Where(x=>x.Owner == Owner).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },

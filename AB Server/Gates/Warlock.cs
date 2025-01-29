@@ -64,5 +64,7 @@ namespace AB_Server.Gates
             if (!counterNegated)
                 target.Negate();
         }
+
+        public override bool IsOpenable() => game.ActiveZone.Count != 0 && base.IsOpenable();
     }
 }

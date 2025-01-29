@@ -536,6 +536,7 @@ namespace AB_Server
                     {
                         { "Type", "BakuganRemoved" },
                         { "Owner", Owner.Id },
+                        { "IsDestroy", false },
                         { "Bakugan", new JObject {
                             { "Type", (int)Type },
                             { "Attribute", (int)Attribute },
@@ -592,17 +593,18 @@ namespace AB_Server
                 foreach (List<JObject> e in Game.NewEvents)
                 {
                     e.Add(new JObject
-                {
-                    { "Type", "BakuganRemoved" },
-                    { "Owner", Owner.Id },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
-                        { "Treatment", (int)Treatment },
-                        { "Power", Power },
-                        { "BID", BID } }
-                    }
-                });
+                    {
+                        { "Type", "BakuganRemoved" },
+                        { "Owner", Owner.Id },
+                        { "IsDestroy", true },
+                        { "Bakugan", new JObject {
+                            { "Type", (int)Type },
+                            { "Attribute", (int)Attribute },
+                            { "Treatment", (int)Treatment },
+                            { "Power", Power },
+                            { "BID", BID } }
+                        }
+                    });
                 }
 
                 Boosts.ForEach(x => x.Active = false);

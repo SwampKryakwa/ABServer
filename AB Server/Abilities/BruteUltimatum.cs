@@ -174,66 +174,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            if (Game.Players.Count(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID) > 1)
-            {
-                Game.NewEvents[Owner.Id].Add(new JObject
-                {
-                    { "Type", "StartSelection" },
-                    { "Selections", new JArray {
-                        new JObject {
-                            { "SelectionType", "P" },
-                            { "Message", "INFO_PLAYERTARGET" },
-                            { "Ability", TypeId },
-                            { "SelectionPlayers", new JArray(Game.Players.Where(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID).Select(x =>
-                                new JObject {
-                                    { "Nickname", x.DisplayName },
-                                    { "Side", x.SideID },
-                                    { "PID", x.Id }
-                                }
-                            )) }
-                        }
-                    } }
-                });
-
-                Game.AwaitingAnswers[Owner.Id] = Setup3;
-            }
-            else
-            {
-                target = Game.Players.First(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
-
-                Game.NewEvents[target.Id].Add(new JObject
-                {
-                    { "Type", "StartSelection" },
-                    { "Selections", new JArray {
-                        new JObject {
-                            { "SelectionType", "BH" },
-                            { "Message", "INFO_ABILITYTARGET" },
-                            { "Ability", TypeId },
-                            { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
-                                new JObject {
-                                    { "Type", (int)x.Type },
-                                    { "Attribute", (int)x.Attribute },
-                                    { "Treatment", (int)x.Treatment },
-                                    { "Power", x.Power },
-                                    { "Owner", x.Owner.Id },
-                                    { "BID", x.BID }
-                                }
-                            )) }
-                        }
-                    } }
-                });
-                Game.NewEvents[Owner.Id].Add(new JObject { { "Type", "OtherPlayerSelects" }, { "PID", target.Id } });
-
-                Game.AwaitingAnswers[target.Id] = Activate;
-            }
-        }
-
         private Bakugan addTarget;
 
         public new void Activate()
@@ -245,7 +185,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new BruteUltimatumEffect(User, addTarget, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -262,7 +202,7 @@ namespace AB_Server.Abilities
                 addTarget = Bakugan.GetDummy();
         }
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && Game.Players.Any(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
 
         public static new bool HasValidTargets(Bakugan user) =>

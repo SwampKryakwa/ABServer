@@ -579,7 +579,6 @@ namespace AB_Server
 
                 Players[TurnPlayer].HadSetGate = false;
                 Players[TurnPlayer].HadThrownBakugan = false;
-                Players[TurnPlayer].HadUsedFusion = false;
                 foreach (Player player in Players)
                     player.HadUsedCounter = false;
 
@@ -857,16 +856,15 @@ namespace AB_Server
                 return;
             }
 
-            player.HadUsedFusion = true;
             AwaitingAnswers[player.Id] = () => ResolveFusion(player, ability, user);
 
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateableFusion(user)).ToArray())));
+            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("FusionSelection", player.AbilityHand.Where(x => x.IsActivateableByBakugan(user)).ToArray())));
         }
 
         public void ResolveFusion(Player player, AbilityCard ability, Bakugan user)
         {
             int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
-            if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableFusion(user))
+            if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableByBakugan(user))
             {
                 CardChain.Insert(CardChain.IndexOf(ability) + 1, AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
@@ -885,7 +883,7 @@ namespace AB_Server
                     });
                 }
 
-                AbilityIndex[id].SetupFusion(ability, user);
+                //AbilityIndex[id].SetupFusion(ability, user);
             }
         }
 

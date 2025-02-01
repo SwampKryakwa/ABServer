@@ -106,7 +106,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -115,7 +115,7 @@ namespace AB_Server.Abilities
         public override void DoubleEffect() =>
                 new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();
     }
 }

@@ -112,36 +112,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ABILITYTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
         private Bakugan target;
 
         public new void Activate()
@@ -153,7 +123,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new HolyLightEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -170,7 +140,7 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
 
         public static new bool HasValidTargets(Bakugan user) =>

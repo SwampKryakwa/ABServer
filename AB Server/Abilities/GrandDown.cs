@@ -106,33 +106,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "GF" },
-                        { "Message", "INFO_GATENEGATETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
-                            { "Type", x.TypeId },
-                            { "PosX", x.Position.X },
-                            { "PosY", x.Position.Y },
-                            { "CID", x.CardId }
-                        })) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
         private GateCard target;
 
         public new void Activate()
@@ -144,7 +117,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -153,7 +126,7 @@ namespace AB_Server.Abilities
         public override void DoubleEffect() =>
                 new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
         public static new bool HasValidTargets(Bakugan user) =>

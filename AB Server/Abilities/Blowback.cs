@@ -11,7 +11,6 @@ namespace AB_Server.Abilities
         Bakugan target;
         Game game;
 
-
         public Player Onwer { get; set; }
         bool IsCopy;
 
@@ -112,36 +111,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
         private Bakugan target;
 
         public new void Activate()
@@ -153,7 +122,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new BlowbackEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -170,7 +139,7 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
 
         public static new bool HasValidTargets(Bakugan user) =>

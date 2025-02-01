@@ -109,8 +109,7 @@ namespace AB_Server.Abilities
         public Player Owner { get; set; }
         public int EffectId { get; set; }
 
-        public AbilityCard FusedTo { get; set; }
-        public AbilityCard Fusion { get; set; }
+        public AbilityCard? Fusion { get; set; }
 
         public int CardId { get; protected set; }
 
@@ -119,8 +118,8 @@ namespace AB_Server.Abilities
         public bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
         public bool BakuganIsValid(Bakugan user) =>
-            IsActivateableFusion(user) && user.Owner == Owner && !user.UsedAbilityThisTurn;
-        public virtual bool IsActivateableFusion(Bakugan user) =>
+            IsActivateableByBakugan(user) && user.Owner == Owner && !user.UsedAbilityThisTurn;
+        public virtual bool IsActivateableByBakugan(Bakugan user) =>
             throw new NotImplementedException();
         public virtual bool IsActivateableCounter() => IsActivateable();
 
@@ -149,16 +148,6 @@ namespace AB_Server.Abilities
             });
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
-        public virtual void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.CheckChain(Owner, this, user);
         }
 
         public void Activate()

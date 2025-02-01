@@ -114,36 +114,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
         private Bakugan target;
 
         public new void Activate()
@@ -155,7 +125,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
@@ -172,7 +142,7 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
 
         public static new bool HasValidTargets(Bakugan user) =>

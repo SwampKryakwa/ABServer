@@ -141,36 +141,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public override void SetupFusion(AbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
-        }
-
         public new void Activate()
         {
             moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
@@ -180,7 +150,7 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
@@ -196,7 +166,7 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public override bool IsActivateableFusion(Bakugan user) =>
+        public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.OnField() && Game.BakuganIndex.Any(possibleTarget => possibleTarget.OnField() && possibleTarget.Position != user.Position && user.IsEnemyOf(possibleTarget));
 
         public static new bool HasValidTargets(Bakugan user) =>

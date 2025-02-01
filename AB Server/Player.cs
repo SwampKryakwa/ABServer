@@ -37,7 +37,6 @@ namespace AB_Server
         public bool HadSetGate;
         public bool HadThrownBakugan;
         public bool HadSkippedTurn { get; set; }
-        public bool HadUsedFusion = false;
         public bool HadUsedCounter = false;
 
         public short hp = 3;
@@ -105,7 +104,7 @@ namespace AB_Server
             AbilityHand.Any(x => x.IsActivateable());
 
         public bool HasActivateableFusionAbilities(Bakugan user) =>
-            AbilityHand.Any(x => x.IsActivateableFusion(user));
+            AbilityHand.Any(x => x.IsActivateableByBakugan(user));
 
         public bool HasSettableGates() =>
             GateHand.Count != 0 && !HadSetGate;

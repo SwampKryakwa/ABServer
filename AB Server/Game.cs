@@ -220,7 +220,8 @@ namespace AB_Server
                             ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
                             {
                                 ["CID"] = a.CardId,
-                                ["Type"] = a.TypeId
+                                ["Type"] = a.TypeId,
+                                ["Kind"] = (int)a.Kind
                             })),
                             ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
                             {
@@ -357,6 +358,7 @@ namespace AB_Server
                                 ["IsCopy"] = AbilityIndex[abilitySelection].IsCopy,
                                 ["Id"] = AbilityIndex[abilitySelection].EffectId,
                                 ["Card"] = AbilityIndex[abilitySelection].TypeId,
+                                ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
                                 ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
                             });
                         }
@@ -754,6 +756,7 @@ namespace AB_Server
                         ["IsCopy"] = AbilityIndex[id].IsCopy,
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
+                        ["Kind"] = (int)AbilityIndex[id].Kind,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }
@@ -814,6 +817,7 @@ namespace AB_Server
                         ["IsCopy"] = AbilityIndex[id].IsCopy,
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
+                        ["Kind"] = (int)AbilityIndex[id].Kind,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }
@@ -879,6 +883,7 @@ namespace AB_Server
                         ["IsCopy"] = AbilityIndex[id].IsCopy,
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
+                        ["Kind"] = (int)AbilityIndex[id].Kind,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }

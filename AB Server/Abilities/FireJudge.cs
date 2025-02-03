@@ -6,6 +6,7 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
+        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
         Bakugan User;
         Game game;
         Boost currentBoost;
@@ -31,7 +32,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -43,8 +44,10 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
+                    { "Type", "EffectAddedActiveZone" },
+                    { "IsCopy", IsCopy },
                     { "Card", TypeId },
+                    { "Kind", (int)Kind },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
                 });

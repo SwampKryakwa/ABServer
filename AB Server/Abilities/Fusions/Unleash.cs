@@ -31,6 +31,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "FusionAbilityActivateEffect" },
+                    { "Kind", 1 },
                     { "Card", TypeId },
                     { "UserID", user.BID },
                     { "User", new JObject {

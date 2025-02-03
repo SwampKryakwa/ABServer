@@ -1,5 +1,6 @@
 ﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.Design;
 using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
@@ -176,43 +177,7 @@ namespace AB_Server.Gates
             for (int i = 0; i < game.PlayerCount; i++)
             {
                 var e = game.NewEvents[i];
-                if (game.Players[i] == Owner)
-                {
-                    JObject obj = new()
-                    {
-                        { "Type", "GateSetEvent" },
-                        { "PosX", posX },
-                        { "PosY", posY },
-                        { "GateData", new JObject {
-                            { "Type", TypeId } }
-                        },
-                        { "Owner", Owner.Id },
-                        { "CID", CardId }
-                    };
-                    //if (this is NormalGate normalGate)
-                    //{
-                    //    (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)normalGate.Attribute));
-                    //    (obj["GateData"] as JObject).Add(new JProperty("Power", (int)normalGate.Power));
-                    //}
-                    //else if (this is AttributeHazard attributeHazard)
-                    //    (obj["GateData"] as JObject).Add(new JProperty("Attribute", (int)attributeHazard.Attribute));
-
-                    e.Add(obj);
-                }
-                else
-                {
-                    e.Add(new()
-                    {
-                        { "Type", "GateSetEvent" },
-                        { "PosX", posX },
-                        { "PosY", posY },
-                        { "GateData", new JObject {
-                            { "Type", -1 } }
-                        },
-                        { "Owner", Owner.Id },
-                        { "CID", CardId }
-                    });
-                }
+                e.Add(EventBuilder.SetGate(this, game.Players[i] == Owner));
             }
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
@@ -224,17 +189,7 @@ namespace AB_Server.Gates
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(new()
-                    {
-                        { "Type", "GateOpenEvent" },
-                        { "PosX", Position.X },
-                        { "PosY", Position.Y },
-                        { "GateData", new JObject {
-                            { "Type", TypeId } }
-                        },
-                        { "Owner", Owner.Id },
-                        { "CID", CardId }
-                    });
+                game.NewEvents[i].Add(EventBuilder.OpenGate(this));
             game.CheckChain(Owner, this);
         }
 
@@ -281,6 +236,8 @@ namespace AB_Server.Gates
             throw new NotImplementedException();
 
         public int EffectId { get; set; }
+
+        public AbilityKind Kind { get; } = AbilityKind.Gate;
 
         public bool IsTouching(GateCard card)
         {

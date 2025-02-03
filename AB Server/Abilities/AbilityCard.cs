@@ -2,6 +2,14 @@
 
 namespace AB_Server.Abilities
 {
+    public enum AbilityKind
+    {
+        NormalAbility,
+        FusionAbility,
+        AlignmentAbility,
+        Gate
+    }
+
     internal class AbilityCard : IActive, IChainable
     {
         public static (Func<int, Player, AbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
@@ -104,6 +112,7 @@ namespace AB_Server.Abilities
         public bool IsCopy { get; set; } = false;
 
         public int TypeId { get; set; }
+        public virtual AbilityKind Kind { get; } = AbilityKind.NormalAbility;
 
         public Game Game { get; set; }
         public Player Owner { get; set; }
@@ -115,7 +124,7 @@ namespace AB_Server.Abilities
 
         public Bakugan User { get; set; }
 
-        public bool IsActivateable() =>
+        public virtual bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
         public bool BakuganIsValid(Bakugan user) =>
             IsActivateableByBakugan(user) && user.Owner == Owner && !user.UsedAbilityThisTurn;

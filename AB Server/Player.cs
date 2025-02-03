@@ -65,18 +65,18 @@ namespace AB_Server
             else
                 player.playerColor = 0;
 
-                foreach (dynamic b in deck["bakugans"])
-                {
-                    int type = (int)b["Type"];
-                    short power = (short)b["Power"];
-                    int attr = (int)b["Attribute"];
-                    int treatment = (int)b["Treatment"];
+            foreach (dynamic b in deck["bakugans"])
+            {
+                int type = (int)b["Type"];
+                short power = (short)b["Power"];
+                int attr = (int)b["Attribute"];
+                int treatment = (int)b["Treatment"];
 
-                    Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, player, game, game.BakuganIndex.Count);
-                    game.BakuganIndex.Add(bak);
-                    player.Bakugans.Add(bak);
-                    player.BakuganOwned.Add(bak);
-                }
+                Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, player, game, game.BakuganIndex.Count);
+                game.BakuganIndex.Add(bak);
+                player.Bakugans.Add(bak);
+                player.BakuganOwned.Add(bak);
+            }
 
             foreach (int a in deck["abilities"])
             {
@@ -84,6 +84,10 @@ namespace AB_Server
                 player.AbilityHand.Add(abi);
                 game.AbilityIndex.Add(abi);
             }
+
+            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Attribute"]].Invoke(game.AbilityIndex.Count, player);
+            player.AbilityHand.Add(fusion);
+            game.AbilityIndex.Add(fusion);
 
             foreach (dynamic g in deck["gates"])
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AB_Server.Abilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace AB_Server
     {
         public int EffectId { get; set; }
         public int TypeId { get; }
+        public AbilityKind Kind { get; }
 
         public Player Owner { get; set; }
 

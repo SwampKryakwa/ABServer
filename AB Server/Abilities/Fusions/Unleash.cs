@@ -21,6 +21,7 @@ namespace AB_Server.Abilities
             this.user = user;
             this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+
             TypeId = typeID;
         }
 
@@ -53,6 +54,7 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
+            BaseAbilityType = typeof(AbilityCard);
         }
 
         public override void Resolve()
@@ -62,5 +64,8 @@ namespace AB_Server.Abilities
 
             Dispose();
         }
+
+        public override bool IsActivateable() =>
+            Owner.AbilityHand.Any(x => x is not FusionAbility && x.IsActivateable();
     }
 }

@@ -22,17 +22,7 @@ namespace AB_Server.Gates
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "GateOpenEvent" },
-                    { "PosX", Position.X },
-                    { "PosY", Position.Y },
-                    { "GateData", new JObject {
-                        { "Type", TypeId } }
-                    },
-                    { "Owner", Owner.Id },
-                    { "CID", CardId }
-                });
+                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             // Freeze battles on this Gate Card
             Freeze(this);

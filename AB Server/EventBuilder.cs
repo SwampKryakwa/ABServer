@@ -131,7 +131,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject OpenGate(GateCard card)
+        public static JObject GateOpen(GateCard card)
         {
             JObject extra = new();
 
@@ -152,15 +152,17 @@ namespace AB_Server
             //    //    break;
             //}
 
-            return new JObject
-            {
-                { "Type", "OpenGate" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y },
-                { "extra", extra }
-            };
+            return new()
+                {
+                    { "Type", "GateOpenEvent" },
+                    { "PosX", card.Position.X },
+                    { "PosY", card.Position.Y },
+                    { "GateData", new JObject {
+                        { "Type", card.TypeId } }
+                    },
+                    { "Owner", card.Owner.Id },
+                    { "CID", card.CardId }
+                };
         }
 
         public static JObject DiscardGate(GateCard card)

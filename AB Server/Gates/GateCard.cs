@@ -165,12 +165,7 @@ namespace AB_Server.Gates
                 game.Field[Position.X, Position.Y] = null;
 
                 foreach (List<JObject> e in game.NewEvents)
-                    e.Add(new JObject
-                {
-                    { "Type", "GateRemoved" },
-                    { "PosX", Position.X },
-                    { "PosY", Position.Y }
-                });
+                    e.Add(EventBuilder.RemoveGate(this));
             }
             else game.ContinueGame();
         }
@@ -278,17 +273,7 @@ namespace AB_Server.Gates
             IsOpen = false;
 
             for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(new()
-                    {
-                        { "Type", "GateNegateEvent" },
-                        { "PosX", Position.X },
-                        { "PosY", Position.Y },
-                        { "GateData", new JObject {
-                            { "Type", TypeId } }
-                        },
-                        { "Owner", Owner.Id },
-                        { "CID", CardId }
-                    });
+                game.NewEvents[i].Add(EventBuilder.GateNegated(this));
         }
     }
 }

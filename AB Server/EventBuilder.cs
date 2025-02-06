@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace AB_Server
 {
@@ -124,9 +125,9 @@ namespace AB_Server
         {
             return new JObject
             {
-                { "Type", "RemoveGate" },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y }
+                { "Type", "GateRemoved" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y }
             };
         }
 
@@ -192,21 +193,33 @@ namespace AB_Server
             };
         }
 
-        public static JObject RetractGate(GateCard card)
+        public static JObject GateNegated(GateCard card)
         {
             return new JObject
             {
-                { "Type", "OpenGate" },
+                { "Type", "GateNegateEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
+            };
+        }
+
+        public static JObject GateRetracted(GateCard card)
+        {
+            return new JObject
+            {
+                { "Type", "GateRetracted" },
                 { "posX", card.Position.X },
                 { "posY", card.Position.Y },
             };
         }
 
-        public static JObject ActivateAbility(AbilityCard card)
+        public static JObject AbilityActivated(AbilityCard card)
         {
             return new JObject
             {
-                { "Type", "ActivateAbility" },
+                { "Type", "AbilityActivated" },
                 { "type", card.TypeId },
                 { "owner", card.Owner.Id },
             };

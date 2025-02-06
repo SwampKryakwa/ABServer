@@ -26,6 +26,10 @@ namespace AB_Server.Abilities
             ((cID, owner) => new Marionette(cID, owner, 6), Marionette.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
             ((cID, owner) => new BruteUltimatum(cID, owner, 8), BruteUltimatum.HasValidTargets),
+
+            //Set 2 attribute abilities
+            ((cID, owner) => new BloomOfAgony(cID, owner, 9), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new Tunneling(cID, owner, 10), Tunneling.HasValidTargets)
         ];
 
         public static AbilityCard CreateCard(Player owner, int cID, int type)
@@ -61,24 +65,24 @@ namespace AB_Server.Abilities
         public virtual void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Count", 1 },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
-                } }
-            });
+                    {
+                        { "Type", "StartSelection" },
+                        { "Count", 1 },
+                        { "Selections", new JArray {
+                            new JObject {
+                                { "SelectionType", "BF" },
+                                { "Message", "INFO_ABILITYUSER" },
+                                { "Ability", TypeId },
+                                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
+                                    new JObject { { "Type", (int)x.Type },
+                                        { "Attribute", (int)x.Attribute },
+                                        { "Treatment", (int)x.Treatment },
+                                        { "Power", x.Power },
+                                        { "Owner", x.Owner.Id },
+                                        { "BID", x.BID } })) }
+                            }
+                        } }
+                    });
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
@@ -113,11 +117,11 @@ namespace AB_Server.Abilities
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
-                });
+                        {
+                            { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
+                            { "Card", TypeId },
+                            { "Owner", Owner.Id }
+                        });
             }
         }
 
@@ -130,11 +134,11 @@ namespace AB_Server.Abilities
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
-                });
+                        {
+                            { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
+                            { "Card", TypeId },
+                            { "Owner", Owner.Id }
+                        });
             }
         }
 

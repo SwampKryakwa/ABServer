@@ -64,7 +64,7 @@ namespace AB_Server
             {
                 if (active is AbilityCard activeAbility)
                 {
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int) active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {
@@ -82,48 +82,34 @@ namespace AB_Server
 
         public static JObject SetGate(GateCard card, bool RevealInfo)
         {
-            JObject extra = new();
-
-            //switch (card.TypeId)
-            //{
-            //    //case 0:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
-            //    //        { "Power", (card as NormalGate).Power }
-            //    //    };
-            //    //    break;
-            //    //case 4:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-            //    //    };
-            //    //    break;
-            //}
-
             if (RevealInfo)
-                return new JObject
+                return new()
                 {
-                    { "Type", "SetGate" },
-                    { "type", card.TypeId },
-                    { "owner", card.Owner.Id },
-                    { "posX", card.Position.X },
-                    { "posY", card.Position.Y },
-                    { "extra", extra }
+                    { "Type", "GateOpenEvent" },
+                    { "PosX", card.Position.X },
+                    { "PosY", card.Position.Y },
+                    { "GateData", new JObject {
+                        { "Type", card.TypeId }
+                    } },
+                    { "Owner", card.Owner.Id },
+                    { "CID", card.CardId }
                 };
-            return new JObject
+            return new()
             {
-                { "Type", "SetGate" },
-                { "type", -1 },
-                { "owner", card.Owner.Id },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y }
+                { "Type", "GateOpenEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Type", -1 }
+                } },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
             };
         }
 
         public static JObject RemoveGate(GateCard card)
         {
-            return new JObject
+            return new()
             {
                 { "Type", "GateRemoved" },
                 { "PosX", card.Position.X },
@@ -133,36 +119,17 @@ namespace AB_Server
 
         public static JObject GateOpen(GateCard card)
         {
-            JObject extra = new();
-
-            //switch (card.TypeId)
-            //{
-            //    //case 0:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
-            //    //        { "Power", (card as NormalGate).Power }
-            //    //    };
-            //    //    break;
-            //    //case 4:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-            //    //    };
-            //    //    break;
-            //}
-
             return new()
-                {
-                    { "Type", "GateOpenEvent" },
-                    { "PosX", card.Position.X },
-                    { "PosY", card.Position.Y },
-                    { "GateData", new JObject {
-                        { "Type", card.TypeId } }
-                    },
-                    { "Owner", card.Owner.Id },
-                    { "CID", card.CardId }
-                };
+            {
+                { "Type", "GateOpenEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Type", card.TypeId } }
+                },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
+            };
         }
 
         public static JObject DiscardGate(GateCard card)
@@ -212,8 +179,8 @@ namespace AB_Server
             return new JObject
             {
                 { "Type", "GateRetracted" },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
             };
         }
 

@@ -56,7 +56,6 @@ namespace AB_Server.Gates
             {
                 game.GateAdded -= OnAnotherGateCardSet;
                 TryUnfreeze(this);
-                base.CheckBattles();
             }
         }
 

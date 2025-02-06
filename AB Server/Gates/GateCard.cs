@@ -20,7 +20,7 @@ namespace AB_Server.Gates
             (x, y) => new GrandSpirit(x, y),
             (x, y) => new Supernova(x, y),
             (x, y) => new Reloaded(x, y),
-            (x, y) => new PositiveDelta(x, y),
+            (x, y) => new Intercept(x, y),
             (x, y) => new PositiveDelta(x, y),
         ];
 
@@ -271,7 +271,7 @@ namespace AB_Server.Gates
             return (DX + DY) == 1;
         }
 
-        public void Negate(bool asCounter = false)
+        public virtual void Negate(bool asCounter = false)
         {
             if (asCounter) counterNegated = true;
             Negated = true;

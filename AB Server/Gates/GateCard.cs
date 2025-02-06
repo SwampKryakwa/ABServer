@@ -14,7 +14,14 @@ namespace AB_Server.Gates
             (x, y) => new Warlock(x, y),
             (x, y) => new CheeringBattle(x, y),
             (x, y) => new Transform(x, y),
-
+            (x, y) => new JokersWild(x, y),
+            (x, y) => new PositiveDelta(x, y),
+            (x, y) => new Aquamerge(x, y),
+            (x, y) => new GrandSpirit(x, y),
+            (x, y) => new Supernova(x, y),
+            (x, y) => new Reloaded(x, y),
+            (x, y) => new PositiveDelta(x, y),
+            (x, y) => new PositiveDelta(x, y),
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)

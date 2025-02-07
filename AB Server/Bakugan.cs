@@ -28,7 +28,12 @@ namespace AB_Server
         None = -1,
         Glorius,
         Laserman,
-        Mantis
+        Mantis,
+        Raptor,
+        Lucifer,
+        Saurus,
+        Elephant,
+        Tigress
     }
 
     enum MoveSource : byte

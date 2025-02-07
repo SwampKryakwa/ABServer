@@ -1,35 +1,39 @@
-﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class AirBattleEffect
+    internal class Dimension4Effect : IActive
     {
         public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        public int EffectId { get; set; }
+        public ActiveType ActiveType { get; } = ActiveType.Effect;
+        Bakugan User;
+        Bakugan Target;
         Game game;
 
-
-        public Player Onwer { get; set; }
+        public Player Owner { get => User.Owner; }
         bool IsCopy;
 
-        public AirBattleEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public Dimension4Effect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
+            Target = target;
             this.game = game;
-            this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            user.UsedAbilityThisTurn = true;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
+            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
+            game.ActiveZone.Add(this);
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -39,17 +43,45 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" },
+                    { "IsCopy", IsCopy },
+                    { "Card", TypeId },
+                    { "Id", EffectId },
+                    { "Owner", Owner.Id },
+                    { "Kind", 0 }
+                });
             }
 
-            if (target.Power < User.Power)
-                if (target.Position is GateCard positionGate)
-                    target.Destroy(positionGate.EnterOrder);
+            foreach (var boost in Target.Boosts.ToList())
+            {
+                if (boost.Active)
+                {
+                    boost.Active = false;
+                    Target.RemoveBoost(boost, this);
+                }
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", EffectId }
+                });
+            }
         }
     }
 
-    internal class AirBattle : AbilityCard
+    internal class Dimension4 : AbilityCard
     {
-        public AirBattle(int cID, Player owner, int typeId)
+        public Dimension4(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -57,7 +89,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public override void Setup(bool asCounter)
+        public void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -86,7 +118,6 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -94,9 +125,9 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.InBattle && x.Owner.SideID != Owner.SideID).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -112,38 +143,25 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        private Bakugan target;
-
-        public new void Activate()
+        public new void Resolve()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.CheckChain(Owner, this, User);
+            if (!counterNegated)
+            {
+                Setup(false);
+            }
+            else
+            {
+                Dispose();
+            }
         }
 
-        public override void Resolve()
-        {
-            if (!counterNegated || Fusion != null)
-                new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
+        public new void DoubleEffect() =>
+            new Dimension4Effect(User, Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]], Game, TypeId, IsCopy).Activate();
 
-            Dispose();
-        }
+        public bool IsActivateableFusion(Bakugan user) =>
+            user.Type == BakuganType.Lucifer && user.InBattle;
 
-        public override void DoubleEffect() =>
-            new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsTouching(user.Position as GateCard));
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
+        public bool BakuganIsValid(Bakugan bakugan) =>
+            bakugan.Game.BakuganIndex.Any(bakugan => bakugan.InBattle && bakugan.Owner.SideID != Owner.SideID);
     }
 }

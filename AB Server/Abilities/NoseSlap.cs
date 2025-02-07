@@ -1,20 +1,19 @@
-﻿using AB_Server.Gates;
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class AirBattleEffect
+    internal class NoseSlapEffect
     {
         public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
         Game game;
 
-
-        public Player Onwer { get; set; }
+        public Player Owner { get => User.Owner; }
         bool IsCopy;
 
-        public AirBattleEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public NoseSlapEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
@@ -41,15 +40,17 @@ namespace AB_Server.Abilities
                 });
             }
 
-            if (target.Power < User.Power)
+            if (User.Power > target.Power)
+            {
                 if (target.Position is GateCard positionGate)
                     target.Destroy(positionGate.EnterOrder);
+            }
         }
     }
 
-    internal class AirBattle : AbilityCard
+    internal class NoseSlap : AbilityCard
     {
-        public AirBattle(int cID, Player owner, int typeId)
+        public NoseSlap(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -86,7 +87,6 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -96,7 +96,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsTouching(User.Position as GateCard)).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x => x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard)).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -124,13 +124,13 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated || Fusion != null)
-                new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new NoseSlapEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
+            new NoseSlapEffect(User, target, Game, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)
         {
@@ -141,9 +141,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsTouching(user.Position as GateCard));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsAdjacentVertically(user.Position as GateCard));
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
+            user.Type == BakuganType.Elephant && user.Game.BakuganIndex.Any(x => x.OnField() && (x.Position as GateCard).IsAdjacentVertically(user.Position as GateCard) && x.Owner.SideID != user.Owner.SideID);
     }
 }

@@ -158,29 +158,6 @@ namespace AB_Server
         }
 
         public bool HasBattlingBakugan() =>
-            game.BakuganIndex.Any(x => x.Owner == this && x.InBattle);
-
-        /*public static Player FromJSON(JObject playerJson, byte playerID)
-        {
-            dynamic playerObject = playerJson;
-            Player player = new Player(playerID);
-            player.Bakugans = new List<Bakugan>();
-
-            foreach (string card in playerObject["abilities"])
-                player.Abilities.Add((AbilityCard)Activator.CreateInstance(Type.GetType("Advanced_Brawl.Abilities." + card)));
-
-            foreach (JObject card in playerObject["gates"])
-            {
-                if (card["Type"].ToString() == "NormalGate")
-                    player.Gates.Add(new NormalGate(Bakugan.nameToAttribute[card["attribute"].ToString()], (short)card["Power"]));
-                else
-                    player.Gates.Add((GateCard)Activator.CreateInstance(Type.GetType("Advanced_Brawl.Gates." + card.GetValue("Type").ToString())));
-            }
-            player.Gates.Cast<GateCard>().ToList().ForEach(x => x.Owner = playerID);
-            foreach (dynamic bakugan in playerObject["bakugans"])
-                player.Bakugans.Add(new Bakugan((string)bakugan["Type"], (short)bakugan["Power"], Bakugan.nameToAttribute[bakugan["attribute"].ToString()], Treatment.None, playerID));
-
-            return player;
-        }*/
+            BakuganOwned.Any(x => && x.InBattle);
     }
 }

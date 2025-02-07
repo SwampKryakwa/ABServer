@@ -74,7 +74,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class SaurusGlow : AbilityCard, IAbilityCard
+    internal class SaurusGlow : AbilityCard
     {
         public SaurusGlow(int cID, Player owner, int typeId)
         {
@@ -84,7 +84,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
             if (!counterNegated)
                 new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
@@ -92,7 +92,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
             new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>

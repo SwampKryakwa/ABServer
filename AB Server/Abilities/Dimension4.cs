@@ -2,11 +2,10 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class Dimension4Effect : IActive
+    internal class Dimension4Effect
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
-        public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Bakugan Target;
         Game game;
@@ -27,8 +26,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ActiveZone.Add(this);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -43,15 +40,6 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectAddedActiveZone" },
-                    { "IsCopy", IsCopy },
-                    { "Card", TypeId },
-                    { "Id", EffectId },
-                    { "Owner", Owner.Id },
-                    { "Kind", 0 }
-                });
             }
 
             foreach (var boost in Target.Boosts.ToList())
@@ -61,20 +49,6 @@ namespace AB_Server.Abilities
                     boost.Active = false;
                     Target.RemoveBoost(boost, this);
                 }
-            }
-        }
-
-        public void Negate(bool asCounter)
-        {
-            game.ActiveZone.Remove(this);
-
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectRemovedActiveZone" },
-                    { "Id", EffectId }
-                });
             }
         }
     }
@@ -89,7 +63,7 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asCounter)
+        public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -143,7 +117,7 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
             if (!counterNegated)
             {
@@ -155,7 +129,7 @@ namespace AB_Server.Abilities
             }
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
             new Dimension4Effect(User, Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]], Game, TypeId, IsCopy).Activate();
 
         public bool IsActivateableFusion(Bakugan user) =>

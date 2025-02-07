@@ -29,7 +29,13 @@ namespace AB_Server.Abilities
 
             //Set 2 attribute abilities
             ((cID, owner) => new BloomOfAgony(cID, owner, 9), BloomOfAgony.HasValidTargets),
-            ((cID, owner) => new Tunneling(cID, owner, 10), Tunneling.HasValidTargets)
+            ((cID, owner) => new Tunneling(cID, owner, 10), Tunneling.HasValidTargets),
+            ((cID, owner) => new AirBattle(cID, owner, 11), AirBattle.HasValidTargets),
+            ((cID, owner) => new BloomOfAgony(cID, owner, 12), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new Tunneling(cID, owner, 13), Tunneling.HasValidTargets),
+            ((cID, owner) => new AirBattle(cID, owner, 14), AirBattle.HasValidTargets),
+
+            //Set 2 bakugan abilities
         ];
 
         public static AbilityCard CreateCard(Player owner, int cID, int type)

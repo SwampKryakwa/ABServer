@@ -6,18 +6,18 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
-        public ActiveType ActiveType { get; } = ActiveType.Effect;
         Bakugan User;
         Game game;
         int turnsPassed = 0;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Owner { get; set; }
+        bool IsCopy;
 
         public WaterRefrainEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner; 
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -31,7 +31,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -59,21 +59,22 @@ namespace AB_Server.Abilities
         //is not negatable after turn ends
         public void CheckEffectOver()
         {
-            if (turnsPassed++ == 1)
+            if (turnsPassed == 1)
             {
                 game.ActiveZone.Remove(this);
                 game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
                 game.TurnEnd -= CheckEffectOver;
+
+                for (int i = 0; i < game.NewEvents.Length; i++)
+                {
+                    game.NewEvents[i].Add(new() {
+                        { "Type", "EffectRemovedActiveZone" },
+                        { "Id", EffectId }
+                    });
+                }
             }
 
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectRemovedActiveZone" },
-                    { "Id", EffectId }
-                });
-            }
+            if (game.TurnPlayer != Owner.Id) turnsPassed++;
         }
 
         public void Negate(bool asCounter)
@@ -93,7 +94,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class WaterRefrain : AbilityCard, IAbilityCard
+    internal class WaterRefrain : AbilityCard
     {
         public WaterRefrain(int cID, Player owner, int typeId)
         {
@@ -103,24 +104,18 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Negate(bool asCounter)
+        public override void Resolve()
         {
-            if (asCounter)
-                counterNegated = true;
-        }
-
-        public new void Resolve()
-        {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
                 new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Aqua && user.OnField();
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();
     }
 }

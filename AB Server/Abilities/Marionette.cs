@@ -12,7 +12,8 @@ namespace AB_Server.Abilities
         GateCard moveTarget;
         Game game;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Onwer { get; set; }
+        bool IsCopy;
 
         public MarionetteEffect(Bakugan user, Bakugan target, GateCard moveTarget, Game game, int typeID, bool IsCopy)
         {
@@ -30,7 +31,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -46,7 +47,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class Marionette : AbilityCard, IAbilityCard
+    internal class Marionette : AbilityCard
     {
         public Marionette(int cID, Player owner, int typeId)
         {
@@ -56,9 +57,12 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asFusion)
+        Bakugan target;
+        GateCard moveTarget;
+
+        public override void Setup(bool asFusion)
         {
-            IAbilityCard ability = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -68,7 +72,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -112,8 +116,6 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Setup3;
         }
 
-        Bakugan target;
-
         public void Setup3()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
@@ -126,7 +128,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => (target.Position as GateCard).IsTouching(x as GateCard)).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => target.Position != x).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },
@@ -139,54 +141,22 @@ namespace AB_Server.Abilities
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.OnField() && x.Owner.SideID != Owner.SideID && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
-        }
-
-        IGateCard moveTarget;
-
-        public void Activate()
+        public new void Activate()
         {
             moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
-            if (!counterNegated)
-                new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated || Fusion != null)
+                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
             Dispose();
         }
 
-        public new void DoubleEffect() =>
-                new MarionetteEffect(User, target, moveTarget as GateCard, Game, TypeId, IsCopy).Activate();
+        public override void DoubleEffect() =>
+                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
 
         public new void DoNotAffect(Bakugan bakugan)
         {
@@ -196,10 +166,10 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Type == BakuganType.Mantis && user.OnField();
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.OnField() && Game.BakuganIndex.Any(possibleTarget => possibleTarget.OnField() && possibleTarget.Position != user.Position && user.IsEnemyOf(possibleTarget));
 
-        public static bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.Owner.SideID != user.Owner.SideID && x.Position != user.Position);
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(possibleTarget => possibleTarget.OnField() && possibleTarget.Position != user.Position && user.IsEnemyOf(possibleTarget));
     }
 }

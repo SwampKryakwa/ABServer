@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace AB_Server
 {
@@ -34,23 +35,24 @@ namespace AB_Server
             };
         }
 
-        public static JObject CounterSelectionEvent(int userId, int abilityId)
+        public static JObject CounterSelectionEvent(int userId, int cardId, char counterableType)
         {
             return new JObject
             {
                 { "SelectionType", "R" },
                 { "user", userId },
-                { "ability", abilityId }
+                { "card", cardId },
+                { "counterableType", counterableType }
             };
         }
 
-        public static JObject AbilitySelection(string prompt, params IAbilityCard[] abilities)
+        public static JObject AbilitySelection(string prompt, params AbilityCard[] abilities)
         {
             return new JObject
             {
                 { "SelectionType", "A" },
                 { "Message", prompt },
-                { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "CID", x.CardId } } )) }
+                { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CID", x.CardId } } )) }
             };
         }
 
@@ -58,18 +60,15 @@ namespace AB_Server
         {
             JArray jsonActives = new();
 
-            int id = 0;
             foreach (IActive active in actives)
             {
-                if (active.ActiveType == ActiveType.Card)
+                if (active is AbilityCard activeAbility)
                 {
-                    var activeCard = active as IAbilityCard;
-
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "CardType", activeCard.TypeId }, { "CID", activeCard.CardId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {
-                    jsonActives.Add(new JObject { { "Type", "E" }, { "CardType", active.TypeId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "E" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
                 }
             }
 
@@ -83,84 +82,53 @@ namespace AB_Server
 
         public static JObject SetGate(GateCard card, bool RevealInfo)
         {
-            JObject extra = new();
-
-            switch (card.TypeId)
-            {
-                //case 0:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as NormalGate).Attribute },
-                //        { "Power", (card as NormalGate).Power }
-                //    };
-                //    break;
-                //case 4:
-                //    extra = new JObject
-                //    {
-                //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                //    };
-                //    break;
-            }
-
             if (RevealInfo)
-                return new JObject
+                return new()
                 {
-                    { "Type", "SetGate" },
-                    { "type", card.TypeId },
-                    { "owner", card.Owner.Id },
-                    { "posX", card.Position.X },
-                    { "posY", card.Position.Y },
-                    { "extra", extra }
+                    { "Type", "GateOpenEvent" },
+                    { "PosX", card.Position.X },
+                    { "PosY", card.Position.Y },
+                    { "GateData", new JObject {
+                        { "Type", card.TypeId }
+                    } },
+                    { "Owner", card.Owner.Id },
+                    { "CID", card.CardId }
                 };
-            return new JObject
+            return new()
             {
-                { "Type", "SetGate" },
-                { "type", -1 },
-                { "owner", card.Owner.Id },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y }
+                { "Type", "GateOpenEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Type", -1 }
+                } },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
             };
         }
 
         public static JObject RemoveGate(GateCard card)
         {
-            return new JObject
+            return new()
             {
-                { "Type", "RemoveGate" },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y }
+                { "Type", "GateRemoved" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y }
             };
         }
 
-        public static JObject OpenGate(GateCard card)
+        public static JObject GateOpen(GateCard card)
         {
-            JObject extra = new();
-
-            switch (card.TypeId)
+            return new()
             {
-                case 0:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as NormalGate).Attribute },
-                        { "Power", (card as NormalGate).Power }
-                    };
-                    break;
-                case 4:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                    };
-                    break;
-            }
-
-            return new JObject
-            {
-                { "Type", "OpenGate" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y },
-                { "extra", extra }
+                { "Type", "GateOpenEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Type", card.TypeId } }
+                },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
             };
         }
 
@@ -168,22 +136,22 @@ namespace AB_Server
         {
             JObject extra = new();
 
-            switch (card.TypeId)
-            {
-                case 0:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as NormalGate).Attribute },
-                        { "Power", (card as NormalGate).Power }
-                    };
-                    break;
-                case 4:
-                    extra = new JObject
-                    {
-                        { "Attribute", (int)(card as AttributeHazard).Attribute },
-                    };
-                    break;
-            }
+            //switch (card.TypeId)
+            //{
+            //    //case 0:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
+            //    //        { "Power", (card as NormalGate).Power }
+            //    //    };
+            //    //    break;
+            //    //case 4:
+            //    //    extra = new JObject
+            //    //    {
+            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
+            //    //    };
+            //    //    break;
+            //}
 
             return new JObject
             {
@@ -194,21 +162,33 @@ namespace AB_Server
             };
         }
 
-        public static JObject RetractGate(GateCard card)
+        public static JObject GateNegated(GateCard card)
         {
             return new JObject
             {
-                { "Type", "OpenGate" },
-                { "posX", card.Position.X },
-                { "posY", card.Position.Y },
+                { "Type", "GateNegateEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
             };
         }
 
-        public static JObject ActivateAbility(AbilityCard card)
+        public static JObject GateRetracted(GateCard card)
         {
             return new JObject
             {
-                { "Type", "ActivateAbility" },
+                { "Type", "GateRetracted" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+            };
+        }
+
+        public static JObject AbilityActivated(AbilityCard card)
+        {
+            return new JObject
+            {
+                { "Type", "AbilityActivated" },
                 { "type", card.TypeId },
                 { "owner", card.Owner.Id },
             };

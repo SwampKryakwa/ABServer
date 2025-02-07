@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Onwer { get; set; }
         bool IsCopy;
 
         public AirBattleEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -42,11 +42,12 @@ namespace AB_Server.Abilities
             }
 
             if (target.Power < User.Power)
-                target.Destroy((target.Position as GateCard).EnterOrder);
+                if (target.Position is GateCard positionGate)
+                    target.Destroy(positionGate.EnterOrder);
         }
     }
 
-    internal class AirBattle : AbilityCard, IAbilityCard
+    internal class AirBattle : AbilityCard
     {
         public AirBattle(int cID, Player owner, int typeId)
         {
@@ -56,9 +57,9 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asCounter)
+        public override void Setup(bool asCounter)
         {
-            IAbilityCard ability = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -68,7 +69,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -87,37 +88,7 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            IAbilityCard ability = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
-        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -145,25 +116,25 @@ namespace AB_Server.Abilities
 
         private Bakugan target;
 
-        public void Activate()
+        public new void Activate()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
             new AirBattleEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-        public new void DoNotAffect(Bakugan bakugan)
+        public override void DoNotAffect(Bakugan bakugan)
         {
             if (User == bakugan)
                 User = Bakugan.GetDummy();
@@ -171,10 +142,10 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && (x.Position as GateCard).IsTouching(user.Position as GateCard));
 
-        public static bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && x.Owner.SideID != user.Owner.SideID);
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
     }
 }

@@ -6,18 +6,19 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
-        public ActiveType ActiveType { get; } = ActiveType.Effect;
+        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
         Bakugan User;
         Game game;
         Boost currentBoost;
 
-        public Player Owner { get => User.Owner; } bool IsCopy;
+        public Player Owner { get; set; }
+        bool IsCopy;
 
         public FireJudgeEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
             User = user;
             this.game = game;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -31,7 +32,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -43,8 +44,10 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
+                    { "Type", "EffectAddedActiveZone" },
+                    { "IsCopy", IsCopy },
                     { "Card", TypeId },
+                    { "Kind", (int)Kind },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
                 });
@@ -57,7 +60,7 @@ namespace AB_Server.Abilities
             game.BakuganReturned += OnBakuganLeaveField;
         }
 
-        private void OnBakuganLeaveField(Bakugan target, ushort owner)
+        private void OnBakuganLeaveField(Bakugan target, byte owner)
         {
             if (target == User)
             {
@@ -90,7 +93,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class FireJudge : AbilityCard, IAbilityCard
+    internal class FireJudge : AbilityCard
     {
         public FireJudge(int cID, Player owner, int typeId)
         {
@@ -100,18 +103,18 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
             new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Nova && user.InBattle;
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Nova && user.OnField();
     }
 }

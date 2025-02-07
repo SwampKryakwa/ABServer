@@ -10,7 +10,8 @@ namespace AB_Server.Abilities
         Game game;
         Boost boost;
 
-        public Player Owner { get => user.Owner; } bool IsCopy;
+        public Player Onwer { get; set; }
+        bool IsCopy;
 
         public SpiritCanyonEffect(Bakugan user, Game game, int typeID, bool IsCopy)
         {
@@ -22,14 +23,11 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            int team = user.Owner.SideID;
-            boost = new Boost(game.GateIndex.Count(x => x.OnField) * 50);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", user.BID },
                     { "User", new JObject {
@@ -40,42 +38,11 @@ namespace AB_Server.Abilities
                     }}
                 });
             }
-            user.Boost(boost, this);
-
-            game.BakuganReturned += FieldLeaveTurnover;
-            game.BakuganDestroyed += FieldLeaveTurnover;
-            game.BakuganPowerReset += ResetTurnover;
-
-            user.affectingEffects.Add(this);
-        }
-
-        //remove when goes to hand
-        //remove when goes to grave
-        public void FieldLeaveTurnover(Bakugan leaver, ushort owner)
-        {
-            if (leaver == user && user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
-        }
-
-        //remove when power reset
-        public void ResetTurnover(Bakugan leaver)
-        {
-            if (leaver == user && user.affectingEffects.Contains(this))
-            {
-                user.affectingEffects.Remove(this);
-                game.BakuganReturned -= FieldLeaveTurnover;
-                game.BakuganDestroyed -= FieldLeaveTurnover;
-                game.BakuganPowerReset -= ResetTurnover;
-            }
+            user.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField) * 50)), this);
         }
     }
 
-    internal class SpiritCanyon : AbilityCard, IAbilityCard
+    internal class SpiritCanyon : AbilityCard
     {
         public SpiritCanyon(int cID, Player owner, int typeId)
         {
@@ -85,20 +52,18 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
                 new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.InBattle && user.Attribute == Attribute.Subterra;
-
-        
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Subterra;
     }
 }

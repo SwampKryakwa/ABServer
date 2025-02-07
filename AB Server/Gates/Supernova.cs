@@ -1,172 +1,105 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class Supernova : GateCard, IGateCard
+    internal class Supernova : GateCard
     {
         public Supernova(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
-
             CardId = cID;
         }
 
-        public new int TypeId { get; private protected set; } = 8;
+        public override int TypeId { get; } = 9;
 
-        public new void Negate()
+        public override void Open()
         {
-            IsOpen = false;
-            Negated = true;
+            IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
-            game.BakuganMoved -= OnBakuganMove;
-            game.BakuganThrown -= OnBakuganStands;
-            game.BakuganPlacedFromGrave -= OnBakuganStands;
-            game.BakuganReturned -= OnBakuganLeaves;
-            game.BakuganDestroyed -= OnBakuganLeaves;
+            game.NewEvents[Owner.Id].Add(new JObject {
+                { "Type", "StartSelection" },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "BF" },
+                        { "Message", "INFO_GATE_TARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Bakugans.Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID } })) }
+                    },
+                    new JObject {
+                        { "SelectionType", "BF" },
+                        { "Message", "INFO_GATE_TARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Bakugans.Where(x=>x.Owner == Owner).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
+
+            game.AwaitingAnswers[Owner.Id] = Setup1;
         }
 
-        public new void Open()
+        Bakugan target1;
+        Bakugan target2;
+
+        public void Setup1()
         {
-            base.Open();
+            target1 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            foreach (var bakugan in Bakugans)
-            {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", bakugan.Owner.Id },
-                        { "Boost", -(bakugan.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)bakugan.Type },
-                            { "Attribute", (int)bakugan.Attribute },
-                            { "Treatment", (int)bakugan.Treatment },
-                            { "Power", bakugan.Power },
-                            { "BID", bakugan.BID } }
-                        }
-                    });
-                }
-                bakugan.PowerModifier *= -1;
-                bakugan.affectingEffects.Add(this);
-            }
+            game.NewEvents[Owner.Id].Add(new JObject {
+                { "Type", "StartSelection" },
+                { "Selections", new JArray {
+                    new JObject {
+                        { "SelectionType", "BF" },
+                        { "Message", "INFO_GATE_TARGET" },
+                        { "Ability", TypeId },
+                        { "SelectionBakugans", new JArray(Bakugans.Where(x=>x == target1).Select(x =>
+                            new JObject { { "Type", (int)x.Type },
+                                { "Attribute", (int)x.Attribute },
+                                { "Treatment", (int)x.Treatment },
+                                { "Power", x.Power },
+                                { "Owner", x.Owner.Id },
+                                { "BID", x.BID } })) }
+                    }
+                } }
+            });
 
-            game.BakuganMoved += OnBakuganMove;
-            game.BakuganThrown += OnBakuganStands;
-            game.BakuganPlacedFromGrave += OnBakuganStands;
-            game.BakuganReturned += OnBakuganLeaves;
-            game.BakuganDestroyed += OnBakuganLeaves;
+            game.AwaitingAnswers[Owner.Id] = Setup2;
         }
 
-        public void OnBakuganMove(Bakugan target, BakuganContainer pos)
+        public void Setup2()
         {
-            if (pos == this)
-            {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", target.Owner.Id },
-                        { "Boost", -(target.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power },
-                            { "BID", target.BID } }
-                        }
-                    });
-                }
-                target.PowerModifier *= -1;
-                target.affectingEffects.Add(this);
-            }
-            else if (target.affectingEffects.Contains(this))
-            {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", target.Owner.Id },
-                        { "Boost", -(target.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power },
-                            { "BID", target.BID } }
-                        }
-                    });
-                }
-                target.PowerModifier *= -1;
-                target.affectingEffects.Remove(this);
-            }
+            target2 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            game.CheckChain(Owner, this);
         }
 
-        public void OnBakuganStands(Bakugan target, ushort owner, BakuganContainer pos)
+        public override void Resolve()
         {
-            if (pos == this)
+            if (!counterNegated && target1.Position == this && target2.Position == this)
             {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", target.Owner.Id },
-                        { "Boost", -(target.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power },
-                            { "BID", target.BID } }
-                        }
-                    });
-                }
-                target.PowerModifier *= -1;
-                target.affectingEffects.Add(this);
-            }
-            else if (target.affectingEffects.Contains(this))
-            {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", target.Owner.Id },
-                        { "Boost", -(target.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power },
-                            { "BID", target.BID } }
-                        }
-                    });
-                }
-                target.PowerModifier *= -1;
-                target.affectingEffects.Remove(this);
-            }
-        }
+                var boost = target1.Power - target2.Power;
 
-        public void OnBakuganLeaves(Bakugan target, ushort owner)
-        {
-            if (target.affectingEffects.Contains(this))
-            {
-                foreach (var e in game.NewEvents)
-                {
-                    e.Add(new JObject {
-                        { "Type", "BakuganBoostedEvent" },
-                        { "Owner", target.Owner.Id },
-                        { "Boost", -(target.Power * 2) },
-                        { "Bakugan", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power },
-                            { "BID", target.BID } }
-                        }
-                    });
-                }
-                target.PowerModifier *= -1;
-                target.affectingEffects.Remove(this);
+                target1.Boost(new Boost((short)-boost), this);
+                target2.Boost(new Boost((short)boost), this);
             }
         }
     }

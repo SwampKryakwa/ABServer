@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server
 {
-    internal class GraveBakugan : BakuganContainer
+    internal class GraveBakugan : IBakuganContainer
     {
         public Player Player;
 
@@ -16,35 +16,36 @@ namespace AB_Server
         }
     }
 
-    internal class Player : BakuganContainer
+    internal class Player : IBakuganContainer
     {
 
-        public ushort Id;
-        public ushort SideID = new();
+        public byte Id;
+        public byte SideID = new();
         public string DisplayName;
         public List<object> AbilityBlockers = new();
 
         public List<Bakugan> Bakugans { get; } = new();
-        public List<IAbilityCard> AbilityHand = new();
-        public List<IGateCard> GateHand = new();
+        public List<AbilityCard> AbilityHand = new();
+        public List<GateCard> GateHand = new();
 
         public GraveBakugan BakuganGrave;
-        public List<IAbilityCard> AbilityGrave = new();
-        public List<IGateCard> GateGrave = new();
+        public List<AbilityCard> AbilityGrave = new();
+        public List<GateCard> GateGrave = new();
 
         public List<Bakugan> BakuganOwned = new();
 
         public bool HadSetGate;
         public bool HadThrownBakugan;
         public bool HadSkippedTurn { get; set; }
-        public bool HadUsedFusion = false;
         public bool HadUsedCounter = false;
 
         public short hp = 3;
 
         public Game game;
 
-        public Player(ushort id, ushort sideID, Game game, string displayName)
+        public byte playerColor;
+
+        public Player(byte id, byte sideID, Game game, string displayName)
         {
             Id = id;
             SideID = sideID;
@@ -53,11 +54,16 @@ namespace AB_Server
             DisplayName = displayName;
         }
 
-        public static Player FromJson(ushort id, ushort sideID, JObject deck, Game game, string displayName)
+        public static Player FromJson(byte id, byte sideID, dynamic deck, Game game, string displayName)
         {
             Player player = new(id, sideID, game, displayName);
 
             //player.DisplayName = deck["dispName"].ToString();
+
+            if (deck["deck_color"] != null)
+                player.playerColor = deck["deck_color"];
+            else
+                player.playerColor = 0;
 
             foreach (dynamic b in deck["bakugans"])
             {
@@ -74,14 +80,18 @@ namespace AB_Server
 
             foreach (int a in deck["abilities"])
             {
-                IAbilityCard abi = AbilityCard.CreateCard(player, game.AbilityIndex.Count, a);
+                AbilityCard abi = AbilityCard.CreateCard(player, game.AbilityIndex.Count, a);
                 player.AbilityHand.Add(abi);
                 game.AbilityIndex.Add(abi);
             }
 
-            foreach (JObject g in deck["gates"])
+            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Attribute"]].Invoke(game.AbilityIndex.Count, player);
+            player.AbilityHand.Add(fusion);
+            game.AbilityIndex.Add(fusion);
+
+            foreach (dynamic g in deck["gates"])
             {
-                IGateCard gate;
+                GateCard gate;
                 gate = GateCard.CreateCard(player, game.GateIndex.Count, (int)g["Type"]);
 
                 player.GateHand.Add(gate);
@@ -92,22 +102,22 @@ namespace AB_Server
         }
 
         public bool HasThrowableBakugan() =>
-            Bakugans.Any() && game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
+            Bakugans.Count != 0 && game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
 
         public bool HasActivateableAbilities() =>
             AbilityHand.Any(x => x.IsActivateable());
 
         public bool HasActivateableFusionAbilities(Bakugan user) =>
-            AbilityHand.Any(x => x.IsActivateableFusion(user));
+            AbilityHand.Any(x => x.IsActivateableByBakugan(user));
 
         public bool HasSettableGates() =>
             GateHand.Count != 0 && !HadSetGate;
 
         public bool HasOpenableGates()
         {
-            foreach (IGateCard g in game.Field)
+            foreach (GateCard? gate in game.Field)
             {
-                if (g != null)
+                if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this)
                         return true;
             }
@@ -117,20 +127,20 @@ namespace AB_Server
         public List<Bakugan> ThrowableBakugan() =>
             Bakugans;
 
-        public List<IGateCard> SettableGates() =>
+        public List<GateCard> SettableGates() =>
             GateHand;
 
-        //public List<IAbilityCard> ActivateableAbilities()
+        //public List<AbilityCard> ActivateableAbilities()
         //{
         //    return AbilityHand.Where(x => x.IsActivateable()).ToList();
         //}
 
-        public List<IGateCard> OpenableGates()
+        public List<GateCard> OpenableGates()
         {
-            List<IGateCard> openableGates = new();
-            foreach (IGateCard g in game.Field)
+            List<GateCard> openableGates = new();
+            foreach (GateCard? gate in game.Field)
             {
-                if (g != null)
+                if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this)
                         openableGates.Add(g);
             }
@@ -149,28 +159,5 @@ namespace AB_Server
 
         public bool HasBattlingBakugan() =>
             BakuganOwned.Any(x => && x.InBattle);
-
-        /*public static Player FromJSON(JObject playerJson, ushort playerID)
-        {
-            dynamic playerObject = playerJson;
-            Player player = new Player(playerID);
-            player.Bakugans = new List<Bakugan>();
-
-            foreach (string card in playerObject["abilities"])
-                player.Abilities.Add((IAbilityCard)Activator.CreateInstance(Type.GetType("Advanced_Brawl.Abilities." + card)));
-
-            foreach (JObject card in playerObject["gates"])
-            {
-                if (card["Type"].ToString() == "NormalGate")
-                    player.Gates.Add(new NormalGate(Bakugan.nameToAttribute[card["attribute"].ToString()], (short)card["Power"]));
-                else
-                    player.Gates.Add((IGateCard)Activator.CreateInstance(Type.GetType("Advanced_Brawl.Gates." + card.GetValue("Type").ToString())));
-            }
-            player.Gates.Cast<GateCard>().ToList().ForEach(x => x.Owner = playerID);
-            foreach (dynamic bakugan in playerObject["bakugans"])
-                player.Bakugans.Add(new Bakugan((string)bakugan["Type"], (short)bakugan["Power"], Bakugan.nameToAttribute[bakugan["attribute"].ToString()], Treatment.None, playerID));
-
-            return player;
-        }*/
     }
 }

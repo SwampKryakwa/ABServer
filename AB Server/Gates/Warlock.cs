@@ -1,8 +1,14 @@
+﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AB_Server.Gates
 {
-    internal class Warlock : GateCard, IGateCard
+    internal class Warlock : GateCard
     {
         public Warlock(int cID, Player owner)
         {
@@ -12,36 +18,43 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int TypeId { get; private protected set; } = 4;
+        public override int TypeId { get; } = 2;
 
-        public new void Negate()
+        public override void Open()
         {
-            IsOpen = false;
-            Negated = true;
-        }
-
-        public new void Open()
-        {
-            base.Open();
+            IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
+                { "Count", 1 },
                 { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.Where(x=>x.ActiveType == Abilities.ActiveType.Effect).ToArray())
+                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
                 } }
             });
 
-            game.AwaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Setup;
         }
 
-        public void Resolve()
+        IActive target;
+
+        public void Setup()
         {
-            game.ActiveZone.First(x => x.EffectId == (int)game.IncomingSelection[Owner.Id]["array"][0]["active"]).Negate(false);
+            target = game.ActiveZone.First(x => x.EffectId == (int)game.IncomingSelection[Owner.Id]["array"][0]["active"]);
 
-            game.ContinueGame();
+            game.CheckChain(Owner, this);
         }
 
-        public new bool IsOpenable() =>
-            base.IsOpenable() && game.ActiveZone.Any(x => x.ActiveType == Abilities.ActiveType.Effect);
+        public override void Resolve()
+        {
+            if (!counterNegated)
+                target.Negate();
+        }
+
+        public override bool IsOpenable() => game.ActiveZone.Count != 0 && base.IsOpenable();
     }
 }

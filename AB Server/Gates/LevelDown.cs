@@ -2,7 +2,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class LevelDown : GateCard, IGateCard
+    internal class LevelDown : GateCard
     {
         public LevelDown(int cID, Player owner)
         {
@@ -12,17 +12,16 @@ namespace AB_Server.Gates
             CardId = cID;
         }
 
-        public new int TypeId { get; private protected set; } = 9;
+        public override int TypeId { get; } = 0;
 
-        public new void Negate()
+        public override void Open()
         {
-            IsOpen = false;
-            Negated = true;
-        }
-
-        public new void Open()
-        {
-            base.Open();
+            IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
+            for (int i = 0; i < game.PlayerCount; i++)
+                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
@@ -42,24 +41,22 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.AwaitingAnswers[Owner.Id] = Resolve;
+            game.AwaitingAnswers[Owner.Id] = Setup;
         }
 
-        public void Resolve()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+        Bakugan target;
 
-            if (target.Power > 400)
-                target.Boost(new Boost(400 - target.Power), this);
-            else
+        public void Setup()
+        {
+            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            game.CheckChain(Owner, this);
+        }
+
+        public override void Resolve()
+        {
+            if (!counterNegated && target.Power >= 400 && target.Position == this)
                 target.Boost(new Boost(-100), this);
-
-            game.ContinueGame();
-        }
-
-        public new void Remove()
-        {
-            base.Remove();
         }
     }
 }

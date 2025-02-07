@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
         Game game;
 
 
-        public Player Owner { get => User.Owner; }
+        public Player Onwer { get; set; }
         bool IsCopy;
 
         public HolyLightEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
@@ -19,7 +19,8 @@ namespace AB_Server.Abilities
             User = user;
             this.game = game;
             this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+            user.UsedAbilityThisTurn = true;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -29,7 +30,7 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
+                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -44,7 +45,7 @@ namespace AB_Server.Abilities
         }
     }
 
-    internal class HolyLight : AbilityCard, IAbilityCard
+    internal class HolyLight : AbilityCard
     {
         public HolyLight(int cID, Player owner, int typeId)
         {
@@ -54,9 +55,9 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public void Setup(bool asCounter)
+        public override void Setup(bool asCounter)
         {
-            IAbilityCard ability = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -66,7 +67,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "BF" },
                         { "Message", "INFO_ABILITYUSER" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(ability.BakuganIsValid).Select(x =>
+                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -85,47 +86,17 @@ namespace AB_Server.Abilities
         public void Setup2()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            IAbilityCard ability = this;
+            
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
+                        { "SelectionType", "BH" },
+                        { "Message", "INFO_ABILITYTARGET" },
                         { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
-        public void SetupFusion(IAbilityCard parentCard, Bakugan user)
-        {
-            User = user;
-            FusedTo = parentCard;
-            if (parentCard != null) parentCard.Fusion = this;
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == Owner && x.OnField()).Select(x =>
+                        { "SelectionBakugans", new JArray(Owner.BakuganGrave.Bakugans.Select(x =>
                             new JObject { { "Type", (int)x.Type },
                                 { "Attribute", (int)x.Attribute },
                                 { "Treatment", (int)x.Treatment },
@@ -143,25 +114,25 @@ namespace AB_Server.Abilities
 
         private Bakugan target;
 
-        public void Activate()
+        public new void Activate()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
-        public new void Resolve()
+        public override void Resolve()
         {
-            if (!counterNegated)
+            if (!counterNegated || Fusion != null)
                 new HolyLightEffect(User, target, Game, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
-        public new void DoubleEffect() =>
+        public override void DoubleEffect() =>
                 new HolyLightEffect(User, target, Game, TypeId, IsCopy).Activate();
 
-        public new void DoNotAffect(Bakugan bakugan)
+        public override void DoNotAffect(Bakugan bakugan)
         {
             if (User == bakugan)
                 User = Bakugan.GetDummy();
@@ -169,10 +140,10 @@ namespace AB_Server.Abilities
                 target = Bakugan.GetDummy();
         }
 
-        public bool IsActivateableFusion(Bakugan user) =>
-            user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
 
-        public static bool HasValidTargets(Bakugan user) =>
+        public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganGrave.Bakugans.Count != 0;
     }
 }

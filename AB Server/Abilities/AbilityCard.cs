@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    public enum AbilityKind
+    public enum AbilityKind : byte
     {
         NormalAbility,
         FusionAbility,
@@ -28,20 +28,23 @@ namespace AB_Server.Abilities
             ((cID, owner) => new BruteUltimatum(cID, owner, 8), BruteUltimatum.HasValidTargets),
 
             //Set 2 attribute abilities
-            ((cID, owner) => new BloomOfAgony(cID, owner, 9), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new FireWall(cID, owner, 9), FireWall.HasValidTargets),
             ((cID, owner) => new Tunneling(cID, owner, 10), Tunneling.HasValidTargets),
-            ((cID, owner) => new AirBattle(cID, owner, 11), AirBattle.HasValidTargets),
+            ((cID, owner) => new LightningTornado(cID, owner, 11), LightningTornado.HasValidTargets),
             ((cID, owner) => new BloomOfAgony(cID, owner, 12), BloomOfAgony.HasValidTargets),
-            ((cID, owner) => new Tunneling(cID, owner, 13), Tunneling.HasValidTargets),
+            ((cID, owner) => new IllusiveCurrent(cID, owner, 13), IllusiveCurrent.HasValidTargets),
             ((cID, owner) => new AirBattle(cID, owner, 14), AirBattle.HasValidTargets),
 
             //Set 2 bakugan abilities
+            ((cID, owner) => new DefiantCounterattack(cID, owner, 15), DefiantCounterattack.HasValidTargets),
+            ((cID, owner) => new CutInSlayer(cID, owner, 16), CutInSlayer.HasValidTargets),
+            ((cID, owner) => new NoseSlap(cID, owner, 17), NoseSlap.HasValidTargets),
+            ((cID, owner) => new SaurusGlow(cID, owner, 18), SaurusGlow.HasValidTargets),
+            ((cID, owner) => new Dimension4(cID, owner, 19), Dimension4.HasValidTargets),
         ];
 
-        public static AbilityCard CreateCard(Player owner, int cID, int type)
-        {
-            return AbilityCtrs[type].constructor.Invoke(cID, owner);
-        }
+        public static AbilityCard CreateCard(Player owner, int cID, int type) =>
+            AbilityCtrs[type].constructor.Invoke(cID, owner);
         public bool counterNegated { get; set; } = false;
         public bool IsCopy { get; set; } = false;
 
@@ -51,8 +54,6 @@ namespace AB_Server.Abilities
         public Game Game { get; set; }
         public Player Owner { get; set; }
         public int EffectId { get; set; }
-
-        public AbilityCard? Fusion { get; set; }
 
         public int CardId { get; protected set; }
 
@@ -70,25 +71,9 @@ namespace AB_Server.Abilities
 
         public virtual void Setup(bool asCounter)
         {
-            Game.NewEvents[Owner.Id].Add(new JObject
-                    {
-                        { "Type", "StartSelection" },
-                        { "Count", 1 },
-                        { "Selections", new JArray {
-                            new JObject {
-                                { "SelectionType", "BF" },
-                                { "Message", "INFO_ABILITYUSER" },
-                                { "Ability", TypeId },
-                                { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                                    new JObject { { "Type", (int)x.Type },
-                                        { "Attribute", (int)x.Attribute },
-                                        { "Treatment", (int)x.Treatment },
-                                        { "Power", x.Power },
-                                        { "Owner", x.Owner.Id },
-                                        { "BID", x.BID } })) }
-                            }
-                        } }
-                    });
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }

@@ -9,7 +9,7 @@ namespace AB_Server
     {
         public static JObject SelectionBundler(params JObject[] selections)
         {
-            return new JObject
+            return new()
             {
                 { "Type", "StartSelection" },
                 { "Selections", JArray.FromObject(selections) }
@@ -18,7 +18,7 @@ namespace AB_Server
 
         public static JObject CustomSelectionEvent(string prompt, params string[] options)
         {
-            return new JObject
+            return new()
             {
                 { "SelectionType", "C" },
                 { "prompt", prompt },
@@ -28,27 +28,37 @@ namespace AB_Server
 
         public static JObject BoolSelectionEvent(string prompt)
         {
-            return new JObject
+            return new()
             {
                 { "SelectionType", "Q" },
                 { "Prompt", prompt }
             };
         }
 
-        public static JObject CounterSelectionEvent(int userId, int cardId, char counterableType)
+        public static JObject CounterSelectionEvent(int userId, int cardId, int cardKind)
         {
-            return new JObject
+            return new()
             {
                 { "SelectionType", "R" },
                 { "user", userId },
                 { "card", cardId },
-                { "counterableType", counterableType }
+                { "cardKind", cardKind }
+            };
+        }
+
+        public static JObject OptionSelectionEvent(string prompt, int options)
+        {
+            return new JObject
+            {
+                { "SelectionType", "O" },
+                { "Prompt", prompt },
+                { "Options", options }
             };
         }
 
         public static JObject AbilitySelection(string prompt, params AbilityCard[] abilities)
         {
-            return new JObject
+            return new()
             {
                 { "SelectionType", "A" },
                 { "Message", prompt },
@@ -56,7 +66,43 @@ namespace AB_Server
             };
         }
 
-        public static JObject ActiveSelection(string message, params IActive[] actives)
+        public static JObject HandBakuganSelection(string prompt, int ability, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "BH" },
+                { "Message", prompt },
+                { "Ability", ability },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.Attribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject FieldBakuganSelection(string prompt, int ability, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "BF" },
+                { "Message", prompt },
+                { "Ability", ability },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.Attribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject ActiveSelection(string message, params IEnumerable<IActive> actives)
         {
             JArray jsonActives = new();
 
@@ -85,7 +131,7 @@ namespace AB_Server
             if (RevealInfo)
                 return new()
                 {
-                    { "Type", "GateOpenEvent" },
+                    { "Type", "GateSetEvent" },
                     { "PosX", card.Position.X },
                     { "PosY", card.Position.Y },
                     { "GateData", new JObject {
@@ -96,7 +142,7 @@ namespace AB_Server
                 };
             return new()
             {
-                { "Type", "GateOpenEvent" },
+                { "Type", "GateSetEvent" },
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {

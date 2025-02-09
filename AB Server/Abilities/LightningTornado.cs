@@ -3,9 +3,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class Dimension4 : AbilityCard
+    internal class LightningTornado : AbilityCard
     {
-        public Dimension4(int cID, Player owner, int typeId)
+        public LightningTornado(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -26,13 +26,36 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle);
+            var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && x.Owner != Owner && x.Power > User.Power);
+            if (validBakugans.Count() != 0)
+            {
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.BoolSelectionEvent("INFO_SELECT_OPPONENT_BAKUGAN")
+                ));
+            }
+            else
+            {
+                Activate();
+            }
+            Game.AwaitingAnswers[Owner.Id] = HandleOpponentBakuganSelection;
+        }
 
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, validBakugans)
-            ));
+        public void HandleOpponentBakuganSelection()
+        {
+            if ((bool)Game.IncomingSelection[Owner.Id]["array"][0]["answer"])
+            {
+                var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && x.Owner != Owner && x.Power > User.Power);
 
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, validBakugans)
+                ));
+
+                Game.AwaitingAnswers[Owner.Id] = Setup3;
+            }
+            else
+            {
+                Activate();
+            }
         }
 
         private Bakugan target;
@@ -51,13 +74,13 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new Dimension4Effect(User, target, TypeId, IsCopy).Activate();
+                new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new Dimension4Effect(User, target, TypeId, IsCopy).Activate();
+            new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)
         {
@@ -68,13 +91,13 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
+            user.Attribute == Attribute.Lumina && user.InBattle;
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.OnField();
+            true;
     }
 
-    internal class Dimension4Effect
+    internal class LightningTornadoEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -84,7 +107,7 @@ namespace AB_Server.Abilities
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public Dimension4Effect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public LightningTornadoEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
         {
             User = user;
             this.target = target;
@@ -112,10 +135,14 @@ namespace AB_Server.Abilities
                 });
             }
 
-            // Set the power of the target Bakugan to its initial value
-            target.Boost(new Boost((short)(target.DefaultPower - target.Power)), this);
+            // Increase the power of the user Bakugan by 100G
+            User.Boost(new Boost(100), this);
+
+            // If a target Bakugan is selected, decrease its power by 100G
+            if (target != null)
+            {
+                target.Boost(new Boost(-100), this);
+            }
         }
     }
 }
-
-

@@ -8,16 +8,14 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
-        Game game;
-
+        Game game { get => User.Game; }
 
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public LeapStingEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public LeapStingEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
@@ -29,7 +27,8 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -43,7 +42,7 @@ namespace AB_Server.Abilities
 
             if (target.Power < User.Power)
                 if (target.Position is GateCard positionGate)
-                    target.Destroy(positionGate.EnterOrder);
+                    target.DestroyOnField(positionGate.EnterOrder);
         }
     }
 
@@ -125,14 +124,14 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new LeapStingEffect(User, target, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new LeapStingEffect(User, target, Game, TypeId, IsCopy).Activate();
+            new LeapStingEffect(User, target, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)
         {

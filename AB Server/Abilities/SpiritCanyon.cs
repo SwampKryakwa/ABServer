@@ -3,46 +3,6 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class SpiritCanyonEffect
-    {
-        public int TypeId { get; }
-        Bakugan user;
-        Game game;
-        Boost boost;
-
-        public Player Onwer { get; set; }
-        bool IsCopy;
-
-        public SpiritCanyonEffect(Bakugan user, Game game, int typeID, bool IsCopy)
-        {
-            this.user = user;
-            this.game = game;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
-            user.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField) * 50)), this);
-        }
-    }
-
     internal class SpiritCanyon : AbilityCard
     {
         public SpiritCanyon(int cID, Player owner, int typeId)
@@ -55,16 +15,55 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new SpiritCanyonEffect(User, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new SpiritCanyonEffect(User, Game, TypeId, IsCopy).Activate();
+                new SpiritCanyonEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Subterra;
+    }
+
+    internal class SpiritCanyonEffect
+    {
+        public int TypeId { get; }
+        Bakugan User;
+        Game game { get => User.Game; }
+
+        public Player Owner { get; set; }
+        bool IsCopy;
+
+        public SpiritCanyonEffect(Bakugan user, int typeID, bool IsCopy)
+        {
+            User = user;
+            user.UsedAbilityThisTurn = true;
+            this.IsCopy = IsCopy;
+            TypeId = typeID;
+        }
+
+        public void Activate()
+        {
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
+                    { "Card", TypeId },
+                    { "UserID", User.BID },
+                    { "User", new JObject {
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
+                    }}
+                });
+            }
+            User.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField) * 50)), this);
+        }
     }
 }

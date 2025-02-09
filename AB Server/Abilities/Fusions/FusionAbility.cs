@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -15,27 +16,45 @@ namespace AB_Server.Abilities
         [
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new DoubleDimension(cID, owner),
+            (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Unleash(cID, owner)
         ];
         public override AbilityKind Kind { get; } = AbilityKind.FusionAbility;
         public Type BaseAbilityType;
         public AbilityCard FusedTo;
 
-        public void Setup(AbilityCard @base, Bakugan user)
+        public override void Setup(bool asCounter)
         {
-            @base.Fusion = this;
-            User = user;
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(x => BaseAbilityType.IsInstanceOfType(x)).ToArray())
+                ));
+            Game.AwaitingAnswers[Owner.Id] = PickUser;
+        }
 
-            Game.NewEvents[Owner.Id].Add(EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(x => BaseAbilityType.IsInstanceOfType(x) && x.IsActivateable()).ToArray()));
+        public virtual void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        public new virtual void Activate()
+        public new void Activate()
         {
-            FusedTo = (AbilityCard)Game.IncomingSelection[Owner.Id]["array"][0]["ability"];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
+            FusedTo.Dispose();
             Game.CheckChain(Owner, this, User);
         }
+
+        public override bool IsActivateable() =>
+            Owner.BakuganOwned.Any(IsActivateableByBakugan) && Owner.AbilityHand.Any(BaseAbilityType.IsInstanceOfType);
     }
 }

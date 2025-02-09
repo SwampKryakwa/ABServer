@@ -1,23 +1,22 @@
-﻿using AB_Server.Gates;
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace AB_Server.Abilities
 {
-    internal class BlowbackEffect
+    internal class IllusiveCurrentEffect
     {
         public int TypeId { get; }
         public Bakugan User;
-        Bakugan target;
+        Bakugan selectedBakugan;
         Game game { get => User.Game; }
 
-        public Player Onwer { get; set; }
+        public Player Owner { get; set; }
         bool IsCopy;
 
-        public BlowbackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public IllusiveCurrentEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
         {
             User = user;
-            this.target = target;
+            this.selectedBakugan = selectedBakugan;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -28,7 +27,8 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -40,14 +40,21 @@ namespace AB_Server.Abilities
                 });
             }
 
-            if (target.Position is GateCard positionGate)
-                target.ToHand(positionGate.EnterOrder);
+            var position = User.Position;
+            // Return the user to hand
+
+            // Add the selected Bakugan to the GateCard where the user was
+            if (position is GateCard positionGate)
+            {
+                User.ToHand(positionGate.EnterOrder);
+                selectedBakugan.AddFromHand(positionGate);
+            }
         }
     }
 
-    internal class Blowback : AbilityCard
+    internal class IllusiveCurrent : AbilityCard
     {
-        public Blowback(int cID, Player owner, int typeId)
+        public IllusiveCurrent(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -59,7 +66,7 @@ namespace AB_Server.Abilities
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
-                ));
+            ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
@@ -68,19 +75,22 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
+            var validBakugans = User.Attribute == Attribute.Aqua
+                ? Owner.BakuganOwned.Where(x => x.InHand())
+                : Owner.BakuganOwned.Where(x => x.InHand() && x.Attribute == Attribute.Aqua);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Game.BakuganIndex.Where(target => IsTargetValid(target, User)))
-                ));
+                EventBuilder.HandBakuganSelection("INFO_SELECT_BAKUGAN", TypeId, validBakugans)
+            ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        private Bakugan target;
+        private Bakugan selectedBakugan;
 
         public new void Activate()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            selectedBakugan = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.CheckChain(Owner, this, User);
         }
@@ -88,29 +98,27 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new BlowbackEffect(User, target, TypeId, IsCopy).Activate();
+                new IllusiveCurrentEffect(User, selectedBakugan, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new BlowbackEffect(User, target, TypeId, IsCopy).Activate();
+            new IllusiveCurrentEffect(User, selectedBakugan, TypeId, IsCopy).Activate();
 
-        public new void DoNotAffect(Bakugan bakugan)
+        public override void DoNotAffect(Bakugan bakugan)
         {
             if (User == bakugan)
                 User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
+            if (selectedBakugan == bakugan)
+                selectedBakugan = Bakugan.GetDummy();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
-
-        public static bool IsTargetValid(Bakugan target, Bakugan user) =>
-            target.OnField() && target.Owner == user.Owner;
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+            user.OnField();
     }
 }
+

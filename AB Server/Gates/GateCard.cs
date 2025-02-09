@@ -7,6 +7,8 @@ namespace AB_Server.Gates
 {
     internal class GateCard : IBakuganContainer, IActive, IChainable
     {
+        public Bakugan User { get; set; } = null;
+
         static Func<int, Player, GateCard>[] GateCtrs =
         [
             (x, y) => new LevelDown(x, y),
@@ -109,7 +111,7 @@ namespace AB_Server.Gates
                     if (b.Owner.SideID != winner)
                     {
                         b.JustEndedBattle = true;
-                        b.Destroy(EnterOrder, MoveSource.Game);
+                        b.DestroyOnField(EnterOrder, MoveSource.Game);
                     }
             }
 
@@ -268,7 +270,7 @@ namespace AB_Server.Gates
 
         public bool IsAdjacentVertically(GateCard card)
         {
-            return (card.Position.X - Position.X) == 0 && Math.Abs(card.Position.Y - Position.Y) == 1;
+            return (card.Position.Y - Position.Y) == 0 && Math.Abs(card.Position.X - Position.X) == 1;
         }
 
         public virtual void Negate(bool asCounter = false)

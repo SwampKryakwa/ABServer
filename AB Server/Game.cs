@@ -633,7 +633,7 @@ namespace AB_Server
                 { "SettableGates", gateArray },
                 { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId } })) },
                 { "ThrowableBakugan", bakuganArray },
-                { "ActivateableAbilities", new JArray(Players[player].AbilityHand.Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId }, { "CanActivate", x.IsActivateable() } })) }
+                { "ActivateableAbilities", new JArray(Players[player].AbilityHand.Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CanActivate", x.IsActivateable() } })) }
             };
             return moves;
         }
@@ -769,7 +769,7 @@ namespace AB_Server
         {
             Console.WriteLine("Suggesting counter");
             AwaitingAnswers[player.Id] = () => CheckCounter(player, card, user);
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (card is GateCard) ? 'G' : 'A')));
+            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
         }
 
         public void CheckCounter(Player player, IActive card, Player user)

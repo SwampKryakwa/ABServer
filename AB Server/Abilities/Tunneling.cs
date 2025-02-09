@@ -8,15 +8,14 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         Bakugan User;
         GateCard moveTarget;
-        Game game;
+        Game game { get => User.Game; }
 
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public TunnelingEffect(Bakugan user, GateCard moveTarget, Game game, int typeID, bool IsCopy)
+        public TunnelingEffect(Bakugan user, GateCard moveTarget, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             this.moveTarget = moveTarget;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
@@ -29,8 +28,8 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Card", TypeId },
                     { "Kind", 0 },
+                    { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
@@ -95,7 +94,7 @@ namespace AB_Server.Abilities
                         { "SelectionType", "GF" },
                         { "Message", "INFO_MOVETARGET" },
                         { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.Position.Y == (User.Position as GateCard).Position.Y && !x.IsTouching(User.Position as GateCard)).Select(x => new JObject {
+                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.Position.X == (User.Position as GateCard).Position.X && x != User.Position && !x.IsTouching(User.Position as GateCard)).Select(x => new JObject {
                             { "Type", x.TypeId },
                             { "PosX", x.Position.X },
                             { "PosY", x.Position.Y },
@@ -117,13 +116,13 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new TunnelingEffect(User, moveTarget, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new TunnelingEffect(User, moveTarget, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new TunnelingEffect(User, moveTarget, Game, TypeId, IsCopy).Activate();
+                new TunnelingEffect(User, moveTarget, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Subterra && HasValidTargets(user);

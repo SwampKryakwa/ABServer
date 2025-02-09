@@ -8,17 +8,16 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         public Bakugan User;
         GateCard target;
-        Game game;
+        Game game { get => User.Game; }
 
 
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public GrandDownEffect(Bakugan user, GateCard target, Game game, int typeID, bool IsCopy)
+        public GrandDownEffect(Bakugan user, GateCard target, int typeID, bool IsCopy)
         {
             User = user;
             this.target = target;
-            this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -117,14 +116,14 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new GrandDownEffect(User, target, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new GrandDownEffect(User, target, Game, TypeId, IsCopy).Activate();
+                new GrandDownEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon && Game.GateIndex.Any(x => x.OnField && x.IsOpen);

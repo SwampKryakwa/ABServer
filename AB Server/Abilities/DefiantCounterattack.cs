@@ -1,29 +1,22 @@
-﻿using AB_Server.Gates;
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AB_Server.Abilities
 {
     internal class DefiantCounterattackEffect
     {
         public int TypeId { get; }
-        Bakugan user;
-        Game game;
-        Boost boost;
-        GateCard target;
+        Bakugan User;
+        GateCard battleGate;
+        Game game { get => User.Game; }
 
-        public Player Onwer { get; set; }
+        public Player Owner { get; set; }
         bool IsCopy;
 
-        public DefiantCounterattackEffect(Bakugan user, GateCard target, Game game, int typeID, bool IsCopy)
+        public DefiantCounterattackEffect(Bakugan user, GateCard battleGate, int typeID, bool IsCopy)
         {
-            this.user = user;
-            this.game = game;
-            this.target = target;
+            User = user;
+            this.battleGate = battleGate;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -37,33 +30,34 @@ namespace AB_Server.Abilities
                     { "Type", "AbilityActivateEffect" },
                     { "Kind", 0 },
                     { "Card", TypeId },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
+                    } }
                 });
             }
-            user.FromGrave(target);
+
+            User.FromGrave(battleGate);
         }
     }
+
     internal class DefiantCounterattack : AbilityCard
     {
-        DefiantCounterattack(int cID, Player owner, int typeId)
+        public DefiantCounterattack(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
         }
-        GateCard moveTarget;
+
+        GateCard battleGate;
 
         public override void Setup(bool asFusion)
         {
-
-
             Game.NewEvents[Owner.Id].Add(new JObject
             {
                 { "Type", "StartSelection" },
@@ -90,7 +84,7 @@ namespace AB_Server.Abilities
 
         public void Setup2()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(new JObject
             {
@@ -98,7 +92,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_MOVETARGET" },
+                        { "Message", "INFO_TARGETGATE" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.BattleOver).Select(x => new JObject {
                             { "Type", x.TypeId },
@@ -115,23 +109,26 @@ namespace AB_Server.Abilities
 
         public new void Activate()
         {
-            moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
+            battleGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             Game.CheckChain(Owner, this, User);
         }
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
-
+            if (!counterNegated)
+                new DefiantCounterattackEffect(User, battleGate, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new FireJudgeEffect(User, Game, TypeId, IsCopy).Activate();
+                new DefiantCounterattackEffect(User, battleGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InGrave();
+
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.GateIndex.Any(gate => gate.BattleOver);
     }
 }
+

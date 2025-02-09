@@ -8,16 +8,15 @@ namespace AB_Server.Abilities
         public int TypeId { get; }
         public Bakugan User;
         Bakugan target;
-        Game game;
+        Game game { get => User.Game; }
 
 
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public BruteUltimatumEffect(Bakugan user, Bakugan target, Game game, int typeID, bool IsCopy)
+        public BruteUltimatumEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             this.target = target;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
@@ -185,14 +184,14 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new BruteUltimatumEffect(User, addTarget, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new BruteUltimatumEffect(User, addTarget, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new BruteUltimatumEffect(User, addTarget, Game, TypeId, IsCopy).Activate();
+            new BruteUltimatumEffect(User, addTarget, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)
         {

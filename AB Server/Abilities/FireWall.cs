@@ -3,9 +3,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class Dimension4 : AbilityCard
+    internal class FireWall : AbilityCard
     {
-        public Dimension4(int cID, Player owner, int typeId)
+        public FireWall(int cID, Player owner, int typeId)
         {
             TypeId = typeId;
             CardId = cID;
@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle);
+            var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle && x.Owner != Owner);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, validBakugans)
@@ -40,24 +40,43 @@ namespace AB_Server.Abilities
         public void Setup3()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            Activate();
+
+            if (User.Attribute == Attribute.Nova)
+            {
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.OptionSelectionEvent("INFO_SELECT_OPTION", 2)
+                ));
+                Game.AwaitingAnswers[Owner.Id] = HandleOptionSelection;
+            }
+            else
+            {
+                Activate(0); // Default to reducing power by 50G if not Nova
+            }
         }
 
-        public new void Activate()
+        public void HandleOptionSelection()
         {
+            int selectedOption = (int)Game.IncomingSelection[Owner.Id]["array"][0]["option"];
+            Activate(selectedOption);
+        }
+
+        int selectedOption;
+        public void Activate(int selectedOption)
+        {
+            this.selectedOption = selectedOption;
             Game.CheckChain(Owner, this, User);
         }
 
         public override void Resolve()
         {
             if (!counterNegated)
-                new Dimension4Effect(User, target, TypeId, IsCopy).Activate();
+                new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new Dimension4Effect(User, target, TypeId, IsCopy).Activate();
+            new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)
         {
@@ -68,13 +87,13 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
+            user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.OnField();
+            user.Position.Bakugans.Any(x => x.Owner != user.Owner);
     }
 
-    internal class Dimension4Effect
+    internal class FireWallEffect
     {
         public int TypeId { get; }
         public Bakugan User;
@@ -83,13 +102,15 @@ namespace AB_Server.Abilities
 
         public Player Owner { get; set; }
         bool IsCopy;
+        int selectedOption;
 
-        public Dimension4Effect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public FireWallEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy, int selectedOption)
         {
             User = user;
             this.target = target;
             user.UsedAbilityThisTurn = true;
             this.IsCopy = IsCopy;
+            this.selectedOption = selectedOption;
             TypeId = typeID;
         }
 
@@ -112,10 +133,21 @@ namespace AB_Server.Abilities
                 });
             }
 
-            // Set the power of the target Bakugan to its initial value
-            target.Boost(new Boost((short)(target.DefaultPower - target.Power)), this);
+            if (selectedOption == 0)
+            {
+                // Reduce the power of the target Bakugan by 50G
+                target.Boost(new Boost(-50), this);
+            }
+            else if (selectedOption == 2 && User.Attribute == Attribute.Nova)
+            {
+                // Set the power of the target Bakugan to its initial value
+                foreach (var boost in new List<Boost>(target.Boosts))
+                {
+                    boost.Active = false;
+                    target.Boosts.Remove(boost);
+                }
+            }
         }
     }
 }
-
 

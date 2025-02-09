@@ -10,15 +10,14 @@ namespace AB_Server.Abilities
         Bakugan User;
         Bakugan target;
         GateCard moveTarget;
-        Game game;
+        Game game { get => User.Game; }
 
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public MarionetteEffect(Bakugan user, Bakugan target, GateCard moveTarget, Game game, int typeID, bool IsCopy)
+        public MarionetteEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             this.target = target;
             this.moveTarget = moveTarget;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
@@ -31,7 +30,8 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -150,13 +150,13 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new MarionetteEffect(User, target, moveTarget, TypeId, IsCopy).Activate();
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new MarionetteEffect(User, target, moveTarget, Game, TypeId, IsCopy).Activate();
+                new MarionetteEffect(User, target, moveTarget, TypeId, IsCopy).Activate();
 
         public new void DoNotAffect(Bakugan bakugan)
         {

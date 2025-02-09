@@ -7,19 +7,47 @@ using System.Threading.Tasks;
 
 namespace AB_Server.Abilities
 {
+    internal class Unleash : FusionAbility
+    {
+        public Unleash(int cID, Player owner)
+        {
+            TypeId = 0;
+            CardId = cID;
+            Owner = owner;
+            Game = owner.game;
+            BaseAbilityType = typeof(AbilityCard);
+        }
+
+        public override void Resolve()
+        {
+            if (!counterNegated)
+                new UnleashEffect(User, TypeId, IsCopy).Activate();
+
+            Dispose();
+        }
+
+        public override void DoubleEffect() =>
+            new UnleashEffect(User, TypeId, IsCopy).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            user.OnField();
+
+        public override bool IsActivateable() =>
+            Owner.BakuganOwned.Any(IsActivateableByBakugan) && Owner.AbilityHand.Any(x => x is not FusionAbility && x.IsActivateable());
+    }
+
     internal class UnleashEffect
     {
         public int TypeId { get; }
         Bakugan user;
-        Game game;
+        Game game { get => user.Game; }
 
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public UnleashEffect(Bakugan user, Game game, int typeID, bool IsCopy)
+        public UnleashEffect(Bakugan user, int typeID, bool IsCopy)
         {
             this.user = user;
-            this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
 
             TypeId = typeID;
@@ -45,27 +73,5 @@ namespace AB_Server.Abilities
             }
             user.Boost(new Boost(50), this);
         }
-    }
-    internal class Unleash : FusionAbility
-    {
-        public Unleash(int cID, Player owner)
-        {
-            TypeId = 0;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-            BaseAbilityType = typeof(AbilityCard);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated || Fusion != null)
-                new UnleashEffect(User, Game, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
-        public override bool IsActivateable() =>
-            Owner.AbilityHand.Any(x => x is not FusionAbility && x.IsActivateable();
     }
 }

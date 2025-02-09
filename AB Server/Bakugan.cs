@@ -42,21 +42,6 @@ namespace AB_Server
         Effect
     }
 
-    interface IBakuganContainer
-    {
-        List<Bakugan> Bakugans { get; }
-
-        public void Remove(Bakugan bakugan)
-        {
-            Bakugans.Remove(bakugan);
-        }
-
-        public void Add(Bakugan bakugan)
-        {
-            Bakugans.Add(bakugan);
-        }
-    }
-
     class Boost(short value)
     {
         public short Value { get; set; } = value;
@@ -578,14 +563,11 @@ namespace AB_Server
             }
         }
 
-        public void Destroy(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
+        public void DestroyOnField(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;
             if (Position is GateCard positionGate)
             {
-                if (positionGate.MovingInEffectBlocking.Count != 0)
-                    return;
-
                 Defeated = true;
                 Position.Remove(this);
                 Position = Owner.BakuganGrave;
@@ -609,6 +591,35 @@ namespace AB_Server
                             { "Power", Power },
                             { "BID", BID } }
                         }
+                    });
+                }
+
+                Boosts.ForEach(x => x.Active = false);
+                Boosts.Clear();
+                Game.OnBakuganDestroyed(this, Owner.Id);
+            }
+        }
+
+        public void DestroyInHand(MoveSource mover = MoveSource.Effect)
+        {
+            if (IsDummy) return;
+            if (Position is Player positionPlayer)
+            {
+                Defeated = true;
+                Position.Remove(this);
+                Position = Owner.BakuganGrave;
+                Owner.BakuganGrave.Bakugans.Add(this);
+
+                foreach (List<JObject> e in Game.NewEvents)
+                {
+                    e.Add(new JObject {
+                        { "Type", "BakuganRemovedFromHand" },
+                        { "Owner", Owner.Id },
+                        { "BakuganType", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "BID", BID }
                     });
                 }
 

@@ -1,37 +1,33 @@
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class SaurusGlowEffect : IActive
+    internal class SaurusGlowEffect
     {
         public int TypeId { get; }
-        public int EffectId { get; set; }
-        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
-        Bakugan User;
-        Game game;
+        public Bakugan User;
+        Game game { get => User.Game; }
 
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public SaurusGlowEffect(Bakugan user, Game game, int typeID, bool IsCopy)
+        public SaurusGlowEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             user.UsedAbilityThisTurn = true;
             this.IsCopy = IsCopy;
             TypeId = typeID;
-            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
-            game.ActiveZone.Add(this);
-
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -41,36 +37,25 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectAddedActiveZone" },
-                    { "IsCopy", IsCopy },
-                    { "Card", TypeId },
-                    { "Kind", (int)Kind },
-                    { "Id", EffectId },
-                    { "Owner", Owner.Id }
-                });
             }
 
-            game.BakuganThrown += OnBakuganEnteredField;
-            game.BakuganAdded += OnBakuganEnteredField;
+            // Register the effect to boost Saurus when a stronger Bakugan enters the field
+            game.BakuganAdded += HandleBakuganAdded;
+            game.BakuganThrown += HandleBakuganAdded;
         }
 
-        private void OnBakuganEnteredField(Bakugan bakugan, byte owner, IBakuganContainer pos)
+        private void HandleBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
         {
-            if (bakugan.Power > User.Power && User.OnField())
+            if (target.Power > User.Power && User.OnField())
             {
-                Boost currentBoost = new Boost(50);
-                User.Boost(currentBoost, this);
+                User.Boost(new Boost(50), this);
             }
         }
 
-        public void Negate(bool asCounter)
+        public void Deactivate()
         {
-            game.ActiveZone.Remove(this);
-
-            game.BakuganThrown -= OnBakuganEnteredField;
-            game.BakuganAdded -= OnBakuganEnteredField;
+            game.BakuganAdded -= HandleBakuganAdded;
+            game.BakuganThrown -= HandleBakuganAdded;
         }
     }
 
@@ -84,18 +69,45 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
+        public override void Setup(bool asCounter)
+        {
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+            ));
+
+            Game.AwaitingAnswers[Owner.Id] = Activate;
+        }
+
+        public new void Activate()
+        {
+            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            Game.CheckChain(Owner, this, User);
+        }
+
         public override void Resolve()
         {
             if (!counterNegated)
-                new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
+                new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new SaurusGlowEffect(User, Game, TypeId, IsCopy).Activate();
+            new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
 
-        public bool IsActivateableFusion(Bakugan user) =>
+        public override void DoNotAffect(Bakugan bakugan)
+        {
+            if (User == bakugan)
+                User = Bakugan.GetDummy();
+        }
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            user.Type == BakuganType.Saurus && user.OnField();
+
+        public static new bool HasValidTargets(Bakugan user) =>
             user.Type == BakuganType.Saurus && user.OnField();
     }
 }
+
+

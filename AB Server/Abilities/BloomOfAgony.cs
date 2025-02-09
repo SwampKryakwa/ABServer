@@ -6,17 +6,15 @@ namespace AB_Server.Abilities
     internal class BloomOfAgonyEffect
     {
         public int TypeId { get; }
-        Bakugan user;
-        Game game;
-        Boost boost;
+        Bakugan User;
+        Game game { get => User.Game; }
 
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public BloomOfAgonyEffect(Bakugan user, Game game, int typeID, bool IsCopy)
+        public BloomOfAgonyEffect(Bakugan user, int typeID, bool IsCopy)
         {
-            this.user = user;
-            this.game = game;
+            this.User = user;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -29,12 +27,12 @@ namespace AB_Server.Abilities
                 {
                     { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
                     { "Card", TypeId },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
                 });
             }
@@ -61,14 +59,14 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new BloomOfAgonyEffect(User, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new BloomOfAgonyEffect(User, Game, TypeId, IsCopy).Activate();
+            new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.Attribute == Attribute.Darkon;

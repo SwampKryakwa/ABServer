@@ -85,7 +85,7 @@ namespace AB_Server
                 game.AbilityIndex.Add(abi);
             }
 
-            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Attribute"]].Invoke(game.AbilityIndex.Count, player);
+            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Type"]].Invoke(game.AbilityIndex.Count, player);
             player.AbilityHand.Add(fusion);
             game.AbilityIndex.Add(fusion);
 

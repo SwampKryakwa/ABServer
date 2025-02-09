@@ -6,17 +6,17 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
-        Bakugan User;
-        Game game;
+        public Bakugan User { get; set; }
+        Game game { get => User.Game; }
         int turnsPassed = 0;
 
         public Player Owner { get; set; }
+        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
         bool IsCopy;
 
-        public WaterRefrainEffect(Bakugan user, Game game, int typeID, bool IsCopy)
+        public WaterRefrainEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            this.game = game;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner; 
             TypeId = typeID;
             EffectId = game.NextEffectId++;
@@ -106,14 +106,14 @@ namespace AB_Server.Abilities
 
         public override void Resolve()
         {
-            if (!counterNegated || Fusion != null)
-                new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
+            if (!counterNegated)
+                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-                new WaterRefrainEffect(User, Game, TypeId, IsCopy).Activate();
+                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();

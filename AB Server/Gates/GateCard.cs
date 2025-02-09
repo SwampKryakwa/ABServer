@@ -11,11 +11,14 @@ namespace AB_Server.Gates
 
         static Func<int, Player, GateCard>[] GateCtrs =
         [
+            //Set 1 Gate Cards
             (x, y) => new LevelDown(x, y),
             (x, y) => new Peacemaker(x, y),
             (x, y) => new Warlock(x, y),
             (x, y) => new CheeringBattle(x, y),
             (x, y) => new Transform(x, y),
+
+            //Set 2 Gate Cards
             (x, y) => new JokersWild(x, y),
             (x, y) => new PositiveDelta(x, y),
             (x, y) => new Aquamerge(x, y),

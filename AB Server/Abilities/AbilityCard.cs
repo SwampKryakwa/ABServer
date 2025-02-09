@@ -108,11 +108,29 @@ namespace AB_Server.Abilities
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
-                        {
-                            { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
-                            { "Card", TypeId },
-                            { "Owner", Owner.Id }
-                        });
+                {
+                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Id", EffectId },
+                    { "Card", TypeId },
+                    { "Owner", Owner.Id }
+                });
+            }
+        }
+        public virtual void Discard()
+        {
+            if (Owner.AbilityHand.Contains(this))
+                Owner.AbilityHand.Remove(this);
+            if (!IsCopy)
+                Owner.AbilityGrave.Add(this);
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityRemovedFromHand",
+                    ["CID"] = CardId,
+                    ["Owner"] = Owner.Id
+                });
             }
         }
 
@@ -125,11 +143,12 @@ namespace AB_Server.Abilities
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {
                 Game.NewEvents[i].Add(new()
-                        {
-                            { "Type", "AbilityRemovedActiveZone" }, { "Id", EffectId },
-                            { "Card", TypeId },
-                            { "Owner", Owner.Id }
-                        });
+                {
+                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Id", EffectId },
+                    { "Card", TypeId },
+                    { "Owner", Owner.Id }
+                });
             }
         }
 

@@ -1,13 +1,7 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
 
-namespace AB_Server.Abilities.Fusions
+namespace AB_Server.Abilities
 {
     internal class StrikeBack : FusionAbility
     {
@@ -47,7 +41,7 @@ namespace AB_Server.Abilities.Fusions
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            FusedTo.Dispose();
+            FusedTo.Discard();
             Game.CheckChain(Owner, this, User);
         }
 

@@ -1,21 +1,20 @@
-﻿using Newtonsoft.Json.Linq;
+using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AB_Server.Abilities
 {
-    internal class DoubleDimension : FusionAbility
+    internal class CutInSaber : FusionAbility
     {
-        public DoubleDimension(int cID, Player owner)
+        public CutInSaber(int cID, Player owner)
         {
-            TypeId = 1;
+            TypeId = 3;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BaseAbilityType = typeof(Dimension4);
+            BaseAbilityType = typeof(CutInSlayer);
         }
 
         public override void PickUser()
@@ -23,7 +22,7 @@ namespace AB_Server.Abilities
             FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.HandBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = PickTarget;
@@ -34,50 +33,53 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.ActiveSelection("INFO_ABILITYTARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
+                EventBuilder.FieldGateSelection("INFO_SELECT_GATE", TypeId, (int)Kind, Game.GateIndex.Where(g => g.Bakugans.Count >= 2 && g.Freezing.Count == 0))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
 
-        Bakugan target;
+        GateCard targetGate;
         public new void Activate()
         {
-            target = Game.ActiveZone[(int)Game.IncomingSelection[Owner.Id]["array"][0]["active"]].User;
+            targetGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             FusedTo.Discard();
             Game.CheckChain(Owner, this, User);
+
+            if (User.InHands)
+                User.AddFromHand(targetGate);
         }
 
         public override void Resolve()
         {
             if (!counterNegated)
-                new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
+                new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
+            new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard);
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHands;
     }
 
-    internal class DoubleDimensionEffect
+    internal class CutInSaberEffect
     {
         public int TypeId { get; }
         Bakugan user;
-        Bakugan target;
+        GateCard targetGate;
         Game game { get => user.Game; }
 
-        public Player Onwer { get; set; }
+        public Player Owner { get; set; }
         bool IsCopy;
 
-        public DoubleDimensionEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public CutInSaberEffect(Bakugan user, GateCard targetGate, int typeID, bool IsCopy)
         {
             this.user = user;
-            this.target = target;
+            this.targetGate = targetGate;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
 
             TypeId = typeID;
@@ -102,7 +104,8 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.Boost(new Boost((short)-target.Power), this);
+            if (user.InHands)
+                user.AddFromHand(targetGate);
         }
     }
 }

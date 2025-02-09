@@ -1,13 +1,4 @@
 ﻿using AB_Server.Abilities.Fusions;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AB_Server.Abilities
 {
@@ -20,9 +11,9 @@ namespace AB_Server.Abilities
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new StrikeBack(cID, owner),
             (cID, owner) => new DoubleDimension(cID, owner),
+            (cID, owner) => new PowerCharge(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
-            (cID, owner) => new Unleash(cID, owner),
-            (cID, owner) => new Unleash(cID, owner)
+            (cID, owner) => new CutInSaber(cID, owner)
         ];
         public override AbilityKind Kind { get; } = AbilityKind.FusionAbility;
         public Type BaseAbilityType;
@@ -31,7 +22,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(x => BaseAbilityType.IsInstanceOfType(x)).ToArray())
+                EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(BaseAbilityType.IsInstanceOfType))
                 ));
             Game.AwaitingAnswers[Owner.Id] = PickUser;
         }
@@ -51,7 +42,7 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            FusedTo.Dispose();
+            FusedTo.Discard();
             Game.CheckChain(Owner, this, User);
         }
 

@@ -16,7 +16,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject CustomSelectionEvent(string prompt, params string[] options)
+        public static JObject CustomSelectionEvent(string prompt, params IEnumerable<string> options)
         {
             return new()
             {
@@ -56,7 +56,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject AbilitySelection(string prompt, params AbilityCard[] abilities)
+        public static JObject AbilitySelection(string prompt, params IEnumerable<AbilityCard> abilities)
         {
             return new()
             {
@@ -100,6 +100,23 @@ namespace AB_Server
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
                     { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject FieldGateSelection(string prompt, int ability, int abilityKind, params IEnumerable<GateCard> gates)
+        {
+            return new()
+            {
+                { "SelectionType", "GF" },
+                { "Message", prompt },
+                { "Ability", ability },
+                { "AbilityKind", abilityKind },
+                { "SelectionGates", new JArray(gates.Select(x => new JObject {
+                    { "Type", x.TypeId },
+                    { "PosX", x.Position.X },
+                    { "PosY", x.Position.Y },
+                    { "CID", x.CardId }
                 }) ) }
             };
         }

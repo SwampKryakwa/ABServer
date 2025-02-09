@@ -1,21 +1,23 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities.Fusions
 {
-    internal class DoubleDimension : FusionAbility
+    internal class StrikeBack : FusionAbility
     {
-        public DoubleDimension(int cID, Player owner)
+        public StrikeBack(int cID, Player owner)
         {
-            TypeId = 1;
+            TypeId = 2;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BaseAbilityType = typeof(Dimension4);
+            BaseAbilityType = typeof(DefiantCounterattack);
         }
 
         public override void PickUser()
@@ -23,8 +25,8 @@ namespace AB_Server.Abilities
             FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
+                EventBuilder.HandBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
 
             Game.AwaitingAnswers[Owner.Id] = PickTarget;
         }
@@ -34,8 +36,8 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.ActiveSelection("INFO_ABILITYTARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
-            ));
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField() && x.IsEnemyOf(User)))
+                ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
@@ -43,7 +45,7 @@ namespace AB_Server.Abilities
         Bakugan target;
         public new void Activate()
         {
-            target = Game.ActiveZone[(int)Game.IncomingSelection[Owner.Id]["array"][0]["active"]].User;
+            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             FusedTo.Dispose();
             Game.CheckChain(Owner, this, User);
@@ -52,19 +54,18 @@ namespace AB_Server.Abilities
         public override void Resolve()
         {
             if (!counterNegated)
-                new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
+                new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
 
             Dispose();
         }
-
         public override void DoubleEffect() =>
-            new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
+                new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard);
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
     }
 
-    internal class DoubleDimensionEffect
+    internal class StrikeBackEffect
     {
         public int TypeId { get; }
         Bakugan user;
@@ -74,7 +75,7 @@ namespace AB_Server.Abilities
         public Player Onwer { get; set; }
         bool IsCopy;
 
-        public DoubleDimensionEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
         {
             this.user = user;
             this.target = target;
@@ -102,7 +103,8 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.Boost(new Boost((short)-target.Power), this);
+            user.FromGrave((target.Position as GateCard));
+            user.Boost(new Boost((short)(target.Power - user.Power + 10)), this);
         }
     }
 }

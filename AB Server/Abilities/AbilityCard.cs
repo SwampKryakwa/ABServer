@@ -72,7 +72,7 @@ namespace AB_Server.Abilities
         public virtual void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

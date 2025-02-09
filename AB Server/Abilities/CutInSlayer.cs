@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
             var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_OTHER_BAKUGANS", TypeId, validBakugans)
+                EventBuilder.FieldBakuganSelection("INFO_SELECT_OTHER_BAKUGANS", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup3;
@@ -65,7 +65,7 @@ namespace AB_Server.Abilities
                 var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User && !otherBakugans.Contains(x));
 
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.FieldBakuganSelection("INFO_SELECT_OTHER_BAKUGANS", TypeId, validBakugans)
+                    EventBuilder.FieldBakuganSelection("INFO_SELECT_OTHER_BAKUGANS", TypeId, (int)Kind, validBakugans)
                 ));
 
                 Game.AwaitingAnswers[Owner.Id] = Setup3;

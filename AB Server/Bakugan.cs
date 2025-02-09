@@ -461,7 +461,7 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
-                    { "Type", "BakuganMovedEvent" },
+                    { "Type", "BakuganAddedEvent" },
                     { "PosX", destination.Position.X },
                     { "PosY", destination.Position.Y },
                     { "Owner", Owner.Id },
@@ -475,9 +475,11 @@ namespace AB_Server
                 });
             }
 
+            destination.BattleOver = false;
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
+            Game.OnBakuganAdded(this, Owner.Id, destination);
             Game.isBattleGoing |= destination.CheckBattles();
         }
 

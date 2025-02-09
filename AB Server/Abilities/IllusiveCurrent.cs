@@ -65,7 +65,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
@@ -80,7 +80,7 @@ namespace AB_Server.Abilities
                 : Owner.BakuganOwned.Where(x => x.InHand() && x.Attribute == Attribute.Aqua);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_SELECT_BAKUGAN", TypeId, validBakugans)
+                EventBuilder.HandBakuganSelection("INFO_SELECT_BAKUGAN", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

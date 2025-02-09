@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Abilities.Fusions;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
-            (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new StrikeBack(cID, owner),
             (cID, owner) => new DoubleDimension(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
@@ -40,7 +41,7 @@ namespace AB_Server.Abilities
             FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

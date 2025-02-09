@@ -33,7 +33,7 @@ namespace AB_Server.Abilities
             user.OnField();
 
         public override bool IsActivateable() =>
-            Owner.BakuganOwned.Any(IsActivateableByBakugan) && Owner.AbilityHand.Any(x => x is not FusionAbility && x.IsActivateable());
+            Game.CurrentWindow == ActivationWindow.Normal && Owner.BakuganOwned.Any(IsActivateableByBakugan) && Owner.AbilityHand.Any(x => x is not FusionAbility && x.IsActivateable());
     }
 
     internal class UnleashEffect
@@ -66,7 +66,7 @@ namespace AB_Server.Abilities
                     { "User", new JObject {
                         { "Type", (int)user.Type },
                         { "Attribute", (int)user.Attribute },
-                        { "Tretment", (int)user.Treatment },
+                        { "Treatment", (int)user.Treatment },
                         { "Power", user.Power }
                     }}
                 });

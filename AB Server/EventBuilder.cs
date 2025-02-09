@@ -66,13 +66,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject HandBakuganSelection(string prompt, int ability, params IEnumerable<Bakugan> bakugans)
+        public static JObject HandBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BH" },
                 { "Message", prompt },
                 { "Ability", ability },
+                { "AbilityKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.Attribute },
@@ -84,13 +85,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject FieldBakuganSelection(string prompt, int ability, params IEnumerable<Bakugan> bakugans)
+        public static JObject FieldBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BF" },
                 { "Message", prompt },
                 { "Ability", ability },
+                { "AbilityKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.Attribute },

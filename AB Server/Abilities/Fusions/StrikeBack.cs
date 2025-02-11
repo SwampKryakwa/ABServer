@@ -56,7 +56,7 @@ namespace AB_Server.Abilities
                 new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
     }
 
     internal class StrikeBackEffect

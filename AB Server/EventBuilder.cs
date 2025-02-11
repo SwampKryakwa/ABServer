@@ -80,6 +80,7 @@ namespace AB_Server
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
                 }) ) }
             };
@@ -99,6 +100,7 @@ namespace AB_Server
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
                 }) ) }
             };

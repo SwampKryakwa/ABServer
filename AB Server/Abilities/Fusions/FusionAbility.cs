@@ -47,6 +47,6 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateable() =>
-            Owner.BakuganOwned.Any(IsActivateableByBakugan) && Owner.AbilityHand.Any(BaseAbilityType.IsInstanceOfType);
+            Owner.BakuganOwned.Any(BakuganIsValid) && Owner.AbilityHand.Any(BaseAbilityType.IsInstanceOfType);
     }
 }

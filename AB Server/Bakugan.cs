@@ -54,6 +54,7 @@ namespace AB_Server
 
         public int BID;
         public BakuganType Type;
+        public bool IsPartner = false;
 
         public List<object> affectingEffects = [];
 
@@ -135,6 +136,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -161,6 +163,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -188,6 +191,7 @@ namespace AB_Server
                     { "Attribute", (int)Attribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
+                    { "IsPartner", IsPartner },
                     { "BID", BID }
                 });
                 e.Add(new JObject {
@@ -200,6 +204,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -228,6 +233,7 @@ namespace AB_Server
                     { "Attribute", (int)Attribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
+                    { "IsPartner", IsPartner },
                     { "BID", BID }
                 });
                 e.Add(new JObject {
@@ -240,6 +246,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -269,6 +276,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -309,6 +317,7 @@ namespace AB_Server
                             { "Attribute", (int)Attribute },
                             { "Treatment", (int)Treatment },
                             { "Power", Power },
+                            { "IsPartner", IsPartner },
                             { "BID", BID } }
                         }
                     });
@@ -366,6 +375,7 @@ namespace AB_Server
                             { "Attribute", (int)bakugan.Attribute },
                             { "Treatment", (int)bakugan.Treatment },
                             { "Power", bakugan.Power },
+                            { "IsPartner", bakugan.IsPartner },
                             { "BID", bakugan.BID } }
                         }
                     });
@@ -412,6 +422,7 @@ namespace AB_Server
                         { "Attribute", (int)bakugan.Attribute },
                         { "Treatment", (int)bakugan.Treatment },
                         { "Power", bakugan.Power },
+                        { "IsPartner", bakugan.IsPartner },
                         { "BID", bakugan.BID }
                     });
                     e.Add(new JObject {
@@ -424,6 +435,7 @@ namespace AB_Server
                             { "Attribute", (int)bakugan.Attribute },
                             { "Treatment", (int)bakugan.Treatment },
                             { "Power", bakugan.Power },
+                            { "IsPartner", bakugan.IsPartner },
                             { "BID", bakugan.BID } }
                         }
                     });
@@ -470,6 +482,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID } }
                     }
                 });
@@ -534,6 +547,7 @@ namespace AB_Server
                             { "Attribute", (int)Attribute },
                             { "Treatment", (int)Treatment },
                             { "Power", Power },
+                            { "IsPartner", IsPartner },
                             { "BID", BID } }
                         }
                     });
@@ -544,6 +558,7 @@ namespace AB_Server
                         { "Attribute", (int)Attribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
+                        { "IsPartner", IsPartner },
                         { "BID", BID }
                     });
                 }
@@ -591,6 +606,7 @@ namespace AB_Server
                             { "Attribute", (int)Attribute },
                             { "Treatment", (int)Treatment },
                             { "Power", Power },
+                            { "IsPartner", IsPartner },
                             { "BID", BID } }
                         }
                     });

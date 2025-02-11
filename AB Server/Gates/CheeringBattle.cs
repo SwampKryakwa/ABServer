@@ -23,24 +23,9 @@ namespace AB_Server.Gates
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(new JObject {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_GATE_TARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Owner.Bakugans.Select(x =>
-                        new JObject { { "Type", (int)x.Type },
-                            { "Attribute", (int)x.Attribute },
-                            { "Treatment", (int)x.Treatment },
-                            { "Power", x.Power },
-                            { "Owner", x.Owner.Id },
-                            { "BID", x.BID } }
-                        )) }
-                    }
-                } }
-            });
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
+            ));
 
             game.AwaitingAnswers[Owner.Id] = Setup;
         }

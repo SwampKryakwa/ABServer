@@ -28,7 +28,7 @@ namespace AB_Server.Abilities.Fusions
             new PowerChargeEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField();
     }
 
     internal class PowerChargeEffect

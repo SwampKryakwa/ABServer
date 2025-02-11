@@ -24,35 +24,9 @@ namespace AB_Server.Gates
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(new JObject {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_GATE_TARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    },
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_GATE_TARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Where(x=>x.Owner == Owner).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
-                } }
-            });
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
+            ));
 
             game.AwaitingAnswers[Owner.Id] = Setup1;
         }
@@ -64,23 +38,9 @@ namespace AB_Server.Gates
         {
             target1 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            game.NewEvents[Owner.Id].Add(new JObject {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_GATE_TARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Bakugans.Where(x=>x == target1).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID } })) }
-                    }
-                } }
-            });
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
+            ));
 
             game.AwaitingAnswers[Owner.Id] = Setup2;
         }

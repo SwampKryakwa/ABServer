@@ -57,28 +57,9 @@ namespace AB_Server.Abilities
 
         public override void Setup(bool asCounter)
         {
-
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BF" },
-                        { "Message", "INFO_ABILITYUSER" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(BakuganIsValid).Select(x =>
-                            new JObject { { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+            ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
         }
@@ -116,27 +97,10 @@ namespace AB_Server.Abilities
             {
                 target = Game.Players.First(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
 
-                Game.NewEvents[target.Id].Add(new JObject
-                {
-                    { "Type", "StartSelection" },
-                    { "Selections", new JArray {
-                        new JObject {
-                            { "SelectionType", "BH" },
-                            { "Message", "INFO_ABILITYTARGET" },
-                            { "Ability", TypeId },
-                            { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
-                                new JObject {
-                                    { "Type", (int)x.Type },
-                                    { "Attribute", (int)x.Attribute },
-                                    { "Treatment", (int)x.Treatment },
-                                    { "Power", x.Power },
-                                    { "Owner", x.Owner.Id },
-                                    { "BID", x.BID }
-                                }
-                            )) }
-                        }
-                    } }
-                });
+                Game.NewEvents[target.Id].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.HandBakuganSelection("INFO_ABILITYTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
+                ));
+
                 Game.NewEvents[Owner.Id].Add(new JObject { { "Type", "OtherPlayerSelects" }, { "PID", target.Id } });
 
                 Game.AwaitingAnswers[target.Id] = Activate;
@@ -147,27 +111,10 @@ namespace AB_Server.Abilities
         {
             target = Game.Players[(int)Game.IncomingSelection[Owner.Id]["array"][0]["player"]];
 
-            Game.NewEvents[target.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "BH" },
-                        { "Message", "INFO_ABILITYTARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionBakugans", new JArray(Game.BakuganIndex.Where(x=>x.Owner == target && x.InHand()).Select(x =>
-                            new JObject {
-                                { "Type", (int)x.Type },
-                                { "Attribute", (int)x.Attribute },
-                                { "Treatment", (int)x.Treatment },
-                                { "Power", x.Power },
-                                { "Owner", x.Owner.Id },
-                                { "BID", x.BID }
-                            }
-                        )) }
-                    }
-                } }
-            });
+            Game.NewEvents[target.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.HandBakuganSelection("INFO_ABILITYTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
+            ));
+
             Game.NewEvents[Owner.Id].Add(new JObject { { "Type", "OtherPlayerSelects" }, { "PID", target.Id } });
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

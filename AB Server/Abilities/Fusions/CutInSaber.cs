@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
             new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHands;
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.IsPartner && user.InHands;
     }
 
     internal class CutInSaberEffect

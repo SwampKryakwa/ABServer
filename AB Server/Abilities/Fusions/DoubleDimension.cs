@@ -61,7 +61,7 @@ namespace AB_Server.Abilities
             new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard);
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.IsPartner && Game.ActiveZone.Any(x => x is AbilityCard);
     }
 
     internal class DoubleDimensionEffect

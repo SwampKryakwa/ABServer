@@ -78,6 +78,8 @@ namespace AB_Server
                 player.BakuganOwned.Add(bak);
             }
 
+            player.BakuganOwned[0].IsPartner = true;
+
             foreach (int a in deck["abilities"])
             {
                 AbilityCard abi = AbilityCard.CreateCard(player, game.AbilityIndex.Count, a);

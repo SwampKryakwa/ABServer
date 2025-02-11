@@ -77,7 +77,6 @@ namespace AB_Server
                 player.Bakugans.Add(bak);
                 player.BakuganOwned.Add(bak);
             }
-
             player.BakuganOwned[0].IsPartner = true;
 
             foreach (int a in deck["abilities"])

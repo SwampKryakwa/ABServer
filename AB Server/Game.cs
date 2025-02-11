@@ -215,7 +215,8 @@ namespace AB_Server
                                 ["Type"] = (int)b.Type,
                                 ["Attribute"] = (int)b.Attribute,
                                 ["Treatment"] = (int)b.Treatment,
-                                ["Power"] = b.Power
+                                ["Power"] = b.Power,
+                                ["IsPartner"] = b.IsPartner
                             })),
                             ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
                             {

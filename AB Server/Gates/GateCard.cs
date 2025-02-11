@@ -161,12 +161,6 @@ namespace AB_Server.Gates
                 IsOpen = false;
                 OnField = false;
 
-                for (int i = 0; i < game.PlayerCount; i++)
-                {
-                    Bakugans.FindAll(x => x.Owner.Id == i && !x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-                    Bakugans.FindAll(x => x.Owner.Id == i && x.Defeated).ForEach(x => x.ToHand(EnterOrder));
-                }
-
                 game.Field[Position.X, Position.Y] = null;
 
                 foreach (List<JObject> e in game.NewEvents)

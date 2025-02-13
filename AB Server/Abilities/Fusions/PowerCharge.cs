@@ -1,3 +1,4 @@
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -31,25 +32,33 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField();
     }
 
-    internal class PowerChargeEffect
+    internal class PowerChargeEffect : IActive
     {
         public int TypeId { get; }
-        Bakugan user;
-        Game game { get => user.Game; }
+        public Bakugan User { get; set; }
+        Game game { get => User.Game; }
 
-        public Player Owner { get; set; }
+
+        public Player Owner { get => User.Owner; set; }
+        public int EffectId { get; set; }
+
+        public AbilityKind Kind { get; } = AbilityKind.FusionAbility;
+
         bool IsCopy;
 
         public PowerChargeEffect(Bakugan user, int typeID, bool IsCopy)
         {
-            this.user = user;
+            User = user;
             user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
 
             TypeId = typeID;
+            EffectId = game.NextEffectId++;
         }
 
         public void Activate()
         {
+            game.ActiveZone.Add(this);
+
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
                 game.NewEvents[i].Add(new()
@@ -57,13 +66,22 @@ namespace AB_Server.Abilities.Fusions
                     { "Type", "FusionAbilityActivateEffect" },
                     { "Kind", 1 },
                     { "Card", TypeId },
-                    { "UserID", user.BID },
+                    { "UserID", User.BID },
                     { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Treatment", (int)User.Treatment },
+                        { "Power", User.Power }
                     }}
+                });
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectAddedActiveZone" },
+                    { "IsCopy", IsCopy },
+                    { "Card", TypeId },
+                    { "Kind", (int)Kind },
+                    { "Id", EffectId },
+                    { "Owner", Owner.Id }
                 });
             }
 
@@ -72,10 +90,34 @@ namespace AB_Server.Abilities.Fusions
 
         public void OnBattleStart()
         {
-            if (user.Type == BakuganType.Saurus && user.InBattle)
+            if (User.Type == BakuganType.Saurus && User.Position is GateCard gatePosition && gatePosition.Bakugans.Count >= 2 && gatePosition.Freezing.Count == 0)
             {
-                user.Boost(new Boost(300), this);
+                User.Boost(new Boost(300), this);
                 game.BattlesStarted -= OnBattleStart;
+                game.ActiveZone.Remove(this);
+
+                for (int i = 0; i < game.NewEvents.Length; i++)
+                {
+                    game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", EffectId }
+                });
+                }
+            }
+        }
+
+        public void Negate(bool asCounter = false)
+        {
+            game.BattlesStarted -= OnBattleStart;
+
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "EffectRemovedActiveZone" },
+                    { "Id", EffectId }
+                });
             }
         }
     }

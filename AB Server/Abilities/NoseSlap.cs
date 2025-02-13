@@ -63,10 +63,10 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Elephant && user.OnField();
+            user.Type == BakuganType.Elephant && user.OnField() && Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Type == BakuganType.Elephant && user.OnField();
+            user.OnField() && user.Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
 
         private bool IsVerticallyAdjacent(GateCard card1, GateCard card2)
         {

@@ -58,7 +58,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
@@ -98,7 +98,7 @@ namespace AB_Server.Abilities
                 target = Game.Players.First(x=>x.Bakugans.Count != 0 && x.SideID != Owner.SideID);
 
                 Game.NewEvents[target.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.HandBakuganSelection("INFO_ABILITYTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
+                    EventBuilder.HandBakuganSelection("INFO_ABILITY_ADDTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
                 ));
 
                 Game.NewEvents[Owner.Id].Add(new JObject { { "Type", "OtherPlayerSelects" }, { "PID", target.Id } });
@@ -112,7 +112,7 @@ namespace AB_Server.Abilities
             target = Game.Players[(int)Game.IncomingSelection[Owner.Id]["array"][0]["player"]];
 
             Game.NewEvents[target.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITYTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_ADDTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner == target && x.InHand()))
             ));
 
             Game.NewEvents[Owner.Id].Add(new JObject { { "Type", "OtherPlayerSelects" }, { "PID", target.Id } });

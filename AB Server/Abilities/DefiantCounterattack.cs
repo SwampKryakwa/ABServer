@@ -59,7 +59,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asFusion)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
@@ -75,7 +75,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_TARGETGATE" },
+                        { "Message", "INFO_ABILITY_GATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.BattleOver).Select(x => new JObject {
                             { "Type", x.TypeId },

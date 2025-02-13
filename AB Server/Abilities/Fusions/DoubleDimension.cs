@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = PickTarget;
@@ -34,7 +34,7 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.ActiveSelection("INFO_ABILITYTARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
+                EventBuilder.ActiveSelection("INFO_ABILITY_TARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

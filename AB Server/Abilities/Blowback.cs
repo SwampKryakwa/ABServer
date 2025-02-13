@@ -58,7 +58,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;
@@ -70,7 +70,7 @@ namespace AB_Server.Abilities
 
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Game.BakuganIndex.Where(target => IsTargetValid(target, User)))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_RETRACTTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(target => IsTargetValid(target, User)))
                 ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
             var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, (int)Kind, validBakugans)
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup3;

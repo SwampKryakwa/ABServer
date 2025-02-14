@@ -80,7 +80,7 @@ namespace AB_Server.Abilities
                 : Owner.BakuganOwned.Where(x => x.InHand() && x.Attribute == Attribute.Aqua);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_SELECT_BAKUGAN", TypeId, (int)Kind, validBakugans)
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_ADDTARGET", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

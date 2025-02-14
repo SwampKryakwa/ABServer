@@ -74,7 +74,7 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField() && x.Owner.SideID != Owner.SideID && x.Position != User.Position))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_MOVETARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField() && x.Owner.SideID != Owner.SideID && x.Position != User.Position))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup3;

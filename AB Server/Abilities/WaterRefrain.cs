@@ -2,6 +2,31 @@
 
 namespace AB_Server.Abilities
 {
+    internal class WaterRefrain : AbilityCard
+    {
+        public WaterRefrain(int cID, Player owner, int typeId)
+        {
+            TypeId = typeId;
+            CardId = cID;
+            Owner = owner;
+            Game = owner.game;
+        }
+
+        public override void Resolve()
+        {
+            if (!counterNegated)
+                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
+
+            Dispose();
+        }
+
+        public override void DoubleEffect() =>
+                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();
+    }
+
     internal class WaterRefrainEffect : IActive
     {
         public int TypeId { get; }
@@ -17,7 +42,7 @@ namespace AB_Server.Abilities
         public WaterRefrainEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner; 
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -31,7 +56,8 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -43,7 +69,8 @@ namespace AB_Server.Abilities
                 });
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "EffectAddedActiveZone" }, { "IsCopy", IsCopy },
+                    { "Type", "EffectAddedActiveZone" },
+                    { "IsCopy", IsCopy },
                     { "Card", TypeId },
                     { "Id", EffectId },
                     { "Owner", Owner.Id }
@@ -92,30 +119,5 @@ namespace AB_Server.Abilities
                 });
             }
         }
-    }
-
-    internal class WaterRefrain : AbilityCard
-    {
-        public WaterRefrain(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
-        public override void DoubleEffect() =>
-                new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();
     }
 }

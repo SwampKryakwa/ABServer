@@ -14,22 +14,6 @@ namespace AB_Server.Abilities
             Game = owner.game;
         }
 
-        public override void Setup(bool asCounter)
-        {
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.AwaitingAnswers[Owner.Id] = Activate;
-        }
-
-        public new void Activate()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.CheckChain(Owner, this, User);
-        }
-
         public override void Resolve()
         {
             if (!counterNegated)
@@ -41,17 +25,8 @@ namespace AB_Server.Abilities
         public override void DoubleEffect() =>
             new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
 
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-        }
-
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Type == BakuganType.Saurus && user.OnField();
     }
 
     internal class SaurusGlowEffect : IActive
@@ -107,10 +82,10 @@ namespace AB_Server.Abilities
             }
 
             // Register the effect to boost Saurus when a stronger Bakugan enters the field
-            game.BakuganAdded += HandleBakuganAdded;
+            game.BakuganAdded += OnBakuganAdded;
         }
 
-        private void HandleBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
+        private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
         {
             if (target.Power > User.Power && User.OnField())
             {
@@ -121,7 +96,7 @@ namespace AB_Server.Abilities
         public void Negate(bool asCounter = false)
         {
             game.ActiveZone.Remove(this);
-            game.BakuganAdded -= HandleBakuganAdded;
+            game.BakuganAdded -= OnBakuganAdded;
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {

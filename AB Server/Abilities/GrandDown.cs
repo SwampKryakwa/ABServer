@@ -73,7 +73,7 @@ namespace AB_Server.Abilities
                 { "Selections", new JArray {
                     new JObject {
                         { "SelectionType", "GF" },
-                        { "Message", "INFO_GATENEGATETARGET" },
+                        { "Message", "INFO_ABILITY_GATENEGATETARGET" },
                         { "Ability", TypeId },
                         { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.OnField && x.IsOpen).Select(x => new JObject {
                             { "Type", x.TypeId },

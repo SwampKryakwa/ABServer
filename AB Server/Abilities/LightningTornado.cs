@@ -30,7 +30,7 @@ namespace AB_Server.Abilities
             if (validBakugans.Count() != 0)
             {
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.BoolSelectionEvent("INFO_SELECT_OPPONENT_BAKUGAN")
+                    EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
                 ));
             }
             else
@@ -47,7 +47,7 @@ namespace AB_Server.Abilities
                 var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && x.Owner != Owner && x.Power > User.Power);
 
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, (int)Kind, validBakugans)
+                    EventBuilder.FieldBakuganSelection("INFO_ABILITY_DECREASETARGET", TypeId, (int)Kind, validBakugans)
                 ));
 
                 Game.AwaitingAnswers[Owner.Id] = Setup3;

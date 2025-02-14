@@ -1,5 +1,6 @@
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace AB_Server.Abilities
 {
@@ -69,23 +70,9 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "GF" },
-                        { "Message", "INFO_MOVETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.Position.X == (User.Position as GateCard).Position.X && x != User.Position && !x.IsTouching(User.Position as GateCard)).Select(x => new JObject {
-                            { "Type", x.TypeId },
-                            { "PosX", x.Position.X },
-                            { "PosY", x.Position.Y },
-                            { "CID", x.CardId }
-                        })) }
-                    }
-                } }
-            });
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldGateSelection("INFO_ABILITY_DESTINATIONTARGET", TypeId, (int)Kind, Game.GateIndex.Where(x => x.Position.X == (User.Position as GateCard).Position.X && x != User.Position && !x.IsTouching(User.Position as GateCard)))
+            ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }

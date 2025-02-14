@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
             var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle && x.Owner != Owner);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_OPPONENT_BAKUGAN", TypeId, (int)Kind, validBakugans)
+                EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup3;
@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
             if (User.Attribute == Attribute.Nova)
             {
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.OptionSelectionEvent("INFO_SELECT_OPTION", 2)
+                    EventBuilder.OptionSelectionEvent("INFO_PICKER_FIREWALL", 2)
                 ));
                 Game.AwaitingAnswers[Owner.Id] = HandleOptionSelection;
             }

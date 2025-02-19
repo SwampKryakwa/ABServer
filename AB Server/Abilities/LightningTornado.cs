@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && x.Owner != Owner && x.Power > User.Power);
+            var validBakugans = User.Position.Bakugans.Where(x => User.IsEnemyOf(x) && x.Power > User.Power);
             if (validBakugans.Count() != 0)
             {
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(

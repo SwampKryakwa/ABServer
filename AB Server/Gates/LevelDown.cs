@@ -24,7 +24,7 @@ namespace AB_Server.Gates
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
+                EventBuilder.FieldBakuganSelection("INFO_GATE_DECREASETARGET", TypeId, (int)Kind, Bakugans)
             ));
 
             game.AwaitingAnswers[Owner.Id] = Setup;

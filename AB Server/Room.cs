@@ -2,12 +2,13 @@
 {
     internal class Room
     {
+        public string RoomName;
         public long?[] Players;
         public bool[] IsReady;
         public string?[] UserNames;
         public bool Started = false;
 
-        public Room(short playerCount)
+        public Room(short playerCount, string roomName)
         {
             Players = new long?[playerCount];
             IsReady = new bool[playerCount];
@@ -18,6 +19,8 @@
                 IsReady[i] = false;
                 UserNames[i] = null;
             }
+
+            this.RoomName = roomName;
         }
 
         public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);

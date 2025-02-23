@@ -1,4 +1,6 @@
-﻿namespace AB_Server
+﻿using AB_Server.Abilities;
+
+namespace AB_Server
 {
     internal class Room
     {
@@ -20,7 +22,10 @@
                 UserNames[i] = null;
             }
 
-            this.RoomName = roomName;
+            if (roomName != null)
+                RoomName = roomName;
+            else
+                RoomName = "Room";
         }
 
         public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);
@@ -38,6 +43,7 @@
 
         public bool AddPlayer(long uuid, string userName)
         {
+            Console.WriteLine(Players);
             if (!Players.Contains(null)) return false;
             UserNames[Array.IndexOf(Players, null)] = userName;
             Players[Array.IndexOf(Players, null)] = uuid;

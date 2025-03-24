@@ -125,6 +125,7 @@ namespace AB_Server
         {
             Field = new GateCard[2, 3];
             PlayerCount = playerCount;
+            Console.WriteLine($"Player count: {playerCount}");
             NewEvents = new List<JObject>[playerCount];
             AwaitingAnswers = new Action[playerCount];
             Players = new();
@@ -194,7 +195,7 @@ namespace AB_Server
                             //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
                             //    break;
                             default:
-                                gates.Add(new JObject { { "Type", type } });
+                                gates.Add(new JObject { { "Type", type }, { "CID", player.GateHand[j].CardId } });
                                 break;
                         }
                     }
@@ -205,7 +206,6 @@ namespace AB_Server
                         {
                             NewEvents[i].Add(new JObject { { "Type", "PlayerGatesColors" }, { "Player", j }, { "Color", Players[j].playerColor } });
                         }
-                        NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
                         NewEvents[i].Add(new JObject
                         {
                             ["Type"] = "InitializeHand",
@@ -230,6 +230,7 @@ namespace AB_Server
                                 ["Type"] = g.TypeId
                             }))
                         });
+                        NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
                     }
                 }
 
@@ -244,14 +245,16 @@ namespace AB_Server
 
                             for (int k = 0; k < NewEvents.Length; k++)
                             {
+                                Console.WriteLine("New events length: " + NewEvents.Length.ToString());
+                                Console.WriteLine("k: " + k.ToString());
                                 NewEvents[k].Add(new()
                                 {
                                     ["Type"] = "GateRemovedFromHand",
-                                    ["CID"] = Players[j].GateHand[(byte)selection["gate"]].CardId,
+                                    ["CID"] = GateIndex[(byte)selection["gate"]].CardId,
                                     ["Owner"] = j
                                 });
                             }
-                            Players[j].GateHand[(byte)selection["gate"]].Set(j, 1);
+                            GateIndex[(byte)selection["gate"]].Set(j, 1);
                         }
 
                         foreach (List<JObject> e in NewEvents)

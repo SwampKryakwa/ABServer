@@ -150,11 +150,6 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            Console.WriteLine($"Battle going: {game.isBattleGoing}");
-            Console.WriteLine($"Bakugan count: {Bakugans.Count}");
-            Console.WriteLine($"Had thrown Bakugan: {HadThrownBakugan}");
-            Console.WriteLine($"Had skipped turn: {HadSkippedTurn}");
-            Console.WriteLine($"Can end turn: {!game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan || !HadSkippedTurn)}");
             return !game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan || !HadSkippedTurn);
         }
 

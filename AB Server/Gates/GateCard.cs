@@ -203,21 +203,14 @@ namespace AB_Server.Gates
 
         public virtual bool CheckBattles()
         {
-            Console.WriteLine("Checking battle at " + Position + "...");
             if (IsFrozen || BattleOver) return false;
 
-            Console.WriteLine("Number of Bakugan: " + Bakugans.Count);
             bool isBattle = Bakugans.Count > 1;
 
             if (isBattle)
             {
-                Console.WriteLine("Must have a battle");
-
                 if (!ActiveBattle)
-                {
-                    Console.WriteLine("Battle yet to be started... Adding battle to the initialization list");
                     game.BattlesToStart.Add(this);
-                }
             }
             else
             {
@@ -230,7 +223,6 @@ namespace AB_Server.Gates
         public void StartBattle()
         {
             ActiveBattle = true;
-            Console.WriteLine("Battle at " + Position + "started successfully");
         }
 
         public virtual int TypeId =>

@@ -43,7 +43,6 @@ namespace AB_Server
 
         public bool AddPlayer(long uuid, string userName)
         {
-            Console.WriteLine(Players);
             if (!Players.Contains(null)) return false;
             UserNames[Array.IndexOf(Players, null)] = userName;
             Players[Array.IndexOf(Players, null)] = uuid;

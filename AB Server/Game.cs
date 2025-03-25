@@ -13,6 +13,7 @@ namespace AB_Server
         Normal,
         BattleStart,
         BattleEnd,
+        TurnStart,
         TurnEnd,
     }
     internal class Game
@@ -128,7 +129,6 @@ namespace AB_Server
         {
             Field = new GateCard[2, 3];
             PlayerCount = playerCount;
-            Console.WriteLine($"Player count: {playerCount}");
             NewEvents = new List<JObject>[playerCount];
             AwaitingAnswers = new Action[playerCount];
             Players = new();
@@ -155,16 +155,7 @@ namespace AB_Server
         public List<JObject> GetUpdates(int player)
         {
             List<JObject> toReturn;
-            try
-            {
-                toReturn = new(NewEvents[player]);
-            }
-            catch
-            {
-                Console.WriteLine(NewEvents.Length);
-                Console.WriteLine(player);
-                throw;
-            }
+            toReturn = [.. NewEvents[player]];
             NewEvents[player].Clear();
 
             return toReturn;
@@ -172,106 +163,105 @@ namespace AB_Server
 
         public void Initiate()
         {
-            try
+            SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
+
+            TurnPlayer = (byte)new Random().Next(Players.Count);
+            ActivePlayer = TurnPlayer;
+
+            for (int i = 0; i < Players.Count; i++)
             {
-                SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
+                var player = Players[i];
+                JArray gates = new();
 
-                TurnPlayer = (byte)new Random().Next(Players.Count);
-                ActivePlayer = TurnPlayer;
-
-                for (int i = 0; i < Players.Count; i++)
+                for (int j = 0; j < player.GateHand.Count; j++)
                 {
-                    var player = Players[i];
-                    JArray gates = new();
-
-                    for (int j = 0; j < player.GateHand.Count; j++)
+                    int type = player.GateHand[j].TypeId;
+                    switch (type)
                     {
-                        int type = player.GateHand[j].TypeId;
-                        switch (type)
-                        {
-                            //case 0:
-                            //    Console.WriteLine(0);
-                            //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
-                            //    break;
-                            //case 4:
-                            //    Console.WriteLine(4);
-                            //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
-                            //    break;
-                            default:
-                                gates.Add(new JObject { { "Type", type }, { "CID", player.GateHand[j].CardId } });
-                                break;
-                        }
-                    }
-
-                    if (NewEvents[i].Count == 0)
-                    {
-                        for (int j = 0; j < PlayerCount; j++)
-                        {
-                            NewEvents[i].Add(new JObject { { "Type", "PlayerGatesColors" }, { "Player", j }, { "Color", Players[j].playerColor } });
-                        }
-                        NewEvents[i].Add(new JObject
-                        {
-                            ["Type"] = "InitializeHand",
-                            ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
-                            {
-                                ["BID"] = b.BID,
-                                ["BakuganType"] = (int)b.Type,
-                                ["Attribute"] = (int)b.Attribute,
-                                ["Treatment"] = (int)b.Treatment,
-                                ["Power"] = b.Power,
-                                ["IsPartner"] = b.IsPartner
-                            })),
-                            ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
-                            {
-                                ["CID"] = a.CardId,
-                                ["Type"] = a.TypeId,
-                                ["Kind"] = (int)a.Kind
-                            })),
-                            ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
-                            {
-                                ["CID"] = g.CardId,
-                                ["Type"] = g.TypeId
-                            }))
-                        });
-                        NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
+                        //case 0:
+                        //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
+                        //    break;
+                        //case 4:
+                        //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
+                        //    break;
+                        default:
+                            gates.Add(new JObject { { "Type", type }, { "CID", player.GateHand[j].CardId } });
+                            break;
                     }
                 }
 
-                for (int i = 0; i < PlayerCount; i++)
-                    AwaitingAnswers[i] = () =>
+                if (NewEvents[i].Count == 0)
+                {
+                    for (int j = 0; j < PlayerCount; j++)
                     {
-                        if (IncomingSelection.Contains(null)) return;
-                        for (byte j = 0; j < IncomingSelection.Length; j++)
+                        NewEvents[i].Add(new JObject { { "Type", "PlayerGatesColors" }, { "Player", j }, { "Color", Players[j].playerColor } });
+                    }
+                    NewEvents[i].Add(new JObject
+                    {
+                        ["Type"] = "InitializeHand",
+                        ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
                         {
-                            dynamic selection = IncomingSelection[j];
-                            int id = (int)selection["gate"];
+                            ["BID"] = b.BID,
+                            ["BakuganType"] = (int)b.Type,
+                            ["Attribute"] = (int)b.Attribute,
+                            ["Treatment"] = (int)b.Treatment,
+                            ["Power"] = b.Power,
+                            ["IsPartner"] = b.IsPartner
+                        })),
+                        ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
+                        {
+                            ["CID"] = a.CardId,
+                            ["Type"] = a.TypeId,
+                            ["Kind"] = (int)a.Kind
+                        })),
+                        ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
+                        {
+                            ["CID"] = g.CardId,
+                            ["Type"] = g.TypeId
+                        }))
+                    });
+                    NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
+                }
+            }
 
-                            for (int k = 0; k < NewEvents.Length; k++)
+            for (int i = 0; i < PlayerCount; i++)
+                AwaitingAnswers[i] = () =>
+                {
+                    if (IncomingSelection.Contains(null)) return;
+                    for (byte j = 0; j < IncomingSelection.Length; j++)
+                    {
+                        dynamic selection = IncomingSelection[j];
+                        int id = (int)selection["gate"];
+
+                        for (int k = 0; k < NewEvents.Length; k++)
+                        {
+                            NewEvents[k].Add(new()
                             {
-                                Console.WriteLine("New events length: " + NewEvents.Length.ToString());
-                                Console.WriteLine("k: " + k.ToString());
-                                NewEvents[k].Add(new()
-                                {
-                                    ["Type"] = "GateRemovedFromHand",
-                                    ["CID"] = GateIndex[(byte)selection["gate"]].CardId,
-                                    ["Owner"] = j
-                                });
-                            }
-                            GateIndex[(byte)selection["gate"]].Set(j, 1);
+                                ["Type"] = "GateRemovedFromHand",
+                                ["CID"] = GateIndex[(byte)selection["gate"]].CardId,
+                                ["Owner"] = j
+                            });
                         }
+                        GateIndex[(byte)selection["gate"]].Set(j, 1);
+                    }
 
-                        foreach (List<JObject> e in NewEvents)
+                    foreach (List<JObject> e in NewEvents)
+                    {
+                        e.Add(new()
                         {
-                            e.Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
-                            e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
-                        }
-                        Started = true;
-                    };
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+                            { "Type", "PhaseChange" },
+                            { "Phase", "TurnStart" }
+                        });
+                        e.Add(new()
+                        {
+                            { "Type", "PhaseChange" },
+                            { "Phase", "Main" }
+                        });
+                        e.Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
+                        e.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+                    }
+                    Started = true;
+                };
         }
 
         public bool doNotMakeStep = false;
@@ -293,7 +283,6 @@ namespace AB_Server
                     }
                     else
                     {
-                        Console.WriteLine("Invalid action: throw at null");
                         NewEvents[TurnPlayer].Add(new JObject
                         {
                             ["Type"] = "InvalidAction"
@@ -409,7 +398,6 @@ namespace AB_Server
                     if (allBattlingPlayersPassed)
                     {
                         playersPassed.Clear();
-                        Console.WriteLine("Determining winners of the battles");
                         foreach (var g in Field.Cast<GateCard?>())
                             if (g?.ActiveBattle == true)
                                 g.DetermineWinner();
@@ -460,16 +448,11 @@ namespace AB_Server
                 while (true)
                 {
                     ActivePlayer++;
-                    Console.WriteLine("Checking if Player Id " + ActivePlayer + " is in a battle");
                     if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
                     if (Players[ActivePlayer].HasBattlingBakugan())
-                    {
-                        Console.WriteLine("Player Id " + ActivePlayer + " is in a battle, changing priority");
                         break;
-                    }
                     if (startPlayer == ActivePlayer)
                     {
-                        Console.WriteLine("No players are battling");
                         isBattleGoing = false;
                         break;
                     }
@@ -483,19 +466,15 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
-            Console.WriteLine("Initializing next game step...");
-            Console.WriteLine("Turn player: " + TurnPlayer);
             if (BattlesToStart.Count != 0)
             {
                 if (!WindowSuggested)
                 {
-                    Console.WriteLine("Trying to suggest battle start window...");
                     WindowSuggested = true;
                     SuggestWindow(ActivationWindow.BattleStart, ActivePlayer, ActivePlayer);
                 }
                 else
                 {
-                    Console.WriteLine("Starting battles...");
                     WindowSuggested = false;
                     BattlesStarted?.Invoke();
                     BattlesToStart.ForEach(x => x.StartBattle());
@@ -508,7 +487,6 @@ namespace AB_Server
             {
                 if (!WindowSuggested)
                 {
-                    Console.WriteLine("Trying to suggest battle end window...");
                     WindowSuggested = true;
                     if (BattlesToEnd.Any(x => !x.CheckBattles()))
                         SuggestWindow(ActivationWindow.BattleEnd, ActivePlayer, ActivePlayer);
@@ -517,7 +495,6 @@ namespace AB_Server
                 }
                 else
                 {
-                    Console.WriteLine("Resolving battles...");
                     WindowSuggested = false;
                     isBattleGoing = false;
                     BattlesOver?.Invoke();
@@ -557,11 +534,9 @@ namespace AB_Server
 
             TurnAboutToEnd?.Invoke();
 
-            Console.WriteLine("Checking is battle is still going...");
             if (isBattleGoing)
             {
                 ActivePlayer = TurnPlayer;
-                Console.WriteLine("Battle is still going, continuinging battles");
                 foreach (var e in NewEvents) e.Add(new JObject
                         {
                             { "Type", "PlayerTurnStart" },
@@ -570,14 +545,12 @@ namespace AB_Server
             }
             else
             {
-                Console.WriteLine("Ending turn...");
                 TurnEnd?.Invoke();
                 if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     Players[TurnPlayer].HadSkippedTurn = true;
 
                 if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
                 ActivePlayer = TurnPlayer;
-                Console.WriteLine($"Initializing Player {TurnPlayer}'s turn");
 
                 BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
 
@@ -595,8 +568,29 @@ namespace AB_Server
                 for (int i = 0; i < PlayerCount; i++)
                     NewEvents[i].Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
 
-                Console.WriteLine("Trying to suggest turn end window...");
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new()
+                    {
+                        { "Type", "PhaseChange" },
+                        { "Phase", "TurnEnd" }
+                    });
                 SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
+
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new()
+                    {
+                        { "Type", "PhaseChange" },
+                        { "Phase", "TurnStart" }
+                    });
+
+                SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
+
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new()
+                    {
+                        { "Type", "PhaseChange" },
+                        { "Phase", "Main" }
+                    });
             }
         }
 
@@ -608,11 +602,9 @@ namespace AB_Server
                 switch (gate.TypeId)
                 {
                     //case 0:
-                    //    Console.WriteLine(0);
                     //    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((NormalGate)gate).Attribute }, { "Power", ((NormalGate)gate).Power } });
                     //    break;
                     //case 4:
-                    //    Console.WriteLine(4);
                     //    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((AttributeHazard)gate).Attribute } });
                     //    break;
                     default:
@@ -647,7 +639,6 @@ namespace AB_Server
 
         public void CheckChain(Player player, AbilityCard ability, Bakugan user)
         {
-            Console.WriteLine("Checking chain...");
             //if (!player.HadUsedFusion && player.HasActivateableFusionAbilities(user))
             //    SuggestFusion(player, ability, user);
             //else 
@@ -674,7 +665,6 @@ namespace AB_Server
 
         public void CheckChain(Player player, GateCard gate)
         {
-            Console.WriteLine("Checking chain...");
             if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
             {
                 int next = player.Id + 1;
@@ -700,7 +690,6 @@ namespace AB_Server
         {
             CurrentWindow = window;
             var currentPlayer = Players[player];
-            Console.WriteLine("Checking if player id " + player + " can use this window...");
 
             if (currentPlayer.HasActivateableAbilities())
             {
@@ -713,7 +702,6 @@ namespace AB_Server
 
                 if (player == startingPlayer)
                 {
-                    Console.WriteLine("No player can use this window. Continuining the game...");
                     ContinueGame();
                 }
                 else SuggestWindow(window, startingPlayer, player);
@@ -774,7 +762,6 @@ namespace AB_Server
 
         public void SuggestCounter(Player player, IActive card, Player user)
         {
-            Console.WriteLine("Suggesting counter");
             AwaitingAnswers[player.Id] = () => CheckCounter(player, card, user);
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
         }
@@ -835,7 +822,6 @@ namespace AB_Server
 
         public void SuggestFusion(Player player, AbilityCard ability, Bakugan user)
         {
-            Console.WriteLine("Suggesting fusion...");
             NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("FUSIONPROMPT")));
 
             AwaitingAnswers[player.Id] = () => CheckFusion(player, ability, user);
@@ -902,20 +888,14 @@ namespace AB_Server
         public bool ExecutingChain = false;
         public void ResolveChain()
         {
-            Console.WriteLine("Resolveing chain");
             ExecutingChain = true;
 
             CardChain.Reverse();
-            CardChain.ForEach(card =>
-            {
-                Console.WriteLine("Resolving card " + card.GetType().Name);
-                card.Resolve();
-            });
+            CardChain.ForEach(card => card.Resolve());
             CardChain.Clear();
 
             ExecutingChain = false;
 
-            Console.WriteLine("Continuing the game");
             ContinueGame();
         }
     }

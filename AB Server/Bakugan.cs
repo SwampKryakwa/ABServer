@@ -261,7 +261,6 @@ namespace AB_Server
         {
             if (IsDummy) return Attribute.Clear;
 
-            Console.WriteLine(newAttribute);
             var oldAttribute = Attribute;
             Attribute = newAttribute;
             foreach (var e in Game.NewEvents)

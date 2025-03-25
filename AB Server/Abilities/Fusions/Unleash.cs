@@ -30,7 +30,7 @@ namespace AB_Server.Abilities
             new UnleashEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.OnField() && user.IsPartner;
+            user.OnField() && user.IsPartner && Game.CurrentWindow == ActivationWindow.Normal;
     }
 
     internal class UnleashEffect

@@ -87,7 +87,7 @@ namespace AB_Server.Abilities
 
         public virtual void Resolve()
         {
-            Console.WriteLine("OOOOOOOOOOOOOOOOOPSIE!");
+
         }
 
         public virtual void DoNotAffect(Bakugan bakugan)

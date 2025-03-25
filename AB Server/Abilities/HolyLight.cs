@@ -69,7 +69,7 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITY_REVIVETARGET", TypeId, (int)Kind, Owner.BakuganGrave.Bakugans)
+                EventBuilder.GraveBakuganSelection("INFO_ABILITY_REVIVETARGET", TypeId, (int)Kind, Owner.BakuganGrave.Bakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;

@@ -100,8 +100,11 @@ namespace AB_Server
             BakuganAdded?.Invoke(target, owner, pos);
             BakuganThrown?.Invoke(target, owner, pos);
         }
-        public void OnBakuganPlacedFromGrave(Bakugan target, byte owner, IBakuganContainer pos) =>
+        public void OnBakuganPlacedFromGrave(Bakugan target, byte owner, IBakuganContainer pos)
+        {
             BakuganPlacedFromGrave?.Invoke(target, owner, pos);
+            BakuganAdded?.Invoke(target, owner, pos);
+        }
         public void OnBakuganReturned(Bakugan target, byte owner) =>
             BakuganReturned?.Invoke(target, owner);
         public void OnBakuganDestroyed(Bakugan target, byte owner) =>
@@ -212,7 +215,7 @@ namespace AB_Server
                             ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
                             {
                                 ["BID"] = b.BID,
-                                ["Type"] = (int)b.Type,
+                                ["BakuganType"] = (int)b.Type,
                                 ["Attribute"] = (int)b.Attribute,
                                 ["Treatment"] = (int)b.Treatment,
                                 ["Power"] = b.Power,
@@ -626,7 +629,7 @@ namespace AB_Server
             {
                 { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
                 { "CanOpenGate", Players[player].HasOpenableGates() },
-                { "CanThrowBakugan", !isBattleGoing && Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
+                { "CanThrowBakugan", !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
                 { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
                 { "CanEndTurn", Players[player].CanEndTurn() },
                 { "CanEndBattle", Players[player].HasBattlingBakugan() },

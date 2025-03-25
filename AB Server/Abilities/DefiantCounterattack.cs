@@ -59,7 +59,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asFusion)
         {
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
+                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup2;

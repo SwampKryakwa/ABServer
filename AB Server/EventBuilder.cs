@@ -72,8 +72,8 @@ namespace AB_Server
             {
                 { "SelectionType", "BH" },
                 { "Message", prompt },
-                { "Ability", ability },
-                { "AbilityKind", abilityKind },
+                { "Card", ability },
+                { "CardKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.Attribute },
@@ -92,8 +92,28 @@ namespace AB_Server
             {
                 { "SelectionType", "BF" },
                 { "Message", prompt },
-                { "Ability", ability },
-                { "AbilityKind", abilityKind },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.Attribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject GraveBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "BG" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.Attribute },
@@ -112,8 +132,8 @@ namespace AB_Server
             {
                 { "SelectionType", "GF" },
                 { "Message", prompt },
-                { "Ability", ability },
-                { "AbilityKind", abilityKind },
+                { "Card", ability },
+                { "CardKind", abilityKind },
                 { "SelectionGates", new JArray(gates.Select(x => new JObject {
                     { "Type", x.TypeId },
                     { "PosX", x.Position.X },

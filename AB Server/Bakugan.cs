@@ -470,8 +470,19 @@ namespace AB_Server
             Position.Remove(this);
             Position = destination;
 
+            destination.BattleOver = false;
+            destination.Bakugans.Add(this);
+            destination.EnterOrder.Add([this]);
+            Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
+
             foreach (var e in Game.NewEvents)
             {
+                e.Add(new JObject
+                {
+                    { "Type", "HpRestored" },
+                    { "Owner", Owner.Id },
+                    { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
+                });
                 e.Add(new JObject {
                     { "Type", "BakuganAddedEvent" },
                     { "PosX", destination.Position.X },
@@ -486,20 +497,41 @@ namespace AB_Server
                         { "BID", BID } }
                     }
                 });
+                e.Add(new JObject {
+                    { "Type", "BakuganRemovedFromGrave" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
+                    { "Attribute", (int)Attribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "IsPartner", IsPartner },
+                    { "BID", BID }
+                });
             }
 
-            destination.BattleOver = false;
-            destination.Bakugans.Add(this);
-            destination.EnterOrder.Add([this]);
-            Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
-            Game.OnBakuganAdded(this, Owner.Id, destination);
+            Boosts.ForEach(x => x.Active = false);
+            Boosts.Clear();
+
             Game.isBattleGoing |= destination.CheckBattles();
         }
 
         public void Revive()
         {
             if (IsDummy) return;
+
+            Defeated = false;
+            Position.Remove(this);
+            Position = Owner;
+            Owner.Bakugans.Add(this);
+            Game.OnBakuganRevived(this, Owner.Id);
             foreach (List<JObject> e in Game.NewEvents)
+            {
+                e.Add(new JObject
+                {
+                    { "Type", "HpRestored" },
+                    { "Owner", Owner.Id },
+                    { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
+                });
                 e.Add(new JObject {
                     { "Type", "BakuganAddedToHand" },
                     { "Owner", Owner.Id },
@@ -507,14 +539,24 @@ namespace AB_Server
                     { "Attribute", (int)Attribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
+                    { "IsPartner", IsPartner },
                     { "BID", BID }
                 });
+                e.Add(new JObject {
+                    { "Type", "BakuganRemovedFromGrave" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
+                    { "Attribute", (int)Attribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "IsPartner", IsPartner },
+                    { "BID", BID }
+                });
+            }
 
-            Defeated = false;
-            Position.Remove(this);
-            Position = Owner;
-            Owner.Bakugans.Add(this);
-            Game.OnBakuganRevived(this, Owner.Id);
+            Boosts.ForEach(x => x.Active = false);
+            Boosts.Clear();
+
             InHands = true;
         }
 
@@ -551,6 +593,15 @@ namespace AB_Server
                             { "BID", BID } }
                         }
                     });
+                }
+
+                Boosts.ForEach(x => x.Active = false);
+                Boosts.Clear();
+                Game.OnBakuganReturned(this, Owner.Id);
+                InHands = true;
+
+                foreach (List<JObject> e in Game.NewEvents)
+                {
                     e.Add(new JObject {
                         { "Type", "BakuganAddedToHand" },
                         { "Owner", Owner.Id },
@@ -562,11 +613,6 @@ namespace AB_Server
                         { "BID", BID }
                     });
                 }
-
-                Boosts.ForEach(x => x.Active = false);
-                Boosts.Clear();
-                Game.OnBakuganReturned(this, Owner.Id);
-                InHands = true;
 
                 Game.isBattleGoing = false;
                 foreach (var gate in Game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
@@ -610,10 +656,29 @@ namespace AB_Server
                             { "BID", BID } }
                         }
                     });
+                    e.Add(new JObject
+                    {
+                        { "Type", "HpLost" },
+                        { "Owner", Owner.Id },
+                        { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
+                    });
                 }
 
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
+
+                foreach (List<JObject> e in Game.NewEvents)
+                    e.Add(new JObject {
+                        { "Type", "BakuganAddedToGrave" },
+                        { "Owner", Owner.Id },
+                        { "BakuganType", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID }
+                    });
+
                 Game.OnBakuganDestroyed(this, Owner.Id);
             }
         }
@@ -638,6 +703,12 @@ namespace AB_Server
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "BID", BID }
+                    });
+                    e.Add(new JObject
+                    {
+                        { "Type", "HpLost" },
+                        { "Owner", Owner.Id },
+                        { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
                     });
                 }
 

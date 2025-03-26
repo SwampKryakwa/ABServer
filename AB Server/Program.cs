@@ -166,7 +166,7 @@ namespace AB_Server
                                     case "join":
                                         GID = (string)postedJson["gid"];
                                         game = GIDToGame[GID];
-                                        answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"]));
+                                        answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"], (byte)postedJson["ava"]));
                                         answer.Add("playerCount", game.Players.Where(x => x != null).Count());
                                         if (game.PlayerCount == game.Players.Count)
                                         {
@@ -178,6 +178,7 @@ namespace AB_Server
 
                                     case "getroomnicknames":
                                         answer.Add("nicknames", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].Players.Select(x => x.DisplayName)));
+                                        answer.Add("avas", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].Players.Select(x => x.Avatar)));
                                         break;
 
                                     case "getupdates":

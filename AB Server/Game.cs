@@ -139,9 +139,9 @@ namespace AB_Server
             }
         }
 
-        public int AddPlayer(JObject deck, long UUID, string playerName)
+        public int AddPlayer(JObject deck, long UUID, string playerName, byte avatar)
         {
-            Players.Add(Player.FromJson(loggedPlayers, loggedPlayers, deck, this, playerName));
+            Players.Add(Player.FromJson(loggedPlayers, loggedPlayers, deck, this, playerName, avatar));
             UUIDToPid.Add(UUID, loggedPlayers);
             loggedPlayers++;
             return loggedPlayers - 1;

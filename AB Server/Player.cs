@@ -22,6 +22,7 @@ namespace AB_Server
         public byte Id;
         public byte SideID = new();
         public string DisplayName;
+        public byte Avatar;
         public List<object> AbilityBlockers = new();
 
         public List<Bakugan> Bakugans { get; } = new();
@@ -45,18 +46,19 @@ namespace AB_Server
 
         public byte playerColor;
 
-        public Player(byte id, byte sideID, Game game, string displayName)
+        public Player(byte id, byte sideID, Game game, string displayName, byte avatar)
         {
             Id = id;
             SideID = sideID;
             this.game = game;
             BakuganGrave = new(this);
             DisplayName = displayName;
+            Avatar = avatar;
         }
 
-        public static Player FromJson(byte id, byte sideID, dynamic deck, Game game, string displayName)
+        public static Player FromJson(byte id, byte sideID, dynamic deck, Game game, string displayName, byte avatar)
         {
-            Player player = new(id, sideID, game, displayName);
+            Player player = new(id, sideID, game, displayName, avatar);
 
             //player.DisplayName = deck["dispName"].ToString();
 

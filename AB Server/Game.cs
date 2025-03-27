@@ -355,6 +355,7 @@ namespace AB_Server
                                 ["Id"] = AbilityIndex[abilitySelection].EffectId,
                                 ["Card"] = AbilityIndex[abilitySelection].TypeId,
                                 ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
+                                ["IsCounter"] = false,
                                 ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
                             });
                         }
@@ -752,6 +753,7 @@ namespace AB_Server
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
                         ["Kind"] = (int)AbilityIndex[id].Kind,
+                        ["IsCounter"] = false,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }
@@ -812,6 +814,7 @@ namespace AB_Server
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
                         ["Kind"] = (int)AbilityIndex[id].Kind,
+                        ["IsCounter"] = true,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }
@@ -877,6 +880,7 @@ namespace AB_Server
                         ["Id"] = AbilityIndex[id].EffectId,
                         ["Card"] = AbilityIndex[id].TypeId,
                         ["Kind"] = (int)AbilityIndex[id].Kind,
+                        ["IsCounter"] = false,
                         ["Owner"] = AbilityIndex[id].Owner.Id
                     });
                 }

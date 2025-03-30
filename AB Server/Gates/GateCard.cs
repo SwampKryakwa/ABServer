@@ -262,6 +262,11 @@ namespace AB_Server.Gates
             return (card.Position.Y - Position.Y) == 0 && Math.Abs(card.Position.X - Position.X) == 1;
         }
 
+        public bool IsAdjacentHorizontally(GateCard card)
+        {
+            return (card.Position.X - Position.X) == 0 && Math.Abs(card.Position.Y - Position.Y) == 1;
+        }
+
         public virtual void Negate(bool asCounter = false)
         {
             if (asCounter) counterNegated = true;

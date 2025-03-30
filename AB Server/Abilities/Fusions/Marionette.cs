@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
     {
         public Marionette(int cID, Player owner)
         {
-            TypeId = 8;
+            TypeId = 6;
             CardId = cID;
             Owner = owner;
             Game = owner.game;

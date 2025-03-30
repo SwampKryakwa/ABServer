@@ -12,7 +12,7 @@ namespace AB_Server.Abilities.Fusions
     {
         public Tremors(int cID, Player owner)
         {
-            TypeId = 7;
+            TypeId = 5;
             CardId = cID;
             Owner = owner;
             Game = owner.game;

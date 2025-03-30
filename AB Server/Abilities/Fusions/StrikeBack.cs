@@ -97,8 +97,11 @@ namespace AB_Server.Abilities
                 });
             }
 
-            user.FromGrave((target.Position as GateCard));
-            user.Boost(new Boost((short)(target.Power - user.Power + 10)), this);
+            if (user.InGrave())
+            {
+                user.FromGrave((target.Position as GateCard));
+                user.Boost(new Boost((short)(target.Power - user.Power + 10)), this);
+            }
         }
     }
 }

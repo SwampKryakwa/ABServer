@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Abilities.Fusions;
+using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
@@ -23,7 +24,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new Blowback(cID, owner, 5), Blowback.HasValidTargets),
 
             //Set 1 Bakugan abilities
-            ((cID, owner) => new Marionette(cID, owner, 6), Marionette.HasValidTargets),
+            ((cID, owner) => new SlingBlazer(cID, owner, 6), Marionette.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
             ((cID, owner) => new BruteUltimatum(cID, owner, 8), BruteUltimatum.HasValidTargets),
 

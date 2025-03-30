@@ -139,14 +139,7 @@ namespace AB_Server.Abilities.Fusions
                         { "Attribute", (int)user.Attribute },
                         { "Treatment", (int)user.Treatment },
                         { "Power", user.Power }
-                    }},
-                    { "Targets", new JArray(targets.Select(t => new JObject {
-                        { "BID", t.BID },
-                        { "Type", (int)t.Type },
-                        { "Attribute", (int)t.Attribute },
-                        { "Treatment", (int)t.Treatment },
-                        { "Power", t.Power }
-                    }))}
+                    }}
                 });
             }
 

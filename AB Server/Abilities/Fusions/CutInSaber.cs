@@ -45,6 +45,22 @@ namespace AB_Server.Abilities
             targetGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
 
             FusedTo.Discard();
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityAddedActiveZone",
+                    ["IsCopy"] = IsCopy,
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Kind"] = (int)Kind,
+                    ["User"] = User.BID,
+                    ["IsCounter"] = asCounter,
+                    ["Owner"] = Owner.Id
+                });
+            }
+
             Game.CheckChain(Owner, this, User);
 
             if (User.InHands)

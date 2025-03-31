@@ -62,6 +62,23 @@ namespace AB_Server.Abilities
         public new void Activate()
         {
             targetGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityAddedActiveZone",
+                    ["IsCopy"] = IsCopy,
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Kind"] = (int)Kind,
+                    ["User"] = User.BID,
+                    ["IsCounter"] = asCounter,
+                    ["Owner"] = Owner.Id
+                });
+            }
+
+            FusedTo.Discard();
             Game.CheckChain(Owner, this, user);
         }
 
@@ -75,6 +92,9 @@ namespace AB_Server.Abilities
 
         public override void DoubleEffect() =>
             new MarionetteEffect(user, targetBakugan, targetGate, TypeId).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.Position != user.Position && x.OnField());
     }
 
     internal class MarionetteEffect

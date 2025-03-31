@@ -67,14 +67,7 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectAddedActiveZone" },
-                    { "IsCopy", IsCopy },
-                    { "Card", TypeId },
-                    { "Id", EffectId },
-                    { "Owner", Owner.Id }
-                });
+                game.NewEvents[i].Add(EventBuilder.AddEffectToActiveZone(this, IsCopy));
             }
             game.Players.ForEach(p => p.AbilityBlockers.Add(this));
 

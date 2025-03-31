@@ -18,9 +18,11 @@ namespace AB_Server.Abilities
         public override AbilityKind Kind { get; } = AbilityKind.FusionAbility;
         public Type BaseAbilityType;
         public AbilityCard FusedTo;
+        bool asCounter;
 
         public override void Setup(bool asCounter)
         {
+            this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(BaseAbilityType.IsInstanceOfType))
                 ));
@@ -43,6 +45,21 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             FusedTo.Discard();
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityAddedActiveZone",
+                    ["IsCopy"] = IsCopy,
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Kind"] = (int)Kind,
+                    ["User"] = User.BID,
+                    ["IsCounter"] = asCounter,
+                    ["Owner"] = Owner.Id
+                });
+            }
             Game.CheckChain(Owner, this, User);
         }
 

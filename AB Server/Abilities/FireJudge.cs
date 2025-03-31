@@ -41,15 +41,7 @@ namespace AB_Server.Abilities
                         { "Power", User.Power }
                     }}
                 });
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectAddedActiveZone" },
-                    { "IsCopy", IsCopy },
-                    { "Card", TypeId },
-                    { "Kind", (int)Kind },
-                    { "Id", EffectId },
-                    { "Owner", Owner.Id }
-                });
+                game.NewEvents[i].Add(EventBuilder.AddEffectToActiveZone(this, IsCopy));
             }
 
             currentBoost = new Boost(100);

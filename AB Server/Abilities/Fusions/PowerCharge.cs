@@ -16,7 +16,6 @@ namespace AB_Server.Abilities.Fusions
             Game = owner.game;
             BaseAbilityType = typeof(SaurusGlow);
         }
-
         public override void Resolve()
         {
             if (!counterNegated)
@@ -74,15 +73,7 @@ namespace AB_Server.Abilities.Fusions
                         { "Power", User.Power }
                     }}
                 });
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectAddedActiveZone" },
-                    { "IsCopy", IsCopy },
-                    { "Card", TypeId },
-                    { "Kind", (int)Kind },
-                    { "Id", EffectId },
-                    { "Owner", Owner.Id }
-                });
+                game.NewEvents[i].Add(EventBuilder.AddEffectToActiveZone(this, IsCopy));
             }
 
             game.BattlesStarted += OnBattleStart;

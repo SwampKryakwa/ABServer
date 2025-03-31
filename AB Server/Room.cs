@@ -9,8 +9,9 @@ namespace AB_Server
         public bool[] IsReady;
         public string?[] UserNames;
         public bool Started = false;
+        public bool IsBotRoom;
 
-        public Room(short playerCount, string roomName)
+        public Room(short playerCount, string roomName, bool isBotRoom)
         {
             Players = new long?[playerCount];
             IsReady = new bool[playerCount];
@@ -26,6 +27,7 @@ namespace AB_Server
                 RoomName = roomName;
             else
                 RoomName = "Room";
+            IsBotRoom = isBotRoom;
         }
 
         public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);

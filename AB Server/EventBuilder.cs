@@ -2,6 +2,7 @@
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace AB_Server
 {
@@ -204,6 +205,36 @@ namespace AB_Server
             };
         }
 
+        public static JObject SendGateToGrave(GateCard card) =>
+            new()
+            {
+                ["Type"] = "GateSentToGrave",
+                ["CardType"] = card.TypeId,
+                ["CID"] = card.CardId,
+                ["Owner"] = card.Owner.Id
+            };
+
+        public static JObject SendAbilityToGrave(AbilityCard card) =>
+            new ()
+            {
+                ["Type"] = "AbilitySentToGrave",
+                ["Kind"] = (int)card.Kind,
+                ["CardType"] = card.TypeId,
+                ["CID"] = card.CardId,
+                ["Owner"] = card.Owner.Id
+            };
+
+        public static JObject AddEffectToActiveZone(IActive active, bool isCopy) =>
+            new() {
+                { "Type", "EffectAddedActiveZone" },
+                { "IsCopy", isCopy },
+                { "Card", active.TypeId },
+                { "Kind", (int)active.Kind },
+                { "Id", active.EffectId },
+                { "User", active.User.BID },
+                { "Owner", active.Owner.Id }
+            };
+
         public static JObject GateOpen(GateCard card)
         {
             return new()
@@ -216,36 +247,6 @@ namespace AB_Server
                 },
                 { "Owner", card.Owner.Id },
                 { "CID", card.CardId }
-            };
-        }
-
-        public static JObject DiscardGate(GateCard card)
-        {
-            JObject extra = new();
-
-            //switch (card.TypeId)
-            //{
-            //    //case 0:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as NormalGate).Attribute },
-            //    //        { "Power", (card as NormalGate).Power }
-            //    //    };
-            //    //    break;
-            //    //case 4:
-            //    //    extra = new JObject
-            //    //    {
-            //    //        { "Attribute", (int)(card as AttributeHazard).Attribute },
-            //    //    };
-            //    //    break;
-            //}
-
-            return new JObject
-            {
-                { "Type", "DiscardGate" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-                { "extra", extra }
             };
         }
 
@@ -268,46 +269,6 @@ namespace AB_Server
                 { "Type", "GateRetracted" },
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
-            };
-        }
-
-        public static JObject AbilityActivated(AbilityCard card)
-        {
-            return new JObject
-            {
-                { "Type", "AbilityActivated" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-            };
-        }
-
-        public static JObject NegateAbility(AbilityCard card)
-        {
-            return new JObject
-            {
-                { "Type", "NegateAbility" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-            };
-        }
-
-        public static JObject DiscardAbility(AbilityCard card)
-        {
-            return new JObject
-            {
-                { "Type", "DiscardAbility" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
-            };
-        }
-
-        public static JObject RestoreAbility(AbilityCard card)
-        {
-            return new JObject
-            {
-                { "Type", "RestoreAbility" },
-                { "type", card.TypeId },
-                { "owner", card.Owner.Id },
             };
         }
 

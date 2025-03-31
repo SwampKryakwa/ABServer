@@ -85,12 +85,14 @@ namespace AB_Server
 
                                     case "createroom":
                                         string room = RandomString(8);
-                                        Rooms.Add(room, new Room((short)postedJson["playerCount"], (string)postedJson["roomName"]));
+                                        while (Rooms.ContainsKey(room))
+                                            room = RandomString(8);
+                                        Rooms.Add(room, new Room((short)postedJson["playerCount"], (string)postedJson["roomName"], (bool)postedJson["isBotRoom"]));
                                         answer.Add("room", room);
                                         break;
 
                                     case "getroomlist":
-                                        answer.Add("rooms", new JArray(Rooms.Where(x => !x.Value.Started).Select(r => new JObject { ["roomKey"] = r.Key, ["roomName"] = r.Value.RoomName, ["roomPlayers"] = new JArray(r.Value.UserNames) })));
+                                        answer.Add("rooms", new JArray(Rooms.Where(x => !x.Value.Started && !x.Value.IsBotRoom).Select(r => new JObject { ["roomKey"] = r.Key, ["roomName"] = r.Value.RoomName, ["roomPlayers"] = new JArray(r.Value.UserNames) })));
                                         break;
 
                                     case "joinroom":

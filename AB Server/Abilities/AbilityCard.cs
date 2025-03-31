@@ -1,5 +1,6 @@
 ﻿using AB_Server.Abilities.Fusions;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.Metrics;
 
 namespace AB_Server.Abilities
 {
@@ -70,8 +71,11 @@ namespace AB_Server.Abilities
 
         public static bool HasValidTargets(Bakugan user) => true;
 
+        protected bool asCounter;
+
         public virtual void Setup(bool asCounter)
         {
+            this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
@@ -82,6 +86,21 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityAddedActiveZone",
+                    ["IsCopy"] = IsCopy,
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Kind"] = (int)Kind,
+                    ["User"] = User.BID,
+                    ["IsCounter"] = asCounter,
+                    ["Owner"] = Owner.Id
+                });
+            }
 
             Game.CheckChain(Owner, this, User);
         }
@@ -115,6 +134,7 @@ namespace AB_Server.Abilities
                     { "Card", TypeId },
                     { "Owner", Owner.Id }
                 });
+                Game.NewEvents[i].Add(EventBuilder.SendAbilityToGrave(this));
             }
         }
         public virtual void Discard()
@@ -150,6 +170,7 @@ namespace AB_Server.Abilities
                     { "Card", TypeId },
                     { "Owner", Owner.Id }
                 });
+                Game.NewEvents[i].Add(EventBuilder.SendAbilityToGrave(this));
             }
         }
 

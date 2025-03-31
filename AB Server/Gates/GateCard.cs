@@ -164,7 +164,10 @@ namespace AB_Server.Gates
                 game.Field[Position.X, Position.Y] = null;
 
                 foreach (List<JObject> e in game.NewEvents)
+                {
                     e.Add(EventBuilder.RemoveGate(this));
+                    e.Add(EventBuilder.SendGateToGrave(this));
+                }
             }
             else game.ContinueGame();
         }

@@ -57,6 +57,7 @@ namespace AB_Server.Abilities
 
         public override void Setup(bool asCounter)
         {
+            this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
@@ -80,6 +81,21 @@ namespace AB_Server.Abilities
         public new void Activate()
         {
             target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            for (int i = 0; i < Game.NewEvents.Length; i++)
+            {
+                Game.NewEvents[i].Add(new()
+                {
+                    ["Type"] = "AbilityAddedActiveZone",
+                    ["IsCopy"] = IsCopy,
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Kind"] = (int)Kind,
+                    ["User"] = User.BID,
+                    ["IsCounter"] = asCounter,
+                    ["Owner"] = Owner.Id
+                });
+            }
 
             Game.CheckChain(Owner, this, User);
         }

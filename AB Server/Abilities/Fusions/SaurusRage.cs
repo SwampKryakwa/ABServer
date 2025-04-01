@@ -1,48 +1,55 @@
+using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities.Fusions
 {
-    internal class SaurusGlow : AbilityCard
+    internal class SaurusRage : FusionAbility
     {
-        public SaurusGlow(int cID, Player owner, int typeId)
+        public SaurusRage(int cID, Player owner)
         {
-            TypeId = typeId;
+            TypeId = 4; // Assign a unique TypeId for this ability
             CardId = cID;
             Owner = owner;
             Game = owner.game;
+            BaseAbilityType = typeof(SaurusGlow);
         }
 
         public override void Resolve()
         {
             if (!counterNegated)
-                new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
+                new SaurusRageEffect(User, TypeId, IsCopy).Activate();
 
             Dispose();
         }
 
         public override void DoubleEffect() =>
-            new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
+            new SaurusRageEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField() && Game.BakuganIndex.Any(b => b.Power > user.Power);
     }
 
-    internal class SaurusGlowEffect : IActive
+    internal class SaurusRageEffect : IActive
     {
         public int TypeId { get; }
-        public int EffectId { get; set; }
-        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
         public Bakugan User { get; set; }
         Game game { get => User.Game; }
-        Boost currentBoost;
 
-        public Player Owner { get; set; }
+        public Player Owner { get => User.Owner; set; }
+        public int EffectId { get; set; }
+
+        public AbilityKind Kind { get; } = AbilityKind.FusionAbility;
+
         bool IsCopy;
 
-        public SaurusGlowEffect(Bakugan user, int typeID, bool IsCopy)
+        public SaurusRageEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
+            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -55,8 +62,8 @@ namespace AB_Server.Abilities
             {
                 game.NewEvents[i].Add(new()
                 {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
+                    { "Type", "FusionAbilityActivateEffect" },
+                    { "Kind", 1 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -76,22 +83,15 @@ namespace AB_Server.Abilities
         {
             if (User.OnField() && target.Power > User.Power)
             {
-                currentBoost = new Boost(50);
-                User.Boost(currentBoost, this);
+                int powerDifference = target.Power - User.Power;
+                int boostAmount = powerDifference * 2;
+                User.Boost(new Boost((short)boostAmount), this);
             }
         }
 
-        public void Negate(bool asCounter)
+        public void Negate(bool asCounter = false)
         {
-            game.ActiveZone.Remove(this);
-
             game.BakuganAdded -= OnBakuganAdded;
-
-            if (currentBoost.Active)
-            {
-                currentBoost.Active = false;
-                User.RemoveBoost(currentBoost, this);
-            }
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {

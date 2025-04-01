@@ -21,7 +21,13 @@ namespace AB_Server.Gates
         public override void DetermineWinnerNormalBattle()
         {
             if (IsOpen)
+            {
+                foreach (Bakugan b in Bakugans)
+                {
+                    b.BattleEndedInDraw = true;
+                }
                 game.BattlesToEnd.Add(this);
+            }
             else
                 base.DetermineWinnerNormalBattle();
         }

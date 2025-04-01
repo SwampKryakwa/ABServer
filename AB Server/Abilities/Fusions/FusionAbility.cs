@@ -6,12 +6,12 @@ namespace AB_Server.Abilities
     {
         public static Func<int, Player, FusionAbility>[] FusionCtrs =
         [
-            (cID, owner) => new Unleash(cID, owner),
+            (cID, owner) => new BruteUltimatum(cID, owner),
             (cID, owner) => new Unleash(cID, owner),
             (cID, owner) => new Marionette(cID, owner),
             (cID, owner) => new StrikeBack(cID, owner),
             (cID, owner) => new DoubleDimension(cID, owner),
-            (cID, owner) => new PowerCharge(cID, owner),
+            (cID, owner) => new SaurusRage(cID, owner),
             (cID, owner) => new Tremors(cID, owner),
             (cID, owner) => new CutInSaber(cID, owner)
         ];

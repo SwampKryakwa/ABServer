@@ -117,6 +117,13 @@ namespace AB_Server.Gates
                         b.DestroyOnField(EnterOrder, MoveSource.Game);
                     }
             }
+            else
+            {
+                foreach(Bakugan b in Bakugans)
+                {
+                    b.BattleEndedInDraw = true;
+                }
+            }
 
             game.BattlesToEnd.Add(this);
         }

@@ -27,7 +27,7 @@ namespace AB_Server.Abilities
             //Set 1 Bakugan abilities
             ((cID, owner) => new SlingBlazer(cID, owner, 6), Marionette.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
-            ((cID, owner) => new BruteUltimatum(cID, owner, 8), BruteUltimatum.HasValidTargets),
+            ((cID, owner) => new MercilessTriumph(cID, owner, 8), MercilessTriumph.HasValidTargets),
 
             //Set 2 attribute abilities
             ((cID, owner) => new FireWall(cID, owner, 9), FireWall.HasValidTargets),
@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
 
             //Set 2 bakugan abilities
             ((cID, owner) => new DefiantCounterattack(cID, owner, 15), DefiantCounterattack.HasValidTargets),
-            ((cID, owner) => new CutInSlayer(cID, owner, 16), CutInSlayer.HasValidTargets),
+            ((cID, owner) => new CrystalFang(cID, owner, 16), CrystalFang.HasValidTargets),
             ((cID, owner) => new NoseSlap(cID, owner, 17), NoseSlap.HasValidTargets),
             ((cID, owner) => new SaurusGlow(cID, owner, 18), SaurusGlow.HasValidTargets),
             ((cID, owner) => new Dimension4(cID, owner, 19), Dimension4.HasValidTargets),

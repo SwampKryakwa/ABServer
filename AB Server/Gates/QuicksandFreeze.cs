@@ -9,6 +9,16 @@ namespace AB_Server.Gates
 {
     class QuicksandFreeze : GateCard
     {
+        public QuicksandFreeze(int cID, Player owner)
+        {
+            game = owner.game;
+            Owner = owner;
+
+            CardId = cID;
+        }
+
+        public override int TypeId { get; } = 12;
+
         public override void DetermineWinner()
         {
             if (!Negated)

@@ -26,7 +26,7 @@ namespace AB_Server.Gates
             (x, y) => new Supernova(x, y),
             (x, y) => new Reloaded(x, y),
             (x, y) => new Intercept(x, y),
-            (x, y) => new PositiveDelta(x, y),
+            (x, y) => new QuicksandFreeze(x, y),
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)

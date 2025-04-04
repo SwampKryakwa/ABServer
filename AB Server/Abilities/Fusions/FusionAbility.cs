@@ -15,7 +15,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new Tremors(cID, owner),
             (cID, owner) => new CutInSaber(cID, owner)
         ];
-        public override AbilityKind Kind { get; } = AbilityKind.FusionAbility;
+        public override CardKind Kind { get; } = CardKind.FusionAbility;
         public Type BaseAbilityType;
         public AbilityCard FusedTo;
         bool asCounter;

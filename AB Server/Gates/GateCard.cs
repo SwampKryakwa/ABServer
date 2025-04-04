@@ -247,7 +247,7 @@ namespace AB_Server.Gates
 
         public int EffectId { get; set; }
 
-        public AbilityKind Kind { get; } = AbilityKind.Gate;
+        public CardKind Kind { get; } = CardKind.Gate;
 
         public bool IsTouching(GateCard card)
         {

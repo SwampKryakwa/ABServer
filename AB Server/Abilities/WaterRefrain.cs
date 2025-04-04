@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
         int turnsPassed = 0;
 
         public Player Owner { get; set; }
-        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
+        public CardKind Kind { get; } = CardKind.NormalAbility;
         bool IsCopy;
 
         public WaterRefrainEffect(Bakugan user, int typeID, bool IsCopy)

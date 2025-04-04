@@ -41,7 +41,7 @@ namespace AB_Server.Abilities.Fusions
         public Player Owner { get => User.Owner; set; }
         public int EffectId { get; set; }
 
-        public AbilityKind Kind { get; } = AbilityKind.FusionAbility;
+        public CardKind Kind { get; } = CardKind.FusionAbility;
 
         bool IsCopy;
 

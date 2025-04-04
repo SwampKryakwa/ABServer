@@ -4,11 +4,11 @@ using System.Diagnostics.Metrics;
 
 namespace AB_Server.Abilities
 {
-    public enum AbilityKind : byte
+    public enum CardKind : byte
     {
         NormalAbility,
         FusionAbility,
-        AlignmentAbility,
+        CorrelationAbility,
         Gate
     }
 
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
         public bool IsCopy { get; set; } = false;
 
         public int TypeId { get; set; }
-        public virtual AbilityKind Kind { get; } = AbilityKind.NormalAbility;
+        public virtual CardKind Kind { get; } = CardKind.NormalAbility;
 
         public Game Game { get; set; }
         public Player Owner { get; set; }

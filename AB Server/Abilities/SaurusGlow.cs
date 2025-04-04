@@ -31,7 +31,7 @@ namespace AB_Server.Abilities
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
-        public AbilityKind Kind { get; } = AbilityKind.NormalAbility;
+        public CardKind Kind { get; } = CardKind.NormalAbility;
         public Bakugan User { get; set; }
         Game game { get => User.Game; }
         Boost currentBoost;

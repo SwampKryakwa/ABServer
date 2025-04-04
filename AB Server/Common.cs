@@ -11,7 +11,7 @@ namespace AB_Server
     {
         public int EffectId { get; set; }
         public int TypeId { get; }
-        public AbilityKind Kind { get; }
+        public CardKind Kind { get; }
         public Bakugan User { get; set; }
 
         public Player Owner { get; set; }

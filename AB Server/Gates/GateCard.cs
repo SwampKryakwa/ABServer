@@ -55,6 +55,8 @@ namespace AB_Server.Gates
         public bool Negated = false;
         protected bool counterNegated = false;
 
+        bool IsDraw = false;
+
 
         public void Freeze(object frozer)
         {
@@ -165,15 +167,19 @@ namespace AB_Server.Gates
                     b.ToHand(EnterOrder);
                 }
 
-                IsOpen = false;
-                OnField = false;
-
-                game.Field[Position.X, Position.Y] = null;
-
-                foreach (List<JObject> e in game.NewEvents)
+                if (!IsDraw)
                 {
-                    e.Add(EventBuilder.RemoveGate(this));
-                    e.Add(EventBuilder.SendGateToGrave(this));
+                    IsOpen = false;
+                    OnField = false;
+                    Owner.GateGrave.Add(this);
+
+                    game.Field[Position.X, Position.Y] = null;
+
+                    foreach (List<JObject> e in game.NewEvents)
+                    {
+                        e.Add(EventBuilder.RemoveGate(this));
+                        e.Add(EventBuilder.SendGateToGrave(this));
+                    }
                 }
             }
             else game.ContinueGame();
@@ -213,6 +219,7 @@ namespace AB_Server.Gates
 
         public virtual bool CheckBattles()
         {
+            IsDraw = false;
             if (IsFrozen || BattleOver) return false;
 
             bool isBattle = Bakugans.Count > 1;

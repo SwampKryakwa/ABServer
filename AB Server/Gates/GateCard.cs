@@ -66,7 +66,7 @@ namespace AB_Server.Gates
                 for (int j = 0; j < game.Field.GetLength(1); j++)
                     if (game.Field[i, j] is GateCard battleGate && battleGate.ActiveBattle) return;
 
-            game.isBattleGoing = false;
+            game.isBattleGoing = game.GateIndex.Any(x => x.ActiveBattle);
 
             Console.WriteLine(this.GetType().ToString() + " frozen");
 

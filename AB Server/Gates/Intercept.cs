@@ -1,15 +1,51 @@
+using System.Linq;
+
 namespace AB_Server.Gates
 {
     internal class Intercept : GateCard
     {
+        private int turnCounter = 0;
+
         public Intercept(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
             CardId = cID;
+
         }
 
-        public override int TypeId { get; } = 11; // Assign a unique TypeId for Intercept
+        public override int TypeId { get; } = 11;
+
+        public override bool CheckBattles()
+        {
+            if (IsFrozen || BattleOver) return false;
+
+            bool isBattle = Bakugans.Count > 1;
+
+            if (isBattle)
+            {
+                if (!ActiveBattle)
+                {
+                    game.BattlesToStart.Add(this);
+                    Open();
+                }
+            }
+            else
+            {
+                ActiveBattle = false;
+            }
+
+            return isBattle;
+        }
+
+        private void OnTurnAboutToEnd()
+        {
+            if (turnCounter++ > 1)
+            {
+                TryUnfreeze(this);
+                game.TurnAboutToEnd -= OnTurnAboutToEnd;
+            }
+        }
 
         public override void Open()
         {
@@ -19,44 +55,16 @@ namespace AB_Server.Gates
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
-
             game.CheckChain(Owner, this);
         }
 
         public override void Resolve()
         {
-            // Freeze battles on this Gate Card
             Freeze(this);
 
-            // Subscribe to the GateAdded event to resume battles when another Gate Card is set on the field
-            game.GateOpen += OnAnotherGateCardOpen;
+            game.TurnAboutToEnd += OnTurnAboutToEnd;
         }
 
-        private void OnAnotherGateCardOpen(GateCard target)
-        {
-            // Resume battles on this Gate Card when another Gate Card is set on the field
-            if (target != this)
-            {
-                game.GateOpen -= OnAnotherGateCardOpen;
-                TryUnfreeze(this);
-            }
-        }
-
-        public override void Negate(bool asCounter = false)
-        {
-            base.Negate(asCounter);
-            // Unfreeze battles and remove the event handler
-            TryUnfreeze(this);
-            game.GateOpen -= OnAnotherGateCardOpen;
-        }
-
-        public override void Dispose()
-        {
-            // Remove the event handler when the gate card is removed from the field
-            game.GateOpen -= OnAnotherGateCardOpen;
-            base.Dispose();
-        }
+        public override bool IsOpenable() => false;
     }
 }
-
-

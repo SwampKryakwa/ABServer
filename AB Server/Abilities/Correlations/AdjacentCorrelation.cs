@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities.Correlations
+﻿using Newtonsoft.Json.Linq;
+
+namespace AB_Server.Abilities.Correlations
 {
     internal class AdjacentCorrelation : AbilityCard
     {

@@ -12,6 +12,8 @@ namespace AB_Server.Abilities.Correlations
             Game = owner.game;
         }
 
+        public override CardKind Kind { get; } = CardKind.CorrelationAbility;
+
         public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;

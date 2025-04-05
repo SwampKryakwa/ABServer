@@ -3,50 +3,6 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class SlingBlazerEffect
-    {
-        public int TypeId { get; }
-        Bakugan User;
-        Bakugan target;
-        GateCard moveTarget;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public SlingBlazerEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.target = target;
-            this.moveTarget = moveTarget;
-            
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
-
-            target.Move(moveTarget);
-        }
-    }
-
     internal class SlingBlazer : AbilityCard
     {
         public SlingBlazer(int cID, Player owner, int typeId)
@@ -90,23 +46,10 @@ namespace AB_Server.Abilities
             var battleGate = User.Position as GateCard;
             var validGates = Game.GateIndex.Where(x => x.IsAdjacentHorizontally(battleGate));
 
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "GF" },
-                        { "Message", "INFO_MOVETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionGates", new JArray(validGates.Select(x => new JObject {
-                            { "Type", x.TypeId },
-                            { "PosX", x.Position.X },
-                            { "PosY", x.Position.Y },
-                            { "CID", x.CardId }
-                        })) }
-                    }
-                } }
-            });
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldGateSelection("INFO_MOVETARGET", TypeId, (int)Kind, validGates)
+            ));
 
             Game.AwaitingAnswers[Owner.Id] = Activate;
         }
@@ -152,9 +95,52 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget)) && Game.GateIndex.Any(x => x.IsAdjacentHorizontally(user.Position as GateCard));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget));
+    }
+    internal class SlingBlazerEffect
+    {
+        public int TypeId { get; }
+        Bakugan User;
+        Bakugan target;
+        GateCard moveTarget;
+        Game game { get => User.Game; }
+
+        public Player Owner { get; set; }
+        bool IsCopy;
+
+        public SlingBlazerEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeID, bool IsCopy)
+        {
+            User = user;
+            this.target = target;
+            this.moveTarget = moveTarget;
+
+            this.IsCopy = IsCopy;
+            TypeId = typeID;
+        }
+
+        public void Activate()
+        {
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
+                    { "Card", TypeId },
+                    { "UserID", User.BID },
+                    { "User", new JObject {
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Treatment", (int)User.Treatment },
+                        { "Power", User.Power }
+                    }}
+                });
+            }
+
+            target.Move(moveTarget);
+        }
     }
 }

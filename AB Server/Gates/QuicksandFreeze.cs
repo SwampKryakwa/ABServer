@@ -12,12 +12,45 @@
 
         public override int TypeId { get; } = 12;
 
-        public override void DetermineWinner()
+        public override void DetermineWinnerNormalBattle()
         {
-            if (!Negated)
-                Open();
+            int[] teamTotals = new int[game.SideCount];
+            for (int i = 0; i < game.PlayerCount; i++) teamTotals[i] = 0;
+            foreach (var b in Bakugans)
+            {
+                teamTotals[b.Owner.SideID] += b.Power;
+            }
+
+            int winnerPower = teamTotals.Max();
+
+            if (teamTotals.Count(x => x == winnerPower) == 1)
+            {
+                int winner = Array.IndexOf(teamTotals, teamTotals.Max());
+
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                    if (b.Owner.SideID != winner)
+                    {
+                        b.JustEndedBattle = true;
+                        b.DestroyOnField(EnterOrder, MoveSource.Game);
+                    }
+            }
             else
-                base.DetermineWinner();
+            {
+                foreach (Bakugan b in Bakugans)
+                {
+                    b.BattleEndedInDraw = true;
+                }
+            }
+
+            Open();
+        }
+
+        public override void FakeBattleNormal(int winnerPower)
+        {
+            foreach (Bakugan b in new List<Bakugan>(Bakugans.Where(x => x.Power < winnerPower)))
+                b.ToHand(EnterOrder);
+
+            Open();
         }
 
         public override void Open()
@@ -57,9 +90,7 @@
             var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
             BattleOver = true;
 
-            if (Bakugans.Count == 1) return;
-            if (numSides > 1) DetermineWinnerNormalBattle();
-            else if (numSides == 1) DetermineWinnerFakeBattle();
+            game.BattlesToEnd.Add(this);
         }
 
         bool resolved = false;

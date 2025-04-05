@@ -70,7 +70,7 @@ namespace AB_Server.Abilities
             new BruteUltimatumEffect(user, target, TypeId).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw;
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw;
     }
 
     internal class BruteUltimatumEffect

@@ -609,7 +609,7 @@ namespace AB_Server
                         { "Owner", Owner.Id },
                         { "BakuganType", (int)Type },
                         { "Attribute", (int)Attribute },
-                        { "Treatment", (int)Attribute },
+                        { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
                         { "BID", BID }

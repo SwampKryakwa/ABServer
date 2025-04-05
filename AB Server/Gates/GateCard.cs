@@ -67,14 +67,23 @@ namespace AB_Server.Gates
                     if (game.Field[i, j] is GateCard battleGate && battleGate.ActiveBattle) return;
 
             game.isBattleGoing = false;
+
+            Console.WriteLine(this.GetType().ToString() + " frozen");
+
             game.EndTurn();
         }
 
         public void TryUnfreeze(object frozer)
         {
             Freezing.Remove(frozer);
-            if (Freezing.Count == 0) IsFrozen = false;
-            game.isBattleGoing |= CheckBattles();
+            if (Freezing.Count == 0)
+            {
+                IsFrozen = false;
+                game.isBattleGoing |= CheckBattles();
+                Console.WriteLine(GetType().ToString() + " unfrozen");
+            }
+            else
+                Console.WriteLine(GetType().ToString() + " still frozen");
         }
 
         public bool BattleOver = false;
@@ -119,7 +128,7 @@ namespace AB_Server.Gates
             }
             else
             {
-                foreach(Bakugan b in Bakugans)
+                foreach (Bakugan b in Bakugans)
                 {
                     b.BattleEndedInDraw = true;
                 }
@@ -274,11 +283,13 @@ namespace AB_Server.Gates
 
         public bool IsAdjacentVertically(GateCard card)
         {
+            if (!OnField || !card.OnField) return false;
             return (card.Position.Y - Position.Y) == 0 && Math.Abs(card.Position.X - Position.X) == 1;
         }
 
         public bool IsAdjacentHorizontally(GateCard card)
         {
+            if (!OnField || !card.OnField) return false;
             return (card.Position.X - Position.X) == 0 && Math.Abs(card.Position.Y - Position.Y) == 1;
         }
 

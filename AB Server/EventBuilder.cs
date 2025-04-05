@@ -64,6 +64,34 @@ namespace AB_Server
                 { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CID", x.CardId } } )) }
             };
         }
+        public static JObject AnyBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "BH" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.Attribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) },
+                { "SelectionHandBakugans", new JArray(bakugans.Where(x=>x.InHand()).Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.Attribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
 
         public static JObject HandBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
         {

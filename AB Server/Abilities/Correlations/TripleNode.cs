@@ -124,7 +124,7 @@ namespace AB_Server.Abilities.Correlations
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());

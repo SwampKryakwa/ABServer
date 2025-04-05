@@ -31,7 +31,7 @@ namespace AB_Server.Abilities.Correlations
             var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() || x.InHand() && x != User);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
+                EventBuilder.AnyBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
             Game.AwaitingAnswers[Owner.Id] = Setup3;
@@ -67,7 +67,7 @@ namespace AB_Server.Abilities.Correlations
                 var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() || x.InHand() && x != User && !otherBakugans.Contains(x));
 
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
+                    EventBuilder.AnyBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
                 ));
 
                 Game.AwaitingAnswers[Owner.Id] = Setup3;
@@ -124,7 +124,7 @@ namespace AB_Server.Abilities.Correlations
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && (x.OnField() || x.InHand()));

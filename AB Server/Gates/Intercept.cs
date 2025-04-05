@@ -29,23 +29,15 @@ namespace AB_Server.Gates
             Freeze(this);
 
             // Subscribe to the GateAdded event to resume battles when another Gate Card is set on the field
-            game.GateAdded += OnAnotherGateCardSet;
+            game.GateOpen += OnAnotherGateCardOpen;
         }
 
-        public override bool CheckBattles()
-        {
-            if (IsOpen)
-                return false;
-            else
-                return base.CheckBattles();
-        }
-
-        private void OnAnotherGateCardSet(GateCard target, byte owner, params byte[] pos)
+        private void OnAnotherGateCardOpen(GateCard target)
         {
             // Resume battles on this Gate Card when another Gate Card is set on the field
             if (target != this)
             {
-                game.GateAdded -= OnAnotherGateCardSet;
+                game.GateOpen -= OnAnotherGateCardOpen;
                 TryUnfreeze(this);
             }
         }
@@ -55,13 +47,13 @@ namespace AB_Server.Gates
             base.Negate(asCounter);
             // Unfreeze battles and remove the event handler
             TryUnfreeze(this);
-            game.GateAdded -= OnAnotherGateCardSet;
+            game.GateOpen -= OnAnotherGateCardOpen;
         }
 
         public override void Dispose()
         {
             // Remove the event handler when the gate card is removed from the field
-            game.GateAdded -= OnAnotherGateCardSet;
+            game.GateOpen -= OnAnotherGateCardOpen;
             base.Dispose();
         }
     }

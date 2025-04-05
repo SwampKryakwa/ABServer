@@ -65,8 +65,10 @@ namespace AB_Server
         public delegate void BakuganPlacedFromGraveEffect(Bakugan target, byte owner, IBakuganContainer pos);
         public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
+        public delegate void GateOpenEffect(GateCard target);
         public delegate void BattlesStartedEffect();
         public delegate void BattlesOverEffect();
+        public delegate void TurnStartedEffect();
         public delegate void TurnAboutToEndEffect();
         public delegate void TurnEndEffect();
 
@@ -82,8 +84,10 @@ namespace AB_Server
         public event BakuganPlacedFromGraveEffect BakuganPlacedFromGrave;
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
+        public event GateOpenEffect GateOpen;
         public event BattlesStartedEffect BattlesStarted;
         public event BattlesOverEffect BattlesOver;
+        public event TurnStartedEffect TurnStarted;
         public event TurnAboutToEndEffect TurnAboutToEnd;
         public event TurnEndEffect TurnEnd;
 
@@ -113,6 +117,8 @@ namespace AB_Server
             GateAdded?.Invoke(target, owner, pos);
         public void OnGateRemoved(GateCard target, byte owner, params byte[] pos) =>
             GateRemoved?.Invoke(target, owner, pos);
+        public void OnGateOpen(GateCard target) =>
+            GateOpen?.Invoke(target);
 
         public Action[] AwaitingAnswers;
 
@@ -353,6 +359,7 @@ namespace AB_Server
                         DontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
                         gateToOpen.Open();
+                        OnGateOpen(gateToOpen);
                     }
                     else
                         NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
@@ -557,7 +564,7 @@ namespace AB_Server
                         { "Type", "PhaseChange" },
                         { "Phase", "TurnStart" }
                     });
-
+                TurnStarted?.Invoke();
                 SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
 
                 for (int i = 0; i < PlayerCount; i++)

@@ -532,8 +532,6 @@ namespace AB_Server
                 if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
                 ActivePlayer = TurnPlayer;
 
-                BakuganIndex.ForEach(x => x.UsedAbilityThisTurn = false);
-
                 if (!BakuganIndex.Any(x => x.InHand()))
                     foreach (var bakugan in BakuganIndex.Where(x => x.OnField()))
                         if (bakugan.Position is GateCard positionGate)

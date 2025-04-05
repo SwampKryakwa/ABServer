@@ -125,7 +125,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-            user.UsedAbilityThisTurn = true;
+            
             this.IsCopy = IsCopy;
             this.selectedOption = selectedOption;
             TypeId = typeID;

@@ -36,7 +36,7 @@ namespace AB_Server.Gates
         {
             target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            game.ResolveChain();
+            game.CheckChain(Owner, this);
         }
 
         public override void Resolve()

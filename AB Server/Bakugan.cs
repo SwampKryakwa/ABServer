@@ -89,7 +89,6 @@ namespace AB_Server
         }
         public bool Defeated = false;
         public bool InHands = true;
-        public bool UsedAbilityThisTurn = false;
         public bool IsDummy = false;
         public bool JustEndedBattle = false;
 
@@ -608,12 +607,11 @@ namespace AB_Server
                 foreach (List<JObject> e in Game.NewEvents)
                 {
                     e.Add(new JObject {
-                    { "Type", "BakuganAddedToHand" },
-                    { "Owner", Owner.Id },
-                    { "BakuganType", (int)Type },
-                    { "Attribute", (int)Attribute },
-                    { "Treatment", (int)Attribute },
-                        { "Treatment", (int)Treatment },
+                        { "Type", "BakuganAddedToHand" },
+                        { "Owner", Owner.Id },
+                        { "BakuganType", (int)Type },
+                        { "Attribute", (int)Attribute },
+                        { "Treatment", (int)Attribute },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
                         { "BID", BID }

@@ -45,7 +45,7 @@ namespace AB_Server.Abilities
         public UnleashEffect(Bakugan user, int typeID, bool IsCopy)
         {
             this.user = user;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }

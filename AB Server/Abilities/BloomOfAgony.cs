@@ -15,7 +15,7 @@ namespace AB_Server.Abilities
         public BloomOfAgonyEffect(Bakugan user, int typeID, bool IsCopy)
         {
             this.User = user;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 

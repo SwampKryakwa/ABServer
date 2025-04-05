@@ -24,19 +24,24 @@ namespace AB_Server.Gates
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
+            game.CheckChain(Owner, this);
+        }
+
+        public override void Resolve()
+        {
             // Freeze battles on this Gate Card
             Freeze(this);
 
             // Subscribe to the GateAdded event to resume battles when another Gate Card is set on the field
             game.GateAdded += OnAnotherGateCardSet;
-
-            game.CheckChain(Owner, this);
         }
 
         public override bool CheckBattles()
         {
-            // Halt battles on this Gate Card until another Gate Card is set on the field
-            return false;
+            if (IsOpen)
+                return false;
+            else
+                return base.CheckBattles();
         }
 
         private void OnAnotherGateCardSet(GateCard target, byte owner, params byte[] pos)

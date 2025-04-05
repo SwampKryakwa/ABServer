@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ namespace AB_Server.Abilities.Correlations
 {
     internal class AdjacentCorrelation : AbilityCard
     {
-        public AdjacentCorrelation(int cID, Player owner, int typeId)
+        public AdjacentCorrelation(int cID, Player owner)
         {
-            TypeId = typeId;
+            TypeId = 0;
             CardId = cID;
             Owner = owner;
             Game = owner.game;
@@ -146,9 +147,26 @@ namespace AB_Server.Abilities.Correlations
 
         public AdjacentCorrelationEffect(Bakugan user, List<Bakugan> otherBakugans, int typeID, bool IsCopy)
         {
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 2 },
+                    { "Card", TypeId },
+                    { "UserID", User.BID },
+                    { "User", new JObject {
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
+                    }}
+                });
+            }
+
             User = user;
             this.otherBakugans = otherBakugans;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 

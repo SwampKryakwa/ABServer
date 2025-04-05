@@ -147,7 +147,7 @@ namespace AB_Server.Abilities.Correlations
         {
             User = user;
             this.otherBakugans = otherBakugans;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 

@@ -93,7 +93,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.targetGate = targetGate;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }

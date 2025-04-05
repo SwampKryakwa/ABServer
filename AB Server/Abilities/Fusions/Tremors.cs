@@ -129,7 +129,7 @@ namespace AB_Server.Abilities.Fusions
         {
             this.user = user;
             this.targets = targets;
-            user.UsedAbilityThisTurn = true;
+            
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }

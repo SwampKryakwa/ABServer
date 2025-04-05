@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.target = target;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy;
+             this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }

@@ -60,7 +60,7 @@
         public virtual bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
         public bool BakuganIsValid(Bakugan user) =>
-            IsActivateableByBakugan(user) && user.Owner == Owner && !user.UsedAbilityThisTurn;
+            IsActivateableByBakugan(user) && user.Owner == Owner;
         public virtual bool IsActivateableByBakugan(Bakugan user) =>
             throw new NotImplementedException();
         public virtual bool IsActivateableCounter() => IsActivateable();

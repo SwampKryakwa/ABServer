@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
         public FireJudgeEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            user.UsedAbilityThisTurn = true; this.IsCopy = IsCopy; Owner = user.Owner;
+             this.IsCopy = IsCopy; Owner = user.Owner;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }

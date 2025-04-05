@@ -1,4 +1,5 @@
 ﻿using AB_Server.Abilities;
+using AB_Server.Abilities.Correlations;
 using AB_Server.Gates;
 
 namespace AB_Server
@@ -78,7 +79,6 @@ namespace AB_Server
                 player.Bakugans.Add(bak);
                 player.BakuganOwned.Add(bak);
             }
-            player.BakuganOwned[0].IsPartner = true;
 
             foreach (int a in deck["abilities"])
             {
@@ -90,6 +90,30 @@ namespace AB_Server
             FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Type"]].Invoke(game.AbilityIndex.Count, player);
             player.AbilityHand.Add(fusion);
             game.AbilityIndex.Add(fusion);
+
+            player.BakuganOwned[0].IsPartner = true;
+            HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.Attribute));
+            if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
+                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
+            {
+                TripleNode tripleNode = new(game.AbilityIndex.Count, player);
+                game.AbilityIndex.Add(tripleNode);
+                player.AbilityHand.Add(tripleNode);
+            }
+            else if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Darkon }) ||
+                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Aqua, Attribute.Subterra }) ||
+                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Lumina }))
+            {
+                DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, player);
+                game.AbilityIndex.Add(diagonalCorrelation);
+                player.AbilityHand.Add(diagonalCorrelation);
+            }
+            else
+            {
+                AdjacentCorrelation adjacentCorrelation = new(game.AbilityIndex.Count, player);
+                game.AbilityIndex.Add(adjacentCorrelation);
+                player.AbilityHand.Add(adjacentCorrelation);
+            }
 
             foreach (dynamic g in deck["gates"])
             {

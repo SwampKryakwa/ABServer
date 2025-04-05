@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
             User = user;
             this.target = target;
             this.moveTarget = moveTarget;
-            user.UsedAbilityThisTurn = true;
+            
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }

@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
         public SpiritCanyonEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            user.UsedAbilityThisTurn = true;
+            
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }

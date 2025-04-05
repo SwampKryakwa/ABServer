@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace AB_Server.Gates
 {
     internal class LevelDown : GateCard

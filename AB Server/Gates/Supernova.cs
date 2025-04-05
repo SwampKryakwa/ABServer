@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class Supernova : GateCard
     {

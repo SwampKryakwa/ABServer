@@ -1,7 +1,3 @@
-using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
-
 namespace AB_Server.Gates
 {
     internal class Reloaded : GateCard

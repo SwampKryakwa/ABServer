@@ -1,6 +1,4 @@
-﻿using AB_Server.Abilities;
-
-namespace AB_Server
+﻿namespace AB_Server
 {
     internal class Room
     {

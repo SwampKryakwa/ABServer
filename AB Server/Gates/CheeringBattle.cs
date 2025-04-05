@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class CheeringBattle : GateCard
     {

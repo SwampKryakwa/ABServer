@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Abilities.Correlations
+﻿namespace AB_Server.Abilities.Correlations
 {
     internal class AdjacentCorrelation : AbilityCard
     {

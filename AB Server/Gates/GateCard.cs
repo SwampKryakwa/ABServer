@@ -1,7 +1,5 @@
 ﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
-using System.ComponentModel.Design;
-using System.Reflection.Metadata.Ecma335;
 
 namespace AB_Server.Gates
 {

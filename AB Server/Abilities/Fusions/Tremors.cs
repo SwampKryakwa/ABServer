@@ -29,7 +29,7 @@ namespace AB_Server.Abilities.Fusions
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate));
+            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && User.Position != targetGate);
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGETS", TypeId, (int)Kind, validTargets)
@@ -45,7 +45,7 @@ namespace AB_Server.Abilities.Fusions
             var selectedBakugan = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
             selectedTargets.Add(selectedBakugan);
 
-            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && !selectedTargets.Contains(b));
+            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && User.Position != targetGate && !selectedTargets.Contains(b));
 
             if (validTargets.Any())
             {

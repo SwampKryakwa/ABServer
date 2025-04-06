@@ -25,7 +25,7 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
             ));
 
-            game.AwaitingAnswers[Owner.Id] = Setup;
+            game.OnAnswer[Owner.Id] = Setup;
         }
 
         Bakugan target;
@@ -46,7 +46,7 @@
                 target.Boost(new Boost((short)(newPower - target.Power)), this);
             }
 
-            game.ContinueGame();
+            game.NextStep();
         }
 
         public override bool IsOpenable() =>

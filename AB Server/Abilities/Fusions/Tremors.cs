@@ -22,7 +22,7 @@ namespace AB_Server.Abilities.Fusions
                 EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = PickTargets;
+            Game.OnAnswer[Owner.Id] = PickTargets;
         }
 
         public void PickTargets()
@@ -35,7 +35,7 @@ namespace AB_Server.Abilities.Fusions
                 EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGETS", TypeId, (int)Kind, validTargets)
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = HandleTargetSelection;
+            Game.OnAnswer[Owner.Id] = HandleTargetSelection;
         }
 
         private List<Bakugan> selectedTargets = new();
@@ -53,7 +53,7 @@ namespace AB_Server.Abilities.Fusions
                     EventBuilder.BoolSelectionEvent("INFO_SELECT_ANOTHER_BAKUGAN")
                 ));
 
-                Game.AwaitingAnswers[Owner.Id] = HandleAnotherTargetSelection;
+                Game.OnAnswer[Owner.Id] = HandleAnotherTargetSelection;
             }
             else
             {
@@ -71,7 +71,7 @@ namespace AB_Server.Abilities.Fusions
                     EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGETS", TypeId, (int)Kind, validTargets)
                 ));
 
-                Game.AwaitingAnswers[Owner.Id] = HandleTargetSelection;
+                Game.OnAnswer[Owner.Id] = HandleTargetSelection;
             }
             else
             {

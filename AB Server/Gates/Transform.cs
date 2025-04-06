@@ -25,7 +25,7 @@ namespace AB_Server.Gates
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner))
             ));
 
-            game.AwaitingAnswers[Owner.Id] = Setup;
+            game.OnAnswer[Owner.Id] = Setup;
         }
 
         Bakugan target;

@@ -68,7 +68,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -79,7 +79,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_ATTACKTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, User.Position)))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         private Bakugan target;

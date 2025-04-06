@@ -21,7 +21,7 @@ namespace AB_Server.Abilities.Correlations
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -34,7 +34,7 @@ namespace AB_Server.Abilities.Correlations
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
+            Game.OnAnswer[Owner.Id] = Setup3;
         }
 
         private Bakugan target;

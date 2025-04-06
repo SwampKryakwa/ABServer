@@ -24,7 +24,7 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
-            game.AwaitingAnswers[Owner.Id] = Setup1;
+            game.OnAnswer[Owner.Id] = Setup1;
         }
 
         Bakugan target1;
@@ -38,7 +38,7 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
             ));
 
-            game.AwaitingAnswers[Owner.Id] = Setup2;
+            game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()

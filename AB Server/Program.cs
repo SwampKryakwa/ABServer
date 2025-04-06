@@ -213,7 +213,7 @@ namespace AB_Server
 
                                         bool hasStarted = game.Started;
                                         game.IncomingSelection[player] = postedJson;
-                                        game.AwaitingAnswers[player]?.Invoke();
+                                        game.OnAnswer[player]?.Invoke();
 
                                         break;
 

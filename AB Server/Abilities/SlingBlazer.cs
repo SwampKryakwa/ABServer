@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_MOVETARGET", TypeId, (int)Kind, validTargets)
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
+            Game.OnAnswer[Owner.Id] = Setup3;
         }
 
         public void Setup3()
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldGateSelection("INFO_MOVETARGET", TypeId, (int)Kind, validGates)
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public new void Activate()

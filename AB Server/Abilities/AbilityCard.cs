@@ -76,7 +76,7 @@
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public void Activate()

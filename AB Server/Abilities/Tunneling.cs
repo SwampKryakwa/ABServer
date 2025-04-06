@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -74,7 +74,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldGateSelection("INFO_ABILITY_DESTINATIONTARGET", TypeId, (int)Kind, Game.GateIndex.Where(x => x.Position.X == (User.Position as GateCard).Position.X && x != User.Position && !x.IsTouching(User.Position as GateCard)))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public new void Activate()

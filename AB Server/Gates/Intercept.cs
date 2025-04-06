@@ -27,7 +27,6 @@ namespace AB_Server.Gates
                 if (!ActiveBattle)
                 {
                     game.BattlesToStart.Add(this);
-                    Open();
                 }
             }
             else
@@ -36,6 +35,14 @@ namespace AB_Server.Gates
             }
 
             return isBattle;
+        }
+
+        public override void StartBattle()
+        {
+            if (!IsOpen && !Negated)
+                Open();
+            else
+                base.StartBattle();
         }
 
         private void OnTurnAboutToEnd()

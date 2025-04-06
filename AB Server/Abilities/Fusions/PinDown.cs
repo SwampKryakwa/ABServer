@@ -22,7 +22,7 @@ namespace AB_Server.Abilities.Fusions
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = PickTarget;
+            Game.OnAnswer[Owner.Id] = PickTarget;
         }
 
         public void PickTarget()
@@ -33,7 +33,7 @@ namespace AB_Server.Abilities.Fusions
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField()))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         Bakugan target;

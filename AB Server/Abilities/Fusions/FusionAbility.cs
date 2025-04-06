@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(BaseAbilityType.IsInstanceOfType))
                 ));
-            Game.AwaitingAnswers[Owner.Id] = PickUser;
+            Game.OnAnswer[Owner.Id] = PickUser;
         }
 
         public virtual void PickUser()
@@ -37,7 +37,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public new void Activate()

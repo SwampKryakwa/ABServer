@@ -67,7 +67,7 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
-            game.AwaitingAnswers[Owner.Id] = Setup;
+            game.OnAnswer[Owner.Id] = Setup;
         }
 
         Bakugan target;
@@ -110,7 +110,7 @@
                         b.ToHand(EnterOrder);
                     }
                 }
-                else game.ContinueGame();
+                else game.NextStep();
             }
             resolved = true;
         }

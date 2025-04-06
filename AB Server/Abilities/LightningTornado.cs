@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -37,7 +37,7 @@ namespace AB_Server.Abilities
             {
                 Activate();
             }
-            Game.AwaitingAnswers[Owner.Id] = HandleOpponentBakuganSelection;
+            Game.OnAnswer[Owner.Id] = HandleOpponentBakuganSelection;
         }
 
         public void HandleOpponentBakuganSelection()
@@ -50,7 +50,7 @@ namespace AB_Server.Abilities
                     EventBuilder.FieldBakuganSelection("INFO_ABILITY_DECREASETARGET", TypeId, (int)Kind, validBakugans)
                 ));
 
-                Game.AwaitingAnswers[Owner.Id] = Setup3;
+                Game.OnAnswer[Owner.Id] = Setup3;
             }
             else
             {

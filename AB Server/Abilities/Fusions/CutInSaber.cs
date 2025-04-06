@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
                 EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = PickTarget;
+            Game.OnAnswer[Owner.Id] = PickTarget;
         }
 
         public void PickTarget()
@@ -33,7 +33,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldGateSelection("INFO_SELECT_GATE", TypeId, (int)Kind, Game.GateIndex.Where(g => g.Bakugans.Count >= 2 && g.Freezing.Count == 0))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         GateCard targetGate;

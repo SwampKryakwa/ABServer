@@ -43,7 +43,7 @@ namespace AB_Server.Gates
         public (byte X, byte Y) Position { get; set; } = (255, 255);
         public bool AllowAnyPlayers { get; set; } = false;
         public bool ActiveBattle { get; set; } = false;
-        public bool IsFrozen = false;
+        public bool IsFrozen { get => Freezing.Count != 0; }
         public List<object> Freezing = new();
         public List<object> OpenBlocking = new();
         public List<object> MovingInEffectBlocking = new();
@@ -58,19 +58,15 @@ namespace AB_Server.Gates
 
         public void Freeze(object frozer)
         {
-            IsFrozen = true;
             Freezing.Add(frozer);
-            ActiveBattle = false;
 
-            for (int i = 0; i < game.Field.GetLength(0); i++)
-                for (int j = 0; j < game.Field.GetLength(1); j++)
-                    if (game.Field[i, j] is GateCard battleGate && battleGate.ActiveBattle) return;
+            ActiveBattle = false;
 
             game.isBattleGoing = game.GateIndex.Any(x => x.ActiveBattle);
 
-            Console.WriteLine(this.GetType().ToString() + " frozen");
+            Console.WriteLine(GetType().ToString() + " frozen");
 
-            game.EndTurn();
+            Console.WriteLine("Battles going: " + game.isBattleGoing.ToString());
         }
 
         public void TryUnfreeze(object frozer)
@@ -78,7 +74,6 @@ namespace AB_Server.Gates
             Freezing.Remove(frozer);
             if (Freezing.Count == 0)
             {
-                IsFrozen = false;
                 game.isBattleGoing |= CheckBattles();
                 Console.WriteLine(GetType().ToString() + " unfrozen");
             }
@@ -189,7 +184,7 @@ namespace AB_Server.Gates
                     }
                 }
             }
-            else game.ContinueGame();
+            else game.NextStep();
         }
 
         public virtual void Set(byte posX, byte posY)
@@ -244,7 +239,7 @@ namespace AB_Server.Gates
             return isBattle;
         }
 
-        public void StartBattle()
+        public virtual void StartBattle()
         {
             ActiveBattle = true;
         }

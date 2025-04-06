@@ -78,12 +78,7 @@ namespace AB_Server
         public IBakuganContainer Position;
         public bool InBattle
         {
-            get
-            {
-                if (Position is GateCard gatePosition)
-                    return gatePosition.ActiveBattle;
-                return false;
-            }
+            get => Position is GateCard gatePosition && gatePosition.ActiveBattle;
         }
         public bool Defeated = false;
         public bool InHands = true;

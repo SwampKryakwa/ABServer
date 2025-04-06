@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
                 EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -88,7 +88,7 @@ namespace AB_Server.Abilities
                 } }
             });
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public new void Activate()

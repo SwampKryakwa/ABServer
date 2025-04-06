@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup2;
+            Game.OnAnswer[Owner.Id] = Setup2;
         }
 
         public void Setup2()
@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Setup3;
+            Game.OnAnswer[Owner.Id] = Setup3;
         }
 
         private Bakugan target;
@@ -46,7 +46,7 @@ namespace AB_Server.Abilities
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                     EventBuilder.OptionSelectionEvent("INFO_PICKER_FIREWALL", 2)
                 ));
-                Game.AwaitingAnswers[Owner.Id] = HandleOptionSelection;
+                Game.OnAnswer[Owner.Id] = HandleOptionSelection;
             }
             else
             {

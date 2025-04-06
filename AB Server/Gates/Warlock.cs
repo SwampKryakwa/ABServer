@@ -32,7 +32,7 @@ namespace AB_Server.Gates
                 } }
             });
 
-            game.AwaitingAnswers[Owner.Id] = Setup;
+            game.OnAnswer[Owner.Id] = Setup;
         }
 
         IActive target;

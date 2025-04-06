@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_BRUTE_ULTIMATUM_USER", TypeId, (int)Kind, validUsers)
             ));
-            Game.AwaitingAnswers[Owner.Id] = PickOpponentBakugan;
+            Game.OnAnswer[Owner.Id] = PickOpponentBakugan;
         }
 
         public void PickOpponentBakugan()
@@ -33,7 +33,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[user.Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.HandBakuganSelection("INFO_BRUTE_ULTIMATUM_TARGET", TypeId, (int)Kind, validTargets)
             ));
-            Game.AwaitingAnswers[user.Owner.Id] = Activate;
+            Game.OnAnswer[user.Owner.Id] = Activate;
         }
 
         public new void Activate()

@@ -33,7 +33,7 @@
 
             game.BakuganReturned += OnBakuganReturned;
 
-            game.ContinueGame();
+            game.NextStep();
         }
 
         private void OnBakuganReturned(Bakugan target, byte owner)

@@ -25,7 +25,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_MARIANETTE_USER", TypeId, (int)Kind, validUsers)
             ));
-            Game.AwaitingAnswers[Owner.Id] = PickTarget;
+            Game.OnAnswer[Owner.Id] = PickTarget;
         }
 
         // Этап 2. Выбор бакугана оппонента, не находящегося на той же карте ворот, что и выбранный Мантис
@@ -40,7 +40,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_MARIANETTE_TARGET", TypeId, (int)Kind, validTargets)
             ));
-            Game.AwaitingAnswers[Owner.Id] = PickGate;
+            Game.OnAnswer[Owner.Id] = PickGate;
         }
 
         // Этап 3. Выбор карты ворот, отличной от той, на которой находится выбранный бакуган
@@ -52,7 +52,7 @@ namespace AB_Server.Abilities
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldGateSelection("INFO_MARIANETTE_GATE", TypeId, (int)Kind, validGates)
             ));
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         // Завершает выбор, начиная цепочку эффектов

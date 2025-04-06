@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = PickTarget;
+            Game.OnAnswer[Owner.Id] = PickTarget;
         }
 
         public void PickTarget()
@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
                 EventBuilder.ActiveSelection("INFO_ABILITY_TARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
             ));
 
-            Game.AwaitingAnswers[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         Bakugan target;

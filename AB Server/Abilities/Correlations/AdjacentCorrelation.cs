@@ -4,12 +4,9 @@ namespace AB_Server.Abilities.Correlations
 {
     internal class AdjacentCorrelation : AbilityCard
     {
-        public AdjacentCorrelation(int cID, Player owner)
+
+        public AdjacentCorrelation(int cID, Player owner) : base (cID, owner, 0)
         {
-            TypeId = 0;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
         }
 
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
@@ -110,7 +107,7 @@ namespace AB_Server.Abilities.Correlations
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new AdjacentCorrelationEffect(User, otherBakugans, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

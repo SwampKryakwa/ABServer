@@ -91,7 +91,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

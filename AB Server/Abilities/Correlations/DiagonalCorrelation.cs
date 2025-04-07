@@ -4,12 +4,8 @@ namespace AB_Server.Abilities.Correlations
 {
     internal class DiagonalCorrelation : AbilityCard
     {
-        public DiagonalCorrelation(int cID, Player owner)
+        public DiagonalCorrelation(int cID, Player owner) : base(cID, owner, 1)
         {
-            TypeId = 1;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
         }
 
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
@@ -74,7 +70,7 @@ namespace AB_Server.Abilities.Correlations
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new DiagonalCorrelationEffect(User, target, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

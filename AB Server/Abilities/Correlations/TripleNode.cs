@@ -4,12 +4,8 @@ namespace AB_Server.Abilities.Correlations
 {
     internal class TripleNode : AbilityCard
     {
-        public TripleNode(int cID, Player owner)
+        public TripleNode(int cID, Player owner) : base(cID, owner, 2)
         {
-            TypeId = 2;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
         }
 
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
@@ -110,7 +106,7 @@ namespace AB_Server.Abilities.Correlations
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new TripleNodeEffect(User, otherBakugans, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

@@ -68,7 +68,7 @@ namespace AB_Server.Abilities.Fusions
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new PinDownEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

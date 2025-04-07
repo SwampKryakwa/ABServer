@@ -83,7 +83,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new SlingBlazerEffect(User, target, moveTarget, TypeId, IsCopy).Activate();
 
         public new void DoNotAffect(Bakugan bakugan)

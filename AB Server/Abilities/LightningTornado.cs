@@ -4,12 +4,9 @@ namespace AB_Server.Abilities
 {
     internal class LightningTornado : AbilityCard
     {
-        public LightningTornado(int cID, Player owner, int typeId)
+        public LightningTornado(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
+
         }
 
         public override void Setup(bool asCounter)
@@ -94,7 +91,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

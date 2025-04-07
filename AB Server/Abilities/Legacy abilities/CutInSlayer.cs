@@ -5,22 +5,12 @@ namespace AB_Server.Abilities
 {
     internal class CutInSlayer : AbilityCard
     {
-        public CutInSlayer(int cID, Player owner, int typeId)
+        public CutInSlayer(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Setup(bool asCounter)
-        {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsEnemyOf(User) && target.OnField()}
+            ];
         }
 
         public void Setup2()
@@ -109,7 +99,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new CutInSlayerEffect(User, target, otherBakugans, TypeId, IsCopy).Activate();
 
         public override void DoNotAffect(Bakugan bakugan)

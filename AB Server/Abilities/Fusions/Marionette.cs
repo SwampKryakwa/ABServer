@@ -87,7 +87,7 @@ namespace AB_Server.Abilities
             Dispose();
         }
 
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
             new MarionetteEffect(user, targetBakugan, targetGate, TypeId).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

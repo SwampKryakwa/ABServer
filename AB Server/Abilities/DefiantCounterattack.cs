@@ -3,6 +3,25 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
+    internal class DefiantCounterattack : AbilityCard
+    {
+        public DefiantCounterattack(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        {
+            TargetSelectors =
+            [
+                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.BattleOver}
+            ];
+        }
+
+        public override void TriggerEffect() =>
+                new DefiantCounterattackEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InGrave();
+
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.GateIndex.Any(gate => gate.BattleOver);
+    }
     internal class DefiantCounterattackEffect
     {
         public int TypeId { get; }
@@ -17,7 +36,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.battleGate = battleGate;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -42,92 +61,6 @@ namespace AB_Server.Abilities
 
             User.FromGrave(battleGate);
         }
-    }
-
-    internal class DefiantCounterattack : AbilityCard
-    {
-        public DefiantCounterattack(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        GateCard battleGate;
-
-        public override void Setup(bool asCounter)
-		{
-			this.asCounter = asCounter;
-			Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Game.BakuganIndex.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(new JObject
-            {
-                { "Type", "StartSelection" },
-                { "Selections", new JArray {
-                    new JObject {
-                        { "SelectionType", "GF" },
-                        { "Message", "INFO_ABILITY_GATETARGET" },
-                        { "Ability", TypeId },
-                        { "SelectionGates", new JArray(Game.GateIndex.Where(x => x.BattleOver).Select(x => new JObject {
-                            { "Type", x.TypeId },
-                            { "PosX", x.Position.X },
-                            { "PosY", x.Position.Y },
-                            { "CID", x.CardId }
-                        })) }
-                    }
-                } }
-            });
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        public new void Activate()
-        {
-            battleGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new DefiantCounterattackEffect(User, battleGate, TypeId, IsCopy).Activate();
-            Dispose();
-        }
-
-        public override void DoubleEffect() =>
-                new DefiantCounterattackEffect(User, battleGate, TypeId, IsCopy).Activate();
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InGrave();
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(gate => gate.BattleOver);
     }
 }
 

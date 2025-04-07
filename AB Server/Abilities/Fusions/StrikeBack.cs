@@ -67,7 +67,7 @@ namespace AB_Server.Abilities
 
             Dispose();
         }
-        public override void DoubleEffect() =>
+        public override void TriggerEffect() =>
                 new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

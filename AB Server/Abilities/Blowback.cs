@@ -3,6 +3,29 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
+    internal class Blowback : AbilityCard
+    {
+        public Blowback(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        {
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_RETRACTTARGET", TargetValidator = target => IsTargetValid(target, User)}
+            ];
+        }
+
+        public override void TriggerEffect() =>
+            new BlowbackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
+
+        public static bool IsTargetValid(Bakugan target, Bakugan user) =>
+            target.OnField() && target.Owner == user.Owner;
+
+        public static new bool HasValidTargets(Bakugan user) =>
+            user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+    }
+
     internal class BlowbackEffect
     {
         public int TypeId { get; }
@@ -17,7 +40,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -42,90 +65,5 @@ namespace AB_Server.Abilities
             if (target.Position is GateCard positionGate)
                 target.ToHand(positionGate.EnterOrder);
         }
-    }
-
-    internal class Blowback : AbilityCard
-    {
-        public Blowback(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Setup(bool asCounter)
-        {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-                ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_RETRACTTARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(target => IsTargetValid(target, User)))
-                ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        private Bakugan target;
-
-        public new void Activate()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new BlowbackEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
-        public override void DoubleEffect() =>
-            new BlowbackEffect(User, target, TypeId, IsCopy).Activate();
-
-        public new void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
-
-        public static bool IsTargetValid(Bakugan target, Bakugan user) =>
-            target.OnField() && target.Owner == user.Owner;
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
     }
 }

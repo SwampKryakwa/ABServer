@@ -35,9 +35,8 @@ namespace AB_Server
 
         public List<Bakugan> BakuganOwned = new();
 
-        public bool HadSetGate;
-        public bool HadThrownBakugan;
-        public bool HadSkippedTurn { get; set; }
+        public bool HadSetGate = false;
+        public bool HadThrownBakugan = false;
         public bool HadUsedCounter = false;
 
         public short hp = 3;
@@ -175,7 +174,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan || !HadSkippedTurn);
+            return !game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan);
         }
 
         public bool HasBattlingBakugan() =>

@@ -413,7 +413,7 @@ namespace AB_Server
 
                     break;
                 case "end":
-                    if (Players[TurnPlayer].HadSkippedTurn && Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
+                    if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
                     {
                         NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;
@@ -555,9 +555,6 @@ namespace AB_Server
 
         public void StartTurn()
         {
-            if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
-                Players[TurnPlayer].HadSkippedTurn = true;
-
             if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
             ActivePlayer = TurnPlayer;
 

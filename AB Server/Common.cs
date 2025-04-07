@@ -1,4 +1,5 @@
 ﻿using AB_Server.Abilities;
+using AB_Server.Gates;
 
 namespace AB_Server
 {
@@ -32,5 +33,60 @@ namespace AB_Server
         {
             Bakugans.Add(bakugan);
         }
+    }
+
+    class Selector
+    {
+        public string ClientType;
+        public string Message;
+        public int ForPlayer;
+    }
+
+    class GateSelector : Selector
+    {
+        public Func<GateCard, bool> TargetValidator;
+        public GateCard SelectedGate;
+    }
+
+    class BakuganSelector : Selector
+    {
+        public Func<Bakugan, bool> TargetValidator;
+        public Bakugan SelectedBakugan;
+    }
+
+    class AbilitySelector : Selector
+    {
+        public Func<AbilityCard, bool> TargetValidator;
+        public AbilityCard SelectedAbility;
+    }
+
+    class ActiveSelector : Selector
+    {
+        public Func<IActive, bool> TragetValidator;
+        public IActive SelectedActive;
+    }
+
+    class MultiGateSelector : Selector
+    {
+        public Func<GateCard, bool> TargetValidator;
+        public GateCard[] SelectedGates;
+    }
+
+    class MultiBakuganSelector : Selector
+    {
+        public Func<Bakugan, bool> TargetValidator;
+        public Bakugan[] SelectedBakugans;
+    }
+
+    class MultiAbilitySelector : Selector
+    {
+        public Func<AbilityCard, bool> TargetValidator;
+        public AbilityCard[] SelectedAbilities;
+    }
+
+    class MultiActiveSelector : Selector
+    {
+        public Func<IActive, bool> TragetValidator;
+        public IActive[] SelectedActives;
     }
 }

@@ -2,6 +2,19 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
+    internal class BloomOfAgony : AbilityCard
+    {
+        public BloomOfAgony(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        {
+        }
+
+        public override void TriggerEffect() =>
+            new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.Attribute == Attribute.Darkon;
+    }
+
     internal class BloomOfAgonyEffect
     {
         public int TypeId { get; }
@@ -14,7 +27,7 @@ namespace AB_Server.Abilities
         public BloomOfAgonyEffect(Bakugan user, int typeID, bool IsCopy)
         {
             this.User = user;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -44,30 +57,5 @@ namespace AB_Server.Abilities
                 }
             }
         }
-    }
-
-    internal class BloomOfAgony : AbilityCard
-    {
-        public BloomOfAgony(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
-        public override void DoubleEffect() =>
-            new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.Attribute == Attribute.Darkon;
     }
 }

@@ -81,13 +81,14 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
-            Game.OnAnswer[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
         void RecieveUser()
         {
             currentTarget = 0;
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            SendTargetForSelection();
         }
 
         void SendTargetForSelection()

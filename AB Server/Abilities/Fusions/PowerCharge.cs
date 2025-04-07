@@ -5,12 +5,8 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class PowerCharge : FusionAbility
     {
-        public PowerCharge(int cID, Player owner)
+        public PowerCharge(int cID, Player owner) : base(cID, owner, 4)
         {
-            TypeId = 4; // Assign a unique TypeId for this ability
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(SaurusGlow);
         }
         public override void Resolve()

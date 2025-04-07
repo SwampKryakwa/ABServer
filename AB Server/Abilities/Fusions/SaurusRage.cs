@@ -4,12 +4,8 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class SaurusRage : FusionAbility
     {
-        public SaurusRage(int cID, Player owner)
+        public SaurusRage(int cID, Player owner) : base(cID, owner, 4)
         {
-            TypeId = 4; // Assign a unique TypeId for this ability
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(SaurusGlow);
         }
 

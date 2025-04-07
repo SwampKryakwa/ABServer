@@ -4,21 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class SaurusGlow : AbilityCard
     {
-        public SaurusGlow(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
+        public SaurusGlow(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        { }
 
         public override void TriggerEffect() =>
             new SaurusGlowEffect(User, TypeId, IsCopy).Activate();

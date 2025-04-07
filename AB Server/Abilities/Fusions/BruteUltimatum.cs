@@ -5,12 +5,8 @@ namespace AB_Server.Abilities
 {
     internal class BruteUltimatum : FusionAbility
     {
-        public BruteUltimatum(int cID, Player owner)
+        public BruteUltimatum(int cID, Player owner) : base(cID, owner, 7)
         {
-            TypeId = 7;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(MercilessTriumph);
         }
 

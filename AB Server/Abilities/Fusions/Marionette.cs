@@ -5,12 +5,8 @@ namespace AB_Server.Abilities
 {
     internal class Marionette : FusionAbility
     {
-        public Marionette(int cID, Player owner)
+        public Marionette(int cID, Player owner) : base(cID, owner, 6)
         {
-            TypeId = 6;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(SlingBlazer);
         }
 

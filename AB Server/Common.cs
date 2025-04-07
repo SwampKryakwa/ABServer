@@ -42,6 +42,12 @@ namespace AB_Server
         public int ForPlayer;
     }
 
+    class OptionSelector : Selector
+    {
+        public int OptionCount;
+        public int SelectedOption;
+    }
+
     class GateSelector : Selector
     {
         public Func<GateCard, bool> TargetValidator;

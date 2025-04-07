@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class FusionAbility : AbilityCard
+    internal class FusionAbility(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
         public static Func<int, Player, FusionAbility>[] FusionCtrs =
         [

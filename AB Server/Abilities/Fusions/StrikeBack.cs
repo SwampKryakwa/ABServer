@@ -5,12 +5,8 @@ namespace AB_Server.Abilities
 {
     internal class StrikeBack : FusionAbility
     {
-        public StrikeBack(int cID, Player owner)
+        public StrikeBack(int cID, Player owner) : base(cID, owner, 2)
         {
-            TypeId = 2;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(DefiantCounterattack);
         }
 

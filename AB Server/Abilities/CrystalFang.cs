@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
         {
             this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.OnAnswer[Owner.Id] = Setup2;
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(target => IsTargetValid(target, User)))
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(target => target.IsEnemyOf(User)))
                 ));
 
             Game.OnAnswer[Owner.Id] = Activate;
@@ -77,13 +77,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart && HasValidTargets(user);
-
-        public static bool IsTargetValid(Bakugan target, Bakugan user) =>
-            target.Owner != user.Owner;
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+            (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart;
     }
 
     internal class CrystalFangEffect

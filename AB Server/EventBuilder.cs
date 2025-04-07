@@ -68,7 +68,7 @@ namespace AB_Server
         {
             return new()
             {
-                { "SelectionType", "BH" },
+                { "SelectionType", "B" },
                 { "Message", prompt },
                 { "Card", ability },
                 { "CardKind", abilityKind },

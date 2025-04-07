@@ -100,9 +100,9 @@ namespace AB_Server
                 game.AbilityIndex.Add(tripleNode);
                 player.AbilityHand.Add(tripleNode);
             }
-            else if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Darkon }) ||
-                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Aqua, Attribute.Subterra }) ||
-                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Lumina }))
+            else if ((combinedAttributes.Contains(Attribute.Nova) && combinedAttributes.Contains(Attribute.Darkon)) ||
+                   (combinedAttributes.Contains(Attribute.Subterra) && combinedAttributes.Contains(Attribute.Aqua)) ||
+                   (combinedAttributes.Contains(Attribute.Lumina) && combinedAttributes.Contains(Attribute.Zephyros)))
             {
                 DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, player);
                 game.AbilityIndex.Add(diagonalCorrelation);

@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
             CardId = cID;
             Owner = owner;
             Game = owner.game;
-            BaseAbilityType = typeof(CutInSlayer);
+            BaseAbilityType = typeof(CrystalFang);
         }
 
         public override void PickUser()
@@ -76,7 +76,7 @@ namespace AB_Server.Abilities
             new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.IsPartner && user.InHands;
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.IsPartner && user.InHand();
     }
 
     internal class CutInSaberEffect

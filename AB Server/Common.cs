@@ -40,6 +40,7 @@ namespace AB_Server
         public string ClientType;
         public string Message;
         public int ForPlayer;
+        public Func<bool> Condition = () => true;
     }
 
     class GateSelector : Selector

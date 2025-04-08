@@ -4,12 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class DoubleDimension : FusionAbility
     {
-        public DoubleDimension(int cID, Player owner)
+        public DoubleDimension(int cID, Player owner) : base(cID, owner, 1)
         {
-            TypeId = 1;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(Dimension4);
         }
 

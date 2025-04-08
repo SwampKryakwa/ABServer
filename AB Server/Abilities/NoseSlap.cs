@@ -5,92 +5,22 @@ namespace AB_Server.Abilities
 {
     internal class NoseSlap : AbilityCard
     {
-        public NoseSlap(int cID, Player owner, int typeId)
+        public NoseSlap(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Setup(bool asCounter)
-        {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.Owner != Owner && IsVerticallyAdjacent(x.Position as GateCard, User.Position as GateCard));
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_ATTACKTARGET", TypeId, (int)Kind, validBakugans)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        private Bakugan target;
-
-        public new void Activate()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new NoseSlapEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && (x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard)}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new NoseSlapEffect(User, target, TypeId, IsCopy).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
+            new NoseSlapEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.Type == BakuganType.Elephant && user.OnField() && Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.OnField() && user.Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
-
-        private bool IsVerticallyAdjacent(GateCard card1, GateCard card2)
-        {
-            if (card1 == null || card2 == null)
-                return false;
-
-            return card1.IsAdjacentVertically(card2);
-        }
+            user.OnField() && user.Game.GateIndex.Any(x => x.OnField && x.IsAdjacentVertically(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
     }
 
     internal class NoseSlapEffect
@@ -107,7 +37,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-            
+
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }

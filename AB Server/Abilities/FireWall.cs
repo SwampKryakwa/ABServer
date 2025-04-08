@@ -4,13 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class FireWall : AbilityCard
     {
-        public FireWall(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
+        public FireWall(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        { }
 
         public override void Setup(bool asCounter)
         {
@@ -49,9 +44,7 @@ namespace AB_Server.Abilities
                 Game.OnAnswer[Owner.Id] = HandleOptionSelection;
             }
             else
-            {
-                Activate(0); // Default to reducing power by 50G if not Nova
-            }
+                Activate(0);
         }
 
         public void HandleOptionSelection()
@@ -83,24 +76,8 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
-
-            Dispose();
-        }
-
         public override void TriggerEffect() =>
             new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);
@@ -124,7 +101,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-            
+
             this.IsCopy = IsCopy;
             this.selectedOption = selectedOption;
             TypeId = typeID;
@@ -157,11 +134,11 @@ namespace AB_Server.Abilities
             else if (selectedOption == 2 && User.Attribute == Attribute.Nova)
             {
                 // Set the power of the target Bakugan to its initial value
-                foreach (var boost in new List<Boost>(target.Boosts))
+                foreach (var boost in target.Boosts)
                 {
                     boost.Active = false;
-                    target.Boosts.Remove(boost);
                 }
+                target.Boosts.Clear();
             }
         }
     }

@@ -81,13 +81,14 @@ namespace AB_Server.Abilities
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
-            Game.OnAnswer[Owner.Id] = Activate;
+            Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
         void RecieveUser()
         {
             currentTarget = 0;
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            SendTargetForSelection();
         }
 
         void SendTargetForSelection()
@@ -131,6 +132,12 @@ namespace AB_Server.Abilities
                         EventBuilder.ActiveSelection(currentSelector.Message, Game.ActiveZone.Where(activeSelector.TragetValidator))
                         ));
                 }
+                else if (currentSelector is OptionSelector optionSelector)
+                {
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                        EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
+                        ));
+                }
                 else
                 {
                     throw new NotImplementedException();
@@ -153,6 +160,8 @@ namespace AB_Server.Abilities
             }
             else if (currentSelector is ActiveSelector activeSelector)
                 activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.IncomingSelection[currentSelector.ForPlayer]["array"][0]["active"]);
+            else if (currentSelector is OptionSelector optionSelector)
+                optionSelector.SelectedOption = (int)Game.IncomingSelection[Owner.Id]["array"][0]["option"];
             else
             {
                 throw new NotImplementedException();

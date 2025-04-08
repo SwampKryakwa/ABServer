@@ -5,12 +5,8 @@ namespace AB_Server.Abilities
 {
     internal class CutInSaber : FusionAbility
     {
-        public CutInSaber(int cID, Player owner)
+        public CutInSaber(int cID, Player owner) : base(cID, owner, 3)
         {
-            TypeId = 3;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(CrystalFang);
         }
 

@@ -4,12 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class Unleash : FusionAbility
     {
-        public Unleash(int cID, Player owner)
+        public Unleash(int cID, Player owner) : base(cID, owner, 0)
         {
-            TypeId = 0;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(AbilityCard);
         }
 

@@ -5,12 +5,8 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class PinDown : FusionAbility
     {
-        public PinDown(int cID, Player owner)
+        public PinDown(int cID, Player owner) : base(cID, owner, 8)
         {
-            TypeId = 8; // Уникальный идентификатор для Pin Down
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(LeapSting);
         }
 

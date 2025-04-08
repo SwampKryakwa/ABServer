@@ -344,6 +344,15 @@ namespace AB_Server
                         AbilityIndex[abilitySelection].EffectId = NextEffectId++;
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
                         Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
+                        for (int i = 0; i < NewEvents.Length; i++)
+                            NewEvents[i].Add(new()
+                            {
+                                ["Type"] = "AbilityRemovedFromHand",
+                                ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
+                                ["CardType"] = AbilityIndex[abilitySelection].TypeId,
+                                ["CID"] = AbilityIndex[abilitySelection].CardId,
+                                ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
+                            });
 
                         AbilityIndex[abilitySelection].Setup(false);
                     }
@@ -535,7 +544,7 @@ namespace AB_Server
             }
             else
             {
-                NextStep = () => 
+                NextStep = () =>
                 {
                     for (int i = 0; i < PlayerCount; i++)
                         NewEvents[i].Add(new()
@@ -543,13 +552,13 @@ namespace AB_Server
                             { "Type", "PhaseChange" },
                             { "Phase", "TurnEnd" }
                         });
-                        NextStep = StartTurn;
-                        SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
+                    NextStep = StartTurn;
+                    SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
                 };
                 TurnEnd?.Invoke();
                 if (!isBattleGoing)
                     NextStep();
-                    
+
             }
         }
 
@@ -593,7 +602,7 @@ namespace AB_Server
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
 
-            
+
         }
 
         public JObject GetPossibleMoves(int player)

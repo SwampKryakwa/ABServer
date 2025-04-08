@@ -4,20 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class SpiritCanyon : AbilityCard
     {
-        public SpiritCanyon(int cID, Player owner, int typeId)
+        public SpiritCanyon(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new SpiritCanyonEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
         }
 
         public override void TriggerEffect() =>

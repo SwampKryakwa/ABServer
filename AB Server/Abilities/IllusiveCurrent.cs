@@ -3,64 +3,10 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
-    internal class IllusiveCurrentEffect
-    {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan selectedBakugan;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public IllusiveCurrentEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.selectedBakugan = selectedBakugan;
-             this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
-                        { "Tretment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
-
-            var position = User.Position;
-            // Return the user to hand
-
-            // Add the selected Bakugan to the GateCard where the user was
-            if (position is GateCard positionGate)
-            {
-                User.ToHand(positionGate.EnterOrder);
-                selectedBakugan.AddFromHand(positionGate);
-            }
-        }
-    }
-
     internal class IllusiveCurrent : AbilityCard
     {
-        public IllusiveCurrent(int cID, Player owner, int typeId)
-        {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
+        public IllusiveCurrent(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        { }
 
         public override void Setup(bool asCounter)
         {
@@ -111,30 +57,63 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new IllusiveCurrentEffect(User, selectedBakugan, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
         public override void TriggerEffect() =>
             new IllusiveCurrentEffect(User, selectedBakugan, TypeId, IsCopy).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (selectedBakugan == bakugan)
-                selectedBakugan = Bakugan.GetDummy();
-        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.OnField();
+    }
+
+    internal class IllusiveCurrentEffect
+    {
+        public int TypeId { get; }
+        public Bakugan User;
+        Bakugan selectedBakugan;
+        Game game { get => User.Game; }
+
+        public Player Owner { get; set; }
+        bool IsCopy;
+
+        public IllusiveCurrentEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
+        {
+            User = user;
+            this.selectedBakugan = selectedBakugan;
+            this.IsCopy = IsCopy;
+            TypeId = typeID;
+        }
+
+        public void Activate()
+        {
+            for (int i = 0; i < game.NewEvents.Length; i++)
+            {
+                game.NewEvents[i].Add(new()
+                {
+                    { "Type", "AbilityActivateEffect" },
+                    { "Kind", 0 },
+                    { "Card", TypeId },
+                    { "UserID", User.BID },
+                    { "User", new JObject {
+                        { "Type", (int)User.Type },
+                        { "Attribute", (int)User.Attribute },
+                        { "Tretment", (int)User.Treatment },
+                        { "Power", User.Power }
+                    }}
+                });
+            }
+
+            var position = User.Position;
+            // Return the user to hand
+
+            // Add the selected Bakugan to the GateCard where the user was
+            if (position is GateCard positionGate)
+            {
+                User.ToHand(positionGate.EnterOrder);
+                selectedBakugan.AddFromHand(positionGate);
+            }
+        }
     }
 }
 

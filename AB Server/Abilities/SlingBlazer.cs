@@ -5,94 +5,17 @@ namespace AB_Server.Abilities
 {
     internal class SlingBlazer : AbilityCard
     {
-        public SlingBlazer(int cID, Player owner, int typeId)
+        public SlingBlazer(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TypeId = typeId;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
-        }
-
-        Bakugan target;
-        GateCard moveTarget;
-
-        public override void Setup(bool asCounter)
-		{
-			this.asCounter = asCounter;
-			Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validTargets = Game.BakuganIndex.Where(x => x.InBattle && x.Owner.SideID != Owner.SideID);
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_MOVETARGET", TypeId, (int)Kind, validTargets)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup3;
-        }
-
-        public void Setup3()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var battleGate = User.Position as GateCard;
-            var validGates = Game.GateIndex.Where(x => x.IsAdjacentHorizontally(battleGate));
-
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldGateSelection("INFO_MOVETARGET", TypeId, (int)Kind, validGates)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        public new void Activate()
-        {
-            moveTarget = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new SlingBlazerEffect(User, target, moveTarget, TypeId, IsCopy).Activate();
-            Dispose();
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x.InBattle && x.Owner.SideID != Owner.SideID},
+                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_MOVETARGET", TargetValidator = x => x.IsAdjacentHorizontally(User.Position as GateCard)}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new SlingBlazerEffect(User, target, moveTarget, TypeId, IsCopy).Activate();
-
-        public new void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
+            new SlingBlazerEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, (TargetSelectors[1] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget)) && Game.GateIndex.Any(x => x.IsAdjacentHorizontally(user.Position as GateCard));

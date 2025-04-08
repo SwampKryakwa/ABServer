@@ -5,12 +5,8 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class Tremors : FusionAbility
     {
-        public Tremors(int cID, Player owner)
+        public Tremors(int cID, Player owner) : base(cID, owner, 5)
         {
-            TypeId = 5;
-            CardId = cID;
-            Owner = owner;
-            Game = owner.game;
             BaseAbilityType = typeof(NoseSlap);
         }
 

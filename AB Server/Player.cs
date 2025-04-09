@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Abilities.Correlations;
 using AB_Server.Gates;
+using System.Security.Cryptography;
 
 namespace AB_Server
 {
@@ -91,33 +92,39 @@ namespace AB_Server
             game.AbilityIndex.Add(fusion);
 
             player.BakuganOwned[0].IsPartner = true;
-            HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.MainAttribute));
-            if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
-                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
-            {
-                TripleNode tripleNode = new(game.AbilityIndex.Count, player);
-                game.AbilityIndex.Add(tripleNode);
-                player.AbilityHand.Add(tripleNode);
-            }
-            else if ((combinedAttributes.Contains(Attribute.Nova) && combinedAttributes.Contains(Attribute.Darkon)) ||
-                   (combinedAttributes.Contains(Attribute.Subterra) && combinedAttributes.Contains(Attribute.Aqua)) ||
-                   (combinedAttributes.Contains(Attribute.Lumina) && combinedAttributes.Contains(Attribute.Zephyros)))
-            {
-                DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, player);
-                game.AbilityIndex.Add(diagonalCorrelation);
-                player.AbilityHand.Add(diagonalCorrelation);
-            }
-            else if (combinedAttributes.Distinct().Count() == 1)
-            {
-                ElementResonance elementResonance = new(game.AbilityIndex.Count, player);
-                game.AbilityIndex.Add(elementResonance);
-                player.AbilityHand.Add(elementResonance);
-            }
+
+            if (deck.ContainsKey("correlation"))
+                AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(game.AbilityIndex.Count, player);
             else
             {
-                AdjacentCorrelation adjacentCorrelation = new(game.AbilityIndex.Count, player);
-                game.AbilityIndex.Add(adjacentCorrelation);
-                player.AbilityHand.Add(adjacentCorrelation);
+                HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.MainAttribute));
+                if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
+                       combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
+                {
+                    TripleNode tripleNode = new(game.AbilityIndex.Count, player);
+                    game.AbilityIndex.Add(tripleNode);
+                    player.AbilityHand.Add(tripleNode);
+                }
+                else if ((combinedAttributes.Contains(Attribute.Nova) && combinedAttributes.Contains(Attribute.Darkon)) ||
+                       (combinedAttributes.Contains(Attribute.Subterra) && combinedAttributes.Contains(Attribute.Aqua)) ||
+                       (combinedAttributes.Contains(Attribute.Lumina) && combinedAttributes.Contains(Attribute.Zephyros)))
+                {
+                    DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, player);
+                    game.AbilityIndex.Add(diagonalCorrelation);
+                    player.AbilityHand.Add(diagonalCorrelation);
+                }
+                else if (combinedAttributes.Distinct().Count() == 1)
+                {
+                    ElementResonance elementResonance = new(game.AbilityIndex.Count, player);
+                    game.AbilityIndex.Add(elementResonance);
+                    player.AbilityHand.Add(elementResonance);
+                }
+                else
+                {
+                    AdjacentCorrelation adjacentCorrelation = new(game.AbilityIndex.Count, player);
+                    game.AbilityIndex.Add(adjacentCorrelation);
+                    player.AbilityHand.Add(adjacentCorrelation);
+                }
             }
 
             foreach (dynamic g in deck["gates"])

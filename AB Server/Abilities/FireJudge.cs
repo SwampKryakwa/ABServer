@@ -5,16 +5,7 @@ namespace AB_Server.Abilities
     internal class FireJudge : AbilityCard
     {
         public FireJudge(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        {
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new FireJudgeEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
+        { }
 
         public override void TriggerEffect() =>
             new FireJudgeEffect(User, TypeId, IsCopy).Activate();

@@ -98,14 +98,6 @@ namespace AB_Server.Abilities.Correlations
             Game.CheckChain(Owner, this, User);
         }
 
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new TripleNodeEffect(User, otherBakugans, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
         public override void TriggerEffect() =>
             new TripleNodeEffect(User, otherBakugans, TypeId, IsCopy).Activate();
 

@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
                 new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Aqua && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Aqua) && user.OnField();
     }
 
     internal class WaterRefrainEffect : IActive
@@ -49,7 +49,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

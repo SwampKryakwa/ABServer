@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
                 new GrandDownEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Attribute == Attribute.Darkon && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(x => x.OnField && x.IsOpen);
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

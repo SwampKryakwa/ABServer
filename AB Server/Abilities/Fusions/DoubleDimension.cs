@@ -4,71 +4,19 @@ namespace AB_Server.Abilities
 {
     internal class DoubleDimension : FusionAbility
     {
-        public DoubleDimension(int cID, Player owner) : base(cID, owner, 1)
+        public DoubleDimension(int cID, Player owner) : base(cID, owner, 1, typeof(Dimension4))
         {
-            BaseAbilityType = typeof(Dimension4);
-        }
-
-        public override void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = PickTarget;
-        }
-
-        public void PickTarget()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.ActiveSelection("INFO_ABILITY_TARGET", Game.ActiveZone.Where(x => x is AbilityCard && User?.OnField() == true))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        Bakugan target;
-        public new void Activate()
-        {
-            target = Game.ActiveZone[(int)Game.IncomingSelection[Owner.Id]["array"][0]["active"]].User;
-
-            FusedTo.Discard();
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new ActiveSelector() { ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x is AbilityCard && User?.OnField() == true}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new DoubleDimensionEffect(User, target, TypeId, IsCopy).Activate();
+            new DoubleDimensionEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.IsPartner && Game.ActiveZone.Any(x => x is AbilityCard);
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard);
     }
 
     internal class DoubleDimensionEffect
@@ -93,21 +41,7 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             target.Boost(new Boost((short)-target.Power), this);
         }

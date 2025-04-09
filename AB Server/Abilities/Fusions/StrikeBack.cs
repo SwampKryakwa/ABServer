@@ -5,66 +5,15 @@ namespace AB_Server.Abilities
 {
     internal class StrikeBack : FusionAbility
     {
-        public StrikeBack(int cID, Player owner) : base(cID, owner, 2)
+        public StrikeBack(int cID, Player owner) : base(cID, owner, 2, typeof(DefiantCounterattack))
         {
-            BaseAbilityType = typeof(DefiantCounterattack);
-        }
-
-        public override void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-                ));
-
-            Game.OnAnswer[Owner.Id] = PickTarget;
-        }
-
-        public void PickTarget()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField() && x.IsEnemyOf(User)))
-                ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        Bakugan target;
-        public new void Activate()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            FusedTo.Discard();
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsEnemyOf(User)}
+            ];
         }
         public override void TriggerEffect() =>
-                new StrikeBackEffect(User, target, TypeId, IsCopy).Activate();
+                new StrikeBackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
@@ -84,7 +33,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.target = target;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }
@@ -92,21 +41,8 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+
 
             if (user.InGrave())
             {

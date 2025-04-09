@@ -72,8 +72,14 @@ namespace AB_Server
         public Player Owner;
 
         public Attribute BaseAttribute;
-        public Attribute Attribute;
+        public Attribute MainAttribute;
+        public List<Attribute> ExtraAttributes = [];
         public Treatment Treatment;
+
+        public bool IsAttribute(Attribute attr)
+        {
+            return MainAttribute == attr || ExtraAttributes.Contains(attr);
+        }
 
         public IBakuganContainer Position;
         public bool InBattle
@@ -81,7 +87,6 @@ namespace AB_Server
             get => Position is GateCard gatePosition && gatePosition.ActiveBattle;
         }
         public bool Defeated = false;
-        public bool InHands = true;
         public bool IsDummy = false;
         public bool JustEndedBattle = false;
 
@@ -96,7 +101,7 @@ namespace AB_Server
             Game = game;
             this.BID = BID;
             BaseAttribute = attribute;
-            Attribute = attribute;
+            MainAttribute = attribute;
             Treatment = treatment;
             Owner = owner;
             Position = owner;
@@ -126,7 +131,7 @@ namespace AB_Server
                 { "Boost", boost.Value },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -153,7 +158,7 @@ namespace AB_Server
                 { "Boost", -boost.Value },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -181,7 +186,7 @@ namespace AB_Server
                 { "Type", "BakuganRemovedFromHand" },
                 { "Owner", Owner.Id },
                 { "BakuganType", (int)Type },
-                { "Attribute", (int)Attribute },
+                { "Attribute", (int)MainAttribute },
                 { "Treatment", (int)Treatment },
                 { "Power", Power },
                 { "IsPartner", IsPartner },
@@ -194,7 +199,7 @@ namespace AB_Server
                 { "Owner", Owner.Id },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -205,7 +210,6 @@ namespace AB_Server
             Game.OnBakuganAdded(this, Owner.Id, destination);
             if (destination.CheckBattles())
                 Game.isBattleGoing = true;
-            InHands = false;
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -224,7 +228,7 @@ namespace AB_Server
                 { "Type", "BakuganRemovedFromHand" },
                 { "Owner", Owner.Id },
                 { "BakuganType", (int)Type },
-                { "Attribute", (int)Attribute },
+                { "Attribute", (int)MainAttribute },
                 { "Treatment", (int)Treatment },
                 { "Power", Power },
                 { "IsPartner", IsPartner },
@@ -237,7 +241,7 @@ namespace AB_Server
                 { "Owner", Owner.Id },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -248,7 +252,6 @@ namespace AB_Server
             Game.OnBakuganThrown(this, Owner.Id, destination);
             if (destination.CheckBattles())
                 Game.isBattleGoing = true;
-            InHands = false;
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -256,8 +259,8 @@ namespace AB_Server
         {
             if (IsDummy) return Attribute.Clear;
 
-            var oldAttribute = Attribute;
-            Attribute = newAttribute;
+            var oldAttribute = MainAttribute;
+            MainAttribute = newAttribute;
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
@@ -267,7 +270,7 @@ namespace AB_Server
                 { "Attribute", (int)newAttribute },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -308,7 +311,7 @@ namespace AB_Server
                     { "Owner", Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
+                        { "Attribute", (int)MainAttribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
@@ -367,7 +370,7 @@ namespace AB_Server
                     { "Owner", bakugan.Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)bakugan.Type },
-                        { "Attribute", (int)bakugan.Attribute },
+                        { "Attribute", (int)bakugan.MainAttribute },
                         { "Treatment", (int)bakugan.Treatment },
                         { "Power", bakugan.Power },
                         { "IsPartner", bakugan.IsPartner },
@@ -415,7 +418,7 @@ namespace AB_Server
                     { "Type", "BakuganRemovedFromHand" },
                     { "Owner", bakugan.Owner.Id },
                     { "BakuganType", (int)bakugan.Type },
-                    { "Attribute", (int)bakugan.Attribute },
+                    { "Attribute", (int)bakugan.MainAttribute },
                     { "Treatment", (int)bakugan.Treatment },
                     { "Power", bakugan.Power },
                     { "IsPartner", bakugan.IsPartner },
@@ -428,7 +431,7 @@ namespace AB_Server
                     { "Owner", bakugan.Owner.Id },
                     { "Bakugan", new JObject {
                         { "Type", (int)bakugan.Type },
-                        { "Attribute", (int)bakugan.Attribute },
+                        { "Attribute", (int)bakugan.MainAttribute },
                         { "Treatment", (int)bakugan.Treatment },
                         { "Power", bakugan.Power },
                         { "IsPartner", bakugan.IsPartner },
@@ -485,7 +488,7 @@ namespace AB_Server
                 { "Owner", Owner.Id },
                 { "Bakugan", new JObject {
                     { "Type", (int)Type },
-                    { "Attribute", (int)Attribute },
+                    { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
@@ -496,7 +499,7 @@ namespace AB_Server
                 { "Type", "BakuganRemovedFromGrave" },
                 { "Owner", Owner.Id },
                 { "BakuganType", (int)Type },
-                { "Attribute", (int)Attribute },
+                { "Attribute", (int)MainAttribute },
                 { "Treatment", (int)Treatment },
                 { "Power", Power },
                 { "IsPartner", IsPartner },
@@ -532,7 +535,7 @@ namespace AB_Server
                 { "Type", "BakuganAddedToHand" },
                 { "Owner", Owner.Id },
                 { "BakuganType", (int)Type },
-                { "Attribute", (int)Attribute },
+                { "Attribute", (int)MainAttribute },
                 { "Treatment", (int)Treatment },
                 { "Power", Power },
                 { "IsPartner", IsPartner },
@@ -542,7 +545,7 @@ namespace AB_Server
                 { "Type", "BakuganRemovedFromGrave" },
                 { "Owner", Owner.Id },
                 { "BakuganType", (int)Type },
-                { "Attribute", (int)Attribute },
+                { "Attribute", (int)MainAttribute },
                 { "Treatment", (int)Treatment },
                 { "Power", Power },
                 { "IsPartner", IsPartner },
@@ -553,7 +556,6 @@ namespace AB_Server
             Boosts.ForEach(x => x.Active = false);
             Boosts.Clear();
 
-            InHands = true;
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -583,7 +585,7 @@ namespace AB_Server
                     { "IsDestroy", false },
                     { "Bakugan", new JObject {
                         { "Type", (int)Type },
-                        { "Attribute", (int)Attribute },
+                        { "Attribute", (int)MainAttribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
@@ -595,7 +597,6 @@ namespace AB_Server
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
                 Game.OnBakuganReturned(this, Owner.Id);
-                InHands = true;
 
                 foreach (List<JObject> e in Game.NewEvents)
                 {
@@ -603,7 +604,7 @@ namespace AB_Server
                         { "Type", "BakuganAddedToHand" },
                         { "Owner", Owner.Id },
                         { "BakuganType", (int)Type },
-                        { "Attribute", (int)Attribute },
+                        { "Attribute", (int)MainAttribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
@@ -647,7 +648,7 @@ namespace AB_Server
                         { "IsDestroy", true },
                         { "Bakugan", new JObject {
                             { "Type", (int)Type },
-                            { "Attribute", (int)Attribute },
+                            { "Attribute", (int)MainAttribute },
                             { "Treatment", (int)Treatment },
                             { "Power", Power },
                             { "IsPartner", IsPartner },
@@ -670,7 +671,7 @@ namespace AB_Server
                         { "Type", "BakuganAddedToGrave" },
                         { "Owner", Owner.Id },
                         { "BakuganType", (int)Type },
-                        { "Attribute", (int)Attribute },
+                        { "Attribute", (int)MainAttribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "IsPartner", IsPartner },
@@ -698,7 +699,7 @@ namespace AB_Server
                         { "Type", "BakuganRemovedFromHand" },
                         { "Owner", Owner.Id },
                         { "BakuganType", (int)Type },
-                        { "Attribute", (int)Attribute },
+                        { "Attribute", (int)MainAttribute },
                         { "Treatment", (int)Treatment },
                         { "Power", Power },
                         { "BID", BID }
@@ -714,18 +715,17 @@ namespace AB_Server
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
                 Game.OnBakuganDestroyed(this, Owner.Id);
-                InHands = false;
             }
         }
 
         public bool OnField() =>
-            typeof(GateCard).IsAssignableFrom(Position.GetType());
+            Position is GateCard;
 
         public bool InHand() =>
-            Position.GetType() == typeof(Player);
+            Position is Player;
 
         public bool InGrave() =>
-            Position.GetType() == typeof(GraveBakugan);
+            Position is BakuganGrave;
 
         public bool IsEnemyOf(Bakugan bakugan) =>
             Owner.SideID != bakugan.Owner.SideID;
@@ -744,6 +744,46 @@ namespace AB_Server
                 if (Game.GetGateByCoord(X, Y + 1) is GateCard gate4 && gate4.Bakugans.Any(IsEnemyOf)) return true;
             }
             return false;
+        }
+
+        public static bool IsAdjacent(Bakugan bakugan1, Bakugan bakugan2)
+        {
+
+            List<Attribute> attrs1 = [bakugan1.MainAttribute, .. bakugan1.ExtraAttributes];
+            List<Attribute> attrs2 = [bakugan2.MainAttribute, .. bakugan2.ExtraAttributes];
+
+            return attrs1.Contains(Attribute.Nova) && attrs2.Contains(Attribute.Subterra) ||
+                attrs1.Contains(Attribute.Subterra) && attrs2.Contains(Attribute.Lumina) ||
+                attrs1.Contains(Attribute.Lumina) && attrs2.Contains(Attribute.Darkon) ||
+                attrs1.Contains(Attribute.Darkon) && attrs2.Contains(Attribute.Aqua) ||
+                attrs1.Contains(Attribute.Aqua) && attrs2.Contains(Attribute.Zephyros) ||
+                attrs1.Contains(Attribute.Zephyros) && attrs2.Contains(Attribute.Nova);
+        }
+
+        public static bool IsDiagonal(Bakugan bakugan1, Bakugan bakugan2)
+        {
+
+            List<Attribute> attrs1 = [bakugan1.MainAttribute, .. bakugan1.ExtraAttributes];
+            List<Attribute> attrs2 = [bakugan2.MainAttribute, .. bakugan2.ExtraAttributes];
+
+            return attrs1.Contains(Attribute.Nova) && attrs2.Contains(Attribute.Darkon) ||
+                attrs1.Contains(Attribute.Darkon) && attrs2.Contains(Attribute.Nova) ||
+                attrs1.Contains(Attribute.Subterra) && attrs2.Contains(Attribute.Aqua) ||
+                attrs1.Contains(Attribute.Aqua) && attrs2.Contains(Attribute.Subterra) ||
+                attrs1.Contains(Attribute.Lumina) && attrs2.Contains(Attribute.Zephyros) ||
+                attrs1.Contains(Attribute.Zephyros) && attrs2.Contains(Attribute.Lumina);
+        }
+
+        public static bool IsTripleNode(params IEnumerable<Bakugan> bakugans)
+        {
+            List<Attribute> attrs = new();
+            foreach (Bakugan b in bakugans)
+            {
+                attrs.Add(b.MainAttribute);
+                attrs.Union(b.ExtraAttributes);
+            }
+            return (attrs.Contains(Attribute.Aqua) && attrs.Contains(Attribute.Nova) && attrs.Contains(Attribute.Lumina)) ||
+                (attrs.Contains(Attribute.Subterra) && attrs.Contains(Attribute.Zephyros) && attrs.Contains(Attribute.Darkon));
         }
     }
 }

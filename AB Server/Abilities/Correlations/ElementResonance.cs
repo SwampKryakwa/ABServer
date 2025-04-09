@@ -1,42 +1,42 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities.Correlations
 {
-    internal class Dimension4 : AbilityCard
+    internal class ElementResonance : AbilityCard
     {
-        public Dimension4(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        {
-            TargetSelectors =
-            [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position}
-            ];
-        }
+
+        public ElementResonance(int cID, Player owner) : base(cID, owner, 3)
+        { }
 
         public override void TriggerEffect() =>
-            new Dimension4Effect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new ElementResonanceEffect(User, TypeId, IsCopy).Activate();
+
+        public override CardKind Kind { get; } = CardKind.CorrelationAbility;
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Select(x => x.MainAttribute).Distinct().Count() == 1;
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.OnField();
+            user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && (x.OnField() || x.InHand()));
     }
 
-    internal class Dimension4Effect
+    internal class ElementResonanceEffect
     {
         public int TypeId { get; }
         public Bakugan User;
-        Bakugan target;
         Game game { get => User.Game; }
 
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public Dimension4Effect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
+        public ElementResonanceEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-            this.target = target;
-            
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -48,7 +48,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
+                    { "Kind", 2 },
                     { "Card", TypeId },
                     { "UserID", User.BID },
                     { "User", new JObject {
@@ -60,10 +60,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            // Set the power of the target Bakugan to its initial value
-            target.Boost(new Boost((short)(target.DefaultPower - target.Power)), this);
+            User.Boost(new Boost(50), this);
         }
     }
 }
-
-

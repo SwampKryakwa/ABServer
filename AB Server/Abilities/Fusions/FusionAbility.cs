@@ -2,7 +2,7 @@
 
 namespace AB_Server.Abilities
 {
-    internal class FusionAbility(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
+    internal class FusionAbility(int cID, Player owner, int typeId, Type baseAbilityType) : AbilityCard(cID, owner, typeId)
     {
         public static Func<int, Player, FusionAbility>[] FusionCtrs =
         [
@@ -16,9 +16,12 @@ namespace AB_Server.Abilities
             (cID, owner) => new CutInSaber(cID, owner)
         ];
         public override CardKind Kind { get; } = CardKind.FusionAbility;
-        public Type BaseAbilityType;
+        public Type BaseAbilityType = baseAbilityType;
         public AbilityCard FusedTo;
         bool asCounter;
+
+        public bool BakuganIsValid(Bakugan user) =>
+            user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
 
         public override void Setup(bool asCounter)
         {
@@ -27,17 +30,6 @@ namespace AB_Server.Abilities
                 EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(BaseAbilityType.IsInstanceOfType))
                 ));
             Game.OnAnswer[Owner.Id] = PickUser;
-        }
-
-        public virtual void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-                ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
         }
 
         public new void Activate()
@@ -61,6 +53,17 @@ namespace AB_Server.Abilities
                 });
             }
             Game.CheckChain(Owner, this, User);
+        }
+
+        public virtual void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
         public override bool IsActivateable() =>

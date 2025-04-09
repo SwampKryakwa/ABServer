@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
                 new HolyLightEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Lumina && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0;
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganGrave.Bakugans.Count != 0;
@@ -54,7 +54,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

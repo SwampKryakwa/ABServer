@@ -12,7 +12,7 @@ namespace AB_Server.Abilities
             new BloomOfAgonyEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.Attribute == Attribute.Darkon;
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.IsAttribute(Attribute.Darkon);
     }
 
     internal class BloomOfAgonyEffect
@@ -42,7 +42,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

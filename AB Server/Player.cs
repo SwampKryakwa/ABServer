@@ -4,13 +4,13 @@ using AB_Server.Gates;
 
 namespace AB_Server
 {
-    internal class GraveBakugan : IBakuganContainer
+    internal class BakuganGrave : IBakuganContainer
     {
         public Player Player;
 
         public List<Bakugan> Bakugans { get; } = new();
 
-        public GraveBakugan(Player player)
+        public BakuganGrave(Player player)
         {
             Player = player;
         }
@@ -29,7 +29,7 @@ namespace AB_Server
         public List<AbilityCard> AbilityHand = new();
         public List<GateCard> GateHand = new();
 
-        public GraveBakugan BakuganGrave;
+        public BakuganGrave BakuganGrave;
         public List<AbilityCard> AbilityGrave = new();
         public List<GateCard> GateGrave = new();
 
@@ -91,7 +91,7 @@ namespace AB_Server
             game.AbilityIndex.Add(fusion);
 
             player.BakuganOwned[0].IsPartner = true;
-            HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.Attribute));
+            HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.MainAttribute));
             if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
                    combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
             {
@@ -106,6 +106,12 @@ namespace AB_Server
                 DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, player);
                 game.AbilityIndex.Add(diagonalCorrelation);
                 player.AbilityHand.Add(diagonalCorrelation);
+            }
+            else if (combinedAttributes.Distinct().Count() == 1)
+            {
+                ElementResonance elementResonance = new(game.AbilityIndex.Count, player);
+                game.AbilityIndex.Add(elementResonance);
+                player.AbilityHand.Add(elementResonance);
             }
             else
             {

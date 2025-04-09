@@ -53,7 +53,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

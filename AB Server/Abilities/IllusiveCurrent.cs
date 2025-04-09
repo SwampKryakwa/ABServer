@@ -6,59 +6,17 @@ namespace AB_Server.Abilities
     internal class IllusiveCurrent : AbilityCard
     {
         public IllusiveCurrent(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        { }
-
-        public override void Setup(bool asCounter)
         {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validBakugans = User.Attribute == Attribute.Aqua
-                ? Owner.BakuganOwned.Where(x => x.InHand())
-                : Owner.BakuganOwned.Where(x => x.InHand() && x.Attribute == Attribute.Aqua);
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITY_ADDTARGET", TypeId, (int)Kind, validBakugans)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        private Bakugan selectedBakugan;
-
-        public new void Activate()
-        {
-            selectedBakugan = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => User.IsAttribute(Attribute.Aqua)
+                ?  x.InHand()
+                :  x.InHand() && x.MainAttribute == Attribute.Aqua}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new IllusiveCurrentEffect(User, selectedBakugan, TypeId, IsCopy).Activate();
+            new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
@@ -97,18 +55,14 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}
                 });
             }
 
-            var position = User.Position;
-            // Return the user to hand
-
-            // Add the selected Bakugan to the GateCard where the user was
-            if (position is GateCard positionGate)
+            if (User.Position is GateCard positionGate)
             {
                 User.ToHand(positionGate.EnterOrder);
                 selectedBakugan.AddFromHand(positionGate);

@@ -5,107 +5,16 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class Tremors : FusionAbility
     {
-        public Tremors(int cID, Player owner) : base(cID, owner, 5)
+        public Tremors(int cID, Player owner) : base(cID, owner, 5, typeof(NoseSlap))
         {
-            BaseAbilityType = typeof(NoseSlap);
-        }
-
-        public override void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITYUSER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = PickTargets;
-        }
-
-        public void PickTargets()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && User.Position != targetGate);
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGETS", TypeId, (int)Kind, validTargets)
-            ));
-
-            Game.OnAnswer[Owner.Id] = HandleTargetSelection;
-        }
-
-        private List<Bakugan> selectedTargets = new();
-
-        public void HandleTargetSelection()
-        {
-            var selectedBakugan = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-            selectedTargets.Add(selectedBakugan);
-
-            var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && User.Position != targetGate && !selectedTargets.Contains(b));
-
-            if (validTargets.Any())
-            {
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.BoolSelectionEvent("INFO_SELECT_ANOTHER_BAKUGAN")
-                ));
-
-                Game.OnAnswer[Owner.Id] = HandleAnotherTargetSelection;
-            }
-            else
-            {
-                Activate();
-            }
-        }
-
-        public void HandleAnotherTargetSelection()
-        {
-            if ((bool)Game.IncomingSelection[Owner.Id]["array"][0]["answer"])
-            {
-                var validTargets = Game.BakuganIndex.Where(b => b.Owner != Owner && b.Position is GateCard targetGate && !(User.Position as GateCard).IsTouching(targetGate) && !selectedTargets.Contains(b));
-
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGETS", TypeId, (int)Kind, validTargets)
-                ));
-
-                Game.OnAnswer[Owner.Id] = HandleTargetSelection;
-            }
-            else
-            {
-                Activate();
-            }
-        }
-
-        public new void Activate()
-        {
-            FusedTo.Discard();
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new TremorsEffect(User, selectedTargets, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new MultiBakuganSelector() { ClientType = "MBF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGETS", TargetValidator = x => x.OnField() && !(x.Position as GateCard).IsTouching(User.Position as GateCard) && x.Position != User.Position && x.IsEnemyOf(User) }
+            ];
         }
 
         public override void TriggerEffect() =>
-            new TremorsEffect(User, selectedTargets, TypeId, IsCopy).Activate();
+            new TremorsEffect(User, (TargetSelectors[0] as MultiBakuganSelector).SelectedBakugans, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField();
@@ -115,17 +24,17 @@ namespace AB_Server.Abilities.Fusions
     {
         public int TypeId { get; }
         Bakugan user;
-        List<Bakugan> targets;
+        Bakugan[] targets;
         Game game { get => user.Game; }
 
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public TremorsEffect(Bakugan user, List<Bakugan> targets, int typeID, bool IsCopy)
+        public TremorsEffect(Bakugan user, Bakugan[] targets, int typeID, bool IsCopy)
         {
             this.user = user;
             this.targets = targets;
-            
+
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }
@@ -133,21 +42,7 @@ namespace AB_Server.Abilities.Fusions
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             foreach (var target in targets)
             {

@@ -209,7 +209,7 @@ namespace AB_Server
                         {
                             ["BID"] = b.BID,
                             ["BakuganType"] = (int)b.Type,
-                            ["Attribute"] = (int)b.Attribute,
+                            ["Attribute"] = (int)b.MainAttribute,
                             ["Treatment"] = (int)b.Treatment,
                             ["Power"] = b.Power,
                             ["IsPartner"] = b.IsPartner
@@ -626,7 +626,7 @@ namespace AB_Server
             JArray bakuganArray = new JArray();
 
             foreach (var bakugan in Players[player].ThrowableBakugan())
-                bakuganArray.Add(new JObject { { "BID", bakugan.BID }, { "Type", (int)bakugan.Type }, { "Attribute", (int)bakugan.Attribute }, { "Treatment", (int)bakugan.Treatment }, { "IsPartner", bakugan.IsPartner }, { "Power", bakugan.Power } });
+                bakuganArray.Add(new JObject { { "BID", bakugan.BID }, { "Type", (int)bakugan.Type }, { "Attribute", (int)bakugan.MainAttribute }, { "Treatment", (int)bakugan.Treatment }, { "IsPartner", bakugan.IsPartner }, { "Power", bakugan.Power } });
 
             JObject moves = new()
             {

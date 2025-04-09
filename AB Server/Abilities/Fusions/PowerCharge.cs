@@ -5,17 +5,8 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class PowerCharge : FusionAbility
     {
-        public PowerCharge(int cID, Player owner) : base(cID, owner, 4)
-        {
-            BaseAbilityType = typeof(SaurusGlow);
-        }
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new PowerChargeEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
+        public PowerCharge(int cID, Player owner) : base(cID, owner, 4, typeof(SaurusGlow))
+        { }
 
         public override void TriggerEffect() =>
             new PowerChargeEffect(User, TypeId, IsCopy).Activate();
@@ -53,19 +44,7 @@ namespace AB_Server.Abilities.Fusions
 
             for (int i = 0; i < game.NewEvents.Length; i++)
             {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, User));
                 game.NewEvents[i].Add(EventBuilder.AddEffectToActiveZone(this, IsCopy));
             }
 
@@ -81,13 +60,11 @@ namespace AB_Server.Abilities.Fusions
                 game.ActiveZone.Remove(this);
 
                 for (int i = 0; i < game.NewEvents.Length; i++)
-                {
                     game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectRemovedActiveZone" },
-                    { "Id", EffectId }
-                });
-                }
+                    {
+                        { "Type", "EffectRemovedActiveZone" },
+                        { "Id", EffectId }
+                    });
             }
         }
 
@@ -96,13 +73,11 @@ namespace AB_Server.Abilities.Fusions
             game.BattlesStarted -= OnBattleStart;
 
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "EffectRemovedActiveZone" },
                     { "Id", EffectId }
                 });
-            }
         }
     }
 }

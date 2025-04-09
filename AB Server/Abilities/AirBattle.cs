@@ -17,10 +17,10 @@ namespace AB_Server.Abilities
             new AirBattleEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Attribute == Attribute.Zephyros && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, user.Position));
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, user.Position));
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsEnemyOf(x));
+            user.IsAttribute(Attribute.Zephyros) && user.OnField() && user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsEnemyOf(x));
 
         private static bool IsAdjacent(IBakuganContainer pos1, IBakuganContainer pos2)
         {
@@ -61,7 +61,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

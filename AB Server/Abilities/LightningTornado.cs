@@ -85,7 +85,7 @@ namespace AB_Server.Abilities
             new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Attribute == Attribute.Lumina && user.InBattle;
+            user.IsAttribute(Attribute.Lumina) && user.InBattle;
     }
 
     internal class LightningTornadoEffect
@@ -117,7 +117,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

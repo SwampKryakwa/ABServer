@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
             new NoseSlapEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Type == BakuganType.Elephant && user.OnField() && Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.GateIndex.Any(x => x.OnField && x.IsTouching(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.OnField() && user.Game.GateIndex.Any(x => x.OnField && x.IsAdjacentVertically(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
@@ -54,7 +54,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

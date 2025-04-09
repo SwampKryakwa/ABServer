@@ -5,70 +5,19 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class PinDown : FusionAbility
     {
-        public PinDown(int cID, Player owner) : base(cID, owner, 8)
+        public PinDown(int cID, Player owner) : base(cID, owner, 8, typeof(LeapSting))
         {
-            BaseAbilityType = typeof(LeapSting);
-        }
-
-        public override void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = PickTarget;
-        }
-
-        public void PickTarget()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, Game.BakuganIndex.Where(x => x.OnField()))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        Bakugan target;
-        public new void Activate()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            FusedTo.Discard();
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new PinDownEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField()}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new PinDownEffect(User, target, TypeId, IsCopy).Activate();
+            new PinDownEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Count(x => x.OnField()) >= 2;
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();
     }
 
     internal class PinDownEffect
@@ -93,28 +42,7 @@ namespace AB_Server.Abilities.Fusions
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                    {
-                        { "Type", "FusionAbilityActivateEffect" },
-                        { "Kind", 1 },
-                        { "Card", TypeId },
-                        { "UserID", user.BID },
-                        { "User", new JObject {
-                            { "Type", (int)user.Type },
-                            { "Attribute", (int)user.Attribute },
-                            { "Treatment", (int)user.Treatment },
-                            { "Power", user.Power }
-                        }},
-                        { "TargetID", target.BID },
-                        { "Target", new JObject {
-                            { "Type", (int)target.Type },
-                            { "Attribute", (int)target.Attribute },
-                            { "Treatment", (int)target.Treatment },
-                            { "Power", target.Power }
-                        }}
-                    });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             if (target.Position is GateCard targetGate)
             {

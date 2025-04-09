@@ -5,74 +5,19 @@ namespace AB_Server.Abilities
 {
     internal class CutInSaber : FusionAbility
     {
-        public CutInSaber(int cID, Player owner) : base(cID, owner, 3)
+        public CutInSaber(int cID, Player owner) : base(cID, owner, 3, typeof(CrystalFang))
         {
-            BaseAbilityType = typeof(CrystalFang);
-        }
-
-        public override void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = PickTarget;
-        }
-
-        public void PickTarget()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldGateSelection("INFO_SELECT_GATE", TypeId, (int)Kind, Game.GateIndex.Where(g => g.Bakugans.Count >= 2 && g.Freezing.Count == 0))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        GateCard targetGate;
-        public new void Activate()
-        {
-            targetGate = Game.GateIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["gate"]];
-
-            FusedTo.Discard();
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-
-            if (User.InHands)
-                User.AddFromHand(targetGate);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
-
-            Dispose();
+            TargetSelectors =
+            [
+                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATETARGET", TargetValidator = g => g.Bakugans.Count >= 2 && g.Freezing.Count == 0}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new CutInSaberEffect(User, targetGate, TypeId, IsCopy).Activate();
+            new CutInSaberEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.IsPartner && user.InHand();
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHand();
     }
 
     internal class CutInSaberEffect
@@ -89,7 +34,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.targetGate = targetGate;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }
@@ -97,23 +42,9 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
-            if (user.InHands)
+            if (user.InHand())
                 user.AddFromHand(targetGate);
         }
     }

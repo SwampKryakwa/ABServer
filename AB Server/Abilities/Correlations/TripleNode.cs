@@ -140,7 +140,7 @@ namespace AB_Server.Abilities.Correlations
         {
             User = user;
             this.otherBakugans = otherBakugans;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -156,29 +156,21 @@ namespace AB_Server.Abilities.Correlations
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}
                 });
             }
 
-            if (IsValidTripleNode())
+            if (Bakugan.IsTripleNode([User, .. otherBakugans]))
             {
+                User.Boost(new Boost(200), this);
                 foreach (var bakugan in otherBakugans)
                 {
                     bakugan.Boost(new Boost(200), this);
                 }
-                User.Boost(new Boost(200), this);
             }
-        }
-
-        private bool IsValidTripleNode()
-        {
-            var combinedAttributes = new HashSet<Attribute> { User.Attribute };
-            combinedAttributes.UnionWith(otherBakugans.Select(b => b.Attribute));
-            return combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
-                   combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon });
         }
     }
 }

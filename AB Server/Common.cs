@@ -69,7 +69,7 @@ namespace AB_Server
 
     class ActiveSelector : Selector
     {
-        public Func<IActive, bool> TragetValidator;
+        public Func<IActive, bool> TargetValidator;
         public IActive SelectedActive;
     }
 
@@ -77,23 +77,31 @@ namespace AB_Server
     {
         public Func<GateCard, bool> TargetValidator;
         public GateCard[] SelectedGates;
+        public int MinNumber = 0;
+        public int MaxNumber = 7;
     }
 
     class MultiBakuganSelector : Selector
     {
         public Func<Bakugan, bool> TargetValidator;
         public Bakugan[] SelectedBakugans;
+        public int MinNumber = 0;
+        public int MaxNumber = 7;
     }
 
     class MultiAbilitySelector : Selector
     {
         public Func<AbilityCard, bool> TargetValidator;
         public AbilityCard[] SelectedAbilities;
+        public int MinNumber = 0;
+        public int MaxNumber = 7;
     }
 
     class MultiActiveSelector : Selector
     {
-        public Func<IActive, bool> TragetValidator;
+        public Func<IActive, bool> TargetValidator;
         public IActive[] SelectedActives;
+        public int MinNumber = 0;
+        public int MaxNumber = 7;
     }
 }

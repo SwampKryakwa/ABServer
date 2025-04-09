@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
             new BlowbackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Attribute == Attribute.Zephyros && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
+            user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
 
         public static bool IsTargetValid(Bakugan target, Bakugan user) =>
             target.OnField() && target.Owner == user.Owner;
@@ -55,7 +55,7 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}

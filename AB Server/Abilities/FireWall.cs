@@ -5,79 +5,16 @@ namespace AB_Server.Abilities
     internal class FireWall : AbilityCard
     {
         public FireWall(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        { }
-
-        public override void Setup(bool asCounter)
         {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validBakugans = Game.BakuganIndex.Where(x => x.OnField() && x.InBattle && x.Owner != Owner);
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_SELECT_TARGET", TypeId, (int)Kind, validBakugans)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup3;
-        }
-
-        private Bakugan target;
-
-        public void Setup3()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            if (User.Attribute == Attribute.Nova)
-            {
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                    EventBuilder.OptionSelectionEvent("INFO_PICKER_FIREWALL", 2)
-                ));
-                Game.OnAnswer[Owner.Id] = HandleOptionSelection;
-            }
-            else
-                Activate(0);
-        }
-
-        public void HandleOptionSelection()
-        {
-            int selectedOption = (int)Game.IncomingSelection[Owner.Id]["array"][0]["option"];
-            Activate(selectedOption);
-        }
-
-        int selectedOption;
-        public void Activate(int selectedOption)
-        {
-            this.selectedOption = selectedOption;
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_SELECT_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner},
+                new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_FIREWALL", ForPlayer = owner.Id, OptionCount = 2, SelectedOption = 1}
+            ];
         }
 
         public override void TriggerEffect() =>
-            new FireWallEffect(User, target, TypeId, IsCopy, selectedOption).Activate();
+            new FireWallEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy, (TargetSelectors[1] as OptionSelector).SelectedOption).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);
@@ -110,7 +47,6 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
                 game.NewEvents[i].Add(new()
                 {
                     { "Type", "AbilityActivateEffect" },
@@ -119,19 +55,15 @@ namespace AB_Server.Abilities
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}
                 });
-            }
 
-            if (selectedOption == 0)
-            {
-                // Reduce the power of the target Bakugan by 50G
+            if (selectedOption == 1)
                 target.Boost(new Boost(-50), this);
-            }
-            else if (selectedOption == 2 && User.Attribute == Attribute.Nova)
+            else if (selectedOption == 2 && User.IsAttribute(Attribute.Nova))
             {
                 // Set the power of the target Bakugan to its initial value
                 foreach (var boost in target.Boosts)

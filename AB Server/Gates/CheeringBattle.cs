@@ -39,7 +39,7 @@
 
         public override void Resolve()
         {
-            if (!counterNegated && target.InHands)
+            if (!counterNegated && target.InHand())
             {
                 target.AddFromHand(this);
                 var newPower = int.Parse(target.Power.ToString().Substring(1));

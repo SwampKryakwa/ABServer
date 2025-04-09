@@ -64,6 +64,7 @@ namespace AB_Server
                 { "SelectionAbilities", JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CID", x.CardId } } )) }
             };
         }
+
         public static JObject AnyBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
@@ -74,7 +75,7 @@ namespace AB_Server
                 { "CardKind", abilityKind },
                 { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.Attribute },
+                    { "Attribute", (int)x.MainAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -83,7 +84,7 @@ namespace AB_Server
                 }) ) },
                 { "SelectionHandBakugans", new JArray(bakugans.Where(x=>x.InHand()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.Attribute },
+                    { "Attribute", (int)x.MainAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -103,7 +104,7 @@ namespace AB_Server
                 { "CardKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.Attribute },
+                    { "Attribute", (int)x.MainAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -123,7 +124,7 @@ namespace AB_Server
                 { "CardKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.Attribute },
+                    { "Attribute", (int)x.MainAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -143,7 +144,96 @@ namespace AB_Server
                 { "CardKind", abilityKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.Attribute },
+                    { "Attribute", (int)x.MainAttribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject AnyMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "MB" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.MainAttribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) },
+                { "SelectionHandBakugans", new JArray(bakugans.Where(x=>x.InHand()).Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.MainAttribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject HandMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "MBH" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.MainAttribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject FieldMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "MBF" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.MainAttribute },
+                    { "Treatment", (int)x.Treatment },
+                    { "Power", x.Power },
+                    { "Owner", x.Owner.Id },
+                    { "IsPartner", x.IsPartner },
+                    { "BID", x.BID }
+                }) ) }
+            };
+        }
+
+        public static JObject GraveMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        {
+            return new()
+            {
+                { "SelectionType", "MBG" },
+                { "Message", prompt },
+                { "Card", ability },
+                { "CardKind", abilityKind },
+                { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
+                    { "Type", (int)x.Type },
+                    { "Attribute", (int)x.MainAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -241,7 +331,7 @@ namespace AB_Server
             };
 
         public static JObject SendAbilityToGrave(AbilityCard card) =>
-            new ()
+            new()
             {
                 ["Type"] = "AbilitySentToGrave",
                 ["Kind"] = (int)card.Kind,
@@ -288,176 +378,18 @@ namespace AB_Server
             };
         }
 
-        public static JObject GateRetracted(GateCard card)
-        {
-            return new JObject
-            {
-                { "Type", "GateRetracted" },
-                { "PosX", card.Position.X },
-                { "PosY", card.Position.Y },
+        public static JObject ActivateAbilityEffect(int abilityType, int abilityKind, Bakugan user) =>
+            new() {
+                { "Type", "AbilityActivateEffect" },
+                { "Kind", abilityKind },
+                { "Card", abilityType },
+                { "UserID", user.BID },
+                { "User", new JObject {
+                    { "Type", (int)user.Type },
+                    { "Attribute", (int)user.MainAttribute },
+                    { "Treatment", (int)user.Treatment },
+                    { "Power", user.Power }
+                }}
             };
-        }
-
-        public static JObject ThrowBakugan(Bakugan bakugan, int posX, int posY)
-        {
-            return new JObject
-            {
-                { "Type", "ThrowBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "id", bakugan.BID },
-                { "owner", bakugan.Owner.Id },
-                { "posX", posX },
-                { "posY", posY },
-            };
-        }
-
-        public static JObject AddBakugan(Bakugan bakugan, int posX, int posY)
-        {
-            return new JObject
-            {
-                { "Type", "AddBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "id", bakugan.BID },
-                { "owner", bakugan.Owner.Id },
-                { "posX", posX },
-                { "posY", posY },
-            };
-        }
-
-        public static JObject DestroyBakugan(Bakugan bakugan)
-        {
-            return new JObject
-            {
-                { "Type", "DestroyBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id }
-            };
-        }
-
-        public static JObject RemoveBakugan(Bakugan bakugan, int posX, int posY, bool silent)
-        {
-            return new JObject
-            {
-                { "Type", "RemoveBakugan" },
-                { "id", bakugan.BID },
-                { "posX", posX },
-                { "posY", posY },
-                { "silent", silent }
-            };
-        }
-
-        public static JObject RetractBakugan(Bakugan bakugan, int posX, int posY)
-        {
-            return new JObject
-            {
-                { "Type", "RetractBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id },
-                { "posX", posX },
-                { "posY", posY },
-            };
-        }
-
-        public static JObject BoostBakugan(Bakugan bakugan)
-        {
-            return new JObject
-            {
-                { "Type", "BoostBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id }
-            };
-        }
-
-        public static JObject BoostBakuganHand(Bakugan bakugan)
-        {
-            return new JObject
-            {
-                { "Type", "BoostBakuganHand" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id }
-            };
-        }
-
-        public static JObject BaseBoostBakugan(Bakugan bakugan)
-        {
-            return new JObject
-            {
-                { "Type", "BaseBoostBakugan" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id }
-            };
-        }
-
-        public static JObject BaseBoostBakuganHand(Bakugan bakugan)
-        {
-            return new JObject
-            {
-                { "Type", "BaseBoostBakuganHand" },
-                { "type", (int)bakugan.Type },
-                { "attribute", (int)bakugan.Attribute },
-                { "treatment", (int)bakugan.Treatment },
-                { "power", bakugan.Power },
-                { "owner", bakugan.Owner.Id }
-            };
-        }
-
-        public static JObject SpecialThrowUsed(int type, int user)
-        {
-            return new JObject
-            {
-                { "Type", "SpecialThrowUsed" },
-                { "type", type },
-                { "user", user }
-            };
-        }
-
-        public static JObject ContEffectStart(int type)
-        {
-            return new JObject
-            {
-                { "Type", "ContEffectStart" },
-                { "type", type }
-            };
-        }
-
-        public static JObject ContEffectStop(int type)
-        {
-            return new JObject
-            {
-                { "Type", "ContEffectStop" },
-                { "type", type }
-            };
-        }
-
-        public static JObject GateBattleStart(int posX, int posY)
-        {
-            return new JObject
-            {
-                { "Type", "SpecialThrowUsed" },
-                { "posX", posX },
-                { "posY", posY }
-            };
-        }
     }
 }

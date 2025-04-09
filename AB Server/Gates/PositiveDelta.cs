@@ -47,8 +47,8 @@
 
         public override void Resolve()
         {
-            if (Bakugans.Any(x=>x.Attribute == Attribute.Nova || x.Attribute == Attribute.Aqua || x.Attribute == Attribute.Lumina))
-                foreach (var bakugan in Bakugans.Where(x => x.Attribute == Attribute.Nova || x.Attribute == Attribute.Aqua || x.Attribute == Attribute.Lumina))
+            if (Bakugans.Any(x=>x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
+                foreach (var bakugan in Bakugans.Where(x => x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
                     bakugan.Boost(new Boost(-200), this);
             else
                 foreach (var bakugan in Bakugans)

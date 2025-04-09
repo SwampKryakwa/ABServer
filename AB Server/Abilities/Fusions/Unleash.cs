@@ -4,18 +4,8 @@ namespace AB_Server.Abilities
 {
     internal class Unleash : FusionAbility
     {
-        public Unleash(int cID, Player owner) : base(cID, owner, 0)
-        {
-            BaseAbilityType = typeof(AbilityCard);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new UnleashEffect(User, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
+        public Unleash(int cID, Player owner) : base(cID, owner, 0, typeof(AbilityCard))
+        { }
 
         public override void TriggerEffect() =>
             new UnleashEffect(User, TypeId, IsCopy).Activate();
@@ -36,7 +26,7 @@ namespace AB_Server.Abilities
         public UnleashEffect(Bakugan user, int typeID, bool IsCopy)
         {
             this.user = user;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }
@@ -44,21 +34,8 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "FusionAbilityActivateEffect" },
-                    { "Kind", 1 },
-                    { "Card", TypeId },
-                    { "UserID", user.BID },
-                    { "User", new JObject {
-                        { "Type", (int)user.Type },
-                        { "Attribute", (int)user.Attribute },
-                        { "Treatment", (int)user.Treatment },
-                        { "Power", user.Power }
-                    }}
-                });
-            }
+                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+
             user.Boost(new Boost(50), this);
         }
     }

@@ -6,86 +6,22 @@ namespace AB_Server.Abilities.Correlations
     {
         public DiagonalCorrelation(int cID, Player owner) : base(cID, owner, 1)
         {
+            TargetSelectors =
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Owner == User.Owner && Bakugan.IsDiagonal(x, User)}
+            ];
         }
 
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
 
-        public override void Setup(bool asCounter)
-        {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User);
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup3;
-        }
-
-        private Bakugan target;
-
-        public void Setup3()
-        {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
-            Activate();
-        }
-
-        public new void Activate()
-        {
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-
-            Game.CheckChain(Owner, this, User);
-        }
-
-        public override void Resolve()
-        {
-            if (!counterNegated)
-                new DiagonalCorrelationEffect(User, target, TypeId, IsCopy).Activate();
-
-            Dispose();
-        }
-
         public override void TriggerEffect() =>
-            new DiagonalCorrelationEffect(User, target, TypeId, IsCopy).Activate();
-
-        public override void DoNotAffect(Bakugan bakugan)
-        {
-            if (User == bakugan)
-                User = Bakugan.GetDummy();
-            if (target == bakugan)
-                target = Bakugan.GetDummy();
-        }
+            new DiagonalCorrelationEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());
+            user.Game.BakuganIndex.Any(x => Bakugan.IsDiagonal(x, user) && x.Owner == user.Owner && x.OnField());
     }
 
     internal class DiagonalCorrelationEffect
@@ -102,7 +38,7 @@ namespace AB_Server.Abilities.Correlations
         {
             User = user;
             this.target = target;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 
@@ -118,28 +54,16 @@ namespace AB_Server.Abilities.Correlations
                     { "UserID", User.BID },
                     { "User", new JObject {
                         { "Type", (int)User.Type },
-                        { "Attribute", (int)User.Attribute },
+                        { "Attribute", (int)User.MainAttribute },
                         { "Tretment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}
                 });
             }
 
-            if (IsValidDiagonal())
-            {
-                User.Boost(new Boost(100), this);
-                target.Boost(new Boost(100), this);
-            }
+            User.Boost(new Boost(100), this);
+            target.Boost(new Boost(100), this);
         }
 
-        private bool IsValidDiagonal()
-        {
-            return (User.Attribute == Attribute.Nova && target.Attribute == Attribute.Darkon) ||
-                   (User.Attribute == Attribute.Darkon && target.Attribute == Attribute.Nova) ||
-                   (User.Attribute == Attribute.Subterra && target.Attribute == Attribute.Aqua) ||
-                   (User.Attribute == Attribute.Aqua && target.Attribute == Attribute.Subterra) ||
-                   (User.Attribute == Attribute.Zephyros && target.Attribute == Attribute.Lumina) ||
-                   (User.Attribute == Attribute.Lumina && target.Attribute == Attribute.Zephyros);
-        }
     }
 }

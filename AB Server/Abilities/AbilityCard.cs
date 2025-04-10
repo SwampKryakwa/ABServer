@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AB_Server.Abilities.Correlations;
+using AB_Server.Abilities.Fusions;
+using Newtonsoft.Json.Linq;
 using System.Linq;
 
 namespace AB_Server.Abilities
@@ -42,6 +44,14 @@ namespace AB_Server.Abilities
             ((cID, owner) => new NoseSlap(cID, owner, 17), NoseSlap.HasValidTargets),
             ((cID, owner) => new SaurusGlow(cID, owner, 18), SaurusGlow.HasValidTargets),
             ((cID, owner) => new Dimension4(cID, owner, 19), Dimension4.HasValidTargets),
+        ];
+
+        public static Func<int, Player, AbilityCard>[] CorrelationCtrs =
+        [
+            (cID, owner) => new AdjacentCorrelation(cID, owner),
+            (cID, owner) => new DiagonalCorrelation(cID, owner),
+            (cID, owner) => new TripleNode(cID, owner),
+            (cID, owner) => new ElementResonance(cID, owner)
         ];
 
         public static AbilityCard CreateCard(Player owner, int cID, int type) =>
@@ -182,10 +192,11 @@ namespace AB_Server.Abilities
                 activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.IncomingSelection[currentSelector.ForPlayer]["array"][0]["active"]);
             else if (currentSelector is OptionSelector optionSelector)
                 optionSelector.SelectedOption = (int)Game.IncomingSelection[Owner.Id]["array"][0]["option"];
-            else if(currentSelector is MultiBakuganSelector multiBakuganSelector)
+            else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
                 JArray bakuganIds = Game.IncomingSelection[currentSelector.ForPlayer]["array"][0]["bakugans"];
-                multiBakuganSelector.SelectedBakugans = Game.BakuganIndex.Where(x => bakuganIds.Contains(x.BID)).ToArray();
+                multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
+                Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
             }
             else
             {

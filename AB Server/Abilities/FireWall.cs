@@ -56,7 +56,7 @@ namespace AB_Server.Abilities
                     { "User", new JObject {
                         { "Type", (int)User.Type },
                         { "Attribute", (int)User.MainAttribute },
-                        { "Tretment", (int)User.Treatment },
+                        { "Treatment", (int)User.Treatment },
                         { "Power", User.Power }
                     }}
                 });

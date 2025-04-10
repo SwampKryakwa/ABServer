@@ -465,6 +465,7 @@ namespace AB_Server
             Console.WriteLine("Battles to start: " + BattlesToStart.Count.ToString());
             if (BattlesToStart.Count != 0)
             {
+                Console.WriteLine("Window suggested: " + WindowSuggested.ToString());
                 if (!WindowSuggested)
                 {
                     WindowSuggested = true;
@@ -474,10 +475,17 @@ namespace AB_Server
                 {
                     WindowSuggested = false;
                     BattlesStarted?.Invoke();
-                    BattlesToStart.ForEach(x => x.StartBattle());
-                    isBattleGoing = true;
+                    foreach (GateCard x in BattlesToStart)
+                    {
+                        if (x.Freezing.Count != 0) continue;
+                        NextStep = () => { };
+                        x.StartBattle();
+                        NextStep = ContinueGame;
+                    }
                     BattlesToStart.Clear();
-                    NextStep();
+                    Console.WriteLine("Battles to start cleared");
+                    isBattleGoing = GateIndex.Any(x => x.ActiveBattle);
+                    ContinueGame();
                 }
             }
             else if (BattlesToEnd.Count != 0)

@@ -18,7 +18,7 @@ namespace AB_Server.Gates
 
         public override bool CheckBattles()
         {
-            if (IsFrozen || BattleOver) return false;
+            if (Freezing.Count != 0 || BattleOver) return false;
 
             bool isBattle = Bakugans.Count > 1;
 

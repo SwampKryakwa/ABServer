@@ -12,6 +12,18 @@ namespace AB_Server.Abilities
                 new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsEnemyOf(User)}
             ];
         }
+
+        public override void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
+        }
+
         public override void TriggerEffect() =>
                 new StrikeBackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 

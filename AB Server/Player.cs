@@ -94,7 +94,11 @@ namespace AB_Server
             player.BakuganOwned[0].IsPartner = true;
 
             if (deck.ContainsKey("correlation"))
-                AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(game.AbilityIndex.Count, player);
+            {
+                var correlation = AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(game.AbilityIndex.Count, player);
+                player.AbilityHand.Add(correlation);
+                game.AbilityIndex.Add(correlation);
+            }
             else
             {
                 HashSet<Attribute> combinedAttributes = new(player.BakuganOwned.Select(x => x.MainAttribute));

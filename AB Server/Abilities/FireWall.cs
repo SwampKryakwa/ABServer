@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_SELECT_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner},
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner},
                 new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_FIREWALL", ForPlayer = owner.Id, OptionCount = 2, SelectedOption = 1}
             ];
         }

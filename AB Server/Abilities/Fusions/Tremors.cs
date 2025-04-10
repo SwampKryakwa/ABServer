@@ -17,7 +17,7 @@ namespace AB_Server.Abilities.Fusions
             new TremorsEffect(User, (TargetSelectors[0] as MultiBakuganSelector).SelectedBakugans, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && !(x.Position as GateCard).IsTouching(User.Position as GateCard) && x.Position != User.Position && x.IsEnemyOf(User));
     }
 
     internal class TremorsEffect

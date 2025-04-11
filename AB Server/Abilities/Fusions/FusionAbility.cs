@@ -32,7 +32,18 @@ namespace AB_Server.Abilities
             Game.OnAnswer[Owner.Id] = PickUser;
         }
 
-        public new void Activate()
+        public virtual void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
+        }
+
+        public override void Activate()
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
@@ -53,17 +64,6 @@ namespace AB_Server.Abilities
                 });
             }
             Game.CheckChain(Owner, this, User);
-        }
-
-        public virtual void PickUser()
-        {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
-
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-                ));
-
-            Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
         public override bool IsActivateable() =>

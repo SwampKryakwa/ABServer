@@ -206,7 +206,7 @@ namespace AB_Server.Abilities
             SendTargetForSelection();
         }
 
-        public void Activate()
+        public virtual void Activate()
         {
             for (int i = 0; i < Game.NewEvents.Length; i++)
             {

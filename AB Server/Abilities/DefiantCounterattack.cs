@@ -12,7 +12,8 @@ namespace AB_Server.Abilities
                 new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.BattleOver}
             ];
         }
-        public virtual void Setup(bool asCounter)
+
+        public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(

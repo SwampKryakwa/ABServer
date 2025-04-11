@@ -183,7 +183,7 @@ namespace AB_Server
             foreach (GateCard? gate in game.Field)
             {
                 if (gate is GateCard g)
-                    if (g.IsOpenable() && g.Owner == this)
+                    if (g.IsOpenable() && g.Owner == this && !g.IsOpen)
                         openableGates.Add(g);
             }
             return openableGates;

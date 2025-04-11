@@ -530,6 +530,7 @@ namespace AB_Server
             {
                 CurrentWindow = ActivationWindow.Normal;
                 doNotMakeStep = false;
+                isBattleGoing = GateIndex.Any(x => x.ActiveBattle);
                 foreach (var playerEvents in NewEvents)
                     playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
             }

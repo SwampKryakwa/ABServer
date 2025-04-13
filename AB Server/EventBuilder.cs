@@ -284,7 +284,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject SetGate(GateCard card, bool RevealInfo)
+        public static JObject GateSet(GateCard card, bool RevealInfo)
         {
             if (RevealInfo)
                 return new()

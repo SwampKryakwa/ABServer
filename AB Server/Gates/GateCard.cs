@@ -126,6 +126,7 @@ namespace AB_Server.Gates
                 foreach (Bakugan b in Bakugans)
                 {
                     b.BattleEndedInDraw = true;
+                    IsDraw = true;
                 }
             }
 
@@ -135,6 +136,7 @@ namespace AB_Server.Gates
         public virtual void DetermineWinnerFakeBattle()
         {
             int winnerPower = Bakugans.MaxBy(x => x.Power).Power;
+            IsDraw = true;
 
             if (Bakugans.Any(x => x.Power < winnerPower)) FakeBattleNormal(winnerPower);
             else FakeBattleDraw();
@@ -189,6 +191,7 @@ namespace AB_Server.Gates
 
         public virtual void Set(byte posX, byte posY)
         {
+            IsDraw = false;
             game.Field[posX, posY] = this;
             OnField = true;
             Owner.GateHand.Remove(this);
@@ -196,7 +199,7 @@ namespace AB_Server.Gates
             for (int i = 0; i < game.PlayerCount; i++)
             {
                 var e = game.NewEvents[i];
-                e.Add(EventBuilder.SetGate(this, game.Players[i] == Owner));
+                e.Add(EventBuilder.GateSet(this, game.Players[i] == Owner));
             }
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }

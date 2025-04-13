@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATETARGET", TargetValidator = g => g.Bakugans.Count >= 2 && g.Freezing.Count == 0}
+                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATETARGET", TargetValidator = ValidTarget}
             ];
         }
 
@@ -17,7 +17,10 @@ namespace AB_Server.Abilities
             new CutInSaberEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHand();
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHand() && Game.GateIndex.Any(ValidTarget);
+
+        public bool ValidTarget(GateCard gateCard) =>
+            gateCard.Bakugans.Count >= 2 && gateCard.Freezing.Count == 0;
     }
 
     internal class CutInSaberEffect

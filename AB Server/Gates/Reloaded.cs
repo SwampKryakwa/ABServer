@@ -1,4 +1,4 @@
- namespace AB_Server.Gates
+namespace AB_Server.Gates
 {
     internal class Reloaded : GateCard
     {
@@ -65,6 +65,6 @@
         }
 
         public override bool IsOpenable() =>
-            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && Bakugans.Count >= 2 && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2;
+            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && Bakugans.Count >= 2 && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2 && game.BakuganIndex.Any(x => x.OnField() && x.Position != this);
     }
 }

@@ -17,17 +17,15 @@ namespace AB_Server.Abilities
             new AirBattleEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, user.Position));
+            user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Zephyros)) && Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, user.Position));
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.IsAttribute(Attribute.Zephyros) && user.OnField() && user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsEnemyOf(x));
+            user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsEnemyOf(x));
 
         private static bool IsAdjacent(IBakuganContainer pos1, IBakuganContainer pos2)
         {
             if (pos1 is GateCard gate1 && pos2 is GateCard gate2)
-            {
                 return GateCard.AreTouching(gate1, gate2);
-            }
             return false;
         }
     }

@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = b => b.Owner != Owner && b.Position is GateCard targetGate && User.Position is GateCard userGate && userGate != targetGate},
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = ValidTarget},
                 new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x != (TargetSelectors[0] as BakuganSelector).SelectedBakugan.Position}
             ];
         }
@@ -18,7 +18,10 @@ namespace AB_Server.Abilities
             new MarionetteEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, (TargetSelectors[1] as GateSelector).SelectedGate, TypeId).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.Position != user.Position && x.OnField());
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(target => target.Owner != Owner && target.Position is GateCard targetGate && user.Position is GateCard userGate && userGate != targetGate);
+
+        public bool ValidTarget(Bakugan bakugan) =>
+            bakugan.Owner != Owner && bakugan.Position is GateCard targetGate && User.Position is GateCard userGate && userGate != targetGate;
     }
 
     internal class MarionetteEffect

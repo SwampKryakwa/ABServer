@@ -22,7 +22,7 @@
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
+                EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
             ));
 
             game.OnAnswer[Owner.Id] = Setup;

@@ -473,42 +473,42 @@ namespace AB_Server
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
 
+            Boosts.ForEach(x => x.Active = false);
+            Boosts.Clear();
+
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject
-            {
-                { "Type", "HpRestored" },
-                { "Owner", Owner.Id },
-                { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
-            });
+                {
+                    { "Type", "HpRestored" },
+                    { "Owner", Owner.Id },
+                    { "HpLeft", Owner.BakuganOwned.Count(x=>!x.Defeated) }
+                });
                 e.Add(new JObject {
-                { "Type", "BakuganAddedEvent" },
-                { "PosX", destination.Position.X },
-                { "PosY", destination.Position.Y },
-                { "Owner", Owner.Id },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
+                    { "Type", "BakuganAddedEvent" },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
+                    { "Owner", Owner.Id },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)MainAttribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID } }
+                    }
+                });
+                e.Add(new JObject {
+                    { "Type", "BakuganRemovedFromGrave" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
                     { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
-                    { "BID", BID } }
-                }
-            });
-                e.Add(new JObject {
-                { "Type", "BakuganRemovedFromGrave" },
-                { "Owner", Owner.Id },
-                { "BakuganType", (int)Type },
-                { "Attribute", (int)MainAttribute },
-                { "Treatment", (int)Treatment },
-                { "Power", Power },
-                { "IsPartner", IsPartner },
-                { "BID", BID }
-            });
+                    { "BID", BID }
+                });
             }
-
-            Boosts.ForEach(x => x.Active = false);
-            Boosts.Clear();
 
             Game.isBattleGoing |= destination.CheckBattles();
             BattleEndedInDraw = false; // Reset flag

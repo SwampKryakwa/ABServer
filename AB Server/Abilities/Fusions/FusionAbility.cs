@@ -45,8 +45,6 @@ namespace AB_Server.Abilities
 
         public override void Activate()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
-
             FusedTo.Discard();
 
             for (int i = 0; i < Game.NewEvents.Length; i++)

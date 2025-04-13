@@ -13,6 +13,17 @@ namespace AB_Server.Abilities
             ];
         }
 
+        public override void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
+        }
+
         public override void TriggerEffect() =>
             new CutInSaberEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 

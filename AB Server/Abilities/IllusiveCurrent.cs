@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => User.IsAttribute(Attribute.Aqua)
+                new BakuganSelector() { ClientType = "BH", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => User.IsAttribute(Attribute.Aqua)
                 ?  x.InHand()
                 :  x.InHand() && x.MainAttribute == Attribute.Aqua}
             ];

@@ -56,7 +56,7 @@ namespace AB_Server
                                 string requestedResource = request.Url.ToString().Split('/')[^1];
 
                                 // Decode the key value
-                                if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
+                                if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "checkgamestarted" && requestedResource != "")
                                 {
                                     Console.WriteLine(key);
                                     Console.ForegroundColor = ConsoleColor.DarkYellow;

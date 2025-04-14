@@ -138,6 +138,23 @@ namespace AB_Server
                                         answer.Add("started", Rooms[(string)postedJson["roomName"]].Started);
                                         break;
 
+                                    case "checkgamestarted":
+                                        answer.Add("started", GIDToGame[(string)postedJson["roomName"]].Started);
+                                        break;
+
+                                    case "getgameinfo":
+                                        answer.Add("players", new JArray(
+                                            GIDToGame[(string)postedJson["roomName"]].Players.Select(x => new JObject
+                                            {
+                                                ["nickname"] = x.DisplayName,
+                                                ["avatar"] = x.Avatar,
+                                                ["partnerType"] = (int)x.BakuganOwned[0].Type,
+                                                ["partnerAttribute"] = (int)x.BakuganOwned[0].BaseAttribute,
+                                                ["partnerTreatment"] = (int)x.BakuganOwned[0].Treatment
+                                            })
+                                            ));
+                                        break;
+
                                     case "startroom":
                                         Rooms[(string)postedJson["roomName"]].Started = true;
                                         if (Rooms[(string)postedJson["roomName"]].Players.Contains((long)postedJson["UUID"]))

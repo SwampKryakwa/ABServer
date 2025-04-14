@@ -169,6 +169,7 @@ namespace AB_Server
 
         public void Initiate()
         {
+            Started = true;
             SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
 
             TurnPlayer = (byte)new Random().Next(Players.Count);

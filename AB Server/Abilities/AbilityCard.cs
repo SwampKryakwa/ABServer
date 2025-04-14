@@ -140,7 +140,7 @@ namespace AB_Server.Abilities
                 else if (currentSelector is ActiveSelector activeSelector)
                 {
                     Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
-                        EventBuilder.ActiveSelection(currentSelector.Message, Game.ActiveZone.Where(activeSelector.TargetValidator))
+                        EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                 }
                 else if (currentSelector is OptionSelector optionSelector)

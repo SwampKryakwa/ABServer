@@ -28,7 +28,7 @@ namespace AB_Server.Gates
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
+                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", TypeId, (int)Kind, game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
                 } }
             });
 
@@ -50,6 +50,6 @@ namespace AB_Server.Gates
                 target.Negate();
         }
 
-        public override bool IsOpenable() => game.ActiveZone.Count != 0 && base.IsOpenable();
+        public override bool IsOpenable() => game.ActiveZone.Any(x=>x is not GateCard && x is not AbilityCard) && base.IsOpenable();
     }
 }

@@ -61,9 +61,9 @@ namespace AB_Server.Abilities
                     }}
                 });
 
-            if (selectedOption == 1)
+            if (selectedOption == 0)
                 target.Boost(new Boost(-50), this);
-            else if (selectedOption == 2 && User.IsAttribute(Attribute.Nova))
+            else if (selectedOption == 1 && User.IsAttribute(Attribute.Nova))
             {
                 // Set the power of the target Bakugan to its initial value
                 foreach (var boost in target.Boosts)

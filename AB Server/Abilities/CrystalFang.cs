@@ -12,6 +12,16 @@ namespace AB_Server.Abilities
             ];
         }
 
+        public override void Setup(bool asCounter)
+        {
+            this.asCounter = asCounter;
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
+        }
+
         public override void TriggerEffect() =>
             new CrystalFangEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 

@@ -50,7 +50,7 @@
 
         public override void Resolve()
         {
-            if (!counterNegated && target1.Position == this && target2.Position == this)
+            if (!Negated && target1.Position == this && target2.Position == this)
             {
                 var boost = target1.Power - target2.Power;
 

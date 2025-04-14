@@ -39,7 +39,7 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Power >= 400 && target.Position == this)
+            if (!Negated && target.Power >= 400 && target.Position == this)
                 target.Boost(new Boost(-100), this);
         }
     }

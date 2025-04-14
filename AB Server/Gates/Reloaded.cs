@@ -51,7 +51,7 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
-            if (!counterNegated)
+            if (!Negated)
             {
                 if (target1.OnField())
                 {

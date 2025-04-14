@@ -39,7 +39,7 @@
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Position == this)
+            if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x=>x is GateCard) - 50)), this);
         }
     }

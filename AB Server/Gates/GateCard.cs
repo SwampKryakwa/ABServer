@@ -51,7 +51,6 @@ namespace AB_Server.Gates
         public bool OnField { get; set; } = false;
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
-        protected bool counterNegated = false;
 
         bool IsDraw = false;
 
@@ -293,7 +292,6 @@ namespace AB_Server.Gates
 
         public virtual void Negate(bool asCounter = false)
         {
-            if (asCounter) counterNegated = true;
             Negated = true;
             IsOpen = false;
 

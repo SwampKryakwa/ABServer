@@ -39,7 +39,7 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
-            if (!counterNegated && target.Position == this)
+            if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(Owner.Bakugans.MaxBy(x => x.Power).Power - target.Power)), this);
         }
     }

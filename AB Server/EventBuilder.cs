@@ -260,7 +260,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject ActiveSelection(string message, params IEnumerable<IActive> actives)
+        public static JObject ActiveSelection(string message, int kind, params IEnumerable<IActive> actives)
         {
             JArray jsonActives = new();
 
@@ -268,11 +268,11 @@ namespace AB_Server
             {
                 if (active is AbilityCard activeAbility)
                 {
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "Message", message }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
                 }
                 else
                 {
-                    jsonActives.Add(new JObject { { "Type", "E" }, { "Message", message }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "E" }, {"ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
                 }
             }
 
@@ -280,6 +280,7 @@ namespace AB_Server
             {
                 { "SelectionType", "AC" },
                 { "Message", message },
+                { "CardKind", kind },
                 { "SelectionAbilities", jsonActives }
             };
         }

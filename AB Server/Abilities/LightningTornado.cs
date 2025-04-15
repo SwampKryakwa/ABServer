@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         {
             User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            var validBakugans = User.Position.Bakugans.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.Power > User.Power);
+            var validBakugans = User.Position.Bakugans.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
             if (validBakugans.Count() != 0)
             {
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
         {
             if ((bool)Game.IncomingSelection[Owner.Id]["array"][0]["answer"])
             {
-                var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.Power > User.Power);
+                var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
 
                 Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                     EventBuilder.FieldBakuganSelection("INFO_ABILITY_DECREASETARGET", TypeId, (int)Kind, validBakugans)

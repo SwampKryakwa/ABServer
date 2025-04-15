@@ -463,6 +463,8 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
+            foreach (var gate in GateIndex.Where(x => x.OnField))
+                gate.CheckBattles();
             Console.WriteLine("Battles to start: " + BattlesToStart.Count.ToString());
             if (BattlesToStart.Count != 0)
             {
@@ -879,8 +881,9 @@ namespace AB_Server
             ExecutingChain = true;
 
             CardChain.Reverse();
-            CardChain.ForEach(card => card.Resolve());
+            var chain = new List<IChainable>(CardChain);
             CardChain.Clear();
+            chain.ForEach(card => card.Resolve());
 
             ExecutingChain = false;
 

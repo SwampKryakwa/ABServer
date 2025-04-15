@@ -25,7 +25,7 @@
         }
         public override void Resolve()
         {
-            foreach (var bakugan in Bakugans.Where(x => x.MainAttribute != Attribute.Aqua))
+            foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Subterra)))
             {
                 bakugan.ChangeAttribute(Attribute.Aqua, this);
                 bakugan.affectingEffects.Add(this);

@@ -23,7 +23,8 @@
                 if (!ActiveBattle)
                 {
                     game.BattlesToStart.Add(this);
-                    Open();
+                    if (!IsOpen && !Negated)
+                        Open();
                 }
             }
             else
@@ -37,7 +38,6 @@
         public override void Open()
         {
             IsOpen = true;
-            game.ActiveZone.Add(this);
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
@@ -47,7 +47,7 @@
 
         public override void Resolve()
         {
-            if (Bakugans.Any(x=>x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
+            if (Bakugans.Any(x => x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
                 foreach (var bakugan in Bakugans.Where(x => x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
                     bakugan.Boost(new Boost(-200), this);
             else

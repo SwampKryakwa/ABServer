@@ -208,8 +208,6 @@ namespace AB_Server
             });
             }
             Game.OnBakuganAdded(this, Owner.Id, destination);
-            if (destination.CheckBattles())
-                Game.isBattleGoing = true;
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -250,8 +248,6 @@ namespace AB_Server
             });
             }
             Game.OnBakuganThrown(this, Owner.Id, destination);
-            if (destination.CheckBattles())
-                Game.isBattleGoing = true;
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -324,15 +320,6 @@ namespace AB_Server
                 Position = destination;
                 Game.OnBakuganMoved(this, destination);
 
-                Game.isBattleGoing = false;
-                foreach (var gate in Game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
-                {
-                    if (gate.CheckBattles())
-                    {
-                        Game.isBattleGoing = true;
-                        break;
-                    }
-                }
                 BattleEndedInDraw = false; // Reset flag
             }
         }
@@ -395,10 +382,6 @@ namespace AB_Server
                 bakugan.BattleEndedInDraw = false; // Reset flag
             }
 
-            game.isBattleGoing = false;
-            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
-                if (gate.CheckBattles())
-                    game.isBattleGoing = true;
         }
 
         public static void MultiAdd(Game game, GateCard destination, MoveSource mover, params Bakugan[] bakugans)
@@ -450,11 +433,6 @@ namespace AB_Server
                 game.OnBakuganMoved(bakugan, destination);
                 bakugan.BattleEndedInDraw = false; // Reset flag
             }
-
-            game.isBattleGoing = false;
-            foreach (var gate in game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
-                if (gate.CheckBattles())
-                    game.isBattleGoing = true;
         }
 
         public void FromGrave(GateCard destination, MoveSource mover = MoveSource.Effect)
@@ -509,8 +487,6 @@ namespace AB_Server
                     { "BID", BID }
                 });
             }
-
-            Game.isBattleGoing |= destination.CheckBattles();
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -612,15 +588,6 @@ namespace AB_Server
                     });
                 }
 
-                Game.isBattleGoing = false;
-                foreach (var gate in Game.GateIndex.Where(x => x.OnField && x.Bakugans.Count >= 0))
-                {
-                    if (gate.CheckBattles())
-                    {
-                        Game.isBattleGoing = true;
-                        break;
-                    }
-                }
                 BattleEndedInDraw = false;
             }
         }

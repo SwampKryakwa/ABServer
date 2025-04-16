@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATENEGATETARGET", TargetValidator = x => x.OnField && x.IsOpen}
+                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_GATENEGATETARGET", TargetValidator = x => x.OnField}
             ];
         }
 
@@ -58,6 +58,7 @@ namespace AB_Server.Abilities
                 });
             }
 
+            target.IsOpen = true;
             target.Negate();
         }
     }

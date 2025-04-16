@@ -3,6 +3,8 @@
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace AB_Server
 {
@@ -617,6 +619,11 @@ namespace AB_Server
 
             if (!BakuganIndex.Any(x => x.InHand()))
             {
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new()
+                    {
+                        { "Type", "GateClosing" }
+                    });
                 foreach (var bakugan in BakuganIndex.Where(x => x.OnField()))
                     if (bakugan.Position is GateCard positionGate)
                         bakugan.ToHand(positionGate.EnterOrder);
@@ -633,6 +640,22 @@ namespace AB_Server
             currentTurn++;
             for (int i = 0; i < PlayerCount; i++)
                 NewEvents[i].Add(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
+
+            if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
+            {
+                var gate = new NormalGate(GateIndex.Count, Players[TurnPlayer]);
+                Players[TurnPlayer].GateHand.Add(gate);
+                GateIndex.Add(gate);
+                foreach (var e in NewEvents)
+                {
+                    e.Add(new JObject {
+                        { "Type", "GateAddedToHand" },
+                        { "Owner", TurnPlayer },
+                        { "GateType", -1 },
+                        { "CID", gate.CardId }
+                    });
+                }
+            }
 
             for (int i = 0; i < PlayerCount; i++)
                 NewEvents[i].Add(new()

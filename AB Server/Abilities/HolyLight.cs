@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BG", ForPlayer = owner.Id, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Owner == Owner && x.InGrave()}
+                new BakuganSelector() { ClientType = "BG", ForPlayer = owner.Id, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Owner == Owner && x.Power == Game.BakuganIndex.Where(x=>x.InGrave()).MinBy(x=>x.Power).Power && x.InGrave()}
             ];
         }
 

@@ -2,6 +2,7 @@
 
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Numerics;
 
 namespace AB_Server
 {
@@ -410,7 +411,7 @@ namespace AB_Server
                         if (loser != -1)
                         {
                             for (int i = 0; i < PlayerCount; i++)
-                                NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Victor", Players.First(x => x.Id != loser).Id } });
+                                NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != loser).Id } });
                             Over = true;
                             break;
                         }
@@ -437,6 +438,25 @@ namespace AB_Server
                     else
                         NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
 
+                    break;
+                case "draw":
+                    var toSuggestDraw = Players.First(x => x.Id != ActivePlayer).Id;
+                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
+                    OnAnswer[toSuggestDraw] = () =>
+                    {
+                        bool answer = (bool)IncomingSelection[toSuggestDraw]["array"][0]["answer"];
+                        if (answer)
+                        {
+                            for (int i = 0; i < PlayerCount; i++)
+                                NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Draw", true } });
+                            Over = true;
+                        }
+                        else
+                        {
+                            NextStep();
+                        }
+                    };
+                    doNotMakeStep = true;
                     break;
             }
             if (isBattleGoing)
@@ -465,6 +485,21 @@ namespace AB_Server
         {
             foreach (var gate in GateIndex.Where(x => x.OnField))
                 gate.CheckBattles();
+            int loser = -1;
+            foreach (var p in Players)
+                if (!p.BakuganOwned.Any(x => !x.Defeated))
+                {
+                    loser = p.Id;
+                    break;
+                }
+
+            if (loser != -1)
+            {
+                for (int i = 0; i < PlayerCount; i++)
+                    NewEvents[i].Add(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != loser).Id } });
+                Over = true;
+                return;
+            }
             Console.WriteLine("Battles to start: " + BattlesToStart.Count.ToString());
             if (BattlesToStart.Count != 0)
             {

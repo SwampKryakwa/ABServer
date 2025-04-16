@@ -272,7 +272,7 @@ namespace AB_Server
                 }
                 else
                 {
-                    jsonActives.Add(new JObject { { "Type", "E" }, {"ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
+                    jsonActives.Add(new JObject { { "Type", "E" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
                 }
             }
 
@@ -288,25 +288,28 @@ namespace AB_Server
 
         public static JObject GateSet(GateCard card, bool RevealInfo)
         {
-            if (RevealInfo)
-                return new()
-                {
-                    { "Type", "GateSetEvent" },
-                    { "PosX", card.Position.X },
-                    { "PosY", card.Position.Y },
-                    { "GateData", new JObject {
-                        { "Type", card.TypeId }
-                    } },
-                    { "Owner", card.Owner.Id },
-                    { "CID", card.CardId }
-                };
             return new()
             {
                 { "Type", "GateSetEvent" },
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {
-                    { "Type", -1 }
+                    { "Type", RevealInfo ? card.TypeId : -1 }
+                } },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
+            };
+        }
+
+        public static JObject GateRetracted(GateCard card, bool RevealInfo)
+        {
+            return new()
+            {
+                { "Type", "GateRetractedEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Type", RevealInfo ? card.TypeId : -1 }
                 } },
                 { "Owner", card.Owner.Id },
                 { "CID", card.CardId }

@@ -53,6 +53,7 @@ namespace AB_Server
         public List<IChainable> CardChain { get; set; } = [];
         public List<GateCard> BattlesToStart = [];
         public List<GateCard> BattlesToEnd { get; } = [];
+        public List<GateCard> GateSetList = [];
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
@@ -615,9 +616,14 @@ namespace AB_Server
             ActivePlayer = TurnPlayer;
 
             if (!BakuganIndex.Any(x => x.InHand()))
+            {
                 foreach (var bakugan in BakuganIndex.Where(x => x.OnField()))
                     if (bakugan.Position is GateCard positionGate)
                         bakugan.ToHand(positionGate.EnterOrder);
+                GateSetList[^1].Dispose();
+                foreach (var gate in GateIndex.Where(x => x.OnField))
+                    gate.Retract();
+            }
 
             Players[TurnPlayer].HadSetGate = false;
             Players[TurnPlayer].HadThrownBakugan = false;

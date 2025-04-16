@@ -200,7 +200,22 @@ namespace AB_Server.Gates
                 var e = game.NewEvents[i];
                 e.Add(EventBuilder.GateSet(this, game.Players[i] == Owner));
             }
+            game.GateSetList.Add(this);
             game.OnGateAdded(this, Owner.Id, posX, posY);
+        }
+
+        public virtual void Retract()
+        {
+            OnField = false;
+            (byte posX, byte posY) = Position;
+            game.Field[posX, posY] = null;
+            for (int i = 0; i < game.PlayerCount; i++)
+            {
+                var e = game.NewEvents[i];
+                e.Add(EventBuilder.GateRetracted(this, game.Players[i] == Owner));
+            }
+            game.GateSetList.Remove(this);
+            game.OnGateRemoved(this, Owner.Id, posX, posY);
         }
 
         public virtual void Open()

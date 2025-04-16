@@ -59,10 +59,18 @@ namespace AB_Server.Gates
             IsOpen = true;
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
+            ThrowBlocking.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
             game.CheckChain(Owner, this);
+        }
+
+        public override void Negate(bool asCounter = false)
+        {
+            base.Negate(asCounter);
+
+            ThrowBlocking.Remove(this);
         }
 
         public override void Resolve()

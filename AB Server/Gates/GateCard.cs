@@ -46,6 +46,7 @@ namespace AB_Server.Gates
         public bool IsFrozen { get => Freezing.Count != 0; }
         public List<object> Freezing = new();
         public List<object> OpenBlocking = new();
+        public List<object> ThrowBlocking = new();
         public List<object> MovingInEffectBlocking = new();
         public List<object> MovingAwayEffectBlocking = new();
         public bool OnField { get; set; } = false;

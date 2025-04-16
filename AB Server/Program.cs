@@ -253,6 +253,12 @@ namespace AB_Server
                                             GIDToGame.Remove(GID);
                                         }
                                         break;
+
+                                    case "redeemcode":
+                                        JObject codes = JObject.Parse(File.ReadAllText(@"codes.json"));
+                                        if (codes.ContainsKey((string)postedJson["code"]))
+                                            answer.Add("reward", codes[(string)postedJson["code"]]);
+                                        break;
                                 }
                                 if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
                                     Console.WriteLine();

@@ -1,0 +1,18 @@
+﻿{
+  "pydi78": {
+    "Treatment": "DIAMOND",
+    "Attribute": "NOVA"
+  },
+  "aqpe92": {
+    "Treatment": "PEARL",
+    "Attribute": "AQUA"
+  },
+  "hafl03": {
+    "Treatment": "FLIP",
+    "Attribute": "LUMINA"
+  },
+  "sutr10": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "SUBTERRA"
+  }
+}

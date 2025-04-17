@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new DoubleDimensionEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new DoubleDimensionEffect(User, (TargetSelectors[0] as ActiveSelector).SelectedActive.User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard && x.User.OnField() && x.User.IsEnemyOf(user));

@@ -42,5 +42,8 @@ namespace AB_Server.Gates
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(Owner.Bakugans.MaxBy(x => x.Power).Power - target.Power)), this);
         }
+
+        public override bool IsOpenable() =>
+            base.IsOpenable() && Owner.Bakugans.Count != 0;
     }
 }

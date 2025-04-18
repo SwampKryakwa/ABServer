@@ -42,7 +42,8 @@
                 }
             }
 
-            Open();
+            if (!IsOpen && !Negated)
+                Open();
         }
 
         public override void FakeBattleNormal(int winnerPower)
@@ -50,7 +51,8 @@
             foreach (Bakugan b in new List<Bakugan>(Bakugans.Where(x => x.Power < winnerPower)))
                 b.ToHand(EnterOrder);
 
-            Open();
+            if (!IsOpen && !Negated)
+                Open();
         }
 
         public override void Open()

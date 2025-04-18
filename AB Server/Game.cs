@@ -486,7 +486,7 @@ namespace AB_Server
         bool WindowSuggested = false;
         public void ContinueGame()
         {
-            foreach (var gate in GateIndex.Where(x => x.OnField))
+            foreach (var gate in GateIndex.Where(x => x.OnField && !BattlesToStart.Contains(x)))
                 gate.CheckBattles();
             int loser = -1;
             foreach (var p in Players)

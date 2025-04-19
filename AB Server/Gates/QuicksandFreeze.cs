@@ -83,6 +83,7 @@
 
         public override void Resolve()
         {
+            resolved = false;
             foreach (Bakugan b in Bakugans)
             {
                 b.JustEndedBattle = true;
@@ -95,14 +96,15 @@
             game.BattlesToEnd.Add(this);
         }
 
-        bool resolved = false;
+        bool resolved;
 
         public override void Dispose()
         {
-            if (resolved || !IsOpen)
+            if (resolved || !IsOpen || Negated)
                 base.Dispose();
             else
             {
+                resolved = true;
                 if (!CheckBattles())
                 {
                     foreach (Bakugan b in new List<Bakugan>(Bakugans))
@@ -114,7 +116,6 @@
                 }
                 else game.NextStep();
             }
-            resolved = true;
         }
 
         public override bool IsOpenable() =>

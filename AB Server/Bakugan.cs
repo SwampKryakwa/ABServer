@@ -19,7 +19,8 @@ namespace AB_Server
         None,
         Flip,
         Pearl,
-        Diamond
+        Diamond,
+        Translucent
     }
     enum BakuganType : sbyte
     {

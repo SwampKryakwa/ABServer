@@ -3,14 +3,53 @@
     "Treatment": "DIAMOND",
     "Attribute": "NOVA"
   },
+  "pype90": {
+    "Treatment": "PEARL",
+    "Attribute": "NOVA"
+  },
+  "pytr100": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "NOVA"
+  },
+  "pyfl296": {
+    "Treatment": "FLIP",
+    "Attribute": "NOVA"
+  },
+
+  "aqdi84": {
+    "Treatment": "DIAMOND",
+    "Attribute": "AQUA"
+  },
   "aqpe92": {
     "Treatment": "PEARL",
     "Attribute": "AQUA"
+  },
+  "aqtr905": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "AQUA"
+  },
+  "aqfl01": {
+    "Treatment": "FLIP",
+    "Attribute": "AQUA"
+  },
+
+  "hadi901": {
+    "Treatment": "DIAMOND",
+    "Attribute": "LUMINA"
+  },
+  "hape005": {
+    "Treatment": "PEARL",
+    "Attribute": "LUMINA"
+  },
+  "hatr48": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "LUMINA"
   },
   "hafl03": {
     "Treatment": "FLIP",
     "Attribute": "LUMINA"
   },
+
   "sutr10": {
     "Treatment": "TRANSLUCENT",
     "Attribute": "SUBTERRA"

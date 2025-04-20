@@ -1,5 +1,6 @@
 ﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server.Gates
 {
@@ -210,10 +211,18 @@ namespace AB_Server.Gates
             OnField = false;
             (byte posX, byte posY) = Position;
             game.Field[posX, posY] = null;
+            Owner.GateHand.Add(this);
+            Position = (255, 255);
             for (int i = 0; i < game.PlayerCount; i++)
             {
                 var e = game.NewEvents[i];
                 e.Add(EventBuilder.GateRetracted(this, game.Players[i] == Owner));
+                e.Add(new JObject {
+                        { "Type", "GateAddedToHand" },
+                        { "Owner", Owner.Id },
+                        { "GateType", TypeId },
+                        { "CID", CardId }
+                    });
             }
             game.GateSetList.Remove(this);
             game.OnGateRemoved(this, Owner.Id, posX, posY);

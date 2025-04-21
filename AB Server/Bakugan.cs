@@ -530,9 +530,6 @@ namespace AB_Server
                 });
             }
 
-            Boosts.ForEach(x => x.Active = false);
-            Boosts.Clear();
-
             BattleEndedInDraw = false; // Reset flag
         }
 
@@ -634,6 +631,8 @@ namespace AB_Server
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
 
+                Game.OnBakuganDestroyed(this, Owner.Id);
+
                 foreach (List<JObject> e in Game.NewEvents)
                     e.Add(new JObject {
                         { "Type", "BakuganAddedToGrave" },
@@ -646,7 +645,6 @@ namespace AB_Server
                         { "BID", BID }
                     });
 
-                Game.OnBakuganDestroyed(this, Owner.Id);
                 BattleEndedInDraw = false;
             }
         }

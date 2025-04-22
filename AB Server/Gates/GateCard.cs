@@ -24,7 +24,7 @@ namespace AB_Server.Gates
             (x, y) => new GrandSpirit(x, y),
             (x, y) => new Supernova(x, y),
             (x, y) => new Reloaded(x, y),
-            (x, y) => new Intercept(x, y),
+            (x, y) => new AdditionalTask(x, y),
             (x, y) => new QuicksandFreeze(x, y),
         ];
 
@@ -63,8 +63,6 @@ namespace AB_Server.Gates
 
             ActiveBattle = false;
 
-            game.isBattleGoing = game.GateIndex.Any(x => x.ActiveBattle);
-
             Console.WriteLine(GetType().ToString() + " frozen");
 
             Console.WriteLine("Battles going: " + game.isBattleGoing.ToString());
@@ -74,10 +72,7 @@ namespace AB_Server.Gates
         {
             Freezing.Remove(frozer);
             if (Freezing.Count == 0)
-            {
-                game.isBattleGoing |= CheckBattles();
                 Console.WriteLine(GetType().ToString() + " unfrozen");
-            }
             else
                 Console.WriteLine(GetType().ToString() + " still frozen");
         }
@@ -209,11 +204,6 @@ namespace AB_Server.Gates
 
         public virtual void Retract()
         {
-            OnField = false;
-            (byte posX, byte posY) = Position;
-            game.Field[posX, posY] = null;
-            Owner.GateHand.Add(this);
-            Position = (255, 255);
             for (int i = 0; i < game.PlayerCount; i++)
             {
                 var e = game.NewEvents[i];
@@ -225,6 +215,11 @@ namespace AB_Server.Gates
                         { "CID", CardId }
                     });
             }
+            OnField = false;
+            (byte posX, byte posY) = Position;
+            game.Field[posX, posY] = null;
+            Owner.GateHand.Add(this);
+            Position = (255, 255);
             game.GateSetList.Remove(this);
             game.OnGateRemoved(this, Owner.Id, posX, posY);
         }

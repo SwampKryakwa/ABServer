@@ -1,19 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AB_Server.Gates
 {
-    internal class Intercept : GateCard
+    internal class AdditionalTask : GateCard
     {
-        private int turnCounter = 0;
-
-        public Intercept(int cID, Player owner)
+        public AdditionalTask(int cID, Player owner)
         {
             game = owner.game;
             Owner = owner;
+
             CardId = cID;
         }
 
         public override int TypeId { get; } = 11;
+
+        public override bool IsOpenable() => false;
 
         public override void Set(byte posX, byte posY)
         {
@@ -35,40 +40,33 @@ namespace AB_Server.Gates
                 game.AutoGatesToOpen.Add(this);
         }
 
-        private void OnTurnAboutToEnd()
-        {
-            if (turnCounter++ > 1)
-            {
-                TryUnfreeze(this);
-                game.TurnAboutToEnd -= OnTurnAboutToEnd;
-            }
-        }
-
         public override void Open()
         {
             IsOpen = true;
-            ThrowBlocking.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
-            game.NextStep();
+
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, EnterOrder[^1])
+            ));
+
+            game.OnAnswer[Owner.Id] = Setup1;
         }
 
-        public override void Negate(bool asCounter = false)
-        {
-            base.Negate(asCounter);
+        Bakugan target;
 
-            ThrowBlocking.Remove(this);
+        public void Setup1()
+        {
+            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+
+            game.NextStep();
         }
 
         public override void Resolve()
         {
-            game.ActiveZone.Remove(this);
-            Freeze(this);
-
-            game.TurnAboutToEnd += OnTurnAboutToEnd;
+            if (!Negated && target.Position == this)
+                target.ToHand(EnterOrder);
         }
-
-        public override bool IsOpenable() => false;
     }
 }

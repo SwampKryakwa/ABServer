@@ -49,7 +49,7 @@ namespace AB_Server
 
         public byte TurnPlayer { get; set; }
         public byte ActivePlayer { get; protected set; }
-        public bool isBattleGoing { get; set; } = false;
+        public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.ActiveBattle); }
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
 
         public List<IChainable> CardChain { get; set; } = [];
@@ -420,8 +420,6 @@ namespace AB_Server
                             break;
                         }
 
-                        isBattleGoing = false;
-
                         WindowSuggested = false;
                         playersPassedCount = 0;
                     }
@@ -474,7 +472,6 @@ namespace AB_Server
                         break;
                     if (startPlayer == ActivePlayer)
                     {
-                        isBattleGoing = false;
                         break;
                     }
                 }
@@ -534,7 +531,6 @@ namespace AB_Server
                     }
                     BattlesToStart.Clear();
                     Console.WriteLine("Battles to start cleared");
-                    isBattleGoing = GateIndex.Any(x => x.ActiveBattle);
                     ContinueGame();
                 }
             }
@@ -553,14 +549,11 @@ namespace AB_Server
                 else
                 {
                     WindowSuggested = false;
-                    isBattleGoing = false;
                     BattlesOver?.Invoke();
                     BattlesToEnd.ForEach(x =>
                     {
                         if (!x.CheckBattles())
                             x.Dispose();
-                        else
-                            isBattleGoing = true;
                     });
                     BattlesToEnd.Clear();
 
@@ -580,7 +573,6 @@ namespace AB_Server
             {
                 CurrentWindow = ActivationWindow.Normal;
                 doNotMakeStep = false;
-                isBattleGoing = GateIndex.Any(x => x.ActiveBattle);
                 foreach (var playerEvents in NewEvents)
                     playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
             }
@@ -644,6 +636,11 @@ namespace AB_Server
             if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
             ActivePlayer = TurnPlayer;
 
+            Players[TurnPlayer].HadSetGate = false;
+            Players[TurnPlayer].HadThrownBakugan = false;
+            foreach (Player player in Players)
+                player.HadUsedCounter = false;
+
             if (!BakuganIndex.Any(x => x.InHand()))
             {
                 for (int i = 0; i < PlayerCount; i++)
@@ -658,11 +655,6 @@ namespace AB_Server
                 foreach (var gate in GateIndex.Where(x => x.OnField))
                     gate.Retract();
             }
-
-            Players[TurnPlayer].HadSetGate = false;
-            Players[TurnPlayer].HadThrownBakugan = false;
-            foreach (Player player in Players)
-                player.HadUsedCounter = false;
 
             currentTurn++;
             for (int i = 0; i < PlayerCount; i++)
@@ -704,8 +696,6 @@ namespace AB_Server
                 ContinueGame();
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
-
-
         }
 
         public JObject GetPossibleMoves(int player)

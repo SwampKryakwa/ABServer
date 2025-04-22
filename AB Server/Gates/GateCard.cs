@@ -166,6 +166,7 @@ namespace AB_Server.Gates
         {
             if (!CheckBattles())
             {
+                ActiveBattle = false;
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
                     b.JustEndedBattle = false;
@@ -228,8 +229,11 @@ namespace AB_Server.Gates
             game.OnGateRemoved(this, Owner.Id, posX, posY);
         }
 
+        public virtual void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos) { }
+
         public virtual void Open()
         {
+            game.OnGateOpen(this);
             IsOpen = true;
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);

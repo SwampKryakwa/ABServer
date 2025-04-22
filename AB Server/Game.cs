@@ -54,6 +54,8 @@ namespace AB_Server
 
         public List<IChainable> CardChain { get; set; } = [];
         public List<GateCard> BattlesToStart = [];
+        public List<GateCard> AutoGatesToOpen = [];
+
         public List<GateCard> BattlesToEnd { get; } = [];
         public List<GateCard> GateSetList = [];
 
@@ -376,7 +378,6 @@ namespace AB_Server
                         DontThrowTurnStartEvent = true;
                         doNotMakeStep = true;
                         gateToOpen.Open();
-                        OnGateOpen(gateToOpen);
                     }
                     else
                         NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
@@ -503,6 +504,7 @@ namespace AB_Server
                 Over = true;
                 return;
             }
+
             Console.WriteLine("Battles to start: " + BattlesToStart.Count.ToString());
             if (BattlesToStart.Count != 0)
             {

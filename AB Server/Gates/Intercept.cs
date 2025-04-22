@@ -16,33 +16,18 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 11;
 
-        public override bool CheckBattles()
+        public override void Set(byte posX, byte posY)
         {
-            if (Freezing.Count != 0 || BattleOver) return false;
-
-            bool isBattle = Bakugans.Count > 1;
-
-            if (isBattle)
-            {
-                if (!ActiveBattle)
-                {
-                    game.BattlesToStart.Add(this);
-                }
-            }
-            else
-            {
-                ActiveBattle = false;
-            }
-
-            return isBattle;
+            base.Set(posX, posY);
+            game.BakuganAdded += CheckAutoConditions;
         }
 
-        public override void StartBattle()
+        public override void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos)
         {
-            if (!IsOpen && !Negated)
-                Open();
-            else
-                base.StartBattle();
+            if (pos != this || IsOpen || Negated) return;
+
+            if (Bakugans.Count >= 2)
+                game.AutoGatesToOpen.Add(this);
         }
 
         private void OnTurnAboutToEnd()
@@ -75,6 +60,7 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
+            game.ActiveZone.Remove(this);
             Freeze(this);
 
             game.TurnAboutToEnd += OnTurnAboutToEnd;

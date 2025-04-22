@@ -107,6 +107,7 @@
                 resolved = true;
                 if (!CheckBattles())
                 {
+                    ActiveBattle = false;
                     foreach (Bakugan b in new List<Bakugan>(Bakugans))
                     {
                         b.JustEndedBattle = false;

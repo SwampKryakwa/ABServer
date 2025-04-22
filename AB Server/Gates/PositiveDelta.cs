@@ -12,37 +12,33 @@
 
         public override int TypeId { get; } = 6;
 
-        public override bool CheckBattles()
+        public override void Set(byte posX, byte posY)
         {
-            if (IsFrozen || BattleOver) return false;
+            game.BakuganAdded += CheckAutoConditions;
+            base.Set(posX, posY);
+        }
 
-            bool isBattle = Bakugans.Count > 1;
+        public override void Dispose()
+        {
+            game.BakuganAdded -= CheckAutoConditions;
+            base.Dispose();
+        }
 
-            if (isBattle)
-            {
-                if (!ActiveBattle)
-                {
-                    game.BattlesToStart.Add(this);
-                    if (!IsOpen && !Negated)
-                        Open();
-                }
-            }
-            else
-            {
-                ActiveBattle = false;
-            }
+        public override void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos)
+        {
+            if (pos != this || IsOpen || Negated) return;
 
-            return isBattle;
+            if (Bakugans.Count >= 2)
+                game.AutoGatesToOpen.Add(this);
         }
 
         public override void Open()
         {
             IsOpen = true;
-            game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
-            game.CheckChain(Owner, this);
+            game.NextStep();
         }
 
         public override void Resolve()

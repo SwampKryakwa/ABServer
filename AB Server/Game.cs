@@ -505,6 +505,13 @@ namespace AB_Server
                 return;
             }
 
+            if (AutoGatesToOpen.Count != 0)
+            {
+                NextStep = ProcessAutoGate;
+                ProcessAutoGate();
+                return;
+            }
+
             Console.WriteLine("Battles to start: " + BattlesToStart.Count.ToString());
             if (BattlesToStart.Count != 0)
             {
@@ -579,6 +586,24 @@ namespace AB_Server
             }
         }
 
+        public void ProcessAutoGate()
+        {
+            if (AutoGatesToOpen.Count == 0)
+            {
+                NextStep = ContinueGame;
+                CardChain.Reverse();
+                var toSend = CardChain[0] as GateCard;
+                CheckChain(toSend.Owner, toSend);
+            }
+            else
+            {
+                var gateToProcess = AutoGatesToOpen[0];
+                AutoGatesToOpen.RemoveAt(0);
+                CardChain.Add(gateToProcess);
+                ActiveZone.Add(gateToProcess);
+                gateToProcess.Open();
+            }
+        }
         public void EndTurn()
         {
             playersPassed.Clear();

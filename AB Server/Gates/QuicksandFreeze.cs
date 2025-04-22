@@ -43,7 +43,7 @@
             }
 
             if (!IsOpen && !Negated)
-                Open();
+                game.AutoGatesToOpen.Add(this);
         }
 
         public override void FakeBattleNormal(int winnerPower)
@@ -52,15 +52,13 @@
                 b.ToHand(EnterOrder);
 
             if (!IsOpen && !Negated)
-                Open();
+                game.AutoGatesToOpen.Add(this);
         }
 
         public override void Open()
         {
             IsOpen = true;
             resolved = false;
-            game.ActiveZone.Add(this);
-            game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
@@ -78,7 +76,7 @@
         {
             target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            game.CheckChain(Owner, this);
+            game.NextStep();
         }
 
         public override void Resolve()

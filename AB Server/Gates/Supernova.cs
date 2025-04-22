@@ -11,11 +11,31 @@
 
         public override int TypeId { get; } = 9;
 
+        public override bool IsOpenable() => false;
+
+        public override void Set(byte posX, byte posY)
+        {
+            game.BakuganAdded += CheckAutoConditions;
+            base.Set(posX, posY);
+        }
+
+        public override void Dispose()
+        {
+            game.BakuganAdded -= CheckAutoConditions;
+            base.Dispose();
+        }
+
+        public override void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos)
+        {
+            if (pos != this || IsOpen || Negated) return;
+
+            if (Bakugans.Count >= 2)
+                game.AutoGatesToOpen.Add(this);
+        }
+
         public override void Open()
         {
             IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
@@ -45,7 +65,7 @@
         {
             target2 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
 
-            game.CheckChain(Owner, this);
+            game.NextStep();
         }
 
         public override void Resolve()

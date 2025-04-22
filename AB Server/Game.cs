@@ -573,6 +573,24 @@ namespace AB_Server
             {
                 CurrentWindow = ActivationWindow.Normal;
                 doNotMakeStep = false;
+
+                if (isBattleGoing && !Players[ActivePlayer].HasBattlingBakugan())
+                {
+                    var startPlayer = ActivePlayer;
+                    while (true)
+                    {
+                        ActivePlayer++;
+                        if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+                        if (Players[ActivePlayer].HasBattlingBakugan())
+                            break;
+                        if (startPlayer == ActivePlayer)
+                        {
+                            Console.WriteLine("WARNING! NO PLAYER CAN MAKE MOVE!");
+                            break;
+                        }
+                    }
+                }
+
                 foreach (var playerEvents in NewEvents)
                     playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
             }

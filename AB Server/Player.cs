@@ -195,6 +195,6 @@ namespace AB_Server
         }
 
         public bool HasBattlingBakugan() =>
-            BakuganOwned.Any(x => x.InBattle);
+            BakuganOwned.Any(x => x.OnField() && !x.Defeated && x.InBattle);
     }
 }

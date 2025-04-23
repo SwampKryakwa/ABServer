@@ -44,22 +44,7 @@ namespace AB_Server.Abilities.Correlations
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 2 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 2, User));
 
             User.Boost(new Boost(100), this);
             target.Boost(new Boost(100), this);

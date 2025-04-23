@@ -52,22 +52,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    } }
-                });
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
             User.FromGrave(battleGate);
         }

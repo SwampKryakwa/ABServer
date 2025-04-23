@@ -19,8 +19,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
             foreach (var bakugan in game.BakuganIndex)
                 if (bakugan.OnField())

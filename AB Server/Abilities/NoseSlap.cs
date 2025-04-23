@@ -23,43 +23,19 @@ namespace AB_Server.Abilities
             user.Game.GateIndex.Any(x => x.OnField && x.IsAdjacentVertically(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
     }
 
-    internal class NoseSlapEffect
+    internal class NoseSlapEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        public int TypeId { get; } = typeID;
+        public Bakugan User = user;
+        Bakugan target = target;
         Game game { get => User.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public NoseSlapEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.target = target;
-
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
             // Compare the powers of the user and the target Bakugan
             if (target.Power < User.Power)

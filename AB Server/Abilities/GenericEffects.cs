@@ -19,8 +19,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             target.Boost(new Boost(boostAmmount), this);
         }
     }
@@ -37,8 +36,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach (Bakugan target in targets)
                 target.Boost(new Boost(boostAmmount), this);
         }
@@ -56,8 +54,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach ((Bakugan target, short boostAmmount) in targets.Zip(boostAmmounts, Tuple.Create))
                 target.Boost(new Boost(boostAmmount), this);
         }
@@ -74,8 +71,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
                 target.Boost(new Boost(boostAmmount), this);
         }

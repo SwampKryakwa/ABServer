@@ -31,29 +31,19 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
     }
 
-    internal class StrikeBackEffect
+    internal class StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        Bakugan user;
-        Bakugan target;
+        public int TypeId { get; } = typeID;
+        Bakugan user = user;
+        Bakugan target = target;
         Game game { get => user.Game; }
 
         public Player Onwer { get; set; }
-        bool IsCopy;
-
-        public StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            this.user = user;
-            this.target = target;
-            this.IsCopy = IsCopy;
-
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
 
             if (user.InGrave())

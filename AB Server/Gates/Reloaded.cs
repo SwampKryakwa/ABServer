@@ -17,8 +17,7 @@ namespace AB_Server.Gates
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
+            game.ThrowEvent(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner))

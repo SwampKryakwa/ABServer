@@ -61,26 +61,6 @@ namespace AB_Server.Abilities
             Activate();
         }
 
-        public new void Activate()
-        {
-
-            for (int i = 0; i < Game.NewEvents.Length; i++)
-            {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
-            Game.CheckChain(Owner, this, User);
-        }
-
         public override void TriggerEffect() =>
             new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
 
@@ -88,47 +68,25 @@ namespace AB_Server.Abilities
             user.IsAttribute(Attribute.Lumina) && user.InBattle;
     }
 
-    internal class LightningTornadoEffect
+    internal class LightningTornadoEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)
     {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
+        public int TypeId { get; } = typeID;
+        public Bakugan User = user;
+        Bakugan target = target;
         Game game { get => User.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public LightningTornadoEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)
-        {
-            User = user;
-            this.target = target;
-            IsCopy = isCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = isCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
             // Increase the power of the user Bakugan by 100G
             User.Boost(new Boost(100), this);
 
             // If a target Bakugan is selected, decrease its power by 100G
-            if (target != null)
-                target.Boost(new Boost(-100), this);
+            target?.Boost(new Boost(-100), this);
         }
     }
 }

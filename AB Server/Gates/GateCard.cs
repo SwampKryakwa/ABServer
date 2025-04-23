@@ -176,11 +176,8 @@ namespace AB_Server.Gates
 
                     game.Field[Position.X, Position.Y] = null;
 
-                    foreach (List<JObject> e in game.NewEvents)
-                    {
-                        e.Add(EventBuilder.RemoveGate(this));
-                        e.Add(EventBuilder.SendGateToGrave(this));
-                    }
+                    game.ThrowEvent(EventBuilder.RemoveGate(this));
+                    game.ThrowEvent(EventBuilder.SendGateToGrave(this));
                 }
             }
             else game.NextStep();
@@ -194,28 +191,20 @@ namespace AB_Server.Gates
             OnField = true;
             Owner.GateHand.Remove(this);
             Position = (posX, posY);
-            for (int i = 0; i < game.PlayerCount; i++)
-            {
-                var e = game.NewEvents[i];
-                e.Add(EventBuilder.GateSet(this, game.Players[i] == Owner));
-            }
+            game.ThrowEvent(EventBuilder.GateSet(this, game.Players[i] == Owner));
             game.GateSetList.Add(this);
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
 
         public virtual void Retract()
         {
-            for (int i = 0; i < game.PlayerCount; i++)
-            {
-                var e = game.NewEvents[i];
-                e.Add(EventBuilder.GateRetracted(this, game.Players[i] == Owner));
-                e.Add(new JObject {
-                        { "Type", "GateAddedToHand" },
-                        { "Owner", Owner.Id },
-                        { "GateType", TypeId },
-                        { "CID", CardId }
-                    });
-            }
+            game.ThrowEvent(EventBuilder.GateRetracted(this, game.Players[i] == Owner));
+            game.ThrowEvent(new JObject {
+                { "Type", "GateAddedToHand" },
+                { "Owner", Owner.Id },
+                { "GateType", TypeId },
+                { "CID", CardId }
+            });
             OnField = false;
             (byte posX, byte posY) = Position;
             game.Field[posX, posY] = null;
@@ -234,8 +223,7 @@ namespace AB_Server.Gates
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
+            game.ThrowEvent(EventBuilder.GateOpen(this));
             game.CheckChain(Owner, this);
         }
 
@@ -320,8 +308,7 @@ namespace AB_Server.Gates
             Negated = true;
             IsOpen = false;
 
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateNegated(this));
+            game.ThrowEvent(EventBuilder.GateNegated(this));
         }
     }
 }

@@ -20,38 +20,26 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();
     }
 
-    internal class PinDownEffect
+    internal class PinDownEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        Bakugan user;
-        Bakugan target;
+        public int TypeId { get; } = typeID;
+        Bakugan user = user;
+        Bakugan target = target;
         Game game { get => user.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public PinDownEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            this.user = user;
-            this.target = target;
-            
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             if (target.Position is GateCard targetGate)
-            {
                 foreach (var bakugan in targetGate.Bakugans.Where(b => b != target))
                 {
                     int powerDifference = 400 - bakugan.Power;
                     bakugan.Boost(new Boost((short)powerDifference), this);
                 }
-            }
         }
     }
 }

@@ -47,20 +47,18 @@ namespace AB_Server.Abilities
         {
             FusedTo.Discard();
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            Game.ThrowEvent(new()
             {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
+                ["Type"] = "AbilityAddedActiveZone",
+                ["IsCopy"] = IsCopy,
+                ["Id"] = EffectId,
+                ["Card"] = TypeId,
+                ["Kind"] = (int)Kind,
+                ["User"] = User.BID,
+                ["IsCounter"] = asCounter,
+                ["Owner"] = Owner.Id
+            });
+
             Game.CheckChain(Owner, this, User);
         }
 

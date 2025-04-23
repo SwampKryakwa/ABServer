@@ -20,29 +20,19 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && !(x.Position as GateCard).IsTouching(user.Position as GateCard) && x.Position != user.Position && x.IsEnemyOf(user));
     }
 
-    internal class TremorsEffect
+    internal class TremorsEffect(Bakugan user, Bakugan[] targets, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        Bakugan user;
-        Bakugan[] targets;
+        public int TypeId { get; } = typeID;
+        Bakugan user = user;
+        Bakugan[] targets = targets;
         Game game { get => user.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public TremorsEffect(Bakugan user, Bakugan[] targets, int typeID, bool IsCopy)
-        {
-            this.user = user;
-            this.targets = targets;
-
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-                game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             foreach (var target in targets)
             {

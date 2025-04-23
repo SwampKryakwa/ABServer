@@ -209,20 +209,17 @@ namespace AB_Server.Abilities
 
         public virtual void Activate()
         {
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            Game.ThrowEvent(new()
             {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityAddedActiveZone",
-                    ["IsCopy"] = IsCopy,
-                    ["Id"] = EffectId,
-                    ["Card"] = TypeId,
-                    ["Kind"] = (int)Kind,
-                    ["User"] = User.BID,
-                    ["IsCounter"] = asCounter,
-                    ["Owner"] = Owner.Id
-                });
-            }
+                ["Type"] = "AbilityAddedActiveZone",
+                ["IsCopy"] = IsCopy,
+                ["Id"] = EffectId,
+                ["Card"] = TypeId,
+                ["Kind"] = (int)Kind,
+                ["User"] = User.BID,
+                ["IsCounter"] = asCounter,
+                ["Owner"] = Owner.Id
+            });
 
             Game.CheckChain(Owner, this, User);
         }
@@ -252,17 +249,14 @@ namespace AB_Server.Abilities
             if (!IsCopy)
                 Owner.AbilityGrave.Add(this);
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            Game.ThrowEvent(new()
             {
-                Game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityRemovedActiveZone" },
-                    { "Id", EffectId },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
-                });
-                Game.NewEvents[i].Add(EventBuilder.SendAbilityToGrave(this));
-            }
+                { "Type", "AbilityRemovedActiveZone" },
+                { "Id", EffectId },
+                { "Card", TypeId },
+                { "Owner", Owner.Id }
+            });
+            Game.ThrowEvent(EventBuilder.SendAbilityToGrave(this));
         }
         public virtual void Discard()
         {
@@ -271,15 +265,12 @@ namespace AB_Server.Abilities
             if (!IsCopy)
                 Owner.AbilityGrave.Add(this);
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            Game.ThrowEvent(new()
             {
-                Game.NewEvents[i].Add(new()
-                {
-                    ["Type"] = "AbilityRemovedFromHand",
-                    ["CID"] = CardId,
-                    ["Owner"] = Owner.Id
-                });
-            }
+                ["Type"] = "AbilityRemovedFromHand",
+                ["CID"] = CardId,
+                ["Owner"] = Owner.Id
+            });
         }
 
         public virtual void Retract()
@@ -288,17 +279,14 @@ namespace AB_Server.Abilities
             if (!IsCopy)
                 Owner.AbilityHand.Add(this);
 
-            for (int i = 0; i < Game.NewEvents.Length; i++)
+            Game.ThrowEvent(new()
             {
-                Game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityRemovedActiveZone" },
-                    { "Id", EffectId },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
-                });
-                Game.NewEvents[i].Add(EventBuilder.SendAbilityToGrave(this));
-            }
+                { "Type", "AbilityRemovedActiveZone" },
+                { "Id", EffectId },
+                { "Card", TypeId },
+                { "Owner", Owner.Id }
+            });
+            Game.ThrowEvent(EventBuilder.SendAbilityToGrave(this));
         }
 
         public virtual void TriggerEffect() =>

@@ -18,8 +18,7 @@
             game.ActiveZone.Add(this);
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
+            game.ThrowEvent(EventBuilder.GateOpen(this));
 
             game.CheckChain(Owner, this);
         }

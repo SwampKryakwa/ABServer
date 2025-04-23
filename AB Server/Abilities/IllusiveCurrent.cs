@@ -15,54 +15,28 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect() => new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && (user.IsAttribute(Attribute.Aqua) || user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua)));
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && (user.IsAttribute(Attribute.Aqua) || user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua)));
 
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.OnField();
+        public static new bool HasValidTargets(Bakugan user) => user.OnField();
     }
 
-    internal class IllusiveCurrentEffect
+    internal class IllusiveCurrentEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan selectedBakugan;
+        public int TypeId { get; } = typeID;
+        public Bakugan User = user;
+        Bakugan selectedBakugan = selectedBakugan;
         Game game { get => User.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public IllusiveCurrentEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.selectedBakugan = selectedBakugan;
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (User.Position is GateCard positionGate)
+            if (User.Position is GateCard positionGate && selectedBakugan.Position is Player)
             {
                 User.ToHand(positionGate.EnterOrder);
                 selectedBakugan.AddFromHand(positionGate);

@@ -56,7 +56,15 @@ namespace AB_Server
                                 string requestedResource = request.Url.ToString().Split('/')[^1];
 
                                 // Decode the key value
-                                if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "checkgamestarted" && requestedResource != "")
+                                string[] dontlog = { "getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", "" };
+                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave" };
+                                if (!validkeys.Contains(requestedResource))
+                                {
+                                    resp.StatusCode = 400; // Bad Request
+                                    resp.Close();
+                                    continue;
+                                }
+                                if (!dontlog.Contains(requestedResource))
                                 {
                                     Console.WriteLine(key);
                                     Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -103,7 +111,7 @@ namespace AB_Server
                                     case "leaveroom":
                                         if (Rooms.ContainsKey((string)postedJson["roomName"]))
                                         {
-                                            Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]);
+                                            try { Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]); } catch { }
                                             if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
                                         }
                                         break;
@@ -136,6 +144,10 @@ namespace AB_Server
 
                                     case "checkstarted":
                                         answer.Add("started", Rooms[(string)postedJson["roomName"]].Started);
+                                        break;
+
+                                    case "getroomupdates":
+                                        answer.Add("updates", Rooms[(string)postedJson["roomName"]].GetUpdates((long)postedJson["uuid"]));
                                         break;
 
                                     case "checkgamestarted":
@@ -197,17 +209,16 @@ namespace AB_Server
                                         break;
 
                                     case "getupdates":
-                                        answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetUpdates((int)postedJson["pid"])));
+                                        answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"])));
                                         break;
 
                                     case "sendchatmessage":
-                                        foreach (var updates in GIDToGame[(string)postedJson["gid"]].NewEvents)
-                                            updates.Add(new JObject
-                                            {
-                                                { "Type", "NewMessage" },
-                                                { "Sender", postedJson["pid"] },
-                                                { "Text", postedJson["text"] }
-                                            });
+                                        GIDToGame[(string)postedJson["gid"]].ThrowEvent(new JObject
+                                        {
+                                            { "Type", "NewMessage" },
+                                            { "Sender", postedJson["pid"] },
+                                            { "Text", postedJson["text"] }
+                                        });
                                         break;
 
                                     case "checkturnstart":
@@ -260,7 +271,7 @@ namespace AB_Server
                                             answer.Add("reward", codes[(string)postedJson["code"]]);
                                         break;
                                 }
-                                if (requestedResource != "getupdates" && requestedResource != "getplayerlist" && requestedResource != "getallready" && requestedResource != "checkstarted" && requestedResource != "")
+                                if (!dontlog.Contains(requestedResource))
                                     Console.WriteLine();
                                 byte[] data = Encoding.UTF8.GetBytes(answer.ToString());
                                 resp.ContentType = "text/html";

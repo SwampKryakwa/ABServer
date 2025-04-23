@@ -36,8 +36,7 @@
         {
             IsOpen = true;
             EffectId = game.NextEffectId++;
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
+            game.ThrowEvent(EventBuilder.GateOpen(this));
 
             if (Bakugans.Any(x => x.Owner == Owner && x.IsAttribute(Attribute.Darkon) && x.BasePower <= 370))
             {

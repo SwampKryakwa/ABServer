@@ -15,41 +15,18 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Subterra);
     }
 
-    internal class SpiritCanyonEffect
+    internal class SpiritCanyonEffect(Bakugan user, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        Bakugan User;
+        public int TypeId { get; } = typeID;
+        Bakugan User = user;
         Game game { get => User.Game; }
 
         public Player Owner { get; set; }
-        bool IsCopy;
-
-        public SpiritCanyonEffect(Bakugan user, int typeID, bool IsCopy)
-        {
-            User = user;
-            
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" },
-                    { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             User.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField) * 50)), this);
         }
     }

@@ -38,22 +38,8 @@ namespace AB_Server.Abilities
             int team = User.Owner.SideID;
             game.ActiveZone.Add(this);
 
-            for (int i = 0; i < game.NewEvents.Length; i++)
-            {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "AbilityActivateEffect" }, { "Kind", 0 },
-                    { "Card", TypeId },
-                    { "UserID", User.BID },
-                    { "User", new JObject {
-                        { "Type", (int)User.Type },
-                        { "Attribute", (int)User.MainAttribute },
-                        { "Treatment", (int)User.Treatment },
-                        { "Power", User.Power }
-                    }}
-                });
-                game.NewEvents[i].Add(EventBuilder.AddEffectToActiveZone(this, IsCopy));
-            }
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(100);
             User.Boost(currentBoost, this);
@@ -84,14 +70,11 @@ namespace AB_Server.Abilities
                 User.RemoveBoost(currentBoost, this);
             }
 
-            for (int i = 0; i < game.NewEvents.Length; i++)
+            game.ThrowEvent(new()
             {
-                game.NewEvents[i].Add(new()
-                {
-                    { "Type", "EffectRemovedActiveZone" },
-                    { "Id", EffectId }
-                });
-            }
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
         }
     }
 }

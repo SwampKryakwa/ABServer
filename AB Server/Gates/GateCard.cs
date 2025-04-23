@@ -188,6 +188,7 @@ namespace AB_Server.Gates
 
         public virtual void Set(byte posX, byte posY)
         {
+            IsOpen = false;
             IsDraw = false;
             game.Field[posX, posY] = this;
             OnField = true;

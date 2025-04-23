@@ -47,18 +47,18 @@ namespace AB_Server
         public bool Active = true;
     }
 
-    internal class Bakugan
+    internal class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
     {
-        public Game Game;
+        public Game Game = game;
 
-        public int BID;
-        public BakuganType Type;
+        public int BID = BID;
+        public BakuganType Type = type;
         public bool IsPartner = false;
 
         public List<object> affectingEffects = [];
 
-        public short DefaultPower { get; }
-        public short BasePower;
+        public short DefaultPower { get; } = power;
+        public short BasePower = power;
         public List<Boost> Boosts = [];
         public int PowerModifier = 1;
         public int Power
@@ -70,19 +70,19 @@ namespace AB_Server
             get => Boosts.Sum(b => b.Value) * PowerModifier;
         }
 
-        public Player Owner;
+        public Player Owner = owner;
 
-        public Attribute BaseAttribute;
-        public Attribute MainAttribute;
+        public Attribute BaseAttribute = attribute;
+        public Attribute MainAttribute = attribute;
         public List<Attribute> ExtraAttributes = [];
-        public Treatment Treatment;
+        public Treatment Treatment = treatment;
 
         public bool IsAttribute(Attribute attr)
         {
             return MainAttribute == attr || ExtraAttributes.Contains(attr);
         }
 
-        public IBakuganContainer Position;
+        public IBakuganContainer Position = owner;
         public bool InBattle
         {
             get => Position is GateCard gatePosition && gatePosition.ActiveBattle;
@@ -94,29 +94,10 @@ namespace AB_Server
         public bool StickOnce = false;
         public bool BattleEndedInDraw = false; // New flag
 
-        public Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
+        public static Bakugan GetDummy() => new Bakugan(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)
         {
-            Type = type;
-            DefaultPower = power;
-            BasePower = power;
-            Game = game;
-            this.BID = BID;
-            BaseAttribute = attribute;
-            MainAttribute = attribute;
-            Treatment = treatment;
-            Owner = owner;
-            Position = owner;
-        }
-
-        public static Bakugan GetDummy()
-        {
-            var dummy = new Bakugan(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)
-            {
-                IsDummy = true
-            };
-
-            return dummy;
-        }
+            IsDummy = true
+        };
 
         public void Boost(Boost boost, object source)
         {
@@ -127,18 +108,18 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
-                { "Type", "BakuganBoostedEvent" },
-                { "Owner", Owner.Id },
-                { "Boost", boost.Value },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID } }
-                }
-            });
+                    { "Type", "BakuganBoostedEvent" },
+                    { "Owner", Owner.Id },
+                    { "Boost", boost.Value },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)MainAttribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID }
+                    } }
+                });
             }
             Game.OnBakuganBoosted(this, boost, source);
 
@@ -154,18 +135,18 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
-                { "Type", "BakuganBoostedEvent" },
-                { "Owner", Owner.Id },
-                { "Boost", -boost.Value },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID } }
-                }
-            });
+                    { "Type", "BakuganBoostedEvent" },
+                    { "Owner", Owner.Id },
+                    { "Boost", -boost.Value },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)MainAttribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID } }
+                    }
+                });
             }
         }
 
@@ -224,29 +205,29 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
-                { "Type", "BakuganRemovedFromHand" },
-                { "Owner", Owner.Id },
-                { "BakuganType", (int)Type },
-                { "Attribute", (int)MainAttribute },
-                { "Treatment", (int)Treatment },
-                { "Power", Power },
-                { "IsPartner", IsPartner },
-                { "BID", BID }
-            });
-                e.Add(new JObject {
-                { "Type", "BakuganThrownEvent" },
-                { "PosX", destination.Position.X },
-                { "PosY", destination.Position.Y },
-                { "Owner", Owner.Id },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
+                    { "Type", "BakuganRemovedFromHand" },
+                    { "Owner", Owner.Id },
+                    { "BakuganType", (int)Type },
                     { "Attribute", (int)MainAttribute },
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
-                    { "BID", BID } }
-                }
-            });
+                    { "BID", BID }
+                });
+                e.Add(new JObject {
+                    { "Type", "BakuganThrownEvent" },
+                    { "PosX", destination.Position.X },
+                    { "PosY", destination.Position.Y },
+                    { "Owner", Owner.Id },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)MainAttribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID }
+                    } }
+                });
             }
             Game.OnBakuganThrown(this, Owner.Id, destination);
             BattleEndedInDraw = false; // Reset flag
@@ -261,19 +242,19 @@ namespace AB_Server
             foreach (var e in Game.NewEvents)
             {
                 e.Add(new JObject {
-                { "Type", "BakuganAttributeChangeEvent" },
-                { "Owner", Owner.Id },
-                { "OldAttribute", (int)oldAttribute },
-                { "Attribute", (int)newAttribute },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID } }
-                }
-            });
+                    { "Type", "BakuganAttributeChangeEvent" },
+                    { "Owner", Owner.Id },
+                    { "OldAttribute", (int)oldAttribute },
+                    { "Attribute", (int)newAttribute },
+                    { "Bakugan", new JObject {
+                        { "Type", (int)Type },
+                        { "Attribute", (int)MainAttribute },
+                        { "Treatment", (int)Treatment },
+                        { "Power", Power },
+                        { "IsPartner", IsPartner },
+                        { "BID", BID } }
+                    }
+                });
             }
             return oldAttribute;
         }

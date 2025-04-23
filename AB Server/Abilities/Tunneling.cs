@@ -60,7 +60,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            User.Move(moveTarget);
+            User.Move(moveTarget, new JObject() { ["MoveEffect"] = "Submerge" });
         }
     }
 }

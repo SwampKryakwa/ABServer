@@ -46,7 +46,7 @@ namespace AB_Server.Abilities
                 game.NewEvents[i].Add(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
             if (targetBakugan.OnField())
-                targetBakugan.Move(targetGate, MoveSource.Effect);
+                targetBakugan.Move(targetGate, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = user.BID });
         }
     }
 }

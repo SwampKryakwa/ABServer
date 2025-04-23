@@ -63,7 +63,7 @@ namespace AB_Server.Abilities
                 });
             }
 
-            target.Move(moveTarget);
+            target.Move(moveTarget, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID });
         }
     }
 }

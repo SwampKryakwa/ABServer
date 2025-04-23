@@ -259,7 +259,7 @@ namespace AB_Server
             return oldAttribute;
         }
 
-        public void Move(GateCard destination, MoveSource mover = MoveSource.Effect)
+        public void Move(GateCard destination, JObject MoveEffect, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;
 
@@ -294,7 +294,8 @@ namespace AB_Server
                         { "Power", Power },
                         { "IsPartner", IsPartner },
                         { "BID", BID } }
-                    }
+                    },
+                    { "MoveEffect", MoveEffect }
                 });
                 }
 

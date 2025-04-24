@@ -175,6 +175,7 @@ namespace AB_Server
 
             SpectatorEvents[uuid].Add(new()
             {
+                ["Type"] = "InitGameState",
                 ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
                 ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
                 ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),

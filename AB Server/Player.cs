@@ -44,7 +44,7 @@ namespace AB_Server
 
         public Game game;
 
-        public byte playerColor;
+        public byte PlayerColor;
 
         public Player(byte id, byte sideID, Game game, string displayName, byte avatar)
         {
@@ -63,9 +63,9 @@ namespace AB_Server
             //player.DisplayName = deck["dispName"].ToString();
 
             if (deck["deck_color"] != null)
-                player.playerColor = deck["deck_color"];
+                player.PlayerColor = deck["deck_color"];
             else
-                player.playerColor = 0;
+                player.PlayerColor = 0;
 
             foreach (dynamic b in deck["bakugans"])
             {

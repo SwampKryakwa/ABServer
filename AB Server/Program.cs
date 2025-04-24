@@ -57,7 +57,7 @@ namespace AB_Server
 
                                 // Decode the key value
                                 string[] dontlog = { "getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", "" };
-                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave" };
+                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave", "roomspectate", "gamespectate", "redeemcode" };
                                 if (!validkeys.Contains(requestedResource))
                                 {
                                     resp.StatusCode = 400; // Bad Request
@@ -102,10 +102,24 @@ namespace AB_Server
                                     case "joinroom":
                                         if (Rooms.ContainsKey((string)postedJson["roomName"]))
                                         {
-                                            answer.Add("success", Rooms[(string)postedJson["roomName"]].AddPlayer((long)postedJson["UUID"], postedJson["userName"].ToString()));
+                                            if (Rooms[(string)postedJson["roomName"]].AddPlayer((long)postedJson["UUID"], postedJson["userName"].ToString()))
+                                            {
+                                                answer.Add("success", true);
+                                                answer.Add("player", true);
+                                            }
+                                            else
+                                            {
+                                                Rooms[(string)postedJson["roomName"]].Spectate((long)postedJson["UUID"]);
+                                                answer.Add("success", true);
+                                                answer.Add("player", true);
+                                            }
                                             break;
                                         }
                                         answer.Add("success", false);
+                                        break;
+
+                                    case "roomspectate":
+                                        Rooms[(string)postedJson["roomName"]].Spectate((long)postedJson["UUID"]);
                                         break;
 
                                     case "leaveroom":
@@ -196,11 +210,14 @@ namespace AB_Server
                                         answer.Add("pid", game.AddPlayer((JObject)postedJson["deck"], (long)postedJson["UUID"], (string)postedJson["name"], (byte)postedJson["ava"]));
                                         answer.Add("playerCount", game.Players.Where(x => x != null).Count());
                                         if (game.PlayerCount == game.Players.Count)
-                                        {
-                                            Console.WriteLine("starting");
                                             new Thread(game.Initiate).Start();
-                                        }
+                                        break;
 
+                                    case "gamespectate":
+                                        GID = (string)postedJson["gid"];
+                                        game = GIDToGame[GID];
+                                        answer.Add("playerCount", game.Players.Where(x => x != null).Count());
+                                        game.AddSpectator((long)postedJson["UUID"]);
                                         break;
 
                                     case "getroomnicknames":

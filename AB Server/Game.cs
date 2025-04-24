@@ -33,7 +33,7 @@ namespace AB_Server
         Dictionary<long, byte> UUIDToPid = [];
 
         public List<Player> Players;
-        public List<long> Spectators;
+        public List<long> Spectators = [];
         public GateCard?[,] Field;
         public List<IActive> ActiveZone = [];
         public int NextEffectId = 0;
@@ -161,15 +161,86 @@ namespace AB_Server
             return loggedPlayers - 1;
         }
 
+        public void AddSpectator(long uuid)
+        {
+            if (!Spectators.Contains(uuid))
+            {
+                SpectatorEvents.Add(uuid, []);
+                Spectators.Add(uuid);
+            }
+            else
+            {
+                SpectatorEvents[uuid].Clear();
+            }
+
+            SpectatorEvents[uuid].Add(new()
+            {
+                ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
+                ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
+                ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
+                ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                    ["IsOpen"] = x.IsOpen,
+                    ["Type"] = x.IsOpen ? x.TypeId : -2
+                })),
+                ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
+                {
+                    ["BID"] = x.BID,
+                    ["PosX"] = (x.Position as GateCard).Position.X,
+                    ["PosY"] = (x.Position as GateCard).Position.Y,
+                    ["Type"] = (int)x.Type,
+                    ["Attribute"] = (int)x.BaseAttribute,
+                    ["Treatment"] = (int)x.Treatment,
+                    ["Power"] = x.Power
+                })),
+                ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
+                {
+                    ["EID"] = x.EffectId,
+                    ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
+                    ["Kind"] = (int)x.Kind,
+                    ["Type"] = x.TypeId,
+                    ["User"] = x.User.BID,
+                    ["Owner"] = x.Owner.Id
+                })),
+                ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                {
+                    ["BID"] = x.BID,
+                    ["Owner"] = x.Owner.Id,
+                    ["Type"] = (int)x.Type,
+                    ["Attribute"] = (int)x.BaseAttribute,
+                    ["Treatment"] = (int)x.Treatment,
+                    ["Power"] = x.Power
+                })),
+                ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["Owner"] = x.Owner.Id,
+                    ["Kind"] = (int)x.Kind,
+                    ["Type"] = x.TypeId
+                })),
+                ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["Owner"] = x.Owner.Id,
+                    ["Type"] = x.TypeId
+                }))
+            });
+        }
+
         public byte GetPid(long UUID)
         {
             return UUIDToPid[UUID];
         }
 
-        public void ThrowEvent(JObject @event)
+        public void ThrowEvent(JObject @event, params int[] exclude)
         {
+            Console.WriteLine(@event);
             for (int i = 0; i < PlayerCount; i++)
-                NewEvents[i].Add(@event);
+                if (!exclude.Contains(i))
+                    NewEvents[i].Add(@event);
             foreach (var spectator in Spectators)
                 SpectatorEvents[spectator].Add(@event);
         }
@@ -212,36 +283,32 @@ namespace AB_Server
                             break;
                     }
                 }
-
-                if (NewEvents[i].Count == 0)
+                NewEvents[i].Add(new JObject
                 {
-                    ThrowEvent(new JObject { { "Type", "PlayerGatesColors" }, { "Player", j }, { "Color", Players[j].playerColor } });
-                    NewEvents[i].Add(new JObject
+                    ["Type"] = "InitializeHand",
+                    ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
                     {
-                        ["Type"] = "InitializeHand",
-                        ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
-                        {
-                            ["BID"] = b.BID,
-                            ["BakuganType"] = (int)b.Type,
-                            ["Attribute"] = (int)b.MainAttribute,
-                            ["Treatment"] = (int)b.Treatment,
-                            ["Power"] = b.Power,
-                            ["IsPartner"] = b.IsPartner
-                        })),
-                        ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
-                        {
-                            ["CID"] = a.CardId,
-                            ["Type"] = a.TypeId,
-                            ["Kind"] = (int)a.Kind
-                        })),
-                        ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
-                        {
-                            ["CID"] = g.CardId,
-                            ["Type"] = g.TypeId
-                        }))
-                    });
-                    NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
-                }
+                        ["BID"] = b.BID,
+                        ["BakuganType"] = (int)b.Type,
+                        ["Attribute"] = (int)b.MainAttribute,
+                        ["Treatment"] = (int)b.Treatment,
+                        ["Power"] = b.Power,
+                        ["IsPartner"] = b.IsPartner
+                    })),
+                    ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
+                    {
+                        ["CID"] = a.CardId,
+                        ["Type"] = a.TypeId,
+                        ["Kind"] = (int)a.Kind
+                    })),
+                    ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
+                    {
+                        ["CID"] = g.CardId,
+                        ["Type"] = g.TypeId
+                    }))
+                });
+                NewEvents[i].Add(new JObject { { "Type", "PickGateEvent" }, { "Prompt", "pick_gate_start" }, { "Gates", gates } });
+                ThrowEvent(new JObject { { "Type", "PlayerGatesColors" }, { "Player", i }, { "Color", Players[i].PlayerColor } });
             }
 
             for (int i = 0; i < PlayerCount; i++)

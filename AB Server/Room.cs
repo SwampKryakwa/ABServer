@@ -67,6 +67,7 @@ namespace AB_Server
                 });
             }
             if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+            else Updates[uuid].Clear();
             Updates[uuid].Add(new()
             {
                 ["Type"] = "RoomState",
@@ -85,6 +86,31 @@ namespace AB_Server
             return true;
         }
 
+        public void Spectate(long uuid)
+        {
+            if (Players.Contains(uuid))
+            {
+                UserNames[Array.IndexOf(Players, uuid)] = null;
+                IsReady[Array.IndexOf(Players, uuid)] = false;
+                Players[Array.IndexOf(Players, uuid)] = null;
+                foreach (var item in Updates.Values)
+                    item.Add(new()
+                    {
+                        ["Type"] = "PlayerLeft",
+                        ["Position"] = Array.IndexOf(Players, uuid)
+                    });
+            }
+
+            if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+            else Updates[uuid].Clear();
+            Updates[uuid].Add(new()
+            {
+                ["Type"] = "RoomState",
+                ["UserNames"] = new JArray(UserNames),
+                ["ReadyStates"] = new JArray(IsReady)
+            });
+        }
+
         public void RemovePlayer(long uuid)
         {
             foreach (var item in Updates.Values)
@@ -97,7 +123,7 @@ namespace AB_Server
             IsReady[Array.IndexOf(Players, uuid)] = false;
             Players[Array.IndexOf(Players, uuid)] = null;
             if (Updates.ContainsKey(uuid)) Updates.Remove(uuid);
-            if (RoomOwner == uuid && Players.First(x=>x is not null) is long newOwner)
+            if (RoomOwner == uuid && Players.First(x => x is not null) is long newOwner)
             {
                 RoomOwner = newOwner;
                 Updates[newOwner].Add(new()

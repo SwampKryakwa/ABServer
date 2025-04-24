@@ -111,7 +111,7 @@ namespace AB_Server
                                             {
                                                 Rooms[(string)postedJson["roomName"]].Spectate((long)postedJson["UUID"]);
                                                 answer.Add("success", true);
-                                                answer.Add("player", true);
+                                                answer.Add("player", false);
                                             }
                                             break;
                                         }

@@ -226,20 +226,21 @@ namespace AB_Server
                                         break;
 
                                     case "getupdates":
-                                        answer.Add("updates", JArray.FromObject(GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"])));
+                                        answer.Add("updates", (bool)postedJson["spectator"] ? GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"]) : GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"]));
                                         break;
 
                                     case "sendchatmessage":
                                         GIDToGame[(string)postedJson["gid"]].ThrowEvent(new JObject
                                         {
-                                            { "Type", "NewMessage" },
-                                            { "Sender", postedJson["pid"] },
-                                            { "Text", postedJson["text"] }
+                                            ["Type"] = "NewMessage",
+                                            ["Sender"] = postedJson["pid"],
+                                            ["SenderNickname"] = postedJson["nickname"],
+                                            ["Text"] = postedJson["text"]
                                         });
                                         break;
 
                                     case "checkturnstart":
-                                        answer.Add("turnplayer", new JObject { { "Type", "PlayerTurnStart" }, { "PID", GIDToGame[(string)postedJson["gid"]].ActivePlayer } });
+                                        answer.Add("turnplayer", new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = GIDToGame[(string)postedJson["gid"]].ActivePlayer });
                                         break;
 
                                     case "getmoves":
@@ -314,7 +315,7 @@ namespace AB_Server
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            listener.Prefixes.Add("http://*:8080/");
+            listener.Prefixes.Add("http://*:8081/");
             listener.Start();
 
             // Handle requests
@@ -323,47 +324,6 @@ namespace AB_Server
 
             // Close the listener
             listener.Close();
-
-            /*//// HTTP server port
-            //int port = 8080;
-            //if (args.Length > 0)
-            //    port = int.Parse(args[0]);
-
-            //Console.WriteLine($"HTTP server port: {port}");
-            //Console.WriteLine($"HTTP server website: http://localhost:{port}/api/index.html");
-
-            //Console.WriteLine();
-
-            //// Create a new HTTP server
-            //var server = new HttpCacheServer(IPAddress.Any, port);
-
-            //// Start the server
-            //Console.Write("Server starting...");
-            //server.Start();
-            //Console.WriteLine("Done!");
-
-            //Console.WriteLine("Press Enter to stop the server or '!' to restart the server...");
-
-            //// Perform text input
-            //for (; ; )
-            //{
-            //    string line = Console.ReadLine();
-            //    if (string.IsNullOrEmpty(line))
-            //        break;
-
-            //    // Restart the server
-            //    if (line == "!")
-            //    {
-            //        Console.Write("Server restarting...");
-            //        server.Restart();
-            //        Console.WriteLine("Done!");
-            //    }
-            //}
-
-            //// Stop the server
-            //Console.Write("Server stopping...");
-            //server.Stop();
-            //Console.WriteLine("Done!");*/
         }
     }
 }

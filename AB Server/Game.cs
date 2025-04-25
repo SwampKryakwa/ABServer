@@ -246,11 +246,20 @@ namespace AB_Server
                 SpectatorEvents[spectator].Add(@event);
         }
 
-        public List<JObject> GetEvents(int player)
+        public JArray GetEvents(int player)
         {
-            List<JObject> toReturn;
+            JArray toReturn;
             toReturn = [.. NewEvents[player]];
             NewEvents[player].Clear();
+
+            return toReturn;
+        }
+
+        public JArray GetSpectatorEvents(long uuid)
+        {
+            JArray toReturn;
+            toReturn = [.. SpectatorEvents[uuid]];
+            SpectatorEvents[uuid].Clear();
 
             return toReturn;
         }

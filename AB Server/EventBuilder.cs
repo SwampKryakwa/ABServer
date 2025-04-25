@@ -294,7 +294,7 @@ namespace AB_Server
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {
-                    { "Type", RevealInfo ? card.TypeId : -1 }
+                    { "Type", RevealInfo ? card.TypeId : -2 }
                 } },
                 { "Owner", card.Owner.Id },
                 { "CID", card.CardId }

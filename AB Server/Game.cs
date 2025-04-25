@@ -185,7 +185,10 @@ namespace AB_Server
                     ["PosX"] = x.Position.X,
                     ["PosY"] = x.Position.Y,
                     ["IsOpen"] = x.IsOpen,
-                    ["Type"] = x.IsOpen ? x.TypeId : -2
+                    ["GateData"] = new JObject
+                    {
+                        ["CardType"] = x.IsOpen ? x.TypeId : -2
+                    }
                 })),
                 ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
                 {
@@ -204,15 +207,17 @@ namespace AB_Server
                     ["Kind"] = (int)x.Kind,
                     ["Type"] = x.TypeId,
                     ["User"] = x.User.BID,
-                    ["Owner"] = x.Owner.Id
+                    ["Owner"] = x.Owner.Id,
+                    ["IsCopy"] = false
                 })),
                 ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
                 {
                     ["BID"] = x.BID,
                     ["Owner"] = x.Owner.Id,
-                    ["Type"] = (int)x.Type,
+                    ["BakuganType"] = (int)x.Type,
                     ["Attribute"] = (int)x.BaseAttribute,
                     ["Treatment"] = (int)x.Treatment,
+                    ["IsPartner"] = x.IsPartner,
                     ["Power"] = x.Power
                 })),
                 ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
@@ -220,13 +225,13 @@ namespace AB_Server
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,
                     ["Kind"] = (int)x.Kind,
-                    ["Type"] = x.TypeId
+                    ["CardType"] = x.TypeId
                 })),
                 ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,
-                    ["Type"] = x.TypeId
+                    ["CardType"] = x.TypeId
                 }))
             });
         }

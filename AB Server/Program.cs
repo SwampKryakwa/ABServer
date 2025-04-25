@@ -226,7 +226,7 @@ namespace AB_Server
                                         break;
 
                                     case "getupdates":
-                                        answer.Add("updates", (bool)postedJson["spectator"] ? GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"]) : GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"]));
+                                        answer.Add("updates", (bool)postedJson["spectator"] ? GIDToGame[(string)postedJson["gid"]].GetSpectatorEvents((long)postedJson["uuid"]) : GIDToGame[(string)postedJson["gid"]].GetEvents((int)postedJson["pid"]));
                                         break;
 
                                     case "sendchatmessage":

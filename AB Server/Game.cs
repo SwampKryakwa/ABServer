@@ -173,67 +173,68 @@ namespace AB_Server
                 SpectatorEvents[uuid].Clear();
             }
 
-            SpectatorEvents[uuid].Add(new()
-            {
-                ["Type"] = "InitGameState",
-                ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
-                ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
-                ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
-                ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
+            if (Players.Count == PlayerCount)
+                SpectatorEvents[uuid].Add(new()
                 {
-                    ["CID"] = x.CardId,
-                    ["PosX"] = x.Position.X,
-                    ["PosY"] = x.Position.Y,
-                    ["IsOpen"] = x.IsOpen,
-                    ["GateData"] = new JObject
+                    ["Type"] = "InitGameState",
+                    ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
+                    ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
+                    ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
+                    ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
                     {
-                        ["CardType"] = x.IsOpen ? x.TypeId : -2
-                    }
-                })),
-                ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
-                {
-                    ["BID"] = x.BID,
-                    ["PosX"] = (x.Position as GateCard).Position.X,
-                    ["PosY"] = (x.Position as GateCard).Position.Y,
-                    ["Type"] = (int)x.Type,
-                    ["Attribute"] = (int)x.BaseAttribute,
-                    ["Treatment"] = (int)x.Treatment,
-                    ["Power"] = x.Power
-                })),
-                ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
-                {
-                    ["EID"] = x.EffectId,
-                    ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
-                    ["Kind"] = (int)x.Kind,
-                    ["Type"] = x.TypeId,
-                    ["User"] = x.User.BID,
-                    ["Owner"] = x.Owner.Id,
-                    ["IsCopy"] = false
-                })),
-                ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
-                {
-                    ["BID"] = x.BID,
-                    ["Owner"] = x.Owner.Id,
-                    ["BakuganType"] = (int)x.Type,
-                    ["Attribute"] = (int)x.BaseAttribute,
-                    ["Treatment"] = (int)x.Treatment,
-                    ["IsPartner"] = x.IsPartner,
-                    ["Power"] = x.Power
-                })),
-                ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
-                {
-                    ["CID"] = x.CardId,
-                    ["Owner"] = x.Owner.Id,
-                    ["Kind"] = (int)x.Kind,
-                    ["CardType"] = x.TypeId
-                })),
-                ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
-                {
-                    ["CID"] = x.CardId,
-                    ["Owner"] = x.Owner.Id,
-                    ["CardType"] = x.TypeId
-                }))
-            });
+                        ["CID"] = x.CardId,
+                        ["PosX"] = x.Position.X,
+                        ["PosY"] = x.Position.Y,
+                        ["IsOpen"] = x.IsOpen,
+                        ["GateData"] = new JObject
+                        {
+                            ["CardType"] = x.IsOpen ? x.TypeId : -2
+                        }
+                    })),
+                    ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["PosX"] = (x.Position as GateCard).Position.X,
+                        ["PosY"] = (x.Position as GateCard).Position.Y,
+                        ["Type"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["Power"] = x.Power
+                    })),
+                    ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
+                    {
+                        ["EID"] = x.EffectId,
+                        ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
+                        ["Kind"] = (int)x.Kind,
+                        ["Type"] = x.TypeId,
+                        ["User"] = x.User.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["IsCopy"] = false
+                    })),
+                    ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["BakuganType"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["IsPartner"] = x.IsPartner,
+                        ["Power"] = x.Power
+                    })),
+                    ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["Kind"] = (int)x.Kind,
+                        ["CardType"] = x.TypeId
+                    })),
+                    ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["CardType"] = x.TypeId
+                    }))
+                });
         }
 
         public byte GetPid(long UUID)
@@ -273,6 +274,68 @@ namespace AB_Server
         {
             Started = true;
             SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
+            foreach (var e in SpectatorEvents.Values)
+                e.Add(new()
+                {
+                    ["Type"] = "InitGameState",
+                    ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
+                    ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
+                    ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
+                    ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["PosX"] = x.Position.X,
+                        ["PosY"] = x.Position.Y,
+                        ["IsOpen"] = x.IsOpen,
+                        ["GateData"] = new JObject
+                        {
+                            ["CardType"] = x.IsOpen ? x.TypeId : -2
+                        }
+                    })),
+                    ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["PosX"] = (x.Position as GateCard).Position.X,
+                        ["PosY"] = (x.Position as GateCard).Position.Y,
+                        ["Type"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["Power"] = x.Power
+                    })),
+                    ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
+                    {
+                        ["EID"] = x.EffectId,
+                        ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
+                        ["Kind"] = (int)x.Kind,
+                        ["Type"] = x.TypeId,
+                        ["User"] = x.User.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["IsCopy"] = false
+                    })),
+                    ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["BakuganType"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["IsPartner"] = x.IsPartner,
+                        ["Power"] = x.Power
+                    })),
+                    ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["Kind"] = (int)x.Kind,
+                        ["CardType"] = x.TypeId
+                    })),
+                    ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["CardType"] = x.TypeId
+                    }))
+                });
 
             TurnPlayer = (byte)new Random().Next(Players.Count);
             ActivePlayer = TurnPlayer;

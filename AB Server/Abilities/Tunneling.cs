@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Subterra) && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(gate => gate.OnField && gate.Position.Y == (user.Position as GateCard).Position.Y && !gate.IsTouching(user.Position as GateCard));
+            user.Game.GateIndex.Any(gate => gate.OnField && gate.Position.X == (user.Position as GateCard).Position.X && !gate.IsTouching(user.Position as GateCard));
     }
 
     internal class TunnelingEffect(Bakugan user, GateCard moveTarget, int typeID, bool IsCopy)

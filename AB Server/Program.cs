@@ -91,7 +91,7 @@ namespace AB_Server
                                         string room = RandomString(8);
                                         while (Rooms.ContainsKey(room))
                                             room = RandomString(8);
-                                        Rooms.Add(room, new Room((short)postedJson["playerCount"], (string)postedJson["roomName"], (bool)postedJson["isBotRoom"]));
+                                        Rooms.Add(room, new Room((short)postedJson["playerCount"], (string)postedJson["roomName"], room, (bool)postedJson["isBotRoom"]));
                                         answer.Add("room", room);
                                         break;
 

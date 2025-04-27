@@ -6,6 +6,7 @@ namespace AB_Server
     internal class Room
     {
         public string RoomName;
+        public string RoomKey;
         public long?[] Players;
         public long? RoomOwner;
         public bool[] IsReady;
@@ -15,7 +16,7 @@ namespace AB_Server
         public Dictionary<long, List<JObject>> Updates = [];
         public System.Timers.Timer dieTimer;
 
-        public Room(short playerCount, string roomName, bool isBotRoom)
+        public Room(short playerCount, string roomName, string roomKey, bool isBotRoom)
         {
             Players = new long?[playerCount];
             IsReady = new bool[playerCount];
@@ -36,7 +37,7 @@ namespace AB_Server
             {
                 AutoReset = false,
                 Enabled = false,
-                Interval = 60000
+                Interval = 10000
             };
 
             dieTimer.Elapsed += Die;
@@ -45,7 +46,7 @@ namespace AB_Server
 
         private void Die(object? sender, ElapsedEventArgs e)
         {
-            Server.Rooms.Remove(RoomName);
+            Server.Rooms.Remove(RoomKey);
             dieTimer.Stop();
             dieTimer.Dispose();
         }

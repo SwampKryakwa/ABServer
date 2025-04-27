@@ -191,7 +191,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isBattleGoing && (Bakugans.Count == 0 || HadThrownBakugan);
+            return !game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan);
         }
 
         public bool HasBattlingBakugan() =>

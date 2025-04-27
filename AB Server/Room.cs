@@ -46,6 +46,7 @@ namespace AB_Server
 
         private void Die(object? sender, ElapsedEventArgs e)
         {
+            Console.WriteLine("Killed room " + RoomKey);
             Server.Rooms.Remove(RoomKey);
             dieTimer.Stop();
             dieTimer.Dispose();

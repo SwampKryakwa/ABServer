@@ -18,6 +18,7 @@ namespace AB_Server
 
         public Room(short playerCount, string roomName, string roomKey, bool isBotRoom)
         {
+            RoomKey = roomKey;
             Players = new long?[playerCount];
             IsReady = new bool[playerCount];
             UserNames = new string?[playerCount];

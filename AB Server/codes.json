@@ -53,5 +53,15 @@
   "sutr10": {
     "Treatment": "TRANSLUCENT",
     "Attribute": "SUBTERRA"
+  },
+
+  "datr806": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "DARKON"
+  },
+
+  "vetr005": {
+    "Treatment": "TRANSLUCENT",
+    "Attribute": "ZEPHYROS"
   }
 }

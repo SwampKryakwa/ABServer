@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System.Timers;
 
 namespace AB_Server
 {
@@ -12,6 +13,7 @@ namespace AB_Server
         public bool Started = false;
         public bool IsBotRoom;
         public Dictionary<long, List<JObject>> Updates = [];
+        public System.Timers.Timer dieTimer;
 
         public Room(short playerCount, string roomName, bool isBotRoom)
         {
@@ -30,6 +32,21 @@ namespace AB_Server
             else
                 RoomName = "Room";
             IsBotRoom = isBotRoom;
+            dieTimer = new System.Timers.Timer()
+            {
+                AutoReset = false,
+                Enabled = false,
+                Interval = 60000
+            };
+
+            dieTimer.Elapsed += Die;
+        }
+
+        private void Die(object? sender, ElapsedEventArgs e)
+        {
+            Server.Rooms.Remove(RoomName);
+            dieTimer.Stop();
+            dieTimer.Dispose();
         }
 
         public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);
@@ -88,6 +105,8 @@ namespace AB_Server
 
         public void Spectate(long uuid)
         {
+            if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+            else Updates[uuid].Clear();
             if (Players.Contains(uuid))
             {
                 UserNames[Array.IndexOf(Players, uuid)] = null;
@@ -100,9 +119,6 @@ namespace AB_Server
                         ["Position"] = Array.IndexOf(Players, uuid)
                     });
             }
-
-            if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
-            else Updates[uuid].Clear();
             Updates[uuid].Add(new()
             {
                 ["Type"] = "RoomState",
@@ -113,17 +129,20 @@ namespace AB_Server
 
         public void RemovePlayer(long uuid)
         {
-            foreach (var item in Updates.Values)
-                item.Add(new()
-                {
-                    ["Type"] = "PlayerLeft",
-                    ["Position"] = Array.IndexOf(Players, uuid)
-                });
-            UserNames[Array.IndexOf(Players, uuid)] = null;
-            IsReady[Array.IndexOf(Players, uuid)] = false;
-            Players[Array.IndexOf(Players, uuid)] = null;
+            if (Players.Contains(uuid))
+            {
+                foreach (var item in Updates.Values)
+                    item.Add(new()
+                    {
+                        ["Type"] = "PlayerLeft",
+                        ["Position"] = Array.IndexOf(Players, uuid)
+                    });
+                UserNames[Array.IndexOf(Players, uuid)] = null;
+                IsReady[Array.IndexOf(Players, uuid)] = false;
+                Players[Array.IndexOf(Players, uuid)] = null;
+            }
             if (Updates.ContainsKey(uuid)) Updates.Remove(uuid);
-            if (RoomOwner == uuid && Players.First(x => x is not null) is long newOwner)
+            if (RoomOwner == uuid && Players.Any(x => x is long) && Players.First(x => x is long) is long newOwner)
             {
                 RoomOwner = newOwner;
                 Updates[newOwner].Add(new()
@@ -135,6 +154,8 @@ namespace AB_Server
 
         public JArray GetUpdates(long uuid)
         {
+            dieTimer.Stop();
+            dieTimer.Start();
             JArray updates = new(Updates[uuid]);
             Updates[uuid].Clear();
             return updates;

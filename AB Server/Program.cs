@@ -15,7 +15,7 @@ namespace AB_Server
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        static Dictionary<string, Room> Rooms = new();
+        public static Dictionary<string, Room> Rooms = new();
 
         static Dictionary<string, Game> GIDToGame = new();
         private static Random random = new Random();

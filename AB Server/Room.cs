@@ -40,6 +40,7 @@ namespace AB_Server
             };
 
             dieTimer.Elapsed += Die;
+            dieTimer.Start();
         }
 
         private void Die(object? sender, ElapsedEventArgs e)

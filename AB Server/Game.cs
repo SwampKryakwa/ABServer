@@ -397,20 +397,20 @@ namespace AB_Server
                 OnAnswer[i] = () =>
                 {
                     if (IncomingSelection.Contains(null)) return;
-                    checkDeadTimers = new System.Timers.Timer[PlayerCount];
-                    for (int i = 0; i < PlayerCount; i++)
-                    {
-                        var checkDeadTimer = new System.Timers.Timer()
-                        {
-                            Enabled = false,
-                            AutoReset = false,
-                            Interval = 10000
-                        };
-                        int locali = i;
-                        checkDeadTimer.Elapsed += (sender, e) => Conclude(locali);
-                        checkDeadTimer.Start();
-                        checkDeadTimers[i] = checkDeadTimer;
-                    }
+                    //checkDeadTimers = new System.Timers.Timer[PlayerCount];
+                    //for (int i = 0; i < PlayerCount; i++)
+                    //{
+                    //    var checkDeadTimer = new System.Timers.Timer()
+                    //    {
+                    //        Enabled = false,
+                    //        AutoReset = false,
+                    //        Interval = 10000
+                    //    };
+                    //    int locali = i;
+                    //    checkDeadTimer.Elapsed += (sender, e) => Conclude(locali);
+                    //    checkDeadTimer.Start();
+                    //    checkDeadTimers[i] = checkDeadTimer;
+                    //}
                     for (byte j = 0; j < IncomingSelection.Length; j++)
                     {
                         dynamic selection = IncomingSelection[j];

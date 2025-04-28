@@ -168,6 +168,10 @@ namespace AB_Server
                                         answer.Add("started", GIDToGame[(string)postedJson["roomName"]].Started);
                                         break;
 
+                                    case "sendroommessage":
+                                        Rooms[(string)postedJson["roomName"]].SendMessage((long)postedJson["uuid"], (string)postedJson["nickname"], (string)postedJson["text"]);
+                                        break;
+
                                     case "getgameinfo":
                                         answer.Add("players", new JArray(
                                             GIDToGame[(string)postedJson["roomName"]].Players.Select(x => new JObject

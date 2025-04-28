@@ -156,6 +156,18 @@ namespace AB_Server
             }
         }
 
+        public void SendMessage(long uuid, string nickname, string msg)
+        {
+            foreach (var item in Updates.Values)
+                item.Add(new()
+                {
+                    ["Type"] = "NewMessage",
+                    ["UUID"] = uuid,
+                    ["Nickname"] = nickname,
+                    ["Message"] = msg
+                });
+        }
+
         public JArray GetUpdates(long uuid)
         {
             dieTimer.Stop();

@@ -286,7 +286,7 @@ namespace AB_Server
                     AutoReset = false,
                     Interval = 10000
                 };
-                checkDeadTimer.Elapsed += (object? sender, ElapsedEventArgs e) => Conclude(i);
+                checkDeadTimer.Elapsed += (sender, e) => Conclude(i);
                 checkDeadTimer.Start();
                 checkDeadTimers[i] = checkDeadTimer;
             }

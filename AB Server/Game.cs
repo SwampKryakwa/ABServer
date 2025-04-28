@@ -2,10 +2,6 @@
 
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Timers;
 
 namespace AB_Server
 {
@@ -255,8 +251,11 @@ namespace AB_Server
 
         public JArray GetEvents(int player)
         {
-            checkDeadTimers[player].Stop();
-            checkDeadTimers[player].Start();
+            if (checkDeadTimers[player] is not null)
+            {
+                checkDeadTimers[player].Stop();
+                checkDeadTimers[player].Start();
+            }
             JArray toReturn;
             toReturn = [.. NewEvents[player]];
             NewEvents[player].Clear();

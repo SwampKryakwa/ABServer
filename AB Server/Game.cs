@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Timers;
 
 namespace AB_Server
 {
@@ -254,6 +255,8 @@ namespace AB_Server
 
         public JArray GetEvents(int player)
         {
+            checkDeadTimers[player].Stop();
+            checkDeadTimers[player].Start();
             JArray toReturn;
             toReturn = [.. NewEvents[player]];
             NewEvents[player].Clear();
@@ -270,8 +273,23 @@ namespace AB_Server
             return toReturn;
         }
 
+        System.Timers.Timer[] checkDeadTimers;
+
         public void Initiate()
         {
+            checkDeadTimers = new System.Timers.Timer[PlayerCount];
+            for (int i = 0; i < PlayerCount; i++)
+            {
+                var checkDeadTimer = new System.Timers.Timer()
+                {
+                    Enabled = false,
+                    AutoReset = false,
+                    Interval = 10000
+                };
+                checkDeadTimer.Elapsed += (object? sender, ElapsedEventArgs e) => Conclude(i);
+                checkDeadTimer.Start();
+                checkDeadTimers[i] = checkDeadTimer;
+            }
             Started = true;
             SideCount = (byte)Players.Select(x => x.SideID).Distinct().Count();
             foreach (var e in SpectatorEvents.Values)
@@ -422,6 +440,13 @@ namespace AB_Server
                     ThrowEvent(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
                     Started = true;
                 };
+        }
+
+        private void Conclude(int player)
+        {
+            checkDeadTimers[player].Stop();
+            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != player).Id } });
+            Over = true;
         }
 
         public bool doNotMakeStep = false;

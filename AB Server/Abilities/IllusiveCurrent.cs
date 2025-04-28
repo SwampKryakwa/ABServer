@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect() => new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && (user.IsAttribute(Attribute.Aqua) || user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua)));
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && ((user.IsAttribute(Attribute.Aqua) && Owner.Bakugans.Count != 0) || user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua)));
 
         public static new bool HasValidTargets(Bakugan user) => user.OnField();
     }

@@ -251,7 +251,7 @@ namespace AB_Server
 
         public JArray GetEvents(int player)
         {
-            if (checkDeadTimers[player] is not null)
+            if (checkDeadTimers is not null)
             {
                 checkDeadTimers[player].Stop();
                 checkDeadTimers[player].Start();

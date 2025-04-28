@@ -445,8 +445,8 @@ namespace AB_Server
         private void Conclude(int player)
         {
             Console.WriteLine($"Player {player} got disconnected");
-            checkDeadTimers[player].Stop();
             ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != player).Id } });
+            checkDeadTimers[player].Stop();
             Over = true;
         }
 

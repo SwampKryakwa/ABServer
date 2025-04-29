@@ -37,7 +37,7 @@ namespace AB_Server.Abilities.Fusions
 
             foreach (var bakugan in Owner.BakuganOwned)
             {
-                var currentBoost = new Boost(50);
+                var currentBoost = new Boost(80);
                 currentBoosts.Add(bakugan.BID, currentBoost);
                 bakugan.Boost(currentBoost, this);
             }

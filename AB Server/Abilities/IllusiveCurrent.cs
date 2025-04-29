@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BH", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => User.IsAttribute(Attribute.Aqua)
+                new BakuganSelector() { ClientType = "BH", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner &&  User.IsAttribute(Attribute.Aqua)
                 ?  x.InHand()
                 :  x.InHand() && x.MainAttribute == Attribute.Aqua}
             ];
@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganGrave)
+            if (User.Position is GateCard positionGate && selectedBakugan.Position is Player)
             {
                 User.ToHand(positionGate.EnterOrder);
                 selectedBakugan.AddFromHand(positionGate);

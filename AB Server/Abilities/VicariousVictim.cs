@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (User.Position is GateCard positionGate && selectedBakugan.Position is Player)
+            if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganGrave)
             {
                 User.DestroyOnField(positionGate.EnterOrder);
                 selectedBakugan.FromGrave(positionGate);

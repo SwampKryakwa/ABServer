@@ -18,7 +18,7 @@ namespace AB_Server.Abilities
     {
         public static (Func<int, Player, AbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
         [
-            //Set 1 attribute abilities
+            //Vol. 1 attribute abilities
             ((cID, owner) => new FireJudge(cID, owner, 0), FireJudge.HasValidTargets),
             ((cID, owner) => new SpiritCanyon(cID, owner, 1), SpiritCanyon.HasValidTargets),
             ((cID, owner) => new HolyLight(cID, owner, 2), HolyLight.HasValidTargets),
@@ -26,12 +26,12 @@ namespace AB_Server.Abilities
             ((cID, owner) => new WaterRefrain(cID, owner, 4), WaterRefrain.HasValidTargets),
             ((cID, owner) => new Blowback(cID, owner, 5), Blowback.HasValidTargets),
 
-            //Set 1 Bakugan abilities
+            //Vol. 1 Bakugan abilities
             ((cID, owner) => new SlingBlazer(cID, owner, 6), Marionette.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
             ((cID, owner) => new MercilessTriumph(cID, owner, 8), MercilessTriumph.HasValidTargets),
 
-            //Set 2 attribute abilities
+            //Vol. 2 attribute abilities
             ((cID, owner) => new FireWall(cID, owner, 9), FireWall.HasValidTargets),
             ((cID, owner) => new Tunneling(cID, owner, 10), Tunneling.HasValidTargets),
             ((cID, owner) => new LightningTornado(cID, owner, 11), LightningTornado.HasValidTargets),
@@ -39,12 +39,16 @@ namespace AB_Server.Abilities
             ((cID, owner) => new IllusiveCurrent(cID, owner, 13), IllusiveCurrent.HasValidTargets),
             ((cID, owner) => new AirBattle(cID, owner, 14), AirBattle.HasValidTargets),
 
-            //Set 2 bakugan abilities
+            //Vol. 2 bakugan abilities
             ((cID, owner) => new DefiantCounterattack(cID, owner, 15), DefiantCounterattack.HasValidTargets),
             ((cID, owner) => new CrystalFang(cID, owner, 16), CrystalFang.HasValidTargets),
             ((cID, owner) => new NoseSlap(cID, owner, 17), NoseSlap.HasValidTargets),
             ((cID, owner) => new SaurusGlow(cID, owner, 18), SaurusGlow.HasValidTargets),
             ((cID, owner) => new Dimension4(cID, owner, 19), Dimension4.HasValidTargets),
+
+            //Vol. 2 EX bakugan abilities
+            ((cID, owner) => new Enforcement(cID, owner, 20), Enforcement.HasValidTargets),
+            ((cID, owner) => new VicariousVictim(cID, owner, 21), VicariousVictim.HasValidTargets)
         ];
 
         public static Func<int, Player, AbilityCard>[] CorrelationCtrs =

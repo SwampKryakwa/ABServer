@@ -1,16 +1,21 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AB_Server.Abilities
 {
-    internal class FireJudge(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
+    internal class Enforcement(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
         public override void TriggerEffect() =>
-            new FireJudgeEffect(User, TypeId, IsCopy).Activate();
+            new EnforcementEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.Owner.BakuganOwned.Any(x => x.Type == BakuganType.Garrison) && user.OnField();
     }
-    internal class FireJudgeEffect(Bakugan user, int typeID, bool IsCopy) : IActive
+
+    internal class EnforcementEffect(Bakugan user, int typeID, bool IsCopy) : IActive
     {
         public int TypeId { get; } = typeID;
         public int EffectId { get; set; } = user.Game.NextEffectId++;
@@ -30,7 +35,7 @@ namespace AB_Server.Abilities
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
-            currentBoost = new Boost(100);
+            currentBoost = new Boost(50);
             User.Boost(currentBoost, this);
 
             game.BakuganDestroyed += OnBakuganLeaveField;
@@ -41,7 +46,7 @@ namespace AB_Server.Abilities
         {
             if (target == User)
             {
-                currentBoost = new Boost(100);
+                currentBoost = new Boost(50);
                 User.Boost(currentBoost, this);
             }
         }

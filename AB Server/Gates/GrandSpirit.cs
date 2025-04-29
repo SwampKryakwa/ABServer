@@ -24,7 +24,7 @@
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner && x.IsAttribute(Attribute.Subterra)))
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner))
             ));
 
             game.OnAnswer[Owner.Id] = Setup;
@@ -42,7 +42,7 @@
         public override void Resolve()
         {
             if (!Negated && target.Position == this)
-                target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard) - 50)), this);
+                target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard gate && gate.Owner.SideID != Owner.SideID && gate != this))), this);
         }
     }
 }

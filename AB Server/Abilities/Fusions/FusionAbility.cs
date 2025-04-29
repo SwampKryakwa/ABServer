@@ -13,7 +13,9 @@ namespace AB_Server.Abilities
             (cID, owner) => new DoubleDimension(cID, owner),
             (cID, owner) => new SaurusRage(cID, owner),
             (cID, owner) => new Tremors(cID, owner),
-            (cID, owner) => new CutInSaber(cID, owner)
+            (cID, owner) => new CutInSaber(cID, owner),
+            (cID, owner) => new Alliance(cID, owner),
+            (cID, owner) => new RevivalRoar(cID, owner)
         ];
         public override CardKind Kind { get; } = CardKind.FusionAbility;
         public Type BaseAbilityType = baseAbilityType;

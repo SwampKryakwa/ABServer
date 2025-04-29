@@ -32,7 +32,9 @@ namespace AB_Server
         Lucifer,
         Saurus,
         Elephant,
-        Tigress
+        Tigress,
+        Garrison,
+        Griffon
     }
 
     enum MoveSource : byte

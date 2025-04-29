@@ -1,7 +1,7 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities.Fusions
 {
     internal class StrikeBack : FusionAbility
     {
@@ -28,7 +28,7 @@ namespace AB_Server.Abilities
                 new StrikeBackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
     }
 
     internal class StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)

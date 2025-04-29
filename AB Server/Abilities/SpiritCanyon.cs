@@ -21,13 +21,13 @@ namespace AB_Server.Abilities
         Bakugan User = user;
         Game game { get => User.Game; }
 
-        public Player Owner { get; set; }
+        public Player Owner { get; set; } = user.Owner;
         bool IsCopy = IsCopy;
 
         public void Activate()
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-            User.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField) * 50)), this);
+            User.Boost(new Boost((short)(game.GateIndex.Count(x => x.OnField && x.Owner == Owner) * 50)), this);
         }
     }
 }

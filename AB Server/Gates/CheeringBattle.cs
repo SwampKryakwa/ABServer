@@ -12,6 +12,7 @@
 
         public override int TypeId { get; } = 3;
 
+        int selectingPlayer;
         public override void Open()
         {
             IsOpen = true;
@@ -19,19 +20,19 @@
             game.CardChain.Add(this);
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            selectingPlayer = game.TurnPlayer;
+            game.NewEvents[selectingPlayer].Add(EventBuilder.SelectionBundler(
                 EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
             ));
 
-            game.OnAnswer[Owner.Id] = Setup;
+            game.OnAnswer[selectingPlayer] = Setup;
         }
 
         Bakugan target;
 
         public void Setup()
         {
-            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = game.BakuganIndex[(int)game.IncomingSelection[selectingPlayer]["array"][0]["bakugan"]];
 
             game.CheckChain(Owner, this);
         }

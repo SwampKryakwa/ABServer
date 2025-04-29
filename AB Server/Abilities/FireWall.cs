@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
             TargetSelectors =
             [
                 new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner},
-                new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_FIREWALL", ForPlayer = owner.Id, OptionCount = 2, SelectedOption = 1}
+                new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_FIREWALL", ForPlayer = owner.Id, OptionCount = 2, SelectedOption = 0}
             ];
         }
 
@@ -50,15 +50,8 @@ namespace AB_Server.Abilities
 
             if (selectedOption == 0)
                 target.Boost(new Boost(-50), this);
-            else if (selectedOption == 1 && User.IsAttribute(Attribute.Nova))
-            {
-                // Set the power of the target Bakugan to its initial value
-                foreach (var boost in target.Boosts)
-                {
-                    boost.Active = false;
-                }
-                target.Boosts.Clear();
-            }
+            else if (User.IsAttribute(Attribute.Nova))
+                target.Boost(new Boost((short)(target.Power - target.BasePower)), this);
         }
     }
 }

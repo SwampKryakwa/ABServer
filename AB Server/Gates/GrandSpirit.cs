@@ -12,7 +12,7 @@
 
         public override int TypeId { get; } = 8;
 
-        public override bool IsOpenable() => base.IsOpenable() && Bakugans.Any(x => x.Owner == Owner && x.IsAttribute(Attribute.Subterra));
+        public override bool IsOpenable() => base.IsOpenable() && Bakugans.Any(x => x.Owner == Owner);
 
         public override void Open()
         {

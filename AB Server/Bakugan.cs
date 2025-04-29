@@ -117,6 +117,8 @@ namespace AB_Server
                     { "Treatment", (int)Treatment },
                     { "Power", Power },
                     { "IsPartner", IsPartner },
+                    { "InHand", InHand() },
+                    { "InGrave", InGrave() },
                     { "BID", BID }
                 } }
             });

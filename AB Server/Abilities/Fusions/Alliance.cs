@@ -12,7 +12,7 @@ namespace AB_Server.Abilities.Fusions
             new AllianceEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.OnField() && user.IsPartner && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal && Owner.BakuganOwned.Select(x => x.BaseAttribute).Distinct().Count() == Owner.BakuganOwned.Count && Owner.BakuganOwned.Select(x => x.Type).Distinct().Count() == Owner.BakuganOwned.Count && Owner.BakuganOwned.Select(x => x.BasePower).Distinct().Count() == Owner.BakuganOwned.Count;
+            user.OnField() && user.IsPartner && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal;
     }
 
     internal class AllianceEffect(Bakugan user, int typeID, bool IsCopy) : IActive
@@ -37,6 +37,7 @@ namespace AB_Server.Abilities.Fusions
 
             foreach (var bakugan in Owner.BakuganOwned)
             {
+                if (bakugan == User) continue;
                 var currentBoost = new Boost(80);
                 currentBoosts.Add(bakugan.BID, currentBoost);
                 bakugan.Boost(currentBoost, this);
@@ -48,7 +49,7 @@ namespace AB_Server.Abilities.Fusions
 
         private void OnBakuganLeaveField(Bakugan target, byte owner)
         {
-            if (target.Owner == Owner)
+            if (target.Owner == Owner && target != User)
             {
                 currentBoosts[target.BID] = new Boost(80);
                 target.Boost(currentBoosts[target.BID], this);

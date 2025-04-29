@@ -19,7 +19,7 @@ namespace AB_Server.Abilities.Fusions
     {
         public int TypeId { get; } = typeID;
         public int EffectId { get; set; } = user.Game.NextEffectId++;
-        public CardKind Kind { get; } = CardKind.NormalAbility;
+        public CardKind Kind { get; } = CardKind.FusionAbility;
         public Bakugan User { get; set; } = user;
         Game game { get => User.Game; }
         Dictionary<int, Boost> currentBoosts = [];

@@ -12,7 +12,7 @@ namespace AB_Server.Abilities.Fusions
 {
     internal class RevivalRoar : FusionAbility
     {
-        public RevivalRoar(int cID, Player owner) : base(cID, owner, 9, typeof(VicariousVictim))
+        public RevivalRoar(int cID, Player owner) : base(cID, owner, 10, typeof(VicariousVictim))
         {
             TargetSelectors =
                 [

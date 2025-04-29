@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AB_Server.Abilities.Fusions
 {
-    internal class Alliance(int cID, Player owner) : FusionAbility(cID, owner, 8, typeof(Enforcement))
+    internal class Alliance(int cID, Player owner) : FusionAbility(cID, owner, 9, typeof(Enforcement))
     {
         public override void TriggerEffect() =>
             new AllianceEffect(User, TypeId, IsCopy).Activate();

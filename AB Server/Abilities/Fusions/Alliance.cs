@@ -12,7 +12,7 @@ namespace AB_Server.Abilities.Fusions
             new AllianceEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.OnField() && user.IsPartner && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal && Owner.Bakugans.Select(x => x.BaseAttribute).Distinct().Count() == Owner.BakuganOwned.Count && Owner.Bakugans.Select(x => x.Type).Distinct().Count() == Owner.BakuganOwned.Count && Owner.Bakugans.Select(x => x.BasePower).Distinct().Count() == Owner.BakuganOwned.Count;
+            user.OnField() && user.IsPartner && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal && Owner.BakuganOwned.Select(x => x.BaseAttribute).Distinct().Count() == Owner.BakuganOwned.Count && Owner.BakuganOwned.Select(x => x.Type).Distinct().Count() == Owner.BakuganOwned.Count && Owner.BakuganOwned.Select(x => x.BasePower).Distinct().Count() == Owner.BakuganOwned.Count;
     }
 
     internal class AllianceEffect(Bakugan user, int typeID, bool IsCopy) : IActive

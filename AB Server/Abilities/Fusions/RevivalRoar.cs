@@ -56,7 +56,7 @@ namespace AB_Server.Abilities.Fusions
             {
                 target.DestroyOnField(positionGate.EnterOrder);
                 user.FromGrave(positionGate);
-                user.Boost(new Boost((short)(owner.BakuganGrave.Bakugans.Count * 50)), this);
+                user.Boost(new Boost((short)(owner.BakuganGrave.Bakugans.Count * 100)), this);
             }
         }
     }

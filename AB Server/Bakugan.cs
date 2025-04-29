@@ -413,9 +413,6 @@ namespace AB_Server
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
 
-            Boosts.ForEach(x => x.Active = false);
-            Boosts.Clear();
-
             game.ThrowEvent(new JObject
                 {
                     { "Type", "HpRestored" },

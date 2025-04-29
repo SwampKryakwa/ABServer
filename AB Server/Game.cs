@@ -593,7 +593,7 @@ namespace AB_Server
 
                     break;
                 case "end":
-                    if (Players[TurnPlayer].Bakugans.Count > 0 && !Players[TurnPlayer].HadThrownBakugan)
+                    if (Players[TurnPlayer].HasThrowableBakugan() && !Players[TurnPlayer].HadThrownBakugan)
                     {
                         NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
                         break;

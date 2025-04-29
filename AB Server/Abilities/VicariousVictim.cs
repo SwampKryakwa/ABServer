@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect() => new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Type == BakuganType.Griffon;
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
     }
 
     internal class VicariousVictimEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)

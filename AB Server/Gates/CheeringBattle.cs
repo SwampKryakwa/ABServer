@@ -22,7 +22,7 @@
             game.ThrowEvent(EventBuilder.GateOpen(this));
             selectingPlayer = game.TurnPlayer;
             game.NewEvents[selectingPlayer].Add(EventBuilder.SelectionBundler(
-                EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Owner.Bakugans)
+                EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[selectingPlayer].Bakugans)
             ));
 
             game.OnAnswer[selectingPlayer] = Setup;

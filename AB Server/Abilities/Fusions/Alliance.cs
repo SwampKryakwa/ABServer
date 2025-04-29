@@ -51,7 +51,7 @@ namespace AB_Server.Abilities.Fusions
             if (target.Owner == Owner)
             {
                 currentBoosts[target.BID] = new Boost(80);
-                User.Boost(currentBoosts[target.BID], this);
+                target.Boost(currentBoosts[target.BID], this);
             }
         }
 

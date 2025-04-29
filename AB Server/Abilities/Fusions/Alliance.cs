@@ -22,7 +22,7 @@ namespace AB_Server.Abilities.Fusions
         public CardKind Kind { get; } = CardKind.NormalAbility;
         public Bakugan User { get; set; } = user;
         Game game { get => User.Game; }
-        Dictionary<int, Boost> currentBoosts;
+        Dictionary<int, Boost> currentBoosts = [];
 
         public Player Owner { get; set; } = user.Owner;
         bool IsCopy = IsCopy;

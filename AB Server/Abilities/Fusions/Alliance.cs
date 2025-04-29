@@ -48,7 +48,7 @@ namespace AB_Server.Abilities.Fusions
 
         private void OnBakuganLeaveField(Bakugan target, byte owner)
         {
-            if (target == User)
+            if (target.Owner == Owner)
             {
                 currentBoosts[target.BID] = new Boost(80);
                 User.Boost(currentBoosts[target.BID], this);

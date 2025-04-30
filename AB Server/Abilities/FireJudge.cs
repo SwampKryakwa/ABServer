@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     internal class FireJudge(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {

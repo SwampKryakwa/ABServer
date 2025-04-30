@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     internal class DoubleDimension : FusionAbility
     {
@@ -33,7 +31,7 @@ namespace AB_Server.Abilities
         {
             this.user = user;
             this.target = target;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
 
             TypeId = typeID;
         }

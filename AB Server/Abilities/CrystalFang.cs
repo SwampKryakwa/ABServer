@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace AB_Server.Abilities
 {
     internal class CrystalFang : AbilityCard
@@ -43,7 +41,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-             this.IsCopy = IsCopy;
+            this.IsCopy = IsCopy;
             TypeId = typeID;
         }
 

@@ -1,12 +1,4 @@
-﻿using AB_Server;
-using AB_Server.Gates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
+﻿using AB_Server.Gates;
 
 namespace AB_Server.Abilities.Fusions
 {

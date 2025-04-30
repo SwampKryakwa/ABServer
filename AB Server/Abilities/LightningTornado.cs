@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace AB_Server.Abilities
 {
     internal class LightningTornado : AbilityCard

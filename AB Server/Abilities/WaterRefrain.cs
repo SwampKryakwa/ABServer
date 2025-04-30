@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     internal class WaterRefrain : AbilityCard
     {
@@ -11,7 +9,7 @@ namespace AB_Server.Abilities
                 new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Owner.BakuganOwned.All(x=>x.IsAttribute(Attribute.Aqua)) && Game.CurrentWindow == ActivationWindow.TurnStart && Game.TurnPlayer != Owner.Id && user.IsAttribute(Attribute.Aqua) && user.OnField();
+            Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Aqua)) && Game.CurrentWindow == ActivationWindow.TurnStart && Game.TurnPlayer != Owner.Id && user.IsAttribute(Attribute.Aqua) && user.OnField();
     }
 
     internal class WaterRefrainEffect : IActive
@@ -29,7 +27,7 @@ namespace AB_Server.Abilities
         public WaterRefrainEffect(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
-             this.IsCopy = IsCopy; Owner = user.Owner;
+            this.IsCopy = IsCopy; Owner = user.Owner;
             TypeId = typeID;
             EffectId = game.NextEffectId++;
         }
@@ -41,7 +39,7 @@ namespace AB_Server.Abilities
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
-            game.Players.Where(x=>x.SideID != Owner.SideID).ToList().ForEach(p => p.AbilityBlockers.Add(this));
+            game.Players.Where(x => x.SideID != Owner.SideID).ToList().ForEach(p => p.AbilityBlockers.Add(this));
 
             game.TurnEnd += CheckEffectOver;
 

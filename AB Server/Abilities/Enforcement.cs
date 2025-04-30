@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     internal class Enforcement(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {

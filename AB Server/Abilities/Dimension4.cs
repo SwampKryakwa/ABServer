@@ -1,5 +1,3 @@
-using Newtonsoft.Json.Linq;
-
 namespace AB_Server.Abilities
 {
     internal class Dimension4 : AbilityCard
@@ -36,7 +34,7 @@ namespace AB_Server.Abilities
         {
             User = user;
             this.target = target;
-            
+
             this.IsCopy = IsCopy;
             TypeId = typeID;
         }

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Abilities.Correlations
+﻿namespace AB_Server.Abilities.Correlations
 {
     internal class TripleNode : AbilityCard
     {

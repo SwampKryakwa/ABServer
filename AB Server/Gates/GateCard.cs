@@ -1,6 +1,5 @@
 ﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server.Gates
 {

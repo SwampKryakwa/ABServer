@@ -49,6 +49,6 @@ namespace AB_Server.Gates
                 target.Negate();
         }
 
-        public override bool IsOpenable() => game.ActiveZone.Any(x=>x is not GateCard && x is not AbilityCard) && base.IsOpenable();
+        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable();
     }
 }

@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     class BoostEffect(Bakugan user, Bakugan boostTarget, short boostAmmount, int typeId, int kindId)
     {

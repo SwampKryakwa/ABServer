@@ -31,7 +31,7 @@ namespace AB_Server.Gates
 
         public void Setup()
         {
-            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             game.CheckChain(Owner, this);
         }

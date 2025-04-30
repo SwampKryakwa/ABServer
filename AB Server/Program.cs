@@ -262,7 +262,7 @@ namespace AB_Server
                                         player = (int)postedJson["playerID"];
 
                                         bool hasStarted = game.Started;
-                                        game.IncomingSelection[player] = postedJson;
+                                        game.PlayerAnswers[player] = postedJson;
                                         game.OnAnswer[player]?.Invoke();
 
                                         break;

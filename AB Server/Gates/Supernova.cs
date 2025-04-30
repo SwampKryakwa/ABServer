@@ -51,7 +51,7 @@
 
         public void Setup1()
         {
-            target1 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target1 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
@@ -62,7 +62,7 @@
 
         public void Setup2()
         {
-            target2 = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target2 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             game.NextStep();
         }

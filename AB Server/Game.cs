@@ -17,7 +17,7 @@ namespace AB_Server
     {
         public List<JObject>[] NewEvents { get; set; }
         public Dictionary<long, List<JObject>> SpectatorEvents = [];
-        public dynamic?[] IncomingSelection;
+        public dynamic?[] PlayerAnswers; 
         public Dictionary<long, int> UidToPid = [];
 
         public byte PlayerCount;
@@ -46,8 +46,8 @@ namespace AB_Server
         public List<GateCard> GateIndex = [];
         public List<AbilityCard> AbilityIndex = [];
 
-        public byte TurnPlayer { get; set; }
-        public byte ActivePlayer { get; protected set; }
+        public byte TurnPlayer;
+        public byte ActivePlayer;
         public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.ActiveBattle); }
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
 
@@ -141,7 +141,7 @@ namespace AB_Server
             NewEvents = new List<JObject>[playerCount];
             OnAnswer = new Action[playerCount];
             Players = new();
-            IncomingSelection = new JObject[playerCount];
+            PlayerAnswers = new JObject[playerCount];
             for (byte i = 0; i < playerCount; i++)
             {
                 NewEvents[i] = new List<JObject>();
@@ -396,7 +396,7 @@ namespace AB_Server
             for (int i = 0; i < PlayerCount; i++)
                 OnAnswer[i] = () =>
                 {
-                    if (IncomingSelection.Contains(null)) return;
+                    if (PlayerAnswers.Contains(null)) return;
                     //checkDeadTimers = new System.Timers.Timer[PlayerCount];
                     //for (int i = 0; i < PlayerCount; i++)
                     //{
@@ -411,9 +411,9 @@ namespace AB_Server
                     //    checkDeadTimer.Start();
                     //    checkDeadTimers[i] = checkDeadTimer;
                     //}
-                    for (byte j = 0; j < IncomingSelection.Length; j++)
+                    for (byte j = 0; j < PlayerAnswers.Length; j++)
                     {
-                        dynamic selection = IncomingSelection[j];
+                        dynamic selection = PlayerAnswers[j];
                         int id = (int)selection["gate"];
 
                         ThrowEvent(new()
@@ -613,7 +613,7 @@ namespace AB_Server
                     NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
                     OnAnswer[toSuggestDraw] = () =>
                     {
-                        bool answer = (bool)IncomingSelection[toSuggestDraw]["array"][0]["answer"];
+                        bool answer = (bool)PlayerAnswers[toSuggestDraw]["array"][0]["answer"];
                         if (answer)
                         {
                             ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", true } });
@@ -990,7 +990,7 @@ namespace AB_Server
 
         public void CheckWindow(int startingPlayer, int player)
         {
-            if ((bool)IncomingSelection[player]["array"][0]["answer"])
+            if ((bool)PlayerAnswers[player]["array"][0]["answer"])
             {
                 OnAnswer[player] = () => ResolveWindow(Players[player]);
                 NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
@@ -1006,7 +1006,7 @@ namespace AB_Server
 
         public void ResolveWindow(Player player)
         {
-            int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
+            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
                 CardChain.Add(AbilityIndex[id]);
@@ -1035,7 +1035,7 @@ namespace AB_Server
 
         public void CheckCounter(Player player, IActive card, Player user)
         {
-            if (!(bool)IncomingSelection[player.Id]["array"][0]["answer"])
+            if (!(bool)PlayerAnswers[player.Id]["array"][0]["answer"])
             {
                 int next = player.Id + 1;
                 if (next == PlayerCount) next = 0;
@@ -1053,7 +1053,7 @@ namespace AB_Server
 
         public void ResolveCounter(Player player)
         {
-            int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
+            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
             {
                 CardChain.Add(AbilityIndex[id]);
@@ -1083,7 +1083,7 @@ namespace AB_Server
 
         public void CheckFusion(Player player, AbilityCard ability, Bakugan user)
         {
-            if (!(bool)IncomingSelection[player.Id]["array"][0]["answer"])
+            if (!(bool)PlayerAnswers[player.Id]["array"][0]["answer"])
             {
                 if (Players.Any(x => !x.HadUsedCounter))
                 {
@@ -1114,7 +1114,7 @@ namespace AB_Server
 
         public void ResolveFusion(Player player, AbilityCard ability, Bakugan user)
         {
-            int id = (int)IncomingSelection[player.Id]["array"][0]["ability"];
+            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableByBakugan(user))
             {
                 CardChain.Insert(CardChain.IndexOf(ability) + 1, AbilityIndex[id]);

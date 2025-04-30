@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
 
         public void Setup2()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             var validBakugans = User.Position.Bakugans.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
             if (validBakugans.Count() != 0)
@@ -35,7 +35,7 @@ namespace AB_Server.Abilities
 
         public void HandleOpponentBakuganSelection()
         {
-            if ((bool)Game.IncomingSelection[Owner.Id]["array"][0]["answer"])
+            if ((bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"])
             {
                 var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
 
@@ -55,7 +55,7 @@ namespace AB_Server.Abilities
 
         public void Setup3()
         {
-            target = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
             Activate();
         }
 

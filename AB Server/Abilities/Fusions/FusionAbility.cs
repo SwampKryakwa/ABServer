@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
 
         public virtual void PickUser()
         {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+            FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))

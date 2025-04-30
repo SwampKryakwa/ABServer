@@ -32,7 +32,7 @@
 
         public void Setup()
         {
-            target = game.BakuganIndex[(int)game.IncomingSelection[selectingPlayer]["array"][0]["bakugan"]];
+            target = game.BakuganIndex[(int)game.PlayerAnswers[selectingPlayer]["array"][0]["bakugan"]];
 
             game.CheckChain(Owner, this);
         }

@@ -38,7 +38,7 @@ namespace AB_Server.Gates
 
         public void Setup()
         {
-            target = game.ActiveZone.First(x => x.EffectId == (int)game.IncomingSelection[Owner.Id]["array"][0]["active"]);
+            target = game.ActiveZone.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]["array"][0]["active"]);
 
             game.CheckChain(Owner, this);
         }

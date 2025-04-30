@@ -45,6 +45,13 @@ namespace AB_Server
 
         public byte PlayerColor;
 
+        public Player(byte id, byte sideID, string displayName)
+        {
+            Id = id;
+            SideID = sideID;
+            DisplayName = displayName;
+        }
+
         public Player(byte id, byte sideID, Game game, string displayName, byte avatar)
         {
             Id = id;

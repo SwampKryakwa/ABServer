@@ -20,7 +20,7 @@
 
         public void Setup2()
         {
-            User = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User);
 
@@ -35,7 +35,7 @@
 
         public void Setup3()
         {
-            var selectedBakugan = Game.BakuganIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            var selectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
             otherBakugans.Add(selectedBakugan);
 
             var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User && !otherBakugans.Contains(x));
@@ -56,7 +56,7 @@
 
         public void HandleAnotherBakuganSelection()
         {
-            if ((bool)Game.IncomingSelection[Owner.Id]["array"][0]["answer"])
+            if ((bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"])
             {
                 var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User && !otherBakugans.Contains(x));
 

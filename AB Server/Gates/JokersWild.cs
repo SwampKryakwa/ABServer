@@ -54,7 +54,7 @@
 
         public void Setup()
         {
-            if ((bool)game.IncomingSelection[Owner.Id]["array"][0]["answer"])
+            if ((bool)game.PlayerAnswers[Owner.Id]["array"][0]["answer"])
             {
                 game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                     EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner && x.IsAttribute(Attribute.Darkon) && x.BasePower <= 370))
@@ -71,7 +71,7 @@
 
         public void PickTarget()
         {
-            target = game.BakuganIndex[(int)game.IncomingSelection[Owner.Id]["array"][0]["bakugan"]];
+            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
             game.NextStep();
         }

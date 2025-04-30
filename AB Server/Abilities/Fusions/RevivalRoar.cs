@@ -14,7 +14,7 @@ namespace AB_Server.Abilities.Fusions
 
         public override void PickUser()
         {
-            FusedTo = Game.AbilityIndex[(int)Game.IncomingSelection[Owner.Id]["array"][0]["ability"]];
+            FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
                 EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))

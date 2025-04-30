@@ -7,29 +7,26 @@ namespace AB_Server
     {
         public string RoomName;
         public string RoomKey;
-        public long?[] Players;
+        public byte TeamCount;
+        public byte PlayersPerTeam;
         public long? RoomOwner;
-        public bool[] IsReady;
-        public string?[] UserNames;
+        Dictionary<long, (int, int)> playerPositions = [];
+        public long?[,] Players;
+        public bool[,] IsReady;
+        public string?[,] UserNames;
         public bool Started = false;
         public bool IsBotRoom;
         public Dictionary<long, List<JObject>> Updates = [];
         public System.Timers.Timer dieTimer;
 
-        public Room(short playerCount, string roomName, string roomKey, bool isBotRoom)
+        public Room(byte teamCount, byte playersPerTeam, string roomName, string roomKey, bool isBotRoom)
         {
             RoomKey = roomKey;
-            Players = new long?[playerCount];
-            IsReady = new bool[playerCount];
-            UserNames = new string?[playerCount];
-            for (int i = 0; i < Players.Length; i++)
-            {
-                Players[i] = null;
-                IsReady[i] = false;
-                UserNames[i] = null;
-            }
+            Players = new long?[teamCount, playersPerTeam];
+            IsReady = new bool[teamCount, playersPerTeam];
+            UserNames = new string?[teamCount, playersPerTeam];
 
-            if (roomName != null)
+            if (roomName != "")
                 RoomName = roomName;
             else
                 RoomName = "Room";
@@ -38,7 +35,7 @@ namespace AB_Server
             {
                 AutoReset = false,
                 Enabled = false,
-                Interval = 10000
+                Interval = 2500
             };
 
             dieTimer.Elapsed += Die;
@@ -47,7 +44,6 @@ namespace AB_Server
 
         private void Die(object? sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("Killed room " + RoomKey);
             Server.Rooms.Remove(RoomKey);
             dieTimer.Stop();
             dieTimer.Dispose();
@@ -55,101 +51,114 @@ namespace AB_Server
 
         public int GetPosition(long uuid) => Array.IndexOf(Players, uuid);
 
-        public bool UpdateReady(long uuid, bool isReady)
+        public void UpdateReady(long uuid, bool isReady)
         {
-            IsReady[Array.IndexOf(Players, uuid)] = isReady;
+            (int team, int position) = playerPositions[uuid];
+            IsReady[team, position] = isReady;
             foreach (var item in Updates.Values)
                 item.Add(new()
                 {
                     ["Type"] = "PlayerReadyChanged",
-                    ["Position"] = Array.IndexOf(Players, uuid),
-                    ["State"] = isReady
+                    ["Team"] = team,
+                    ["Position"] = position,
+                    ["State"] = isReady,
+                    ["CanStart"] = !IsReady.Cast<bool>().Contains(false)
                 });
-            return IsReady.Contains(false);
-        }
-
-        public bool AreAllReady()
-        {
-            return IsReady.Contains(false);
         }
 
         public bool AddPlayer(long uuid, string userName)
         {
-            if (!Players.Contains(null)) return false;
-            UserNames[Array.IndexOf(Players, null)] = userName;
-            Players[Array.IndexOf(Players, null)] = uuid;
-            foreach (var item in Updates.Values)
-            {
-                item.Add(new()
-                {
-                    ["Type"] = "PlayerJoined",
-                    ["UserName"] = userName,
-                    ["Position"] = Array.IndexOf(Players, uuid)
-                });
-            }
-            if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
-            else Updates[uuid].Clear();
-            Updates[uuid].Add(new()
-            {
-                ["Type"] = "RoomState",
-                ["UserNames"] = new JArray(UserNames),
-                ["ReadyStates"] = new JArray(IsReady),
-                ["Position"] = Array.IndexOf(Players, uuid)
-            });
-            if (RoomOwner == null)
-            {
-                RoomOwner = uuid;
-                Updates[uuid].Add(new()
-                {
-                    ["Type"] = "BecameOwner"
-                });
-            }
-            return true;
+            int team = -1;
+            for (int i = 0; i < TeamCount; i++)
+                for (int j = 0; j < PlayersPerTeam; j++)
+                    if (Players[i, j] == null)
+                    {
+                        team = i;
+                        playerPositions[uuid] = (i, j);
+                        UserNames[i, j] = userName;
+                        Players[i, j] = uuid;
+                        IsReady[i, j] = false;
+                        foreach (var item in Updates.Values)
+                        {
+                            item.Add(new()
+                            {
+                                ["Type"] = "PlayerJoined",
+                                ["UserName"] = userName,
+                                ["Position"] = Array.IndexOf(Players, uuid)
+                            });
+                        }
+                        if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+                        else Updates[uuid].Clear();
+                        Updates[uuid].Add(new()
+                        {
+                            ["Type"] = "RoomState",
+                            ["UserNames"] = new JArray(UserNames.Cast<string[]>().Select(x => new JArray(x))),
+                            ["ReadyStates"] = new JArray(IsReady.Cast<bool[]>().Select(x => new JArray(x))),
+                            ["Team"] = i,
+                            ["Position"] = j
+                        });
+                        if (RoomOwner == null)
+                        {
+                            RoomOwner = uuid;
+                            Updates[uuid].Add(new()
+                            {
+                                ["Type"] = "BecameOwner"
+                            });
+                        }
+                        return true;
+                    }
+            return team != -1;
         }
 
         public void Spectate(long uuid)
         {
             if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
             else Updates[uuid].Clear();
-            if (Players.Contains(uuid))
+            if (playerPositions.ContainsKey(uuid))
             {
-                UserNames[Array.IndexOf(Players, uuid)] = null;
-                IsReady[Array.IndexOf(Players, uuid)] = false;
-                Players[Array.IndexOf(Players, uuid)] = null;
+                (int team, int position) = playerPositions[uuid];
+                UserNames[team, position] = null;
+                IsReady[team, position] = false;
+                Players[team, position] = null;
                 foreach (var item in Updates.Values)
                     item.Add(new()
                     {
                         ["Type"] = "PlayerLeft",
-                        ["Position"] = Array.IndexOf(Players, uuid)
+                        ["Team"] = team,
+                        ["Position"] = position
                     });
+                playerPositions.Remove(uuid);
             }
             Updates[uuid].Add(new()
             {
                 ["Type"] = "RoomState",
-                ["UserNames"] = new JArray(UserNames),
-                ["ReadyStates"] = new JArray(IsReady)
+                ["UserNames"] = new JArray(UserNames.Cast<string[]>().Select(x => new JArray(x))),
+                ["ReadyStates"] = new JArray(IsReady.Cast<bool[]>().Select(x => new JArray(x))),
             });
         }
 
         public void RemovePlayer(long uuid)
         {
-            if (Players.Contains(uuid))
+            if (playerPositions.ContainsKey(uuid))
             {
+                (int team, int position) = playerPositions[uuid];
+                UserNames[team, position] = null;
+                IsReady[team, position] = false;
+                Players[team, position] = null;
                 foreach (var item in Updates.Values)
+                {
                     item.Add(new()
                     {
                         ["Type"] = "PlayerLeft",
                         ["Position"] = Array.IndexOf(Players, uuid)
                     });
-                UserNames[Array.IndexOf(Players, uuid)] = null;
-                IsReady[Array.IndexOf(Players, uuid)] = false;
-                Players[Array.IndexOf(Players, uuid)] = null;
+                }
             }
             if (Updates.ContainsKey(uuid)) Updates.Remove(uuid);
-            if (RoomOwner == uuid && Players.Any(x => x is long) && Players.First(x => x is long) is long newOwner)
+            if (RoomOwner == uuid && playerPositions.Count != 0)
             {
-                RoomOwner = newOwner;
-                Updates[newOwner].Add(new()
+                RoomOwner = playerPositions.Keys.First();
+                Updates[(long)RoomOwner].Add(new()
                 {
                     ["Type"] = "BecameOwner"
                 });

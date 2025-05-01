@@ -538,6 +538,42 @@ namespace AB_Server
             }
         }
 
+        public static void MultiToHand(NewGame game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
+        {
+            var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField());
+
+            if (mover == MoveSource.Effect)
+                removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0);
+
+            foreach (var bakugan in removableBakugans)
+            {
+                bakugan.Position.Remove(bakugan);
+                bakugan.Position = bakugan.Owner;
+                bakugan.Owner.Bakugans.Add(bakugan);
+
+                var entryOrder = (bakugan.Position as GateCard).EnterOrder;
+                int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
+                if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
+                else entryOrder[f] = entryOrder[f].Where(x => x != bakugan).ToArray();
+            }
+
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "MultiBakuganRemoved",
+                ["Bakugan"] = new JArray(removableBakugans.Select(x => new JObject
+                {
+                    ["Type"] = (int)x.Type,
+                    ["Attribute"] = (int)x.MainAttribute,
+                    ["Treatment"] = (int)x.Treatment,
+                    ["Power"] = x.Power,
+                    ["IsPartner"] = x.IsPartner,
+                    ["BID"] = x.BID,
+                    ["Owner"] = x.Owner.Id,
+                    ["IsDestroy"] = false
+                }))
+            });
+        }
+
         public void DestroyOnField(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;

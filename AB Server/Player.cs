@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Abilities.Correlations;
 using AB_Server.Gates;
+using System.Numerics;
 
 namespace AB_Server
 {
@@ -18,7 +19,6 @@ namespace AB_Server
 
     internal class Player : IBakuganContainer
     {
-
         public byte Id;
         public byte SideID = new();
         public string DisplayName;
@@ -60,6 +60,87 @@ namespace AB_Server
             BakuganGrave = new(this);
             DisplayName = displayName;
             Avatar = avatar;
+        }
+
+        public void ProvideDeck(dynamic deck)
+        {
+            if (deck["deck_color"] != null)
+                PlayerColor = deck["deck_color"];
+            else
+                PlayerColor = 0;
+
+            foreach (dynamic b in deck["bakugans"])
+            {
+                int type = (int)b["Type"];
+                short power = (short)b["Power"];
+                int attr = (int)b["Attribute"];
+                int treatment = (int)b["Treatment"];
+
+                Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, this, game, game.BakuganIndex.Count);
+                game.BakuganIndex.Add(bak);
+                Bakugans.Add(bak);
+                BakuganOwned.Add(bak);
+            }
+
+            foreach (int a in deck["abilities"])
+            {
+                AbilityCard abi = AbilityCard.CreateCard(this, game.AbilityIndex.Count, a);
+                AbilityHand.Add(abi);
+                game.AbilityIndex.Add(abi);
+            }
+
+            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Type"]].Invoke(game.AbilityIndex.Count, this);
+            AbilityHand.Add(fusion);
+            game.AbilityIndex.Add(fusion);
+
+            BakuganOwned[0].IsPartner = true;
+
+            if (deck.ContainsKey("correlation"))
+            {
+                var correlation = AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(game.AbilityIndex.Count, this);
+                AbilityHand.Add(correlation);
+                game.AbilityIndex.Add(correlation);
+            }
+            else
+            {
+                HashSet<Attribute> combinedAttributes = new(BakuganOwned.Select(x => x.MainAttribute));
+                if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
+                       combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
+                {
+                    TripleNode tripleNode = new(game.AbilityIndex.Count, this);
+                    game.AbilityIndex.Add(tripleNode);
+                    AbilityHand.Add(tripleNode);
+                }
+                else if ((combinedAttributes.Contains(Attribute.Nova) && combinedAttributes.Contains(Attribute.Darkon)) ||
+                       (combinedAttributes.Contains(Attribute.Subterra) && combinedAttributes.Contains(Attribute.Aqua)) ||
+                       (combinedAttributes.Contains(Attribute.Lumina) && combinedAttributes.Contains(Attribute.Zephyros)))
+                {
+                    DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, this);
+                    game.AbilityIndex.Add(diagonalCorrelation);
+                    AbilityHand.Add(diagonalCorrelation);
+                }
+                else if (combinedAttributes.Distinct().Count() == 1)
+                {
+                    ElementResonance elementResonance = new(game.AbilityIndex.Count, this);
+                    game.AbilityIndex.Add(elementResonance);
+                    AbilityHand.Add(elementResonance);
+                }
+                else
+                {
+                    AdjacentCorrelation adjacentCorrelation = new(game.AbilityIndex.Count, this);
+                    game.AbilityIndex.Add(adjacentCorrelation);
+                    AbilityHand.Add(adjacentCorrelation);
+                }
+            }
+
+            foreach (dynamic g in deck["gates"])
+            {
+                GateCard gate;
+                gate = GateCard.CreateCard(this, game.GateIndex.Count, (int)g["Type"]);
+
+                GateHand.Add(gate);
+                game.GateIndex.Add(gate);
+            }
         }
 
         public static Player FromJson(byte id, byte sideID, dynamic deck, Game game, string displayName, byte avatar)

@@ -50,16 +50,44 @@
     "Attribute": "LUMINA"
   },
 
+  "sudi805": {
+    "Treatment": "DIAMOND",
+    "Attribute": "SUBTERRA"
+  },
+  "supe61": {
+    "Treatment": "PEARL",
+    "Attribute": "SUBTERRA"
+  },
   "sutr10": {
     "Treatment": "TRANSLUCENT",
     "Attribute": "SUBTERRA"
   },
+  "sufl75": {
+    "Treatment": "FLIP",
+    "Attribute": "SUBTERRA"
+  },
 
+  "dadi09": {
+    "Treatment": "DIAMOND",
+    "Attribute": "DARKON"
+  },
+  "dape070": {
+    "Treatment": "PEARL",
+    "Attribute": "DARKON"
+  },
   "datr806": {
     "Treatment": "TRANSLUCENT",
     "Attribute": "DARKON"
   },
+  "dafl004": {
+    "Treatment": "FLIP",
+    "Attribute": "DARKON"
+  },
 
+  "vedi09": {
+    "Treatment": "DIAMOND",
+    "Attribute": "ZEPHYROS"
+  },
   "vetr005": {
     "Treatment": "TRANSLUCENT",
     "Attribute": "ZEPHYROS"

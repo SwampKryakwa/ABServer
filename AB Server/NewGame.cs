@@ -6,6 +6,15 @@ namespace AB_Server
 {
     internal class NewGame
     {
+        //Static data
+        static readonly (byte X, byte Y)[] FirstCardPositions =
+        [
+            (0, 1),
+            (1, 1),
+            (0, 2),
+            (1, 2)
+        ];
+
         //Player data
         public Dictionary<long, int> UidToPid = [];
         public byte PlayerCount;
@@ -28,6 +37,7 @@ namespace AB_Server
         public List<IChainable> CardChain = [];
 
         //Game state
+        public int turnNumber = 0;
         public byte TurnPlayer;
         public byte ActivePlayer;
         public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.ActiveBattle); }
@@ -36,6 +46,9 @@ namespace AB_Server
         //Communication with the players
         public dynamic?[] PlayerAnswers;
         public Action[] OnAnswer;
+
+        //Game flow
+        public Action NextStep;
 
         //Other data
         byte playersCreated = 0;
@@ -116,9 +129,7 @@ namespace AB_Server
             PlayerAnswers = new JObject[playerCount];
             OnAnswer = new Action[playerCount];
             for (byte i = 0; i < playerCount; i++)
-            {
-                NewEvents[i] = new List<JObject>();
-            }
+                NewEvents[i] = [];
         }
 
         public int CreatePlayer(string userName, byte team, long uuid)
@@ -128,6 +139,306 @@ namespace AB_Server
             return playersCreated++;
         }
 
-        public void RegisterPlayer()
+        public void RegisterPlayer(byte playerId, JObject deck, byte ava)
+        {
+            Players[playerId].Avatar = ava;
+            Players[playerId].ProvideDeck(deck);
+        }
+
+        public void AddSpectator(long uuid)
+        {
+            if (!Spectators.Contains(uuid))
+            {
+                SpectatorEvents.Add(uuid, []);
+                Spectators.Add(uuid);
+            }
+            else
+            {
+                SpectatorEvents[uuid].Clear();
+            }
+
+            SpectatorEvents[uuid].Add(new()
+            {
+                ["Type"] = "InitGameState",
+                ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
+                ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
+                ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
+                ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                    ["IsOpen"] = x.IsOpen,
+                    ["GateData"] = new JObject
+                    {
+                        ["CardType"] = x.IsOpen ? x.TypeId : -2
+                    }
+                })),
+                ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
+                {
+                    ["BID"] = x.BID,
+                    ["PosX"] = (x.Position as GateCard).Position.X,
+                    ["PosY"] = (x.Position as GateCard).Position.Y,
+                    ["Type"] = (int)x.Type,
+                    ["Attribute"] = (int)x.BaseAttribute,
+                    ["Treatment"] = (int)x.Treatment,
+                    ["Power"] = x.Power
+                })),
+                ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
+                {
+                    ["EID"] = x.EffectId,
+                    ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
+                    ["Kind"] = (int)x.Kind,
+                    ["Type"] = x.TypeId,
+                    ["User"] = x.User.BID,
+                    ["Owner"] = x.Owner.Id,
+                    ["IsCopy"] = false
+                })),
+                ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                {
+                    ["BID"] = x.BID,
+                    ["Owner"] = x.Owner.Id,
+                    ["BakuganType"] = (int)x.Type,
+                    ["Attribute"] = (int)x.BaseAttribute,
+                    ["Treatment"] = (int)x.Treatment,
+                    ["IsPartner"] = x.IsPartner,
+                    ["Power"] = x.Power
+                })),
+                ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["Owner"] = x.Owner.Id,
+                    ["Kind"] = (int)x.Kind,
+                    ["CardType"] = x.TypeId
+                })),
+                ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["Owner"] = x.Owner.Id,
+                    ["CardType"] = x.TypeId
+                }))
+            });
+        }
+
+        public void ThrowEvent(JObject @event, params int[] exclude)
+        {
+            Console.WriteLine(@event);
+            for (int i = 0; i < PlayerCount; i++)
+                if (!exclude.Contains(i))
+                    NewEvents[i].Add(@event);
+            foreach (var spectator in Spectators)
+                SpectatorEvents[spectator].Add(@event);
+        }
+
+        public JArray GetEvents(int player)
+        {
+            JArray toReturn;
+            toReturn = [.. NewEvents[player]];
+            NewEvents[player].Clear();
+
+            return toReturn;
+        }
+
+        public JArray GetSpectatorEvents(long uuid)
+        {
+            JArray toReturn;
+            toReturn = [.. SpectatorEvents[uuid]];
+            SpectatorEvents[uuid].Clear();
+
+            return toReturn;
+        }
+
+        public void StartGame()
+        {
+            foreach (var e in SpectatorEvents.Values)
+                e.Add(new()
+                {
+                    ["Type"] = "InitGameState",
+                    ["PlayerNames"] = new JArray(Players.Select(x => x.DisplayName)),
+                    ["PlayerColors"] = new JArray(Players.Select(x => x.PlayerColor)),
+                    ["PlayerAvas"] = new JArray(Players.Select(x => x.Avatar)),
+                    ["FieldGates"] = new JArray(GateIndex.Where(x => x.OnField).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["PosX"] = x.Position.X,
+                        ["PosY"] = x.Position.Y,
+                        ["IsOpen"] = x.IsOpen,
+                        ["GateData"] = new JObject
+                        {
+                            ["CardType"] = x.IsOpen ? x.TypeId : -2
+                        }
+                    })),
+                    ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["PosX"] = (x.Position as GateCard).Position.X,
+                        ["PosY"] = (x.Position as GateCard).Position.Y,
+                        ["Type"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["Power"] = x.Power
+                    })),
+                    ["Actives"] = new JArray(ActiveZone.Where(x => x is not GateCard).Select(x => new JObject
+                    {
+                        ["EID"] = x.EffectId,
+                        ["ActiveType"] = x is AbilityCard ? "Ability" : "Marker",
+                        ["Kind"] = (int)x.Kind,
+                        ["Type"] = x.TypeId,
+                        ["User"] = x.User.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["IsCopy"] = false
+                    })),
+                    ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                    {
+                        ["BID"] = x.BID,
+                        ["Owner"] = x.Owner.Id,
+                        ["BakuganType"] = (int)x.Type,
+                        ["Attribute"] = (int)x.BaseAttribute,
+                        ["Treatment"] = (int)x.Treatment,
+                        ["IsPartner"] = x.IsPartner,
+                        ["Power"] = x.Power
+                    })),
+                    ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["Kind"] = (int)x.Kind,
+                        ["CardType"] = x.TypeId
+                    })),
+                    ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                    {
+                        ["CID"] = x.CardId,
+                        ["Owner"] = x.Owner.Id,
+                        ["CardType"] = x.TypeId
+                    }))
+                });
+
+            TurnPlayer = (byte)new Random().Next(Players.Length);
+            ActivePlayer = TurnPlayer;
+
+            for (int i = 0; i < PlayerCount; i++)
+            {
+                var player = Players[i];
+
+                JArray gates = [.. player.GateHand.Select(x => new JObject { ["Type"] = x.TypeId, ["CID"] = x.CardId })];
+
+                NewEvents[i].Add(new JObject
+                {
+                    ["Type"] = "InitializeHand",
+                    ["Bakugans"] = new JArray(player.Bakugans.Select(b => new JObject
+                    {
+                        ["BID"] = b.BID,
+                        ["BakuganType"] = (int)b.Type,
+                        ["Attribute"] = (int)b.MainAttribute,
+                        ["Treatment"] = (int)b.Treatment,
+                        ["Power"] = b.Power,
+                        ["IsPartner"] = b.IsPartner
+                    })),
+                    ["Abilities"] = new JArray(player.AbilityHand.Select(a => new JObject
+                    {
+                        ["CID"] = a.CardId,
+                        ["Type"] = a.TypeId,
+                        ["Kind"] = (int)a.Kind
+                    })),
+                    ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
+                    {
+                        ["CID"] = g.CardId,
+                        ["Type"] = g.TypeId
+                    }))
+                });
+                NewEvents[i].Add(new JObject { ["Type"] = "PickGateEvent", ["Prompt"] = "pick_gate_start", ["Gates"] = gates });
+                ThrowEvent(new JObject { ["Type"] = "PlayerGatesColors", ["Player"] = i, ["Color"] = Players[i].PlayerColor });
+                OnAnswer[i] = () =>
+                {
+                    if (PlayerAnswers.Contains(null)) return;
+                    for (byte j = 0; j < PlayerAnswers.Length; j++)
+                    {
+                        dynamic selection = PlayerAnswers[j];
+                        int id = (int)selection["gate"];
+
+                        ThrowEvent(new()
+                        {
+                            ["Type"] = "GateRemovedFromHand",
+                            ["CardType"] = GateIndex[id].TypeId,
+                            ["CID"] = GateIndex[id].CardId,
+                            ["Owner"] = j
+                        });
+                        GateIndex[id].Set(FirstCardPositions[j].X, FirstCardPositions[j].Y);
+                    }
+                };
+            }
+        }
+
+        public void StartTurn()
+        {
+            ActivePlayer = TurnPlayer;
+
+            //Reset flags
+            Players[TurnPlayer].HadSetGate = false;
+            Players[TurnPlayer].HadThrownBakugan = false;
+            foreach (Player player in Players)
+                player.HadUsedCounter = false;
+
+            if (!BakuganIndex.Any(x => x.InHand()))
+            {
+                FieldClosing();
+            }
+
+            turnNumber++;
+            ThrowEvent(new JObject
+            {
+                ["Type"] = "NewTurnEvent",
+                ["TurnPlayer"] = TurnPlayer,
+                ["TurnNumber"] = turnNumber
+            });
+
+            if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
+            {
+                var gate = new NormalGate(GateIndex.Count, Players[TurnPlayer]);
+                Players[TurnPlayer].GateHand.Add(gate);
+                GateIndex.Add(gate);
+                ThrowEvent(new JObject
+                {
+                    ["Type"] = "GateAddedToHand",
+                    ["Owner"] = TurnPlayer,
+                    ["GateType"] = -1,
+                    ["CID"] = gate.CardId
+                });
+            }
+
+            ThrowEvent(new()
+            {
+                ["Type"] = "PhaseChange",
+                ["Phase"] = "TurnStart"
+            });
+            TurnStarted?.Invoke();
+
+            NextStep = () =>
+            {
+                ThrowEvent(new()
+                {
+                    ["Type"] = "PhaseChange",
+                    ["Phase"] = "Main"
+                });
+                //NextStep = ContinueGame;
+                //ContinueGame();
+            };
+            //SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
+        }
+
+        public void FieldClosing()
+        {
+            ThrowEvent(new()
+            {
+                ["Type"] = "GateClosing"
+            });
+            Bakugan.MultiToHand(this, BakuganIndex.Where(x => x.OnField()), MoveSource.Game);
+            GateSetList[^1].Dispose();
+            foreach (var gate in GateIndex.Where(x => x.OnField))
+                gate.Retract();
+        }
+
+        void CastNormalGate()
+        { }
     }
 }

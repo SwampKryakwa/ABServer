@@ -17,7 +17,7 @@ namespace AB_Server
     {
         public List<JObject>[] NewEvents { get; set; }
         public Dictionary<long, List<JObject>> SpectatorEvents = [];
-        public dynamic?[] PlayerAnswers; 
+        public dynamic?[] PlayerAnswers;
         public Dictionary<long, int> UidToPid = [];
 
         public byte PlayerCount;
@@ -234,11 +234,6 @@ namespace AB_Server
                 });
         }
 
-        public byte GetPid(long UUID)
-        {
-            return UUIDToPid[UUID];
-        }
-
         public void ThrowEvent(JObject @event, params int[] exclude)
         {
             Console.WriteLine(@event);
@@ -347,24 +342,8 @@ namespace AB_Server
             for (int i = 0; i < Players.Count; i++)
             {
                 var player = Players[i];
-                JArray gates = new();
+                JArray gates = [.. player.GateHand.Select(x => new JObject { ["Type"] = x.TypeId, ["CID"] = x.CardId })];
 
-                for (int j = 0; j < player.GateHand.Count; j++)
-                {
-                    int type = player.GateHand[j].TypeId;
-                    switch (type)
-                    {
-                        //case 0:
-                        //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((NormalGate)p.GateHand[j]).Attribute }, { "Power", ((NormalGate)p.GateHand[j]).Power } });
-                        //    break;
-                        //case 4:
-                        //    gates.Add(new JObject { { "Type", type }, { "Attribute", (int)((AttributeHazard)p.GateHand[j]).Attribute } });
-                        //    break;
-                        default:
-                            gates.Add(new JObject { { "Type", type }, { "CID", player.GateHand[j].CardId } });
-                            break;
-                    }
-                }
                 NewEvents[i].Add(new JObject
                 {
                     ["Type"] = "InitializeHand",
@@ -397,20 +376,6 @@ namespace AB_Server
                 OnAnswer[i] = () =>
                 {
                     if (PlayerAnswers.Contains(null)) return;
-                    //checkDeadTimers = new System.Timers.Timer[PlayerCount];
-                    //for (int i = 0; i < PlayerCount; i++)
-                    //{
-                    //    var checkDeadTimer = new System.Timers.Timer()
-                    //    {
-                    //        Enabled = false,
-                    //        AutoReset = false,
-                    //        Interval = 10000
-                    //    };
-                    //    int locali = i;
-                    //    checkDeadTimer.Elapsed += (sender, e) => Conclude(locali);
-                    //    checkDeadTimer.Start();
-                    //    checkDeadTimers[i] = checkDeadTimer;
-                    //}
                     for (byte j = 0; j < PlayerAnswers.Length; j++)
                     {
                         dynamic selection = PlayerAnswers[j];
@@ -428,16 +393,25 @@ namespace AB_Server
 
                     ThrowEvent(new()
                     {
-                        { "Type", "PhaseChange" },
-                        { "Phase", "TurnStart" }
+                        ["Type"] = "PhaseChange",
+                        ["Phase"] = "TurnStart"
                     });
                     ThrowEvent(new()
                     {
-                        { "Type", "PhaseChange" },
-                        { "Phase", "Main" }
+                        ["Type"] = "PhaseChange",
+                        ["Phase"] = "Main"
                     });
-                    ThrowEvent(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
-                    ThrowEvent(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+                    ThrowEvent(new JObject
+                    {
+                        ["Type"] = "NewTurnEvent",
+                        ["TurnPlayer"] = TurnPlayer,
+                        ["TurnNumber"] = currentTurn
+                    });
+                    ThrowEvent(new JObject
+                    {
+                        ["Type"] = "PlayerTurnStart",
+                        ["PID"] = ActivePlayer
+                    });
                     Started = true;
                 };
         }
@@ -445,7 +419,7 @@ namespace AB_Server
         private void Conclude(int player)
         {
             Console.WriteLine($"Player {player} got disconnected");
-            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != player).Id } });
+            ThrowEvent(new JObject { ["Type"] = "GameOver", ["Draw"] = false, ["Victor"] = Players.First(x => x.Id != player).Id });
             checkDeadTimers[player].Stop();
             Over = true;
         }
@@ -662,7 +636,7 @@ namespace AB_Server
 
             if (loser != -1)
             {
-                ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != loser).Id } });
+                ThrowEvent(new JObject { ["Type"] = "GameOver", ["Draw"] = false, ["Victor"] = Players.First(x => x.Id != loser).Id });
                 Over = true;
                 return;
             }
@@ -757,7 +731,7 @@ namespace AB_Server
                 }
 
                 foreach (var playerEvents in NewEvents)
-                    playerEvents.Add(new JObject { { "Type", "PlayerTurnStart" }, { "PID", ActivePlayer } });
+                    playerEvents.Add(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = ActivePlayer });
             }
         }
 
@@ -789,10 +763,10 @@ namespace AB_Server
             {
                 ActivePlayer = TurnPlayer;
                 foreach (var e in NewEvents) e.Add(new JObject
-                        {
-                            { "Type", "PlayerTurnStart" },
-                            { "PID", ActivePlayer }
-                        });
+                {
+                    ["Type"] = "PlayerTurnStart",
+                    ["PID"] = ActivePlayer
+                });
             }
             else
             {
@@ -800,8 +774,8 @@ namespace AB_Server
                 {
                     ThrowEvent(new()
                     {
-                        { "Type", "PhaseChange" },
-                        { "Phase", "TurnEnd" }
+                        ["Type"] = "PhaseChange",
+                        ["Phase"] = "TurnEnd"
                     });
                     NextStep = StartTurn;
                     SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
@@ -827,7 +801,7 @@ namespace AB_Server
             {
                 ThrowEvent(new()
                 {
-                    { "Type", "GateClosing" }
+                    ["Type"] = "GateClosing"
                 });
                 foreach (var bakugan in BakuganIndex.Where(x => x.OnField()))
                     if (bakugan.Position is GateCard positionGate)
@@ -838,25 +812,31 @@ namespace AB_Server
             }
 
             currentTurn++;
-            ThrowEvent(new JObject { { "Type", "NewTurnEvent" }, { "TurnPlayer", TurnPlayer }, { "TurnNumber", currentTurn } });
+            ThrowEvent(new JObject
+            {
+                ["Type"] = "NewTurnEvent",
+                ["TurnPlayer"] = TurnPlayer,
+                ["TurnNumber"] = currentTurn
+            });
 
             if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
             {
                 var gate = new NormalGate(GateIndex.Count, Players[TurnPlayer]);
                 Players[TurnPlayer].GateHand.Add(gate);
                 GateIndex.Add(gate);
-                ThrowEvent(new JObject {
-                    { "Type", "GateAddedToHand" },
-                    { "Owner", TurnPlayer },
-                    { "GateType", -1 },
-                    { "CID", gate.CardId }
+                ThrowEvent(new JObject
+                {
+                    ["Type"] = "GateAddedToHand",
+                    ["Owner"] = TurnPlayer,
+                    ["GateType"] = -1,
+                    ["CID"] = gate.CardId
                 });
             }
 
             ThrowEvent(new()
             {
-                { "Type", "PhaseChange" },
-                { "Phase", "TurnStart" }
+                ["Type"] = "PhaseChange",
+                ["Phase"] = "TurnStart"
             });
             TurnStarted?.Invoke();
 
@@ -864,8 +844,8 @@ namespace AB_Server
             {
                 ThrowEvent(new()
                 {
-                    { "Type", "PhaseChange" },
-                    { "Phase", "Main" }
+                    ["Type"] = "PhaseChange",
+                    ["Phase"] = "Main"
                 });
                 NextStep = ContinueGame;
                 ContinueGame();
@@ -887,14 +867,14 @@ namespace AB_Server
                     //    gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId }, { "Attribute", (int)((AttributeHazard)gate).Attribute } });
                     //    break;
                     default:
-                        gateArray.Add(new JObject { { "CID", gate.CardId }, { "Type", gate.TypeId } });
+                        gateArray.Add(new JObject { ["CID"] = gate.CardId, ["Type"] = gate.TypeId });
                         break;
                 }
 
             JArray bakuganArray = new JArray();
 
             foreach (var bakugan in Players[player].ThrowableBakugan())
-                bakuganArray.Add(new JObject { { "BID", bakugan.BID }, { "Type", (int)bakugan.Type }, { "Attribute", (int)bakugan.MainAttribute }, { "Treatment", (int)bakugan.Treatment }, { "IsPartner", bakugan.IsPartner }, { "Power", bakugan.Power } });
+                bakuganArray.Add(new JObject { ["BID"] = bakugan.BID, ["Type"] = (int)bakugan.Type, ["Attribute"] = (int)bakugan.MainAttribute, ["Treatment"] = (int)bakugan.Treatment, ["IsPartner"] = bakugan.IsPartner, ["Power"] = bakugan.Power });
 
             JObject moves = new()
             {

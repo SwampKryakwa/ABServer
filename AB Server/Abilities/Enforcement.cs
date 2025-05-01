@@ -2,8 +2,7 @@
 {
     internal class Enforcement(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
-        public override void TriggerEffect() =>
-            new EnforcementEffect(User, TypeId, IsCopy).Activate();
+        public override void TriggerEffect() => new EnforcementEffect(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Owner.BakuganOwned.Any(x => x.Type == BakuganType.Garrison) && user.OnField();
@@ -30,27 +29,12 @@
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(50);
-            User.Boost(currentBoost, this);
-
-            game.BakuganDestroyed += OnBakuganLeaveField;
-            game.BakuganReturned += OnBakuganLeaveField;
-        }
-
-        private void OnBakuganLeaveField(Bakugan target, byte owner)
-        {
-            if (target == User)
-            {
-                currentBoost = new Boost(50);
-                User.Boost(currentBoost, this);
-            }
+            User.ContinuousBoost(currentBoost, this);
         }
 
         public void Negate(bool asCounter)
         {
             game.ActiveZone.Remove(this);
-
-            game.BakuganDestroyed -= OnBakuganLeaveField;
-            game.BakuganReturned -= OnBakuganLeaveField;
 
             if (currentBoost.Active)
             {

@@ -34,19 +34,7 @@
                 if (bakugan == User) continue;
                 var currentBoost = new Boost(80);
                 currentBoosts.Add(bakugan.BID, currentBoost);
-                bakugan.Boost(currentBoost, this);
-            }
-
-            game.BakuganDestroyed += OnBakuganLeaveField;
-            game.BakuganReturned += OnBakuganLeaveField;
-        }
-
-        private void OnBakuganLeaveField(Bakugan target, byte owner)
-        {
-            if (target.Owner == Owner && target != User)
-            {
-                currentBoosts[target.BID] = new Boost(80);
-                target.Boost(currentBoosts[target.BID], this);
+                bakugan.ContinuousBoost(currentBoost, this);
             }
         }
 
@@ -54,14 +42,11 @@
         {
             game.ActiveZone.Remove(this);
 
-            game.BakuganDestroyed -= OnBakuganLeaveField;
-            game.BakuganReturned -= OnBakuganLeaveField;
-
-            foreach (var currentBoost in currentBoosts.Values)
-                if (currentBoost.Active)
+            foreach (var currentBoost in currentBoosts.Keys)
+                if (currentBoosts[currentBoost].Active)
                 {
-                    currentBoost.Active = false;
-                    User.RemoveBoost(currentBoost, this);
+                    currentBoosts[currentBoost].Active = false;
+                    game.BakuganIndex[currentBoost].RemoveBoost(currentBoosts[currentBoost], this);
                 }
 
             game.ThrowEvent(new()

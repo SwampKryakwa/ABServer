@@ -62,14 +62,14 @@ namespace AB_Server
         public short DefaultPower { get; } = power;
         public short BasePower = power;
         public List<Boost> Boosts = [];
-        public int PowerModifier = 1;
+        public List<Boost> ContinuousBoosts = [];
         public int Power
         {
-            get => (BasePower + Boosts.Sum(b => b.Value)) * PowerModifier;
+            get => (BasePower + Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value));
         }
         public int AdditionalPower
         {
-            get => Boosts.Sum(b => b.Value) * PowerModifier;
+            get => (Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value));
         }
 
         public Player Owner = owner;
@@ -103,7 +103,7 @@ namespace AB_Server
 
         public void Boost(Boost boost, object source)
         {
-            if (IsDummy) return;
+            if (IsDummy || InHand()) return;
 
             Boosts.Add(boost);
 
@@ -124,9 +124,31 @@ namespace AB_Server
             });
 
             Game.OnBakuganBoosted(this, boost, source);
+        }
 
-            if (PowerModifier < 0)
-                boost.Value *= -1;
+        public void ContinuousBoost(Boost boost, object source)
+        {
+            if (IsDummy) return;
+
+            ContinuousBoosts.Add(boost);
+
+            game.ThrowEvent(new JObject {
+                { "Type", "BakuganBoostedEvent" },
+                { "Owner", Owner.Id },
+                { "Boost", boost.Value },
+                { "Bakugan", new JObject {
+                    { "Type", (int)Type },
+                    { "Attribute", (int)MainAttribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "IsPartner", IsPartner },
+                    { "InHand", InHand() },
+                    { "InGrave", InGrave() },
+                    { "BID", BID }
+                } }
+            });
+
+            Game.OnBakuganBoosted(this, boost, source);
         }
 
         public void RemoveBoost(Boost boost, object source)
@@ -134,6 +156,26 @@ namespace AB_Server
             if (IsDummy) return;
 
             Boosts.Remove(boost);
+            game.ThrowEvent(new JObject {
+                { "Type", "BakuganBoostedEvent" },
+                { "Owner", Owner.Id },
+                { "Boost", -boost.Value },
+                { "Bakugan", new JObject {
+                    { "Type", (int)Type },
+                    { "Attribute", (int)MainAttribute },
+                    { "Treatment", (int)Treatment },
+                    { "Power", Power },
+                    { "IsPartner", IsPartner },
+                    { "BID", BID } }
+                }
+            });
+        }
+
+        public void RemoveContinuousBoost(Boost boost, object source)
+        {
+            if (IsDummy) return;
+
+            ContinuousBoosts.Remove(boost);
             game.ThrowEvent(new JObject {
                 { "Type", "BakuganBoostedEvent" },
                 { "Owner", Owner.Id },

@@ -49,7 +49,7 @@ namespace AB_Server.Abilities
             if (selectedOption == 0)
                 target.Boost(new Boost(-50), this);
             else if (User.IsAttribute(Attribute.Nova))
-                target.Boost(new Boost((short)(target.BasePower - target.Power)), this);
+                target.Boost(new Boost((short)target.AdditionalPower), this);
         }
     }
 }

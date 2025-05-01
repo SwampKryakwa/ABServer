@@ -40,10 +40,14 @@ namespace AB_Server.Gates
 
         public List<Bakugan> Bakugans { get; set; } = new();
         public Player Owner { get; set; }
-        public (byte X, byte Y) Position { get; set; } = (255, 255);
-        public bool AllowAnyPlayers { get; set; } = false;
-        public bool ActiveBattle { get; set; } = false;
+        public (byte X, byte Y) Position = (255, 255);
+        public bool AllowAnyPlayers = false;
+
+        public bool BattleStarted = false;
+        public bool IsBattleGoing { get => Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1; }
+        public bool ActiveBattle = false;
         public bool IsFrozen { get => Freezing.Count != 0; }
+        public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
         public List<object> Freezing = new();
         public List<object> OpenBlocking = new();
         public List<object> ThrowBlocking = new();
@@ -215,7 +219,7 @@ namespace AB_Server.Gates
             game.OnGateRemoved(this, Owner.Id, posX, posY);
         }
 
-        public virtual void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos) { }
+        public virtual void CheckAutoBattleStart() { }
 
         public virtual void Open()
         {

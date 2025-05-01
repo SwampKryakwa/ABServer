@@ -52,6 +52,7 @@ namespace AB_Server
 
         //Other data
         byte playersCreated = 0;
+        int NextEffectId = 0;
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
@@ -380,9 +381,10 @@ namespace AB_Server
                 player.HadUsedCounter = false;
 
             if (!BakuganIndex.Any(x => x.InHand()))
-            {
-                FieldClosing();
-            }
+                CloseField();
+
+            if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
+                ProvideNormalGates();
 
             turnNumber++;
             ThrowEvent(new JObject
@@ -391,20 +393,6 @@ namespace AB_Server
                 ["TurnPlayer"] = TurnPlayer,
                 ["TurnNumber"] = turnNumber
             });
-
-            if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
-            {
-                var gate = new NormalGate(GateIndex.Count, Players[TurnPlayer]);
-                Players[TurnPlayer].GateHand.Add(gate);
-                GateIndex.Add(gate);
-                ThrowEvent(new JObject
-                {
-                    ["Type"] = "GateAddedToHand",
-                    ["Owner"] = TurnPlayer,
-                    ["GateType"] = -1,
-                    ["CID"] = gate.CardId
-                });
-            }
 
             ThrowEvent(new()
             {
@@ -420,13 +408,74 @@ namespace AB_Server
                     ["Type"] = "PhaseChange",
                     ["Phase"] = "Main"
                 });
-                //NextStep = ContinueGame;
-                //ContinueGame();
+                NextStep = CheckForBattles;
+                CheckForBattles();
             };
-            //SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
+            SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
         }
 
-        public void FieldClosing()
+        public void SuggestWindow(ActivationWindow window, int startingPlayer, int player)
+        {
+            CurrentWindow = window;
+            var currentPlayer = Players[player];
+
+            if (currentPlayer.HasActivateableAbilities())
+            {
+                OnAnswer[player] = () => CheckWindow(startingPlayer, player);
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
+            }
+            else
+            {
+                if (++player >= PlayerCount) player = 0;
+
+                if (player == startingPlayer)
+                {
+                    NextStep();
+                }
+                else SuggestWindow(window, startingPlayer, player);
+            }
+        }
+
+        public void CheckWindow(int startingPlayer, int player)
+        {
+            if ((bool)PlayerAnswers[player]["array"][0]["answer"])
+            {
+                OnAnswer[player] = () => ResolveWindow(Players[player]);
+                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+            }
+            else
+            {
+                if (++player >= PlayerCount) player = 0;
+
+                if (player == startingPlayer) NextStep();
+                else SuggestWindow(CurrentWindow, startingPlayer, player);
+            }
+        }
+
+        public void ResolveWindow(Player player)
+        {
+            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
+            if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
+            {
+                CardChain.Add(AbilityIndex[id]);
+                AbilityIndex[id].EffectId = NextEffectId++;
+                ActiveZone.Add(AbilityIndex[id]);
+                player.AbilityHand.Remove(AbilityIndex[id]);
+
+                ThrowEvent(new()
+                {
+                    ["Type"] = "AbilityRemovedFromHand",
+                    ["Kind"] = (int)AbilityIndex[id].Kind,
+                    ["CardType"] = AbilityIndex[id].TypeId,
+                    ["CID"] = AbilityIndex[id].CardId,
+                    ["Owner"] = AbilityIndex[id].Owner.Id
+                });
+
+                AbilityIndex[id].Setup(false);
+            }
+        }
+
+        public void CloseField()
         {
             ThrowEvent(new()
             {
@@ -438,7 +487,30 @@ namespace AB_Server
                 gate.Retract();
         }
 
-        void CastNormalGate()
-        { }
+        void ProvideNormalGates()
+        {
+            foreach (var player in Players)
+            {
+                var gate = new NormalGate(GateIndex.Count, player);
+                player.GateHand.Add(gate);
+                GateIndex.Add(gate);
+                ThrowEvent(new JObject
+                {
+                    ["Type"] = "GateAddedToHand",
+                    ["Owner"] = player.Id,
+                    ["GateType"] = -1,
+                    ["CID"] = gate.CardId
+                });
+            }
+        }
+
+        void CheckForBattles()
+        {
+            foreach (var gate in GateIndex.Where(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
+            {
+                gate.CheckAutoBattleStart();
+                gate.BattleStarted = true;
+            }
+        }
     }
 }

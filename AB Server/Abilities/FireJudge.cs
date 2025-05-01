@@ -29,27 +29,12 @@
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(100);
-            User.Boost(currentBoost, this);
-
-            game.BakuganDestroyed += OnBakuganLeaveField;
-            game.BakuganReturned += OnBakuganLeaveField;
-        }
-
-        private void OnBakuganLeaveField(Bakugan target, byte owner)
-        {
-            if (target == User)
-            {
-                currentBoost = new Boost(100);
-                User.Boost(currentBoost, this);
-            }
+            User.ContinuousBoost(currentBoost, this);
         }
 
         public void Negate(bool asCounter)
         {
             game.ActiveZone.Remove(this);
-
-            game.BakuganDestroyed -= OnBakuganLeaveField;
-            game.BakuganReturned -= OnBakuganLeaveField;
 
             if (currentBoost.Active)
             {

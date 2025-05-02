@@ -14,6 +14,7 @@ namespace AB_Server
         public long?[,] Players;
         public bool[,] IsReady;
         public string?[,] UserNames;
+        public int[,] PlayerIds;
         public bool Started = false;
         public bool IsBotRoom;
         public Dictionary<long, List<JObject>> Updates = [];
@@ -25,6 +26,7 @@ namespace AB_Server
             Players = new long?[teamCount, playersPerTeam];
             IsReady = new bool[teamCount, playersPerTeam];
             UserNames = new string?[teamCount, playersPerTeam];
+            PlayerIds = new int[teamCount, playersPerTeam];
 
             if (roomName != "")
                 RoomName = roomName;
@@ -184,6 +186,16 @@ namespace AB_Server
             JArray updates = new(Updates[uuid]);
             Updates[uuid].Clear();
             return updates;
+        }
+
+        public NewGame Start()
+        {
+            Started = true;
+            NewGame game = new((byte)(TeamCount * PlayersPerTeam));
+            for (byte i = 0; i < TeamCount; i++)
+                for (byte j = 0; j < PlayersPerTeam; j++)
+                    PlayerIds[i, j] = game.CreatePlayer(UserNames[i, j], i, (long)Players[i, j]);
+            return game;
         }
     }
 }

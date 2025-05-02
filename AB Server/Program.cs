@@ -91,7 +91,7 @@ namespace AB_Server
                                         string room = RandomString(8);
                                         while (Rooms.ContainsKey(room))
                                             room = RandomString(8);
-                                        Rooms.Add(room, new Room((short)postedJson["playerCount"], (string)postedJson["roomName"], room, (bool)postedJson["isBotRoom"]));
+                                        Rooms.Add(room, new Room((byte)postedJson["teamCount"], (byte)postedJson["playerCount"], (string)postedJson["roomName"], room, (bool)postedJson["isBotRoom"]));
                                         answer.Add("room", room);
                                         break;
 
@@ -126,7 +126,7 @@ namespace AB_Server
                                         if (Rooms.ContainsKey((string)postedJson["roomName"]))
                                         {
                                             try { Rooms[(string)postedJson["roomName"]].RemovePlayer((long)postedJson["UUID"]); } catch { }
-                                            if (!Rooms[(string)postedJson["roomName"]].Players.Any(x => x != null)) Rooms.Remove((string)postedJson["roomName"]);
+                                            if (!Rooms[(string)postedJson["roomName"]].Players.Cast<long?>().Any(x => x is not null)) Rooms.Remove((string)postedJson["roomName"]);
                                         }
                                         break;
 
@@ -135,25 +135,7 @@ namespace AB_Server
                                         break;
 
                                     case "updateready":
-                                        try { answer.Add("canStart", Rooms[(string)postedJson["roomName"]].UpdateReady((long)postedJson["UUID"], (bool)postedJson["isReady"])); }
-                                        catch
-                                        {
-                                            Console.WriteLine(postedJson["roomName"]);
-                                            Console.WriteLine(postedJson["UUID"]);
-                                            Console.WriteLine(postedJson["isReady"]);
-                                        }
-                                        break;
-
-                                    case "getplayerlist":
-                                        answer.Add("players", new JArray(Rooms[(string)postedJson["roomName"]].UserNames));
-                                        break;
-
-                                    case "getallready":
-                                        answer.Add("ready", new JArray(Rooms[(string)postedJson["roomName"]].IsReady));
-                                        break;
-
-                                    case "checkready":
-                                        answer.Add("canStart", Rooms[(string)postedJson["roomName"]].AreAllReady());
+                                        Rooms[(string)postedJson["roomName"]].UpdateReady((long)postedJson["UUID"], (bool)postedJson["isReady"]);
                                         break;
 
                                     case "checkstarted":
@@ -186,8 +168,8 @@ namespace AB_Server
                                         break;
 
                                     case "startroom":
-                                        Rooms[(string)postedJson["roomName"]].Started = true;
-                                        if (Rooms[(string)postedJson["roomName"]].Players.Contains((long)postedJson["UUID"]))
+                                        Rooms[(string)postedJson["roomName"]].Start();
+                                        if (Rooms[(string)postedJson["roomName"]].Players.Cast<long?>().Contains((long)postedJson["UUID"]))
                                         {
                                             answer.Add("successful", true);
                                         }

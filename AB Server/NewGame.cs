@@ -37,12 +37,14 @@ namespace AB_Server
         public List<IChainable> CardChain = [];
 
         //Game state
+        bool Over = false;
         public int turnNumber = 0;
         public byte TurnPlayer;
         public byte ActivePlayer;
         public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.ActiveBattle); }
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
-        public List<GateCard> AutoGatesToOpen = [];
+        public readonly List<GateCard> AutoGatesToOpen = [];
+        readonly List<Player> playersPassed = [];
 
         //Communication with the players
         public dynamic?[] PlayerAnswers;
@@ -54,6 +56,7 @@ namespace AB_Server
         //Other data
         byte playersCreated = 0;
         int NextEffectId = 0;
+        bool doNotMakeStep = false;
 
         //All the event types in the game
         public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
@@ -409,7 +412,6 @@ namespace AB_Server
                     ["Type"] = "PhaseChange",
                     ["Phase"] = "Main"
                 });
-                NextStep = CheckForBattles;
                 CheckForBattles();
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
@@ -505,9 +507,10 @@ namespace AB_Server
             }
         }
 
+        bool anyBattlesStarted;
         void CheckForBattles()
         {
-            bool anyBattlesStarted = false;
+            anyBattlesStarted = false;
             foreach (var gate in GateIndex.Where(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
             {
                 gate.CheckAutoBattleStart();
@@ -516,10 +519,7 @@ namespace AB_Server
             }
 
             NextStep = OpenStartBattleGates;
-            if (anyBattlesStarted)
-                SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
-            else
-                OpenStartBattleGates();
+            OpenStartBattleGates();
         }
 
         void OpenStartBattleGates()
@@ -527,21 +527,223 @@ namespace AB_Server
             if (AutoGatesToOpen.Count == 0)
             {
                 NextStep = ThrowMoveStart;
-                ThrowMoveStart();
+                if (anyBattlesStarted)
+                    SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
+                else
+                    ThrowMoveStart();
             }
             else
             {
-                var gateToProcess = AutoGatesToOpen[0];
-                AutoGatesToOpen.RemoveAt(0);
-                CardChain.Add(gateToProcess);
-                ActiveZone.Add(gateToProcess);
-                gateToProcess.Open();
+                while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
+                {
+                    ActivePlayer++;
+                    if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+                }
+                if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
+                ));
+                OnAnswer[ActivePlayer] = () =>
+                {
+                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
+                    GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
+                    ActivePlayer++;
+                };
             }
         }
 
         void ThrowMoveStart()
         {
+            ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = ActivePlayer });
+        }
 
+        public void GameStep(JObject selection)
+        {
+            string moveType = selection["Type"].ToString();
+
+            bool DontThrowTurnStartEvent = false;
+            if (moveType != "pass")
+                playersPassed.Clear();
+            switch (moveType)
+            {
+                case "throw":
+                    if (Field[(int)selection["posX"], (int)selection["posY"]] is GateCard gateSelection)
+                    {
+                        Players[TurnPlayer].HadThrownBakugan = true;
+                        BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
+                    }
+                    else
+                    {
+                        NewEvents[TurnPlayer].Add(new JObject
+                        {
+                            ["Type"] = "InvalidAction"
+                        });
+                    }
+                    break;
+                case "set":
+                    (byte X, byte Y) posSelection = ((byte)selection["posX"], (byte)selection["posY"]);
+
+                    if (Field[posSelection.X, posSelection.Y] != null)
+                    {
+                        NewEvents[TurnPlayer].Add(new JObject
+                        {
+                            ["Type"] = "InvalidAction"
+                        });
+                    }
+                    else
+                    {
+                        Players[TurnPlayer].HadSetGate = true;
+
+                        var id = (byte)selection["gate"];
+                        ThrowEvent(new()
+                        {
+                            ["Type"] = "GateRemovedFromHand",
+                            ["CardType"] = GateIndex[id].TypeId,
+                            ["CID"] = id,
+                            ["Owner"] = GateIndex[id].Owner.Id
+                        });
+
+                        GateIndex[id].Set(posSelection.X, posSelection.Y);
+                    }
+
+                    break;
+                case "activate":
+                    int abilitySelection = (int)selection["ability"];
+
+                    if (!AbilityIndex[abilitySelection].IsActivateable())
+                    {
+                        NewEvents[ActivePlayer].Add(new JObject
+                        {
+                            ["Type"] = "InvalidAction"
+                        });
+                    }
+                    else
+                    {
+                        DontThrowTurnStartEvent = true;
+                        doNotMakeStep = true;
+                        CardChain.Add(AbilityIndex[abilitySelection]);
+                        AbilityIndex[abilitySelection].EffectId = NextEffectId++;
+                        ActiveZone.Add(AbilityIndex[abilitySelection]);
+                        Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
+                        ThrowEvent(new()
+                        {
+                            ["Type"] = "AbilityRemovedFromHand",
+                            ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
+                            ["CardType"] = AbilityIndex[abilitySelection].TypeId,
+                            ["CID"] = AbilityIndex[abilitySelection].CardId,
+                            ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
+                        });
+
+                        AbilityIndex[abilitySelection].Setup(false);
+                    }
+                    break;
+                case "open":
+                    GateCard gateToOpen = GateIndex[(int)selection["gate"]];
+
+                    if (gateToOpen == null)
+                    {
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        break;
+                    }
+
+                    if (gateToOpen.IsOpenable())
+                    {
+                        DontThrowTurnStartEvent = true;
+                        doNotMakeStep = true;
+                        gateToOpen.Open();
+                    }
+                    else
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+
+                    break;
+                case "pass":
+                    if (!isBattleGoing)
+                    {
+                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        break;
+                    }
+                    playersPassed.Add(Players[ActivePlayer]);
+
+                    var battlingPlayers = Players.Where(x => x.HasBattlingBakugan());
+                    var allBattlingPlayersPassed = true;
+                    foreach (var player in battlingPlayers)
+                    {
+                        if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
+                    }
+                    if (allBattlingPlayersPassed)
+                    {
+                        playersPassed.Clear();
+                        foreach (var g in Field.Cast<GateCard?>())
+                            if (g?.ActiveBattle == true)
+                                g.DetermineWinner();
+
+                        int loser = -1;
+                        foreach (var p in Players)
+                            if (!p.BakuganOwned.Any(x => !x.Defeated))
+                            {
+                                loser = p.Id;
+                                break;
+                            }
+
+                        if (loser != -1)
+                        {
+                            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != loser).Id } });
+                            Over = true;
+                            break;
+                        }
+                    }
+
+                    break;
+                case "end":
+                    if (!Players[TurnPlayer].CanEndTurn())
+                    {
+                        NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        break;
+                    }
+                    else
+                    {
+                        //EndTurn();
+                        DontThrowTurnStartEvent = true;
+                    }
+                    break;
+                case "draw":
+                    var toSuggestDraw = Players.First(x => x.Id != ActivePlayer).Id;
+                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
+                    OnAnswer[toSuggestDraw] = () =>
+                    {
+                        bool answer = (bool)PlayerAnswers[toSuggestDraw]["array"][0]["answer"];
+                        if (answer)
+                        {
+                            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", true } });
+                            Over = true;
+                        }
+                        else
+                        {
+                            NextStep();
+                        }
+                    };
+                    doNotMakeStep = true;
+                    break;
+            }
+            if (isBattleGoing)
+            {
+                var startPlayer = ActivePlayer;
+                while (true)
+                {
+                    ActivePlayer++;
+                    if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+                    if (Players[ActivePlayer].HasBattlingBakugan())
+                        break;
+                    if (startPlayer == ActivePlayer)
+                    {
+                        break;
+                    }
+                }
+            }
+            if (Over) return;
+            if (!DontThrowTurnStartEvent)
+                NextStep();
         }
     }
 }

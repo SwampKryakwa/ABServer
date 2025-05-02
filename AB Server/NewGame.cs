@@ -42,6 +42,7 @@ namespace AB_Server
         public byte ActivePlayer;
         public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.ActiveBattle); }
         public ActivationWindow CurrentWindow = ActivationWindow.Normal;
+        public List<GateCard> AutoGatesToOpen = [];
 
         //Communication with the players
         public dynamic?[] PlayerAnswers;
@@ -506,11 +507,41 @@ namespace AB_Server
 
         void CheckForBattles()
         {
+            bool anyBattlesStarted = false;
             foreach (var gate in GateIndex.Where(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
             {
                 gate.CheckAutoBattleStart();
                 gate.BattleStarted = true;
+                anyBattlesStarted = true;
             }
+
+            NextStep = OpenStartBattleGates;
+            if (anyBattlesStarted)
+                SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
+            else
+                OpenStartBattleGates();
+        }
+
+        void OpenStartBattleGates()
+        {
+            if (AutoGatesToOpen.Count == 0)
+            {
+                NextStep = ThrowMoveStart;
+                ThrowMoveStart();
+            }
+            else
+            {
+                var gateToProcess = AutoGatesToOpen[0];
+                AutoGatesToOpen.RemoveAt(0);
+                CardChain.Add(gateToProcess);
+                ActiveZone.Add(gateToProcess);
+                gateToProcess.Open();
+            }
+        }
+
+        void ThrowMoveStart()
+        {
+
         }
     }
 }

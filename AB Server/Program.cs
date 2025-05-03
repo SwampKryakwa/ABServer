@@ -57,7 +57,7 @@ namespace AB_Server
 
                                 // Decode the key value
                                 string[] dontlog = { "getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", "" };
-                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "sendroommessage", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave", "roomspectate", "gamespectate", "redeemcode" };
+                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "sendroommessage", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "submitdata", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave", "roomspectate", "gamespectate", "redeemcode" };
                                 if (!validkeys.Contains(requestedResource))
                                 {
                                     resp.StatusCode = 400; // Bad Request
@@ -193,7 +193,12 @@ namespace AB_Server
                                     case "submitdata":
                                         bool mayStart = GIDToGame[(string)postedJson["gid"]].RegisterPlayer((byte)postedJson["pid"], postedJson["deck"], (byte)postedJson["ava"]);
 
-                                        room = (string)postedJson["roomName"];
+                                        if (mayStart)
+                                        {
+                                            GIDToGame[(string)postedJson["gid"]].StartGame();
+                                            room = (string)postedJson["roomName"];
+                                            Rooms[room].TellPlayersToJoin();
+                                        }
                                         break;
 
                                     case "getupdates":

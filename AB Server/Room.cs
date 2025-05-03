@@ -80,6 +80,7 @@ namespace AB_Server
                 for (int j = 0; j < PlayersPerTeam; j++)
                     if (Players[i, j] == null)
                     {
+                        Console.WriteLine($"[{i}, {j}]: null");
                         team = i;
                         playerPositions[uuid] = (i, j);
                         UserNames[i, j] = userName;
@@ -121,6 +122,8 @@ namespace AB_Server
                         }
                         return true;
                     }
+                    else
+                        Console.WriteLine($"[{i}, {j}]: {Players[i, j]}");
             return team != -1;
         }
 

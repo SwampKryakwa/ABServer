@@ -94,7 +94,8 @@ namespace AB_Server
                             {
                                 ["Type"] = "PlayerJoined",
                                 ["UserName"] = userName,
-                                ["Position"] = Array.IndexOf(Players, uuid)
+                                ["Team"] = i,
+                                ["Position"] = j
                             });
                         }
                         if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());

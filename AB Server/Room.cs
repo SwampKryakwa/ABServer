@@ -22,6 +22,8 @@ namespace AB_Server
         public Room(byte teamCount, byte playersPerTeam, string roomName, string roomKey, bool isBotRoom)
         {
             RoomKey = roomKey;
+            TeamCount = teamCount;
+            PlayersPerTeam = playersPerTeam;
             Players = new long?[teamCount, playersPerTeam];
             IsReady = new bool[teamCount, playersPerTeam];
             UserNames = new string?[teamCount, playersPerTeam];

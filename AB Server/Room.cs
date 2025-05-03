@@ -89,11 +89,18 @@ namespace AB_Server
                         }
                         if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
                         else Updates[uuid].Clear();
+                        string[][] userNames = new string[TeamCount][];
+                        bool[][] readys = new bool[TeamCount][];
+                        for (int x = 0; x < TeamCount; x++)
+                        {
+                            userNames[x] = new string[PlayersPerTeam];
+                            readys[x] = new bool[PlayersPerTeam];
+                        }
                         Updates[uuid].Add(new()
                         {
                             ["Type"] = "RoomState",
-                            ["UserNames"] = new JArray(UserNames.Cast<string[]>().Select(x => new JArray(x))),
-                            ["ReadyStates"] = new JArray(IsReady.Cast<bool[]>().Select(x => new JArray(x))),
+                            ["UserNames"] = new JArray(userNames.Select(x => new JArray(x))),
+                            ["ReadyStates"] = new JArray(readys.Select(x => new JArray(x))),
                             ["Team"] = i,
                             ["Position"] = j
                         });
@@ -129,11 +136,20 @@ namespace AB_Server
                     });
                 playerPositions.Remove(uuid);
             }
+
+            string[][] userNames = new string[TeamCount][];
+            bool[][] readys = new bool[TeamCount][];
+            for (int x = 0; x < TeamCount; x++)
+            {
+                userNames[x] = new string[PlayersPerTeam];
+                readys[x] = new bool[PlayersPerTeam];
+            }
+
             Updates[uuid].Add(new()
             {
                 ["Type"] = "RoomState",
-                ["UserNames"] = new JArray(UserNames.Cast<string[]>().Select(x => new JArray(x))),
-                ["ReadyStates"] = new JArray(IsReady.Cast<bool[]>().Select(x => new JArray(x))),
+                ["UserNames"] = new JArray(userNames.Select(x => new JArray(x))),
+                ["ReadyStates"] = new JArray(readys.Select(x => new JArray(x)))
             });
         }
 

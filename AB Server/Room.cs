@@ -101,19 +101,14 @@ namespace AB_Server
                         else Updates[uuid].Clear();
                         string?[][] userNames = new string?[TeamCount][];
                         bool[][] readys = new bool[TeamCount][];
-                        for (int i = 0; i < TeamCount; i++)
+                        for (int x = 0; x < TeamCount; x++)
                         {
-                            userNames[i] = new string?[PlayersPerTeam];
-                            readys[i] = new bool[PlayersPerTeam];
-                            for (int j = 0; j < PlayersPerTeam; j++)
+                            userNames[x] = new string?[PlayersPerTeam];
+                            readys[x] = new bool[PlayersPerTeam];
+                            for (int y = 0; y < PlayersPerTeam; y++)
                             {
-                                userNames[i][j] = UserNames[i, j];
-                                readys[i][j] = IsReady[i, j];
-                                for (int j = 0; j < PlayersPerTeam; j++)
-                                {
-                                    userNames[i][j] = UserNames[i, j];
-                                    readys[i][j] = IsReady[i, j];
-                                }
+                                userNames[x][y] = UserNames[x, y];
+                                readys[x][y] = IsReady[x, y];
                             }
                         }
                         Updates[uuid].Add(new()

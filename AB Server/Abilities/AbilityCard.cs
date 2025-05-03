@@ -231,6 +231,8 @@ namespace AB_Server.Abilities
             TriggerEffect();
 
             Dispose();
+
+            Game.ChainStep();
         }
 
         public virtual void DoNotAffect(Bakugan bakugan)

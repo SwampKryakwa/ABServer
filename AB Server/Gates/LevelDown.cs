@@ -40,6 +40,8 @@ namespace AB_Server.Gates
         {
             if (!Negated && target.Power >= 400 && target.Position == this)
                 target.Boost(new Boost(-100), this);
+
+            game.ChainStep();
         }
     }
 }

@@ -47,6 +47,8 @@ namespace AB_Server.Gates
         {
             if (!Negated)
                 target.Negate();
+
+            game.ChainStep();
         }
 
         public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable();

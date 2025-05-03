@@ -87,7 +87,7 @@ namespace AB_Server
         public IBakuganContainer Position = owner;
         public bool InBattle
         {
-            get => Position is GateCard gatePosition && gatePosition.ActiveBattle;
+            get => Position is GateCard gatePosition && gatePosition.IsBattleGoing;
         }
         public bool Defeated = false;
         public bool IsDummy = false;
@@ -580,7 +580,7 @@ namespace AB_Server
             }
         }
 
-        public static void MultiToHand(NewGame game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
+        public static void MultiToHand(Game game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
         {
             var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField());
 

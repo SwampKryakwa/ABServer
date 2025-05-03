@@ -61,6 +61,8 @@ namespace AB_Server.Gates
                     target2.Boost(new Boost(-100), this);
                 }
             }
+
+            game.ChainStep();
         }
 
         public override bool IsOpenable() =>

@@ -27,7 +27,7 @@ namespace AB_Server.Abilities
             new CutInSaberEffect(User, (TargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && user.InHand() && Game.GateIndex.Any(ValidTarget);
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(ValidTarget);
 
         public bool ValidTarget(GateCard gateCard) =>
             gateCard.Bakugans.Count >= 2 && gateCard.Freezing.Count == 0;

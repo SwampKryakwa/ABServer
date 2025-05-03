@@ -40,6 +40,8 @@ namespace AB_Server.Gates
         {
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);
+
+            game.ChainStep();
         }
     }
 }

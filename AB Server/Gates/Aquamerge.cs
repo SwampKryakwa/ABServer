@@ -39,6 +39,8 @@
         {
             if (target.affectingEffects.Contains(this))
                 target.ChangeAttribute(target.BaseAttribute, this);
+
+            game.ChainStep();
         }
     }
 }

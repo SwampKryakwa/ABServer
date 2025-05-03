@@ -43,6 +43,8 @@
         {
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard gate && gate.Owner.SideID != Owner.SideID && gate != this))), this);
+
+            game.ChainStep();
         }
     }
 }

@@ -12,53 +12,15 @@
 
         public override int TypeId { get; } = 12;
 
-        public override void DetermineWinnerNormalBattle()
+        public override void CheckAutoBattleEnd()
         {
-            int[] teamTotals = new int[game.SideCount];
-            for (int i = 0; i < game.PlayerCount; i++) teamTotals[i] = 0;
-            foreach (var b in Bakugans)
-            {
-                teamTotals[b.Owner.SideID] += b.Power;
-            }
-
-            int winnerPower = teamTotals.Max();
-
-            if (teamTotals.Count(x => x == winnerPower) == 1)
-            {
-                int winner = Array.IndexOf(teamTotals, teamTotals.Max());
-
-                foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                    if (b.Owner.SideID != winner)
-                    {
-                        b.JustEndedBattle = true;
-                        b.DestroyOnField(EnterOrder, MoveSource.Game);
-                    }
-            }
-            else
-            {
-                foreach (Bakugan b in Bakugans)
-                {
-                    b.BattleEndedInDraw = true;
-                }
-            }
-
-            if (!IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
-
-        public override void FakeBattleNormal(int winnerPower)
-        {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans.Where(x => x.Power < winnerPower)))
-                b.ToHand(EnterOrder);
-
-            if (!IsOpen && !Negated)
+            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
                 game.AutoGatesToOpen.Add(this);
         }
 
         public override void Open()
         {
             IsOpen = true;
-            resolved = false;
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
@@ -80,17 +42,12 @@
 
         public override void Resolve()
         {
-            resolved = false;
-            foreach (Bakugan b in Bakugans)
+            if (!Negated)
             {
-                b.JustEndedBattle = true;
+                resolved = false;
             }
-            ActiveBattle = false;
 
-            var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
-            BattleOver = true;
-
-            game.BattlesToEnd.Add(this);
+            game.ChainStep();
         }
 
         bool resolved;
@@ -102,17 +59,12 @@
             else
             {
                 resolved = true;
-                if (!CheckBattles())
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
-                    ActiveBattle = false;
-                    foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                    {
-                        b.JustEndedBattle = false;
-                        if (b == target) continue;
-                        b.ToHand(EnterOrder);
-                    }
+                    b.JustEndedBattle = false;
+                    if (b == target) continue;
+                    b.ToHand(EnterOrder);
                 }
-                else game.NextStep();
             }
         }
 

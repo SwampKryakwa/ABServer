@@ -12,23 +12,12 @@
 
         public override int TypeId { get; } = 5;
 
-        public override void Set(byte posX, byte posY)
-        {
-            game.BakuganAdded += CheckAutoConditions;
-            base.Set(posX, posY);
-        }
+        public override bool IsOpenable() =>
+            false;
 
-        public override void Dispose()
+        public override void CheckAutoBattleStart()
         {
-            game.BakuganAdded -= CheckAutoConditions;
-            base.Dispose();
-        }
-
-        public override void CheckAutoConditions(Bakugan target, byte owner, IBakuganContainer pos)
-        {
-            if (pos != this || IsOpen || Negated) return;
-
-            if (Bakugans.Count >= 2)
+            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
                 game.AutoGatesToOpen.Add(this);
         }
 
@@ -48,7 +37,7 @@
             }
             else
             {
-                game.NextStep();
+                game.CheckChain(Owner, this);
             }
         }
 
@@ -63,7 +52,7 @@
             }
             else
             {
-                game.NextStep();
+                game.CheckChain(Owner, this);
             }
         }
 
@@ -80,9 +69,8 @@
         {
             if (target is not null)
                 DetermineWinner();
-        }
 
-        public override bool IsOpenable() =>
-            false;
+            game.ChainStep();
+        }
     }
 }

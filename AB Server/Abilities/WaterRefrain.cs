@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities
+﻿using System.Runtime.InteropServices;
+
+namespace AB_Server.Abilities
 {
     internal class WaterRefrain : AbilityCard
     {
@@ -52,7 +54,7 @@
             if (turnsPassed == 1)
             {
                 game.ActiveZone.Remove(this);
-                game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
+                Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
                 game.TurnEnd -= CheckEffectOver;
 
                 game.ThrowEvent(new()
@@ -68,7 +70,7 @@
         public void Negate(bool asCounter)
         {
             game.ActiveZone.Remove(this);
-            game.Players.ForEach(x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
+            Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
             game.TurnEnd -= CheckEffectOver;
 
             game.ThrowEvent(new()

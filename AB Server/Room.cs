@@ -14,7 +14,6 @@ namespace AB_Server
         public long?[,] Players;
         public bool[,] IsReady;
         public string?[,] UserNames;
-        public int[,] PlayerIds;
         public bool Started = false;
         public bool IsBotRoom;
         public Dictionary<long, List<JObject>> Updates = [];
@@ -26,7 +25,6 @@ namespace AB_Server
             Players = new long?[teamCount, playersPerTeam];
             IsReady = new bool[teamCount, playersPerTeam];
             UserNames = new string?[teamCount, playersPerTeam];
-            PlayerIds = new int[teamCount, playersPerTeam];
 
             if (roomName != "")
                 RoomName = roomName;
@@ -188,14 +186,32 @@ namespace AB_Server
             return updates;
         }
 
-        public NewGame Start()
+        public Game Start()
         {
             Started = true;
-            NewGame game = new((byte)(TeamCount * PlayersPerTeam));
+            Game game = new((byte)(TeamCount * PlayersPerTeam), TeamCount);
             for (byte i = 0; i < TeamCount; i++)
                 for (byte j = 0; j < PlayersPerTeam; j++)
-                    PlayerIds[i, j] = game.CreatePlayer(UserNames[i, j], i, (long)Players[i, j]);
+                {
+                    Updates[(long)Players[i, j]].Add(new()
+                    {
+                        ["Type"] = "DataRequest",
+                        ["PlayerId"] = game.CreatePlayer(UserNames[i, j], i, (long)Players[i, j])
+                    });
+                }
             return game;
+        }
+
+        public void TellPlayersToJoin()
+        {
+            foreach (var item in Updates.Keys)
+            {
+                Updates[item].Add(new()
+                {
+                    ["Type"] = "JoinReady",
+                    ["AsPlayer"] = Players.Cast<long>().Contains(item)
+                });
+            }
         }
     }
 }

@@ -46,7 +46,7 @@
                 target.Boost(new Boost((short)(newPower - target.Power)), this);
             }
 
-            game.NextStep();
+            game.ChainStep();
         }
 
         public override bool IsOpenable() =>

@@ -44,8 +44,7 @@ namespace AB_Server.Gates
         public bool AllowAnyPlayers = false;
 
         public bool BattleStarted = false;
-        public bool IsBattleGoing { get => Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1; }
-        public bool ActiveBattle = false;
+        public bool IsBattleGoing { get => Freezing.Count == 0 && Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1; }
         public bool IsFrozen { get => Freezing.Count != 0; }
         public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
         public List<object> Freezing = new();
@@ -57,18 +56,15 @@ namespace AB_Server.Gates
         public bool IsOpen { get; set; } = false;
         public bool Negated = false;
 
-        bool IsDraw = false;
-
 
         public void Freeze(object frozer)
         {
             Freezing.Add(frozer);
 
-            ActiveBattle = false;
-
             Console.WriteLine(GetType().ToString() + " frozen");
 
             Console.WriteLine("Battles going: " + game.isBattleGoing.ToString());
+            BattleStarted = false;
         }
 
         public void TryUnfreeze(object frozer)
@@ -78,83 +74,46 @@ namespace AB_Server.Gates
                 Console.WriteLine(GetType().ToString() + " unfrozen");
             else
                 Console.WriteLine(GetType().ToString() + " still frozen");
+            BattleStarted = false;
         }
 
         public bool BattleOver = false;
 
         public virtual void DetermineWinner()
         {
+            BattleStarted = false;
+
             foreach (Bakugan b in Bakugans)
             {
                 b.JustEndedBattle = true;
             }
-            ActiveBattle = false;
 
             var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
             BattleOver = true;
 
-            if (Bakugans.Count == 1) return;
-            if (numSides > 1) DetermineWinnerNormalBattle();
-            else if (numSides == 1) DetermineWinnerFakeBattle();
-        }
+            if (numSides < 2) return;
 
-        public virtual void DetermineWinnerNormalBattle()
-        {
             int[] teamTotals = new int[game.SideCount];
-            for (int i = 0; i < game.PlayerCount; i++) teamTotals[i] = 0;
+            for (int i = 0; i < game.SideCount; i++) teamTotals[i] = 0;
             foreach (var b in Bakugans)
             {
                 teamTotals[b.Owner.SideID] += b.Power;
             }
 
             int winnerPower = teamTotals.Max();
+            List<byte> sidesToDefeat = [];
+            for (byte i = 0; i < game.SideCount; i++)
+                if (teamTotals[i] < winnerPower) sidesToDefeat.Add(i);
 
-            if (teamTotals.Count(x => x == winnerPower) == 1)
+            foreach (var b in new List<Bakugan>(Bakugans))
+                if (sidesToDefeat.Contains(b.Owner.SideID)) b.DestroyOnField(EnterOrder, MoveSource.Game);
+
+            if (Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1)
             {
-                int winner = Array.IndexOf(teamTotals, teamTotals.Max());
+                byte sideToSurvive = EnterOrder[0][new Random().Next(EnterOrder[0].Length)].Owner.SideID;
 
-                foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                    if (b.Owner.SideID != winner)
-                    {
-                        b.JustEndedBattle = true;
-                        b.DestroyOnField(EnterOrder, MoveSource.Game);
-                    }
-            }
-            else
-            {
-                foreach (Bakugan b in Bakugans)
-                {
-                    b.BattleEndedInDraw = true;
-                    IsDraw = true;
-                }
-            }
-
-            game.BattlesToEnd.Add(this);
-        }
-
-        public virtual void DetermineWinnerFakeBattle()
-        {
-            int winnerPower = Bakugans.MaxBy(x => x.Power).Power;
-            IsDraw = true;
-
-            if (Bakugans.Any(x => x.Power < winnerPower)) FakeBattleNormal(winnerPower);
-            else FakeBattleDraw();
-        }
-
-        public virtual void FakeBattleNormal(int winnerPower)
-        {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans.Where(x => x.Power < winnerPower)))
-                b.ToHand(EnterOrder);
-
-            game.BattlesToEnd.Add(this);
-        }
-
-        public virtual void FakeBattleDraw()
-        {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
-            {
-                b.JustEndedBattle = true;
-                b.ToHand(EnterOrder);
+                foreach (var b in new List<Bakugan>(Bakugans))
+                    if (b.Owner.SideID != sideToSurvive) b.DestroyOnField(EnterOrder, MoveSource.Game);
             }
 
             game.BattlesToEnd.Add(this);
@@ -162,26 +121,22 @@ namespace AB_Server.Gates
 
         public virtual void Dispose()
         {
-            if (!CheckBattles())
+            if (!IsBattleGoing)
             {
-                ActiveBattle = false;
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
                     b.JustEndedBattle = false;
                     b.ToHand(EnterOrder);
                 }
 
-                if (!IsDraw)
-                {
-                    IsOpen = false;
-                    OnField = false;
-                    Owner.GateGrave.Add(this);
+                IsOpen = false;
+                OnField = false;
+                Owner.GateGrave.Add(this);
 
-                    game.Field[Position.X, Position.Y] = null;
+                game.Field[Position.X, Position.Y] = null;
 
-                    game.ThrowEvent(EventBuilder.RemoveGate(this));
-                    game.ThrowEvent(EventBuilder.SendGateToGrave(this));
-                }
+                game.ThrowEvent(EventBuilder.RemoveGate(this));
+                game.ThrowEvent(EventBuilder.SendGateToGrave(this));
             }
             else game.NextStep();
         }
@@ -189,7 +144,6 @@ namespace AB_Server.Gates
         public virtual void Set(byte posX, byte posY)
         {
             IsOpen = false;
-            IsDraw = false;
             game.Field[posX, posY] = this;
             OnField = true;
             Owner.GateHand.Remove(this);
@@ -221,6 +175,8 @@ namespace AB_Server.Gates
 
         public virtual void CheckAutoBattleStart() { }
 
+        public virtual void CheckAutoBattleEnd() { }
+
         public virtual void Open()
         {
             game.OnGateOpen(this);
@@ -237,32 +193,7 @@ namespace AB_Server.Gates
         }
 
         public virtual bool IsOpenable() =>
-            OpenBlocking.Count == 0 && !Negated && OnField && ActiveBattle && !IsOpen;
-
-        public virtual bool CheckBattles()
-        {
-            IsDraw = false;
-            if (IsFrozen || BattleOver) return false;
-
-            bool isBattle = Bakugans.Count > 1;
-
-            if (isBattle)
-            {
-                if (!ActiveBattle)
-                    game.BattlesToStart.Add(this);
-            }
-            else
-            {
-                ActiveBattle = false;
-            }
-
-            return isBattle;
-        }
-
-        public virtual void StartBattle()
-        {
-            ActiveBattle = true;
-        }
+            OpenBlocking.Count == 0 && !Negated && OnField && IsBattleGoing && !IsOpen;
 
         public virtual int TypeId =>
             throw new NotImplementedException();

@@ -25,6 +25,13 @@ namespace AB_Server
             Players = new long?[teamCount, playersPerTeam];
             IsReady = new bool[teamCount, playersPerTeam];
             UserNames = new string?[teamCount, playersPerTeam];
+            for (int i = 0; i < TeamCount; i++)
+                for (int j = 0; j < PlayersPerTeam; j++)
+                {
+                    Players[i, j] = null;
+                    IsReady[i, j] = false;
+                    UserNames[i, j] = null;
+                }
 
             if (roomName != "")
                 RoomName = roomName;

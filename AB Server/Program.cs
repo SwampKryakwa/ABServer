@@ -56,8 +56,8 @@ namespace AB_Server
                                 string requestedResource = request.Url.ToString().Split('/')[^1];
 
                                 // Decode the key value
-                                string[] dontlog = { "getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", "" };
-                                string[] validkeys = { "ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "sendroommessage", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "submitdata", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave", "roomspectate", "gamespectate", "redeemcode" };
+                                string[] dontlog = ["getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", ""];
+                                string[] validkeys = ["ping", "createroom", "getroomlist", "joinroom", "leaveroom", "getmyposition", "updateready", "getplayerlist", "getallready", "checkready", "checkstarted", "getroomupdates", "checkgamestarted", "sendroommessage", "getgameinfo", "startroom", "newgame", "getsession", "join", "getroomnicknames", "submitdata", "getupdates", "sendchatmessage", "checkturnstart", "getmoves", "answer", "move", "leave", "roomspectate", "gamespectate", "redeemcode"];
                                 if (!validkeys.Contains(requestedResource))
                                 {
                                     resp.StatusCode = 400; // Bad Request

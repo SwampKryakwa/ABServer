@@ -55,14 +55,14 @@ namespace AB_Server
         {
             (int team, int position) = playerPositions[uuid];
             IsReady[team, position] = isReady;
-            foreach (var item in Updates.Values)
-                item.Add(new()
+            foreach (var item in Updates.Keys)
+                Updates[item].Add(new()
                 {
                     ["Type"] = "PlayerReadyChanged",
                     ["Team"] = team,
                     ["Position"] = position,
                     ["State"] = isReady,
-                    ["CanStart"] = !IsReady.Cast<bool>().Contains(false)
+                    ["CanStart"] = RoomOwner == item ? !IsReady.Cast<bool>().Contains(false) : false
                 });
         }
 

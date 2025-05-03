@@ -115,7 +115,6 @@ namespace AB_Server
                                             }
                                             answer.Add("teamCount", Rooms[(string)postedJson["roomName"]].TeamCount);
                                             answer.Add("playersPerTeam", Rooms[(string)postedJson["roomName"]].PlayersPerTeam);
-                                            answer.Add("success", false);
                                             break;
                                         }
                                         break;

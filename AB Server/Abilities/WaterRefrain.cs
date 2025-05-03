@@ -36,12 +36,12 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
+            int team = User.Owner.TeamId;
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
-            game.Players.Where(x => x.SideID != Owner.SideID).ToList().ForEach(p => p.AbilityBlockers.Add(this));
+            game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.AbilityBlockers.Add(this));
 
             game.TurnEnd += CheckEffectOver;
 

@@ -91,7 +91,7 @@ namespace AB_Server
                                         string room = RandomString(8);
                                         while (Rooms.ContainsKey(room))
                                             room = RandomString(8);
-                                        Rooms.Add(room, new Room((byte)postedJson["teamCount"], (byte)postedJson["playerCount"], (string)postedJson["roomName"], room, (bool)postedJson["isBotRoom"]));
+                                        Rooms.Add(room, new Room((byte)postedJson["teamCount"], (byte)postedJson["playersPerTeam"], (string)postedJson["roomName"], room, (bool)postedJson["isBotRoom"]));
                                         answer.Add("room", room);
                                         break;
 
@@ -113,6 +113,8 @@ namespace AB_Server
                                                 answer.Add("success", true);
                                                 answer.Add("player", false);
                                             }
+                                            answer.Add("teamCount", Rooms[(string)postedJson["roomName"]].TeamCount);
+                                            answer.Add("playersPerTeam", Rooms[(string)postedJson["roomName"]].PlayersPerTeam);
                                             break;
                                         }
                                         answer.Add("success", false);

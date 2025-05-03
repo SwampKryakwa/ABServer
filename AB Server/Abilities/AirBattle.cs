@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.SideID != Owner.SideID && x.OnField() && IsAdjacent(x.Position, User.Position)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.OnField() && IsAdjacent(x.Position, User.Position)}
             ];
         }
 

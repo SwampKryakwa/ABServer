@@ -712,7 +712,7 @@ namespace AB_Server
             Position is BakuganGrave;
 
         public bool IsEnemyOf(Bakugan bakugan) =>
-            Owner.SideID != bakugan.Owner.SideID;
+            Owner.TeamId != bakugan.Owner.TeamId;
 
         public bool HasNeighbourEnemies()
         {

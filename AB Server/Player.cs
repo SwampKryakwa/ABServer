@@ -20,7 +20,7 @@ namespace AB_Server
     internal class Player : IBakuganContainer
     {
         public byte Id;
-        public byte SideID = new();
+        public byte TeamId = new();
         public string DisplayName;
         public byte Avatar;
         public List<object> AbilityBlockers = new();
@@ -48,14 +48,14 @@ namespace AB_Server
         public Player(byte id, byte sideID, string displayName)
         {
             Id = id;
-            SideID = sideID;
+            TeamId = sideID;
             DisplayName = displayName;
         }
 
         public Player(byte id, byte sideID, Game game, string displayName, byte avatar)
         {
             Id = id;
-            SideID = sideID;
+            TeamId = sideID;
             this.game = game;
             BakuganGrave = new(this);
             DisplayName = displayName;

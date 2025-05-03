@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != User.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != User.Position}
             ];
         }
 
@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
             new LeapStingEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.SideID != Owner.SideID && x.OnField() && x.Position != user.Position);
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != user.Position);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));

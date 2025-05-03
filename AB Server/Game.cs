@@ -26,7 +26,7 @@ namespace AB_Server
         //Player data
         public Dictionary<long, int> UidToPid = [];
         public byte PlayerCount;
-        public byte SideCount;
+        public byte TeamCount;
         public Player[] Players;
         public List<long> Spectators = [];
 
@@ -159,7 +159,7 @@ namespace AB_Server
             OnAnswer = new Action[playerCount];
             for (byte i = 0; i < playerCount; i++)
                 NewEvents[i] = [];
-            SideCount = sideCount;
+            TeamCount = sideCount;
         }
 
         public int CreatePlayer(string userName, byte team, long uuid)

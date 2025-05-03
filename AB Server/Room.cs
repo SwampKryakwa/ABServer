@@ -186,10 +186,12 @@ namespace AB_Server
             return updates;
         }
 
+        Game game;
+
         public Game Start()
         {
             Started = true;
-            Game game = new((byte)(TeamCount * PlayersPerTeam), TeamCount);
+            game = new((byte)(TeamCount * PlayersPerTeam), TeamCount);
             for (byte i = 0; i < TeamCount; i++)
                 for (byte j = 0; j < PlayersPerTeam; j++)
                 {
@@ -209,7 +211,18 @@ namespace AB_Server
                 Updates[item].Add(new()
                 {
                     ["Type"] = "JoinReady",
-                    ["AsPlayer"] = Players.Cast<long>().Contains(item)
+                    ["AsSpectator"] = !Players.Cast<long>().Contains(item),
+                    ["TeamCount"] = game.TeamCount,
+                    ["Players"] = new JArray(game.Players.Select(x => new JObject
+                    {
+                        ["Name"] = x.DisplayName,
+                        ["PartnerType"] = (int)x.BakuganOwned[0].Type,
+                        ["PartnerAttribute"] = (int)x.BakuganOwned[0].BaseAttribute,
+                        ["PartnerTreatment"] = (int)x.BakuganOwned[0].Treatment,
+                        ["Ava"] = x.Avatar,
+                        ["Id"] = x.Id,
+                        ["Team"] = x.TeamId
+                    }))
                 });
             }
         }

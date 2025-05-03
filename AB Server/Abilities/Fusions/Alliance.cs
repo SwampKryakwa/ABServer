@@ -23,7 +23,7 @@
 
         public void Activate()
         {
-            int team = User.Owner.SideID;
+            int team = User.Owner.TeamId;
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, User));

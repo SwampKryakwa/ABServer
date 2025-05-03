@@ -44,7 +44,7 @@ namespace AB_Server.Gates
         public bool AllowAnyPlayers = false;
 
         public bool BattleStarted = false;
-        public bool IsBattleGoing { get => Freezing.Count == 0 && Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1; }
+        public bool IsBattleGoing { get => Freezing.Count == 0 && Bakugans.Select(x => x.Owner.TeamId).Distinct().Count() > 1; }
         public bool IsFrozen { get => Freezing.Count != 0; }
         public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
         public List<object> Freezing = new();
@@ -88,32 +88,32 @@ namespace AB_Server.Gates
                 b.JustEndedBattle = true;
             }
 
-            var numSides = Bakugans.Select(x => x.Owner.SideID).Distinct().Count();
+            var numSides = Bakugans.Select(x => x.Owner.TeamId).Distinct().Count();
             BattleOver = true;
 
             if (numSides < 2) return;
 
-            int[] teamTotals = new int[game.SideCount];
-            for (int i = 0; i < game.SideCount; i++) teamTotals[i] = 0;
+            int[] teamTotals = new int[game.TeamCount];
+            for (int i = 0; i < game.TeamCount; i++) teamTotals[i] = 0;
             foreach (var b in Bakugans)
             {
-                teamTotals[b.Owner.SideID] += b.Power;
+                teamTotals[b.Owner.TeamId] += b.Power;
             }
 
             int winnerPower = teamTotals.Max();
             List<byte> sidesToDefeat = [];
-            for (byte i = 0; i < game.SideCount; i++)
+            for (byte i = 0; i < game.TeamCount; i++)
                 if (teamTotals[i] < winnerPower) sidesToDefeat.Add(i);
 
             foreach (var b in new List<Bakugan>(Bakugans))
-                if (sidesToDefeat.Contains(b.Owner.SideID)) b.DestroyOnField(EnterOrder, MoveSource.Game);
+                if (sidesToDefeat.Contains(b.Owner.TeamId)) b.DestroyOnField(EnterOrder, MoveSource.Game);
 
-            if (Bakugans.Select(x => x.Owner.SideID).Distinct().Count() > 1)
+            if (Bakugans.Select(x => x.Owner.TeamId).Distinct().Count() > 1)
             {
-                byte sideToSurvive = EnterOrder[0][new Random().Next(EnterOrder[0].Length)].Owner.SideID;
+                byte sideToSurvive = EnterOrder[0][new Random().Next(EnterOrder[0].Length)].Owner.TeamId;
 
                 foreach (var b in new List<Bakugan>(Bakugans))
-                    if (b.Owner.SideID != sideToSurvive) b.DestroyOnField(EnterOrder, MoveSource.Game);
+                    if (b.Owner.TeamId != sideToSurvive) b.DestroyOnField(EnterOrder, MoveSource.Game);
             }
 
             game.BattlesToEnd.Add(this);

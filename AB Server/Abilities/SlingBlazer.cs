@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             TargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x.InBattle && x.Owner.SideID != Owner.SideID},
+                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x.InBattle && x.Owner.TeamId != Owner.TeamId},
                 new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.IsAdjacentHorizontally(User.Position as GateCard)}
             ];
         }

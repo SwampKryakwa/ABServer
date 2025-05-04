@@ -197,7 +197,7 @@ namespace AB_Server
                                         if (mayStart)
                                         {
                                             GIDToGame[(string)postedJson["gid"]].StartGame();
-                                            room = (string)postedJson["roomName"];
+                                            room = (string)postedJson["gid"];
                                             Rooms[room].TellPlayersToJoin();
                                         }
                                         break;

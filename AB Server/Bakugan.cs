@@ -607,6 +607,7 @@ namespace AB_Server
             game.ThrowEvent(new JObject
             {
                 ["Type"] = "MultiBakuganRemoved",
+                ["IsDestroy"] = false,
                 ["Bakugan"] = new JArray(removableBakugans.Select(x => new JObject
                 {
                     ["Type"] = (int)x.Type,
@@ -615,8 +616,7 @@ namespace AB_Server
                     ["Power"] = x.Power,
                     ["IsPartner"] = x.IsPartner,
                     ["BID"] = x.BID,
-                    ["Owner"] = x.Owner.Id,
-                    ["IsDestroy"] = false
+                    ["Owner"] = x.Owner.Id
                 }))
             });
         }

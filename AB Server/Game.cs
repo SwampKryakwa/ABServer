@@ -395,6 +395,7 @@ namespace AB_Server
                             ["Owner"] = j
                         });
                         GateIndex[id].Set(FirstCardPositions[j].X, FirstCardPositions[j].Y);
+                        StartTurn();
                     }
                 };
             }
@@ -579,6 +580,7 @@ namespace AB_Server
                     AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
                     GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
                     ActivePlayer++;
+                    OpenStartBattleGates();
                 };
             }
         }
@@ -762,6 +764,9 @@ namespace AB_Server
                             Over = true;
                             break;
                         }
+
+                        OpenEndBattleGates();
+                        return;
                     }
 
                     break;
@@ -817,6 +822,52 @@ namespace AB_Server
                     ResolveLongRangeBattle();
                 else
                     ThrowMoveStart();
+        }
+
+        void OpenEndBattleGates()
+        {
+            if (AutoGatesToOpen.Count == 0)
+            {
+                NextStep = EndBattles;
+                if (GateIndex.Any(x => x.OnField && x.BattleOver))
+                    SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
+                else
+                    EndBattles();
+            }
+            else
+            {
+                while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
+                {
+                    ActivePlayer++;
+                    if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+                }
+                if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                    EventBuilder.FieldGateSelection("INFO_OPENENDBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
+                ));
+                OnAnswer[ActivePlayer] = () =>
+                {
+                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
+                    GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
+                    ActivePlayer++;
+                    OpenEndBattleGates();
+                };
+            }
+        }
+
+        public void EndBattles()
+        {
+            foreach (var gate in GateIndex.Where(x => x.OnField && x.BattleOver))
+            {
+                gate.Dispose();
+                gate.BattleOver = false;
+            }
+            BattlesOver?.Invoke();
+            if (isBattleGoing)
+                ThrowMoveStart();
+            else
+                EndTurn();
         }
 
         private void ResolveLongRangeBattle()

@@ -583,10 +583,10 @@ namespace AB_Server
         public static void MultiToHand(Game game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
         {
             Console.WriteLine($"Provided Bakugan: " + providedBakugans.Count());
-            var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField());
+            var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField()).ToArray();
 
             if (mover == MoveSource.Effect)
-                removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0);
+                removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0).ToArray();
             Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
 
             foreach (var bakugan in removableBakugans)

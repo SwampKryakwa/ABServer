@@ -585,9 +585,9 @@ namespace AB_Server
             Console.WriteLine($"Provided Bakugan: " + providedBakugans.Count());
             var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField());
 
-            Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
             if (mover == MoveSource.Effect)
                 removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0);
+            Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
 
             foreach (var bakugan in removableBakugans)
             {

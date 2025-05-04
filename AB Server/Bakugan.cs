@@ -619,6 +619,18 @@ namespace AB_Server
                     ["Owner"] = x.Owner.Id
                 }))
             });
+
+            foreach (var bakugan in removableBakugans)
+                game.ThrowEvent(new JObject {
+                    { "Type", "BakuganAddedToHand" },
+                    { "Owner", bakugan.Owner.Id },
+                    { "BakuganType", (int)bakugan.Type },
+                    { "Attribute", (int)bakugan.MainAttribute },
+                    { "Treatment", (int)bakugan.Treatment },
+                    { "Power", bakugan.Power },
+                    { "IsPartner", bakugan.IsPartner },
+                    { "BID", bakugan.BID }
+                });
         }
 
         public void DestroyOnField(List<Bakugan[]> entryOrder, MoveSource mover = MoveSource.Effect)

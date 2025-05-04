@@ -162,9 +162,9 @@ namespace AB_Server
             TeamCount = sideCount;
         }
 
-        public int CreatePlayer(string userName, byte team, long uuid)
+        public int CreatePlayer(Game game, string userName, byte team, long uuid)
         {
-            Players[playersCreated] = new Player(playersCreated, team, userName);
+            Players[playersCreated] = new Player(game, playersCreated, team, userName);
             UidToPid.Add(uuid, playersCreated);
             return playersCreated++;
         }

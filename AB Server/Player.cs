@@ -41,12 +41,13 @@ namespace AB_Server
 
         public short hp = 3;
 
-        public Game game;
+        public Game Game;
 
         public byte PlayerColor;
 
-        public Player(byte id, byte sideID, string displayName)
+        public Player(Game game, byte id, byte sideID, string displayName)
         {
+            Game = game;
             Id = id;
             TeamId = sideID;
             DisplayName = displayName;
@@ -56,7 +57,7 @@ namespace AB_Server
         {
             Id = id;
             TeamId = sideID;
-            this.game = game;
+            this.Game = game;
             BakuganGrave = new(this);
             DisplayName = displayName;
             Avatar = avatar;
@@ -76,31 +77,31 @@ namespace AB_Server
                 int attr = (int)b["Attribute"];
                 int treatment = (int)b["Treatment"];
 
-                Console.WriteLine(game);
-                Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, this, game, game.BakuganIndex.Count);
-                game.BakuganIndex.Add(bak);
+                Console.WriteLine(Game);
+                Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, this, Game, Game.BakuganIndex.Count);
+                Game.BakuganIndex.Add(bak);
                 Bakugans.Add(bak);
                 BakuganOwned.Add(bak);
             }
 
             foreach (int a in deck["abilities"])
             {
-                AbilityCard abi = AbilityCard.CreateCard(this, game.AbilityIndex.Count, a);
+                AbilityCard abi = AbilityCard.CreateCard(this, Game.AbilityIndex.Count, a);
                 AbilityHand.Add(abi);
-                game.AbilityIndex.Add(abi);
+                Game.AbilityIndex.Add(abi);
             }
 
-            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Type"]].Invoke(game.AbilityIndex.Count, this);
+            FusionAbility fusion = FusionAbility.FusionCtrs[deck["bakugans"][0]["Type"]].Invoke(Game.AbilityIndex.Count, this);
             AbilityHand.Add(fusion);
-            game.AbilityIndex.Add(fusion);
+            Game.AbilityIndex.Add(fusion);
 
             BakuganOwned[0].IsPartner = true;
 
             if (deck.ContainsKey("correlation"))
             {
-                var correlation = AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(game.AbilityIndex.Count, this);
+                var correlation = AbilityCard.CorrelationCtrs[deck["correlation"]].Invoke(Game.AbilityIndex.Count, this);
                 AbilityHand.Add(correlation);
-                game.AbilityIndex.Add(correlation);
+                Game.AbilityIndex.Add(correlation);
             }
             else
             {
@@ -108,28 +109,28 @@ namespace AB_Server
                 if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
                        combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
                 {
-                    TripleNode tripleNode = new(game.AbilityIndex.Count, this);
-                    game.AbilityIndex.Add(tripleNode);
+                    TripleNode tripleNode = new(Game.AbilityIndex.Count, this);
+                    Game.AbilityIndex.Add(tripleNode);
                     AbilityHand.Add(tripleNode);
                 }
                 else if ((combinedAttributes.Contains(Attribute.Nova) && combinedAttributes.Contains(Attribute.Darkon)) ||
                        (combinedAttributes.Contains(Attribute.Subterra) && combinedAttributes.Contains(Attribute.Aqua)) ||
                        (combinedAttributes.Contains(Attribute.Lumina) && combinedAttributes.Contains(Attribute.Zephyros)))
                 {
-                    DiagonalCorrelation diagonalCorrelation = new(game.AbilityIndex.Count, this);
-                    game.AbilityIndex.Add(diagonalCorrelation);
+                    DiagonalCorrelation diagonalCorrelation = new(Game.AbilityIndex.Count, this);
+                    Game.AbilityIndex.Add(diagonalCorrelation);
                     AbilityHand.Add(diagonalCorrelation);
                 }
                 else if (combinedAttributes.Distinct().Count() == 1)
                 {
-                    ElementResonance elementResonance = new(game.AbilityIndex.Count, this);
-                    game.AbilityIndex.Add(elementResonance);
+                    ElementResonance elementResonance = new(Game.AbilityIndex.Count, this);
+                    Game.AbilityIndex.Add(elementResonance);
                     AbilityHand.Add(elementResonance);
                 }
                 else
                 {
-                    AdjacentCorrelation adjacentCorrelation = new(game.AbilityIndex.Count, this);
-                    game.AbilityIndex.Add(adjacentCorrelation);
+                    AdjacentCorrelation adjacentCorrelation = new(Game.AbilityIndex.Count, this);
+                    Game.AbilityIndex.Add(adjacentCorrelation);
                     AbilityHand.Add(adjacentCorrelation);
                 }
             }
@@ -137,10 +138,10 @@ namespace AB_Server
             foreach (dynamic g in deck["gates"])
             {
                 GateCard gate;
-                gate = GateCard.CreateCard(this, game.GateIndex.Count, (int)g["Type"]);
+                gate = GateCard.CreateCard(this, Game.GateIndex.Count, (int)g["Type"]);
 
                 GateHand.Add(gate);
-                game.GateIndex.Add(gate);
+                Game.GateIndex.Add(gate);
             }
         }
 
@@ -232,7 +233,7 @@ namespace AB_Server
         }
 
         public bool HasThrowableBakugan() =>
-            Bakugans.Count != 0 && game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
+            Bakugans.Count != 0 && Game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
 
         public bool HasActivateableAbilities() =>
             AbilityHand.Any(x => x.IsActivateable());
@@ -245,7 +246,7 @@ namespace AB_Server
 
         public bool HasOpenableGates()
         {
-            foreach (GateCard? gate in game.Field)
+            foreach (GateCard? gate in Game.Field)
             {
                 if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this)
@@ -268,7 +269,7 @@ namespace AB_Server
         public List<GateCard> OpenableGates()
         {
             List<GateCard> openableGates = new();
-            foreach (GateCard? gate in game.Field)
+            foreach (GateCard? gate in Game.Field)
             {
                 if (gate is GateCard g)
                     if (g.IsOpenable() && g.Owner == this && !g.IsOpen)
@@ -279,7 +280,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan);
+            return !Game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan);
         }
 
         public bool HasBattlingBakugan() =>

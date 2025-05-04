@@ -65,7 +65,7 @@ namespace AB_Server.Abilities
         public int TypeId { get; set; } = typeId;
         public virtual CardKind Kind { get; } = CardKind.NormalAbility;
 
-        public Game Game { get; set; } = owner.game;
+        public Game Game { get; set; } = owner.Game;
         public Player Owner { get; set; } = owner;
         public int EffectId { get; set; }
 

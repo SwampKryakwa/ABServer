@@ -4,7 +4,7 @@
     {
         public QuicksandFreeze(int cID, Player owner)
         {
-            game = owner.game;
+            game = owner.Game;
             Owner = owner;
 
             CardId = cID;

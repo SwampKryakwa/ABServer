@@ -4,7 +4,7 @@ namespace AB_Server.Gates
     {
         public Transform(int cID, Player owner)
         {
-            game = owner.game;
+            game = owner.Game;
             Owner = owner;
 
             CardId = cID;

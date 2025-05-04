@@ -232,7 +232,7 @@ namespace AB_Server
                     Updates[(long)Players[i, j]].Add(new()
                     {
                         ["Type"] = "DataRequest",
-                        ["PlayerId"] = game.CreatePlayer(UserNames[i, j], i, (long)Players[i, j])
+                        ["PlayerId"] = game.CreatePlayer(game, UserNames[i, j], i, (long)Players[i, j])
                     });
                 }
             return game;

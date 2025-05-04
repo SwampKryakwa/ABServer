@@ -7,7 +7,7 @@ namespace AB_Server.Gates
     {
         public Warlock(int cID, Player owner)
         {
-            game = owner.game;
+            game = owner.Game;
             Owner = owner;
 
             CardId = cID;

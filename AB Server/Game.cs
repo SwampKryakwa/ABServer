@@ -899,6 +899,9 @@ namespace AB_Server
                     ["Phase"] = "TurnEnd"
                 });
                 NextStep = StartTurn;
+                if (++TurnPlayer == PlayerCount) TurnPlayer = 0;
+                ActivePlayer = TurnPlayer;
+                StartTurn();
             };
             SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
             TurnEnd?.Invoke();

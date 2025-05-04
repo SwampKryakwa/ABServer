@@ -51,6 +51,7 @@ namespace AB_Server
             Id = id;
             TeamId = sideID;
             DisplayName = displayName;
+            BakuganGrave = new(this);
         }
 
         public Player(byte id, byte sideID, Game game, string displayName, byte avatar)

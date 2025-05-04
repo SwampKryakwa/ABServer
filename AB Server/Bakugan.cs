@@ -593,15 +593,16 @@ namespace AB_Server
             {
                 game.OnBakuganReturned(bakugan, bakugan.Owner.Id);
 
-                bakugan.Position.Remove(bakugan);
                 var entryOrder = (bakugan.Position as GateCard).EnterOrder;
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
                 else entryOrder[f] = entryOrder[f].Where(x => x != bakugan).ToArray();
 
+                bakugan.Position.Remove(bakugan);
                 bakugan.Owner.Bakugans.Add(bakugan);
                 bakugan.Position = bakugan.Owner;
             }
+            Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
 
             game.ThrowEvent(new JObject
             {

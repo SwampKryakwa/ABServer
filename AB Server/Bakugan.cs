@@ -590,13 +590,14 @@ namespace AB_Server
             foreach (var bakugan in removableBakugans)
             {
                 bakugan.Position.Remove(bakugan);
-                bakugan.Position = bakugan.Owner;
-                bakugan.Owner.Bakugans.Add(bakugan);
 
                 var entryOrder = (bakugan.Position as GateCard).EnterOrder;
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
                 else entryOrder[f] = entryOrder[f].Where(x => x != bakugan).ToArray();
+
+                bakugan.Owner.Bakugans.Add(bakugan);
+                bakugan.Position = bakugan.Owner;
             }
 
             game.ThrowEvent(new JObject

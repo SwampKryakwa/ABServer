@@ -582,15 +582,18 @@ namespace AB_Server
 
         public static void MultiToHand(Game game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
         {
+            Console.WriteLine($"Provided Bakugan: " + providedBakugans.Count());
             var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField());
 
+            Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
             if (mover == MoveSource.Effect)
                 removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0);
 
             foreach (var bakugan in removableBakugans)
             {
-                bakugan.Position.Remove(bakugan);
+                game.OnBakuganReturned(bakugan, bakugan.Owner.Id);
 
+                bakugan.Position.Remove(bakugan);
                 var entryOrder = (bakugan.Position as GateCard).EnterOrder;
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);

@@ -558,6 +558,7 @@ namespace AB_Server
 
         void OpenStartBattleGates()
         {
+            if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
                 NextStep = ThrowMoveStart;
@@ -571,9 +572,8 @@ namespace AB_Server
                 while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
                 {
                     ActivePlayer++;
-                    if (ActivePlayer > PlayerCount) ActivePlayer = 0;
+                    if (ActivePlayer == PlayerCount) ActivePlayer = 0;
                 }
-                if (ActivePlayer > PlayerCount) ActivePlayer = 0;
 
                 NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
                     EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))

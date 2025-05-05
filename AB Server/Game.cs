@@ -539,13 +539,15 @@ namespace AB_Server
         void CheckForBattles()
         {
             anyBattlesStarted = false;
-            foreach (var gate in GateIndex.Where(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
+            foreach (var gate in GateIndex.Where(x => x.OnField))
             {
+                Console.WriteLine(gate.IsBattleGoing);
+                Console.WriteLine(gate.BattleStarted);
+                if (gate.BattleStarted || !gate.IsBattleGoing) continue;
                 gate.CheckAutoBattleStart();
                 gate.BattleStarted = true;
                 anyBattlesStarted = true;
             }
-
 
             if (anyBattlesStarted)
                 playersPassed.Clear();

@@ -541,8 +541,6 @@ namespace AB_Server
             anyBattlesStarted = false;
             foreach (var gate in GateIndex.Where(x => x.OnField))
             {
-                Console.WriteLine(gate.IsBattleGoing);
-                Console.WriteLine(gate.BattleStarted);
                 if (gate.BattleStarted || !gate.IsBattleGoing) continue;
                 gate.CheckAutoBattleStart();
                 gate.BattleStarted = true;
@@ -562,6 +560,7 @@ namespace AB_Server
             if (AutoGatesToOpen.Count == 0)
             {
                 NextStep = GateIndex.Any(x=>x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
+                Console.WriteLine("Are there battles to end? " + GateIndex.Any(x => x.OnField && x.BattleOver));
                 if (anyBattlesStarted)
                     SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
                 else

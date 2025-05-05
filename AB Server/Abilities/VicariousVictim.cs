@@ -33,8 +33,8 @@ namespace AB_Server.Abilities
 
             if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganGrave)
             {
-                User.DestroyOnField(positionGate.EnterOrder);
                 selectedBakugan.FromGrave(positionGate);
+                User.DestroyOnField(positionGate.EnterOrder);
             }
         }
     }

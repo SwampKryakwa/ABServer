@@ -68,6 +68,7 @@
 
         public override void Resolve()
         {
+            Console.WriteLine("Is JW's target not null: " + target is not null);
             if (target is not null)
                 DetermineWinner();
 

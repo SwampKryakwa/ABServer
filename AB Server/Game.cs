@@ -561,7 +561,7 @@ namespace AB_Server
             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = GateIndex.Any(x=>x.OnField && x.BattleOver) ? OpenEndBattleGates ? ThrowMoveStart;
+                NextStep = GateIndex.Any(x=>x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
                 if (anyBattlesStarted)
                     SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
                 else

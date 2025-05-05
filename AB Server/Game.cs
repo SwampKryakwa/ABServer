@@ -826,7 +826,7 @@ namespace AB_Server
                 if (LongRangeBattleGoing)
                     ResolveLongRangeBattle();
                 else
-                    ThrowMoveStart();
+                    CheckForBattles(); 
         }
 
         void OpenEndBattleGates()

@@ -561,11 +561,15 @@ namespace AB_Server
             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = ThrowMoveStart;
-                if (anyBattlesStarted)
-                    SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
-                else
-                    ThrowMoveStart();
+                NextStep = () =>
+                {
+                    NextStep = ThrowMoveStart;
+                    if (anyBattlesStarted)
+                        SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
+                    else
+                        ThrowMoveStart();
+                };
+                ResolveChain();
             }
             else
             {

@@ -594,6 +594,7 @@ namespace AB_Server
 
         public JObject GetPossibleMoves(int player)
         {
+            Console.WriteLine($"Current window: " + CurrentWindow);
             JArray gateArray = new JArray();
 
             foreach (var gate in Players[player].SettableGates())

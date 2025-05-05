@@ -434,6 +434,7 @@ namespace AB_Server
 
             NextStep = () =>
             {
+                CurrentWindow = ActivationWindow.Normal;
                 ThrowEvent(new()
                 {
                     ["Type"] = "PhaseChange",
@@ -587,6 +588,7 @@ namespace AB_Server
 
         void ThrowMoveStart()
         {
+            CurrentWindow = ActivationWindow.Normal;
             ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Target.Owner.Id : ActivePlayer });
         }
 

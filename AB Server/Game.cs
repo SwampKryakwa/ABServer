@@ -583,7 +583,6 @@ namespace AB_Server
                     CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
                     GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
                     ActivePlayer++;
-                    OpenStartBattleGates();
                 };
             }
         }
@@ -860,7 +859,6 @@ namespace AB_Server
                     GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
                     CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
                     ActivePlayer++;
-                    OpenEndBattleGates();
                 };
             }
         }

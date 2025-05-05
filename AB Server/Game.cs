@@ -1016,12 +1016,13 @@ namespace AB_Server
         {
             if (CardChain.Count == 0)
             {
-                NextStep();
                 ExecutingChain = false;
+                NextStep();
                 return;
             }
             var chainElement = CardChain[0];
             CardChain.RemoveAt(0);
+            chainElement.Resolve();
         }
     }
 }

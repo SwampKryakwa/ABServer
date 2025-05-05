@@ -628,8 +628,10 @@ namespace AB_Server
             return moves;
         }
 
+        bool shouldTurnEnd = false;
         public void GameStep(JObject selection)
         {
+            shouldTurnEnd = false;
             if (LongRangeBattleGoing)
                 NextStep = ResolveLongRangeBattle;
             string moveType = selection["Type"].ToString();
@@ -770,6 +772,7 @@ namespace AB_Server
                             break;
                         }
 
+                        shouldTurnEnd = true;
                         OpenEndBattleGates();
                         return;
                     }
@@ -826,7 +829,7 @@ namespace AB_Server
                 if (LongRangeBattleGoing)
                     ResolveLongRangeBattle();
                 else
-                    CheckForBattles(); 
+                    CheckForBattles();
         }
 
         void OpenEndBattleGates()
@@ -869,10 +872,10 @@ namespace AB_Server
                 gate.BattleOver = false;
             }
             BattlesOver?.Invoke();
-            if (isBattleGoing)
-                ThrowMoveStart();
-            else
+            if (shouldTurnEnd)
                 EndTurn();
+            else
+                CheckForBattles();
         }
 
         private void ResolveLongRangeBattle()

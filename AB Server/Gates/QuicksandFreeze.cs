@@ -37,7 +37,7 @@
         {
             target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
-            game.NextStep();
+            game.CheckChain(Owner, this);
         }
 
         public override void Resolve()

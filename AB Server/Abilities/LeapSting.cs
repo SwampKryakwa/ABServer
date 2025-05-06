@@ -36,9 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (target.Power < User.Power)
-                if (target.Position is GateCard positionGate)
-                    target.DestroyOnField(positionGate.EnterOrder);
+            game.StartLongRangeBattle(User, target);
         }
     }
 }

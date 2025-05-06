@@ -36,13 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            // Compare the powers of the user and the target Bakugan
-            if (target.Power < User.Power)
-            {
-                // Destroy the target Bakugan if it is on the field
-                if (target.Position is GateCard positionGate)
-                    target.DestroyOnField(positionGate.EnterOrder);
-            }
+            game.StartLongRangeBattle(User, target);
         }
     }
 }

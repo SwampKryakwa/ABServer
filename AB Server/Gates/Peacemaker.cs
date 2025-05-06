@@ -16,6 +16,11 @@
         {
             if (IsOpen)
             {
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                {
+                    b.JustEndedBattle = false;
+                    b.ToHand(EnterOrder);
+                }
                 game.BattlesToEnd.Add(this);
             }
             else

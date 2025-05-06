@@ -66,12 +66,13 @@ namespace AB_Server
         //Communication with the players
         public dynamic?[] PlayerAnswers;
         public Action[] OnAnswer;
+        public Action[] OnCancel;
 
         //Long-range battles stuff
         public bool LongRangeBattleGoing;
         public Bakugan? Attacker;
         public Bakugan? Target;
-        public Action OnLongRangeBattleOver;
+        public Action? OnLongRangeBattleOver;
 
         //Game flow
         public Action NextStep;
@@ -559,7 +560,7 @@ namespace AB_Server
             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = GateIndex.Any(x=>x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
+                NextStep = GateIndex.Any(x => x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
                 Console.WriteLine("Are there battles to end? " + GateIndex.Any(x => x.OnField && x.BattleOver));
                 if (anyBattlesStarted)
                     SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
@@ -881,7 +882,7 @@ namespace AB_Server
         {
             if (Target.Power < Attacker.Power && Target.OnField() && Attacker.OnField())
                 Target.DestroyOnField((Target.Position as GateCard).EnterOrder);
-            OnLongRangeBattleOver();
+            OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;
             ThrowMoveStart();
         }
@@ -1030,6 +1031,14 @@ namespace AB_Server
             var chainElement = CardChain[0];
             CardChain.RemoveAt(0);
             chainElement.Resolve();
+        }
+
+        public void StartLongRangeBattle(Bakugan attacker, Bakugan target)
+        {
+            if (LongRangeBattleGoing) return;
+            Attacker = attacker;
+            Target = target;
+            LongRangeBattleGoing = true;
         }
     }
 }

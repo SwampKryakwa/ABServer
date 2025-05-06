@@ -732,6 +732,7 @@ namespace AB_Server
 
                     break;
                 case "pass":
+                    Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
                     if (!isBattleGoing && !LongRangeBattleGoing)
                     {
                         NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
@@ -751,6 +752,7 @@ namespace AB_Server
                     {
                         if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
                     }
+                    Console.WriteLine("All battling players passed: " + allBattlingPlayersPassed);
                     if (allBattlingPlayersPassed)
                     {
                         playersPassed.Clear();

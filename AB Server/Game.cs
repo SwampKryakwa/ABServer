@@ -639,6 +639,7 @@ namespace AB_Server
             bool DontThrowTurnStartEvent = false;
             if (moveType != "pass" && moveType != "draw")
                 playersPassed.Clear();
+            Console.WriteLine("Move type: " + moveType);
             switch (moveType)
             {
                 case "throw":

@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
             new Dimension4Effect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Type == BakuganType.Lucifer && user.OnField();

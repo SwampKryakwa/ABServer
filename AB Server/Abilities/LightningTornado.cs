@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             var validBakugans = User.Position.Bakugans.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
             if (validBakugans.Count() != 0)
             {
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                     EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
                 ));
             }
@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
             {
                 var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
 
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                     EventBuilder.FieldBakuganSelection("INFO_ABILITY_DECREASETARGET", TypeId, (int)Kind, validBakugans)
                 ));
 

@@ -91,7 +91,9 @@ namespace AB_Server.Abilities
         public virtual void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
+                Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
@@ -107,13 +109,15 @@ namespace AB_Server.Abilities
 
         protected void SendTargetForSelection()
         {
+            if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
+                Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
             if (TargetSelectors.Length == currentTarget) Activate();
             else if (TargetSelectors[currentTarget].Condition())
             {
                 var currentSelector = TargetSelectors[currentTarget];
                 if (currentSelector is BakuganSelector bakuganSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
@@ -125,7 +129,7 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is GateSelector gateSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "G" => throw new NotImplementedException(),
@@ -142,19 +146,19 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is ActiveSelector activeSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                 }
                 else if (currentSelector is OptionSelector optionSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
                         ));
                 }
                 else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(
+                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
@@ -246,12 +250,9 @@ namespace AB_Server.Abilities
 
         public virtual void Dispose()
         {
-            if (Owner.AbilityHand.Contains(this))
-                Owner.AbilityHand.Remove(this);
+            Discard();
             if (Game.ActiveZone.Contains(this))
                 Game.ActiveZone.Remove(this);
-            if (!IsCopy)
-                Owner.AbilityGrave.Add(this);
 
             Game.ThrowEvent(new()
             {

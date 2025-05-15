@@ -11,7 +11,7 @@
         public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
             ));
 
@@ -24,7 +24,7 @@
 
             var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User);
 
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
             ));
 
@@ -42,7 +42,7 @@
 
             if (validBakugans.Any())
             {
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                     EventBuilder.BoolSelectionEvent("INFO_SELECTMORE")
                 ));
 
@@ -60,7 +60,7 @@
             {
                 var validBakugans = Owner.BakuganOwned.Where(x => x.OnField() && x != User && !otherBakugans.Contains(x));
 
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                     EventBuilder.FieldBakuganSelection("INFO_ABILITY_TARGET", TypeId, (int)Kind, validBakugans)
                 ));
 

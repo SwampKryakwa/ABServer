@@ -6,11 +6,12 @@ namespace AB_Server
 {
     internal static class EventBuilder
     {
-        public static JObject SelectionBundler(params JObject[] selections)
+        public static JObject SelectionBundler(bool canCancel, params JObject[] selections)
         {
             return new()
             {
                 { "Type", "StartSelection" },
+                { "CanCancel", canCancel },
                 { "Selections", JArray.FromObject(selections) }
             };
         }

@@ -454,7 +454,7 @@ namespace AB_Server
             if (currentPlayer.HasActivateableAbilities())
             {
                 OnAnswer[player] = () => CheckWindow(startingPlayer, player);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
             }
             else
             {
@@ -473,7 +473,7 @@ namespace AB_Server
             if ((bool)PlayerAnswers[player]["array"][0]["answer"])
             {
                 OnAnswer[player] = () => ResolveWindow(Players[player]);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
             else
             {
@@ -492,16 +492,6 @@ namespace AB_Server
                 CardChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
-                player.AbilityHand.Remove(AbilityIndex[id]);
-
-                ThrowEvent(new()
-                {
-                    ["Type"] = "AbilityRemovedFromHand",
-                    ["Kind"] = (int)AbilityIndex[id].Kind,
-                    ["CardType"] = AbilityIndex[id].TypeId,
-                    ["CID"] = AbilityIndex[id].CardId,
-                    ["Owner"] = AbilityIndex[id].Owner.Id
-                });
 
                 AbilityIndex[id].Setup(false);
             }
@@ -575,7 +565,7 @@ namespace AB_Server
                     if (ActivePlayer == PlayerCount) ActivePlayer = 0;
                 }
 
-                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
                     EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
                 ));
                 OnAnswer[ActivePlayer] = () =>
@@ -588,7 +578,7 @@ namespace AB_Server
             }
         }
 
-        void ThrowMoveStart()
+        public void ThrowMoveStart()
         {
             CurrentWindow = ActivationWindow.Normal;
             ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Target.Owner.Id : ActivePlayer });
@@ -700,15 +690,6 @@ namespace AB_Server
                         CardChain.Add(AbilityIndex[abilitySelection]);
                         AbilityIndex[abilitySelection].EffectId = NextEffectId++;
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
-                        Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
-                        ThrowEvent(new()
-                        {
-                            ["Type"] = "AbilityRemovedFromHand",
-                            ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
-                            ["CardType"] = AbilityIndex[abilitySelection].TypeId,
-                            ["CID"] = AbilityIndex[abilitySelection].CardId,
-                            ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
-                        });
 
                         AbilityIndex[abilitySelection].Setup(false);
                     }
@@ -795,7 +776,7 @@ namespace AB_Server
                     break;
                 case "draw":
                     var toSuggestDraw = Players.First(x => x.Id != ActivePlayer).Id;
-                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
+                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
                     OnAnswer[toSuggestDraw] = () =>
                     {
                         bool answer = (bool)PlayerAnswers[toSuggestDraw]["array"][0]["answer"];
@@ -854,7 +835,7 @@ namespace AB_Server
                 }
                 if (ActivePlayer > PlayerCount) ActivePlayer = 0;
 
-                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
                     EventBuilder.FieldGateSelection("INFO_OPENENDBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
                 ));
                 OnAnswer[ActivePlayer] = () =>
@@ -967,7 +948,7 @@ namespace AB_Server
         public void SuggestCounter(Player player, IActive card, Player user)
         {
             OnAnswer[player.Id] = () => CheckCounter(player, card, user);
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
+            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
         }
 
         public void CheckCounter(Player player, IActive card, Player user)
@@ -984,7 +965,7 @@ namespace AB_Server
                 player.HadUsedCounter = true;
                 OnAnswer[player.Id] = () => ResolveCounter(player);
 
-                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
         }
 
@@ -996,16 +977,6 @@ namespace AB_Server
                 CardChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
-                player.AbilityHand.Remove(AbilityIndex[id]);
-
-                ThrowEvent(new()
-                {
-                    ["Type"] = "AbilityRemovedFromHand",
-                    ["Kind"] = (int)AbilityIndex[id].Kind,
-                    ["CardType"] = AbilityIndex[id].TypeId,
-                    ["CID"] = AbilityIndex[id].CardId,
-                    ["Owner"] = AbilityIndex[id].Owner.Id
-                });
 
                 AbilityIndex[id].Setup(true);
             }

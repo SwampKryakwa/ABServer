@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 

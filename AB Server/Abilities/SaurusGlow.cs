@@ -1,3 +1,4 @@
+
 namespace AB_Server.Abilities
 {
     internal class SaurusGlow : AbilityCard
@@ -19,7 +20,6 @@ namespace AB_Server.Abilities
         public CardKind Kind { get; } = CardKind.NormalAbility;
         public Bakugan User { get; set; }
         Game game { get => User.Game; }
-        Boost currentBoost;
 
         public Player Owner { get; set; }
         bool IsCopy;
@@ -40,14 +40,14 @@ namespace AB_Server.Abilities
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
             game.BakuganAdded += OnBakuganAdded;
+            game.BakuganDestroyed += OnBakuganDestroyed;
         }
 
         private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
         {
-            if (User.OnField() && target.Power > User.Power)
+            if (User.OnField() && target.BasePower > User.BasePower)
             {
-                currentBoost = new Boost(50);
-                User.Boost(currentBoost, this);
+                User.Boost(new Boost(50), this);
             }
         }
 
@@ -56,12 +56,21 @@ namespace AB_Server.Abilities
             game.ActiveZone.Remove(this);
 
             game.BakuganAdded -= OnBakuganAdded;
+            game.BakuganDestroyed -= OnBakuganDestroyed;
 
-            if (currentBoost.Active)
+            game.ThrowEvent(new()
             {
-                currentBoost.Active = false;
-                User.RemoveBoost(currentBoost, this);
-            }
+                { "Type", "EffectRemovedActiveZone" },
+                { "Id", EffectId }
+            });
+        }
+
+        private void OnBakuganDestroyed(Bakugan target, byte owner)
+        {
+            game.ActiveZone.Remove(this);
+
+            game.BakuganAdded -= OnBakuganAdded;
+            game.BakuganDestroyed -= OnBakuganDestroyed; 
 
             game.ThrowEvent(new()
             {

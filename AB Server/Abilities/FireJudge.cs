@@ -15,7 +15,7 @@
         public CardKind Kind { get; } = CardKind.NormalAbility;
         public Bakugan User { get; set; } = user;
         Game game { get => User.Game; }
-        Boost currentBoost;
+        Boost boost;
 
         public Player Owner { get; set; } = user.Owner;
         bool IsCopy = IsCopy;
@@ -28,25 +28,48 @@
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
 
-            currentBoost = new Boost(100);
-            User.ContinuousBoost(currentBoost, this);
+            boost = new Boost(100);
+            User.ContinuousBoost(boost, this);
+
+            game.BakuganDestroyed += CheckExpiration;
         }
 
         public void Negate(bool asCounter)
         {
             game.ActiveZone.Remove(this);
 
-            if (currentBoost.Active)
+            game.ThrowEvent(new()
             {
-                currentBoost.Active = false;
-                User.RemoveBoost(currentBoost, this);
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+
+            if (boost.Active)
+            {
+                boost.Active = false;
+                User.RemoveBoost(boost, this);
             }
+        }
+
+        public void CheckExpiration(Bakugan target, byte owner)
+        {
+            if (target != User) return;
+
+            game.ActiveZone.Remove(this);
 
             game.ThrowEvent(new()
             {
                 ["Type"] = "EffectRemovedActiveZone",
                 ["Id"] = EffectId
             });
+
+            if (boost.Active)
+            {
+                boost.Active = false;
+                User.RemoveBoost(boost, this);
+            }
+
+            game.BakuganDestroyed -= CheckExpiration;
         }
     }
 }

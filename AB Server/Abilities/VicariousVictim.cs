@@ -6,13 +6,13 @@ namespace AB_Server.Abilities
     {
         public VicariousVictim(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BG", ForPlayer = owner.Id, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InGrave()}
+                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InGrave()}
             ];
         }
 
-        public override void TriggerEffect() => new IllusiveCurrentEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect() => new IllusiveCurrentEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
     }

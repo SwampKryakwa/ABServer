@@ -4,9 +4,9 @@ namespace AB_Server.Abilities
     {
         public CrystalFang(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsEnemyOf(User) && target.OnField()}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsEnemyOf(User) && target.OnField()}
             ];
         }
 
@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new CrystalFangEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new CrystalFangEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart;

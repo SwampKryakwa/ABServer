@@ -4,16 +4,16 @@
     {
         public DiagonalCorrelation(int cID, Player owner) : base(cID, owner, 1)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Owner == User.Owner && Bakugan.IsDiagonal(x, User)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Owner == User.Owner && Bakugan.IsDiagonal(x, User)}
             ];
         }
 
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
 
         public override void TriggerEffect() =>
-            new DiagonalCorrelationEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new DiagonalCorrelationEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && HasValidTargets(user);

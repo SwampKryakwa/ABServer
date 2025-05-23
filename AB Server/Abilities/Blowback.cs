@@ -6,14 +6,14 @@ namespace AB_Server.Abilities
     {
         public Blowback(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_RETRACTTARGET", TargetValidator = target => IsTargetValid(target, User)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETRACTTARGET", TargetValidator = target => IsTargetValid(target, User)}
             ];
         }
 
         public override void TriggerEffect() =>
-            new BlowbackEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new BlowbackEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;

@@ -86,7 +86,8 @@ namespace AB_Server.Abilities
         protected bool asCounter;
 
         protected int currentTarget;
-        protected Selector[] TargetSelectors = [];
+        protected Selector[] CondTargetSelectors = [];
+        protected Selector[] ResTargetSelectors = [];
 
         public virtual void Setup(bool asCounter)
         {
@@ -104,20 +105,20 @@ namespace AB_Server.Abilities
         {
             currentTarget = 0;
             User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
-            SendTargetForSelection();
+            SendCondTargetForSelection();
         }
 
-        protected void SendTargetForSelection()
+        protected void SendCondTargetForSelection()
         {
             if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
                 Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
-            if (TargetSelectors.Length == currentTarget) Activate();
-            else if (TargetSelectors[currentTarget].Condition())
+            if (CondTargetSelectors.Length == currentTarget) Activate();
+            else if (CondTargetSelectors[currentTarget].Condition())
             {
-                var currentSelector = TargetSelectors[currentTarget];
+                var currentSelector = CondTargetSelectors[currentTarget];
                 if (currentSelector is BakuganSelector bakuganSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
@@ -129,7 +130,7 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is GateSelector gateSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "G" => throw new NotImplementedException(),
@@ -146,19 +147,19 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is ActiveSelector activeSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                 }
                 else if (currentSelector is OptionSelector optionSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
                         ));
                 }
                 else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
                 {
-                    Game.NewEvents[currentSelector.ForPlayer].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
@@ -174,34 +175,34 @@ namespace AB_Server.Abilities
                     Console.WriteLine(currentSelector.GetType());
                     throw new NotImplementedException();
                 }
-                Game.OnAnswer[currentSelector.ForPlayer] = AcceptTarget;
+                Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).Id] = AcceptCondTarget;
             }
             else
             {
                 currentTarget++;
-                SendTargetForSelection();
+                SendCondTargetForSelection();
             }
         }
 
-        void AcceptTarget()
+        void AcceptCondTarget()
         {
-            var currentSelector = TargetSelectors[currentTarget];
+            var currentSelector = CondTargetSelectors[currentTarget];
             if (currentSelector is BakuganSelector bakuganSelector)
-                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[currentSelector.ForPlayer]["array"][0]["bakugan"]];
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugan"]];
             else if (currentSelector is GateSelector gateSelector)
-                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[currentSelector.ForPlayer]["array"][0]["gate"]];
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["gate"]];
             else if (currentSelector is AbilitySelector abilitySelector)
             {
                 //currently unused
                 throw new NotImplementedException();
             }
             else if (currentSelector is ActiveSelector activeSelector)
-                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[currentSelector.ForPlayer]["array"][0]["active"]);
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
             else if (currentSelector is OptionSelector optionSelector)
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
-                JArray bakuganIds = Game.PlayerAnswers[currentSelector.ForPlayer]["array"][0]["bakugans"];
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
                 Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
             }
@@ -210,7 +211,7 @@ namespace AB_Server.Abilities
                 throw new NotImplementedException();
             }
             currentTarget++;
-            SendTargetForSelection();
+            SendCondTargetForSelection();
         }
 
         public virtual void Activate()
@@ -230,12 +231,119 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public virtual void Resolve()
+        public void Resolve()
+        {
+            SendResTargetForSelection();
+        }
+
+        protected void SendResTargetForSelection()
+        {
+            if (ResTargetSelectors.Length == currentTarget) Resolution();
+            else if (ResTargetSelectors[currentTarget].Condition())
+            {
+                var currentSelector = ResTargetSelectors[currentTarget];
+                if (currentSelector is BakuganSelector bakuganSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
+                            "BH" => EventBuilder.HandBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
+                            "BF" => EventBuilder.FieldBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
+                            "BG" => EventBuilder.GraveBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
+                        }
+                        ));
+                }
+                else if (currentSelector is GateSelector gateSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "G" => throw new NotImplementedException(),
+                            "GF" => EventBuilder.FieldGateSelection(currentSelector.Message, TypeId, (int)Kind, Game.GateIndex.Where(gateSelector.TargetValidator)),
+                            "GH" => throw new NotImplementedException(),
+                            "GG" => throw new NotImplementedException()
+                        }
+                        ));
+                }
+                else if (currentSelector is AbilitySelector abilitySelector)
+                {
+                    //currently unused
+                    throw new NotImplementedException();
+                }
+                else if (currentSelector is ActiveSelector activeSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
+                        ));
+                }
+                else if (currentSelector is OptionSelector optionSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
+                        ));
+                }
+                else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBG" => EventBuilder.GraveMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                        }
+                        ));
+                }
+                else
+                {
+                    Console.WriteLine(GetType());
+                    Console.WriteLine(currentSelector.GetType());
+                    throw new NotImplementedException();
+                }
+                Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).Id] = AcceptResTarget;
+            }
+            else
+            {
+                currentTarget++;
+                SendCondTargetForSelection();
+            }
+        }
+
+        void AcceptResTarget()
+        {
+            var currentSelector = CondTargetSelectors[currentTarget];
+            if (currentSelector is BakuganSelector bakuganSelector)
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugan"]];
+            else if (currentSelector is GateSelector gateSelector)
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["gate"]];
+            else if (currentSelector is AbilitySelector abilitySelector)
+            {
+                //currently unused
+                throw new NotImplementedException();
+            }
+            else if (currentSelector is ActiveSelector activeSelector)
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
+            else if (currentSelector is OptionSelector optionSelector)
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
+            else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
+            {
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugans"];
+                multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
+                Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            currentTarget++;
+            SendCondTargetForSelection();
+        }
+
+        protected void Resolution()
         {
             TriggerEffect();
-
             Dispose();
-
             Game.ChainStep();
         }
 
@@ -243,7 +351,7 @@ namespace AB_Server.Abilities
         {
             if (User == bakugan)
                 User = Bakugan.GetDummy();
-            foreach (BakuganSelector selector in TargetSelectors.Where(x => x is BakuganSelector))
+            foreach (BakuganSelector selector in CondTargetSelectors.Where(x => x is BakuganSelector))
                 if (selector.SelectedBakugan == bakugan)
                     selector.SelectedBakugan = bakugan;
         }

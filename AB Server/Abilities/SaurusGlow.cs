@@ -53,10 +53,10 @@ namespace AB_Server.Abilities
 
         public void Negate(bool asCounter)
         {
-            game.ActiveZone.Remove(this);
-
             game.BakuganAdded -= OnBakuganAdded;
             game.BakuganDestroyed -= OnBakuganDestroyed;
+
+            game.ActiveZone.Remove(this);
 
             game.ThrowEvent(new()
             {
@@ -67,6 +67,7 @@ namespace AB_Server.Abilities
 
         private void OnBakuganDestroyed(Bakugan target, byte owner)
         {
+            if (target != User) return;
             game.ActiveZone.Remove(this);
 
             game.BakuganAdded -= OnBakuganAdded;

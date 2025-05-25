@@ -46,10 +46,10 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (selectedOption == 0)
+            if (selectedOption == 0 && User.IsAttribute(Attribute.Nova))
+                target.Boost(new Boost((short)-target.AdditionalPower), this);
+            else
                 target.Boost(new Boost(-50), this);
-            else if (User.IsAttribute(Attribute.Nova))
-                target.Boost(new Boost((short)target.AdditionalPower), this);
         }
     }
 }

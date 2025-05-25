@@ -1,5 +1,18 @@
 ﻿namespace AB_Server.Abilities
 {
+    /// <summary>
+    /// Represents an effect that applies a boost to a target Bakugan during gameplay.
+    /// </summary>
+    /// <remarks>
+    /// This effect is associated with a specific user Bakugan and a target Bakugan. When activated, 
+    /// it applies a boost of the specified amount to the target Bakugan and triggers an in-game event 
+    /// to notify other components of the effect activation.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostTarget">The Bakugan receiving the boost.</param>
+    /// <param name="boostAmmount">The amount of boost to apply.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
     class BoostEffect(Bakugan user, Bakugan boostTarget, short boostAmmount, int typeId, int kindId)
     {
 
@@ -17,6 +30,18 @@
         }
     }
 
+    /// <summary>
+    /// Represents an effect that applies the same boost amount to multiple target Bakugan.
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect applies a boost of the specified amount to each Bakugan in the provided targets array.
+    /// An in-game event is triggered to notify other components of the effect activation.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostTargets">The array of Bakugan to receive the boost.</param>
+    /// <param name="boostAmmount">The amount of boost to apply to each target.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
     class BoostMultipleSameEffect(Bakugan user, Bakugan[] boostTargets, short boostAmmount, int typeId, int kindId)
     {
 
@@ -35,6 +60,18 @@
         }
     }
 
+    /// <summary>
+    /// Represents an effect that applies different boost amounts to multiple target Bakugan.
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect applies a corresponding boost amount from the boostAmmounts array to each Bakugan in the boostTargets array.
+    /// An in-game event is triggered to notify other components of the effect activation.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostTargets">The array of Bakugan to receive the boost.</param>
+    /// <param name="boostAmmounts">The array of boost amounts, each corresponding to a target Bakugan.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
     class BoostMultipleVariousEffect(Bakugan user, Bakugan[] boostTargets, short[] boostAmmounts, int typeId, int kindId)
     {
 
@@ -53,6 +90,17 @@
         }
     }
 
+    /// <summary>
+    /// Represents an effect that applies a boost to all Bakugan currently on the field.
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect applies a boost of the specified amount to every Bakugan that is currently on the field.
+    /// An in-game event is triggered to notify other components of the effect activation.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostAmmount">The amount of boost to apply to each Bakugan on the field.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
     class BoostAllFieldEffect(Bakugan user, short boostAmmount, int typeId, int kindId)
     {
 
@@ -67,6 +115,587 @@
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
                 target.Boost(new Boost(boostAmmount), this);
+        }
+    }
+
+    /// <summary>
+    /// Represents an effect that applies a continuous boost to a Bakugan, which can be negated.
+    /// </summary>
+    /// <remarks>
+    /// This effect adds itself to the game's ActiveZone, applies a continuous boost to the user Bakugan,
+    /// and can be negated to remove the boost and itself from the ActiveZone.
+    /// </remarks>
+    /// <param name="user">The Bakugan receiving the continuous boost.</param>
+    /// <param name="boostAmount">The amount of the continuous boost.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kind">The kind of card or effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    class ContinuousBoostEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = kind;
+        public Bakugan User { get; set; } = user;
+        public Bakugan target = target;
+        Game game { get => User.Game; }
+        Boost currentBoost;
+
+        public Player Owner { get; set; } = user.Owner;
+        bool IsCopy = isCopy;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoost = new Boost(boostAmount);
+            target.ContinuousBoost(currentBoost, this);
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoost.Active)
+            {
+                currentBoost.Active = false;
+                target.RemoveBoost(currentBoost, this);
+            }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Represents an effect that applies a continuous boost to a Bakugan, which is automatically removed when the user Bakugan is defeated.
+    /// </summary>
+    /// <remarks>
+    /// This effect adds itself to the game's ActiveZone, applies a continuous boost to the user Bakugan,
+    /// and automatically removes the boost and itself from the ActiveZone when the user Bakugan is defeated.
+    /// </remarks>
+    /// <param name="user">The Bakugan receiving the continuous boost.</param>
+    /// <param name="boostAmount">The amount of the continuous boost.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kind">The kind of card or effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    class ContinuousBoostUntilDefeatedEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = kind;
+        public Bakugan User { get; set; } = user;
+        public Bakugan target = target;
+        Game game { get => User.Game; }
+        Boost currentBoost;
+
+        public Player Owner { get; set; } = user.Owner;
+        bool IsCopy = isCopy;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoost = new Boost(boostAmount);
+            target.ContinuousBoost(currentBoost, this);
+
+            // Subscribe to the BakuganDestroyed event for this Bakugan
+            game.BakuganDestroyed += OnBakuganDestroyed;
+        }
+
+        private void OnBakuganDestroyed(Bakugan target, byte owner)
+        {
+            if (target == User)
+            {
+                game.ActiveZone.Remove(this);
+
+                if (currentBoost.Active)
+                {
+                    currentBoost.Active = false;
+                    target.RemoveBoost(currentBoost, this);
+                }
+
+                game.ThrowEvent(new()
+                {
+                    ["Type"] = "EffectRemovedActiveZone",
+                    ["Id"] = EffectId
+                });
+
+                // Unsubscribe to avoid memory leaks
+                game.BakuganDestroyed -= OnBakuganDestroyed;
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoost.Active)
+            {
+                currentBoost.Active = false;
+                target.RemoveBoost(currentBoost, this);
+            }
+
+            // Unsubscribe in case Negate is called directly
+            game.BakuganDestroyed -= OnBakuganDestroyed;
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Represents an effect that applies the same continuous boost amount to multiple target Bakugan.
+    /// </summary>
+    /// <remarks>
+    /// This effect applies a continuous boost to each Bakugan in the provided targets array and adds itself to the game's ActiveZone.
+    /// The boosts can be removed by calling Negate.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostTargets">The array of Bakugan to receive the continuous boost.</param>
+    /// <param name="boostAmount">The amount of the continuous boost to apply to each target.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    class ContinuousBoostMultipleSameEffect(Bakugan user, Bakugan[] boostTargets, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        Boost[] currentBoosts;
+        Bakugan[] Targets = boostTargets;
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoosts = new Boost[Targets.Length];
+            for (int i = 0; i < Targets.Length; i++)
+            {
+                currentBoosts[i] = new Boost(boostAmount);
+                Targets[i].ContinuousBoost(currentBoosts[i], this);
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoosts != null)
+            {
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+            }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Represents an effect that applies different continuous boost amounts to multiple target Bakugan.
+    /// </summary>
+    /// <remarks>
+    /// This effect applies a corresponding continuous boost amount from the boostAmounts array to each Bakugan in the boostTargets array and adds itself to the game's ActiveZone.
+    /// The boosts can be removed by calling Negate.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostTargets">The array of Bakugan to receive the continuous boost.</param>
+    /// <param name="boostAmounts">The array of continuous boost amounts, each corresponding to a target Bakugan.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    class ContinuousBoostMultipleVariousEffect(Bakugan user, Bakugan[] boostTargets, short[] boostAmounts, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        Boost[] currentBoosts;
+        Bakugan[] Targets = boostTargets;
+        short[] BoostAmounts = boostAmounts;
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoosts = new Boost[Targets.Length];
+            for (int i = 0; i < Targets.Length; i++)
+            {
+                currentBoosts[i] = new Boost(BoostAmounts[i]);
+                Targets[i].ContinuousBoost(currentBoosts[i], this);
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoosts != null)
+            {
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+            }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Represents an effect that applies a continuous boost to all Bakugan currently on the field.
+    /// </summary>
+    /// <remarks>
+    /// This effect applies a continuous boost to every Bakugan that is currently on the field and adds itself to the game's ActiveZone.
+    /// The boosts can be removed by calling Negate.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="boostAmount">The amount of continuous boost to apply to each Bakugan on the field.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    class ContinuousBoostAllFieldEffect(Bakugan user, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        List<Boost> currentBoosts = new();
+        List<Bakugan> Targets = new();
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
+            {
+                var boost = new Boost(boostAmount);
+                target.ContinuousBoost(boost, this);
+                currentBoosts.Add(boost);
+                Targets.Add(target);
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < Targets.Count; i++)
+            {
+                if (currentBoosts[i].Active)
+                {
+                    currentBoosts[i].Active = false;
+                    Targets[i].RemoveBoost(currentBoosts[i], this);
+                }
+            }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Applies the same continuous boost to multiple Bakugan, removed when the user Bakugan is defeated.
+    /// </summary>
+    class ContinuousBoostMultipleSameUntilDefeatedEffect(Bakugan user, Bakugan[] boostTargets, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        Boost[] currentBoosts;
+        Bakugan[] Targets = boostTargets;
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoosts = new Boost[Targets.Length];
+            for (int i = 0; i < Targets.Length; i++)
+            {
+                currentBoosts[i] = new Boost(boostAmount);
+                Targets[i].ContinuousBoost(currentBoosts[i], this);
+            }
+
+            game.BakuganDestroyed += OnUserDefeated;
+        }
+
+        private void OnUserDefeated(Bakugan defeated, byte owner)
+        {
+            if (defeated == User)
+            {
+                game.ActiveZone.Remove(this);
+
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+
+                game.ThrowEvent(new()
+                {
+                    ["Type"] = "EffectRemovedActiveZone",
+                    ["Id"] = EffectId
+                });
+
+                game.BakuganDestroyed -= OnUserDefeated;
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoosts != null)
+            {
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+            }
+
+            game.BakuganDestroyed -= OnUserDefeated;
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Applies different continuous boost amounts to multiple Bakugan, removed when the user Bakugan is defeated.
+    /// </summary>
+    class ContinuousBoostMultipleVariousUntilDefeatedEffect(Bakugan user, Bakugan[] boostTargets, short[] boostAmounts, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        Boost[] currentBoosts;
+        Bakugan[] Targets = boostTargets;
+        short[] BoostAmounts = boostAmounts;
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            currentBoosts = new Boost[Targets.Length];
+            for (int i = 0; i < Targets.Length; i++)
+            {
+                currentBoosts[i] = new Boost(BoostAmounts[i]);
+                Targets[i].ContinuousBoost(currentBoosts[i], this);
+            }
+
+            game.BakuganDestroyed += OnUserDefeated;
+        }
+
+        private void OnUserDefeated(Bakugan defeated, byte owner)
+        {
+            if (defeated == User)
+            {
+                game.ActiveZone.Remove(this);
+
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+
+                game.ThrowEvent(new()
+                {
+                    ["Type"] = "EffectRemovedActiveZone",
+                    ["Id"] = EffectId
+                });
+
+                game.BakuganDestroyed -= OnUserDefeated;
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            if (currentBoosts != null)
+            {
+                for (int i = 0; i < Targets.Length; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+            }
+
+            game.BakuganDestroyed -= OnUserDefeated;
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+        }
+    }
+
+    /// <summary>
+    /// Applies a continuous boost to all Bakugan on the field, removed when the user Bakugan is defeated.
+    /// </summary>
+    class ContinuousBoostAllFieldUntilDefeatedEffect(Bakugan user, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
+    {
+        public int TypeId { get; } = typeId;
+        public int KindId { get; } = kindId;
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        public CardKind Kind { get; } = (CardKind)kindId;
+        public Bakugan User { get; set; } = user;
+        Game game { get => user.Game; }
+        List<Boost> currentBoosts = new();
+        List<Bakugan> Targets = new();
+        bool IsCopy = isCopy;
+        public Player Owner { get; set; } = user.Owner;
+
+        public void Activate()
+        {
+            game.ActiveZone.Add(this);
+
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+
+            foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
+            {
+                var boost = new Boost(boostAmount);
+                target.ContinuousBoost(boost, this);
+                currentBoosts.Add(boost);
+                Targets.Add(target);
+            }
+
+            game.BakuganDestroyed += OnUserDefeated;
+        }
+
+        private void OnUserDefeated(Bakugan defeated, byte owner)
+        {
+            if (defeated == User)
+            {
+                game.ActiveZone.Remove(this);
+
+                for (int i = 0; i < Targets.Count; i++)
+                {
+                    if (currentBoosts[i].Active)
+                    {
+                        currentBoosts[i].Active = false;
+                        Targets[i].RemoveBoost(currentBoosts[i], this);
+                    }
+                }
+
+                game.ThrowEvent(new()
+                {
+                    ["Type"] = "EffectRemovedActiveZone",
+                    ["Id"] = EffectId
+                });
+
+                game.BakuganDestroyed -= OnUserDefeated;
+            }
+        }
+
+        public void Negate(bool asCounter)
+        {
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < Targets.Count; i++)
+            {
+                if (currentBoosts[i].Active)
+                {
+                    currentBoosts[i].Active = false;
+                    Targets[i].RemoveBoost(currentBoosts[i], this);
+                }
+            }
+
+            game.BakuganDestroyed -= OnUserDefeated;
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
         }
     }
 }

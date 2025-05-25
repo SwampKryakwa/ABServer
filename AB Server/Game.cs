@@ -66,12 +66,13 @@ namespace AB_Server
         //Communication with the players
         public dynamic?[] PlayerAnswers;
         public Action[] OnAnswer;
+        public Action[] OnCancel;
 
         //Long-range battles stuff
         public bool LongRangeBattleGoing;
         public Bakugan? Attacker;
         public Bakugan? Target;
-        public Action OnLongRangeBattleOver;
+        public Action? OnLongRangeBattleOver;
 
         //Game flow
         public Action NextStep;
@@ -453,7 +454,7 @@ namespace AB_Server
             if (currentPlayer.HasActivateableAbilities())
             {
                 OnAnswer[player] = () => CheckWindow(startingPlayer, player);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_" + window.ToString().ToUpper() + "WINDOWPROMPT")));
             }
             else
             {
@@ -472,7 +473,7 @@ namespace AB_Server
             if ((bool)PlayerAnswers[player]["array"][0]["answer"])
             {
                 OnAnswer[player] = () => ResolveWindow(Players[player]);
-                NewEvents[player].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
             else
             {
@@ -491,16 +492,6 @@ namespace AB_Server
                 CardChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
-                player.AbilityHand.Remove(AbilityIndex[id]);
-
-                ThrowEvent(new()
-                {
-                    ["Type"] = "AbilityRemovedFromHand",
-                    ["Kind"] = (int)AbilityIndex[id].Kind,
-                    ["CardType"] = AbilityIndex[id].TypeId,
-                    ["CID"] = AbilityIndex[id].CardId,
-                    ["Owner"] = AbilityIndex[id].Owner.Id
-                });
 
                 AbilityIndex[id].Setup(false);
             }
@@ -559,7 +550,7 @@ namespace AB_Server
             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = GateIndex.Any(x=>x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
+                NextStep = GateIndex.Any(x => x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
                 Console.WriteLine("Are there battles to end? " + GateIndex.Any(x => x.OnField && x.BattleOver));
                 if (anyBattlesStarted)
                     SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
@@ -574,7 +565,7 @@ namespace AB_Server
                     if (ActivePlayer == PlayerCount) ActivePlayer = 0;
                 }
 
-                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
                     EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
                 ));
                 OnAnswer[ActivePlayer] = () =>
@@ -587,7 +578,7 @@ namespace AB_Server
             }
         }
 
-        void ThrowMoveStart()
+        public void ThrowMoveStart()
         {
             CurrentWindow = ActivationWindow.Normal;
             ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Target.Owner.Id : ActivePlayer });
@@ -638,6 +629,7 @@ namespace AB_Server
             bool DontThrowTurnStartEvent = false;
             if (moveType != "pass" && moveType != "draw")
                 playersPassed.Clear();
+            Console.WriteLine("Move type: " + moveType);
             switch (moveType)
             {
                 case "throw":
@@ -698,15 +690,6 @@ namespace AB_Server
                         CardChain.Add(AbilityIndex[abilitySelection]);
                         AbilityIndex[abilitySelection].EffectId = NextEffectId++;
                         ActiveZone.Add(AbilityIndex[abilitySelection]);
-                        Players[TurnPlayer].AbilityHand.Remove(AbilityIndex[abilitySelection]);
-                        ThrowEvent(new()
-                        {
-                            ["Type"] = "AbilityRemovedFromHand",
-                            ["Kind"] = (int)AbilityIndex[abilitySelection].Kind,
-                            ["CardType"] = AbilityIndex[abilitySelection].TypeId,
-                            ["CID"] = AbilityIndex[abilitySelection].CardId,
-                            ["Owner"] = AbilityIndex[abilitySelection].Owner.Id
-                        });
 
                         AbilityIndex[abilitySelection].Setup(false);
                     }
@@ -731,6 +714,7 @@ namespace AB_Server
 
                     break;
                 case "pass":
+                    Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
                     if (!isBattleGoing && !LongRangeBattleGoing)
                     {
                         NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
@@ -750,6 +734,7 @@ namespace AB_Server
                     {
                         if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
                     }
+                    Console.WriteLine("All battling players passed: " + allBattlingPlayersPassed);
                     if (allBattlingPlayersPassed)
                     {
                         playersPassed.Clear();
@@ -791,7 +776,7 @@ namespace AB_Server
                     break;
                 case "draw":
                     var toSuggestDraw = Players.First(x => x.Id != ActivePlayer).Id;
-                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
+                    NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
                     OnAnswer[toSuggestDraw] = () =>
                     {
                         bool answer = (bool)PlayerAnswers[toSuggestDraw]["array"][0]["answer"];
@@ -850,7 +835,7 @@ namespace AB_Server
                 }
                 if (ActivePlayer > PlayerCount) ActivePlayer = 0;
 
-                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(
+                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
                     EventBuilder.FieldGateSelection("INFO_OPENENDBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
                 ));
                 OnAnswer[ActivePlayer] = () =>
@@ -881,7 +866,7 @@ namespace AB_Server
         {
             if (Target.Power < Attacker.Power && Target.OnField() && Attacker.OnField())
                 Target.DestroyOnField((Target.Position as GateCard).EnterOrder);
-            OnLongRangeBattleOver();
+            OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;
             ThrowMoveStart();
         }
@@ -963,7 +948,7 @@ namespace AB_Server
         public void SuggestCounter(Player player, IActive card, Player user)
         {
             OnAnswer[player.Id] = () => CheckCounter(player, card, user);
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
+            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
         }
 
         public void CheckCounter(Player player, IActive card, Player user)
@@ -980,7 +965,7 @@ namespace AB_Server
                 player.HadUsedCounter = true;
                 OnAnswer[player.Id] = () => ResolveCounter(player);
 
-                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
         }
 
@@ -992,16 +977,6 @@ namespace AB_Server
                 CardChain.Add(AbilityIndex[id]);
                 AbilityIndex[id].EffectId = NextEffectId++;
                 ActiveZone.Add(AbilityIndex[id]);
-                player.AbilityHand.Remove(AbilityIndex[id]);
-
-                ThrowEvent(new()
-                {
-                    ["Type"] = "AbilityRemovedFromHand",
-                    ["Kind"] = (int)AbilityIndex[id].Kind,
-                    ["CardType"] = AbilityIndex[id].TypeId,
-                    ["CID"] = AbilityIndex[id].CardId,
-                    ["Owner"] = AbilityIndex[id].Owner.Id
-                });
 
                 AbilityIndex[id].Setup(true);
             }
@@ -1030,6 +1005,14 @@ namespace AB_Server
             var chainElement = CardChain[0];
             CardChain.RemoveAt(0);
             chainElement.Resolve();
+        }
+
+        public void StartLongRangeBattle(Bakugan attacker, Bakugan target)
+        {
+            if (LongRangeBattleGoing) return;
+            Attacker = attacker;
+            Target = target;
+            LongRangeBattleGoing = true;
         }
     }
 }

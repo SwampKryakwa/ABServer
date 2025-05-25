@@ -7,15 +7,15 @@ namespace AB_Server.Abilities
     {
         public Marionette(int cID, Player owner) : base(cID, owner, 6, typeof(SlingBlazer))
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = ValidTarget},
-                new GateSelector() { ClientType = "GF", ForPlayer = owner.Id, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x != (TargetSelectors[0] as BakuganSelector).SelectedBakugan.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = ValidTarget},
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x != (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan.Position}
             ];
         }
 
         public override void TriggerEffect() =>
-            new MarionetteEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, (TargetSelectors[1] as GateSelector).SelectedGate, TypeId).Activate();
+            new MarionetteEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, (CondTargetSelectors[1] as GateSelector).SelectedGate, TypeId).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(target => target.Owner != Owner && target.Position is GateCard targetGate && user.Position is GateCard userGate && userGate != targetGate);

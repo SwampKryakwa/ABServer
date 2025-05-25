@@ -6,14 +6,14 @@ namespace AB_Server.Abilities
     {
         public LeapSting(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != User.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != User.Position}
             ];
         }
 
         public override void TriggerEffect() =>
-            new LeapStingEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new LeapStingEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != user.Position);
@@ -36,9 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (target.Power < User.Power)
-                if (target.Position is GateCard positionGate)
-                    target.DestroyOnField(positionGate.EnterOrder);
+            game.StartLongRangeBattle(User, target);
         }
     }
 }

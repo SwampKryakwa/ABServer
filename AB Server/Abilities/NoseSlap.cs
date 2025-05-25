@@ -6,14 +6,14 @@ namespace AB_Server.Abilities
     {
         public NoseSlap(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            TargetSelectors =
+            CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = owner.Id, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && (x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && (x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard)}
             ];
         }
 
         public override void TriggerEffect() =>
-            new NoseSlapEffect(User, (TargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new NoseSlapEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
@@ -36,13 +36,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            // Compare the powers of the user and the target Bakugan
-            if (target.Power < User.Power)
-            {
-                // Destroy the target Bakugan if it is on the field
-                if (target.Position is GateCard positionGate)
-                    target.DestroyOnField(positionGate.EnterOrder);
-            }
+            game.StartLongRangeBattle(User, target);
         }
     }
 }

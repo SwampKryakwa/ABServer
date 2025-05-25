@@ -21,7 +21,7 @@
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
             selectingPlayer = game.TurnPlayer;
-            game.NewEvents[selectingPlayer].Add(EventBuilder.SelectionBundler(
+            game.NewEvents[selectingPlayer].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[selectingPlayer].Bakugans)
             ));
 

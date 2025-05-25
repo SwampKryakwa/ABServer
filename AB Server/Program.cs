@@ -244,8 +244,7 @@ namespace AB_Server
                                         game = GIDToGame[GID];
                                         player = (int)postedJson["playerID"];
 
-                                        if (!game.DoNotMakeStep)
-                                            game.GameStep(postedJson);
+                                        game.GameStep(postedJson);
                                         break;
 
                                     case "leave":

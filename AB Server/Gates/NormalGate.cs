@@ -20,7 +20,7 @@ namespace AB_Server.Gates
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
             ));
 

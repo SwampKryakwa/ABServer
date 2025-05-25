@@ -26,7 +26,7 @@
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
@@ -40,7 +40,7 @@
         {
             target1 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
             ));
 

@@ -6,13 +6,17 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner},
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner}
+            ];
+
+            ResTargetSelectors =
+            [
                 new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_FIREWALL", ForPlayer = (p) => p == Owner, OptionCount = 2, SelectedOption = 1}
             ];
         }
 
         public override void TriggerEffect() =>
-            new FireWallEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy, (CondTargetSelectors[1] as OptionSelector).SelectedOption).Activate();
+            new FireWallEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy, (ResTargetSelectors[0] as OptionSelector).SelectedOption).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);

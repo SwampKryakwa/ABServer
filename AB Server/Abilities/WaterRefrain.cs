@@ -4,8 +4,7 @@ namespace AB_Server.Abilities
 {
     internal class WaterRefrain : AbilityCard
     {
-        public WaterRefrain(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        { }
+        public WaterRefrain(int cID, Player owner, int typeId) : base(cID, owner, typeId) { }
 
         public override void TriggerEffect() =>
                 new WaterRefrainEffect(User, TypeId, IsCopy).Activate();
@@ -51,20 +50,18 @@ namespace AB_Server.Abilities
         //is not negatable after turn ends
         public void CheckEffectOver()
         {
-            if (turnsPassed == 1)
+            if (turnsPassed++ == 1)
             {
                 game.ActiveZone.Remove(this);
                 Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
                 game.TurnEnd -= CheckEffectOver;
 
                 game.ThrowEvent(new()
-            {
-                { "Type", "EffectRemovedActiveZone" },
-                { "Id", EffectId }
-            });
+                {
+                    ["Type"] = "EffectRemovedActiveZone",
+                    ["Id"] = EffectId
+                });
             }
-
-            if (game.TurnPlayer != Owner.Id) turnsPassed++;
         }
 
         public void Negate(bool asCounter)
@@ -75,8 +72,8 @@ namespace AB_Server.Abilities
 
             game.ThrowEvent(new()
             {
-                { "Type", "EffectRemovedActiveZone" },
-                { "Id", EffectId }
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
             });
         }
     }

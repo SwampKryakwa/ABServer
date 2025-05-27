@@ -6,7 +6,7 @@
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Owner == Owner && x.Power == Game.BakuganIndex.Where(x=>x.InGrave()).MinBy(x=>x.Power).Power && x.InGrave()}
+                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Owner == Owner && x.Power == Game.BakuganIndex.Where(x=>x.InGrave()).Min(x=>x.Power) && x.InGrave()}
             ];
         }
 

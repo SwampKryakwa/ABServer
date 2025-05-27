@@ -1,4 +1,7 @@
-﻿namespace AB_Server.Abilities
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
+
+namespace AB_Server.Abilities
 {
     /// <summary>
     /// Represents an effect that applies a boost to a target Bakugan during gameplay.
@@ -129,7 +132,7 @@
     /// <param name="boostAmount">The amount of the continuous boost.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kind">The kind of card or effect.</param>
-    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
     class ContinuousBoostEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
@@ -183,7 +186,7 @@
     /// <param name="boostAmount">The amount of the continuous boost.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kind">The kind of card or effect.</param>
-    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
     class ContinuousBoostUntilDefeatedEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
@@ -267,7 +270,7 @@
     /// <param name="boostAmount">The amount of the continuous boost to apply to each target.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
     class ContinuousBoostMultipleSameEffect(Bakugan user, Bakugan[] boostTargets, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
@@ -332,7 +335,7 @@
     /// <param name="boostAmounts">The array of continuous boost amounts, each corresponding to a target Bakugan.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
     class ContinuousBoostMultipleVariousEffect(Bakugan user, Bakugan[] boostTargets, short[] boostAmounts, int typeId, int kindId, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
@@ -397,7 +400,7 @@
     /// <param name="boostAmount">The amount of continuous boost to apply to each Bakugan on the field.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    /// <param name="isCopy">Whether this effect is a copy (for event purposes).</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
     class ContinuousBoostAllFieldEffect(Bakugan user, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
@@ -696,6 +699,66 @@
                 ["Type"] = "EffectRemovedActiveZone",
                 ["Id"] = EffectId
             });
+        }
+    }
+
+    /// <summary>
+    /// Effect that moves a Bakugan to a specified Gate Card
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect triggers an ability effect and moves the specified Bakugan to the target Gate Card.
+    /// </remarks>
+    /// <param name="user">The Bakugan being moved by the effect.</param>
+    /// <param name="moveTarget">The Gate Card to move the Bakugan to.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="moveEffect">An optional JObject describing the move effect animation.</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
+    class MoveEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeId, int kindId, JObject? moveEffect = null, bool isCopy = false)
+    {
+        int typeId = typeId;
+        int kindId = kindId;
+        Bakugan user = user;
+        Bakugan target = target;
+        Game game { get => user.Game; }
+        GateCard moveTarget = moveTarget;
+        JObject moveEffect = moveEffect ?? new JObject { ["MoveEffect"] = "None" };
+        bool IsCopy = isCopy;
+
+        public void Activate()
+        {
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+            target.Move(moveTarget, moveEffect, MoveSource.Effect);
+        }
+    }
+
+    /// <summary>
+    /// Effect that negates a specified Gate Card
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect triggers an ability effect negates the target Gate Card.
+    /// </remarks>
+    /// <param name="user">The Bakugan being moved by the effect.</param>
+    /// <param name="moveTarget">The Gate Card to move the Bakugan to.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="moveEffect">An optional JObject describing the move effect animation.</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
+    internal class NegateGateEffect(Bakugan user, GateCard target, int typeID, int kindId, bool IsCopy)
+    {
+        int typeId = typeID;
+        int kindId = kindId;
+        Bakugan user = user;
+        GateCard target = target;
+        Game game { get => user.Game; }
+        bool IsCopy = IsCopy;
+
+        public void Activate()
+        {
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+
+            target.IsOpen = true;
+            target.Negate();
         }
     }
 }

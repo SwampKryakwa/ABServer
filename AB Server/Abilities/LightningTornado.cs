@@ -1,66 +1,20 @@
+using AB_Server.Gates;
+
 namespace AB_Server.Abilities
 {
     internal class LightningTornado : AbilityCard
     {
         public LightningTornado(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        { }
-
-        public override void Setup(bool asCounter)
         {
-            this.asCounter = asCounter;
-            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-            Game.OnAnswer[Owner.Id] = Setup2;
-        }
-
-        public void Setup2()
-        {
-            User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
-
-            var validBakugans = User.Position.Bakugans.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
-            if (validBakugans.Count() != 0)
-            {
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                    EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
-                ));
-            }
-            else
-            {
-                Activate();
-            }
-            Game.OnAnswer[Owner.Id] = HandleOpponentBakuganSelection;
-        }
-
-        public void HandleOpponentBakuganSelection()
-        {
-            if ((bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"])
-            {
-                var validBakugans = Game.BakuganIndex.Where(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower);
-
-                Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                    EventBuilder.FieldBakuganSelection("INFO_ABILITY_DECREASETARGET", TypeId, (int)Kind, validBakugans)
-                ));
-
-                Game.OnAnswer[Owner.Id] = Setup3;
-            }
-            else
-            {
-                Activate();
-            }
-        }
-
-        private Bakugan target;
-
-        public void Setup3()
-        {
-            target = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
-            Activate();
+            ResTargetSelectors =
+            [
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" },
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector).IsYes }
+            ];
         }
 
         public override void TriggerEffect() =>
-            new LightningTornadoEffect(User, target, TypeId, IsCopy).Activate();
+            new LightningTornadoEffect(User, (ResTargetSelectors[1] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.IsAttribute(Attribute.Lumina) && user.InBattle;

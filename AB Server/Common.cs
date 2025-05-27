@@ -45,6 +45,12 @@ namespace AB_Server
         public abstract bool HasValidTargets(Game game);
     }
 
+    class YesNoSelector : Selector
+    {
+        public bool IsYes;
+        public override bool HasValidTargets(Game game) { return true; }
+    }
+
     class OptionSelector : Selector
     {
         public int OptionCount;

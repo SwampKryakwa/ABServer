@@ -1,5 +1,6 @@
 ﻿using AB_Server.Abilities.Correlations;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AB_Server.Abilities
 {
@@ -86,6 +87,7 @@ namespace AB_Server.Abilities
         protected bool asCounter;
 
         protected int currentTarget;
+
         protected Selector[] CondTargetSelectors = [];
         protected Selector[] ResTargetSelectors = [];
 
@@ -157,6 +159,12 @@ namespace AB_Server.Abilities
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
                         ));
                 }
+                else if (currentSelector is YesNoSelector yesNoSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
+                        ));
+                }
                 else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
                 {
                     Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
@@ -198,6 +206,8 @@ namespace AB_Server.Abilities
             }
             else if (currentSelector is ActiveSelector activeSelector)
                 activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
+            else if (currentSelector is YesNoSelector yesNoSelector)
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"];
             else if (currentSelector is OptionSelector optionSelector)
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
@@ -282,6 +292,12 @@ namespace AB_Server.Abilities
                         EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                 }
+                else if (currentSelector is YesNoSelector yesNoSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
+                        ));
+                }
                 else if (currentSelector is OptionSelector optionSelector)
                 {
                     Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
@@ -329,6 +345,8 @@ namespace AB_Server.Abilities
             }
             else if (currentSelector is ActiveSelector activeSelector)
                 activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
+            else if (currentSelector is YesNoSelector yesNoSelector)
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"];
             else if (currentSelector is OptionSelector optionSelector)
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)

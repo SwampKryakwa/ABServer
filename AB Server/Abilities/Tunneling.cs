@@ -14,30 +14,12 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-                new TunnelingEffect(User, (CondTargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
+            new MoveEffect(User, User, (CondTargetSelectors[0] as GateSelector).SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Submerge" }).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Subterra) && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(gate => gate.OnField && gate.Position.X == (user.Position as GateCard).Position.X && !gate.IsTouching(user.Position as GateCard));
-    }
-
-    internal class TunnelingEffect(Bakugan user, GateCard moveTarget, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        Bakugan User = user;
-        GateCard moveTarget = moveTarget;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-
-            User.Move(moveTarget, new JObject() { ["MoveEffect"] = "Submerge" });
-        }
     }
 }

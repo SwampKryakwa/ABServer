@@ -211,30 +211,27 @@ namespace AB_Server.Abilities
             target.ContinuousBoost(currentBoost, this);
 
             // Subscribe to the BakuganDestroyed event for this Bakugan
-            game.BakuganDestroyed += OnBakuganDestroyed;
+            User.OnDestroyed += OnUserDestroyed;
         }
 
-        private void OnBakuganDestroyed(Bakugan target, byte owner)
+        private void OnUserDestroyed()
         {
-            if (target == User)
+            game.ActiveZone.Remove(this);
+
+            if (currentBoost.Active)
             {
-                game.ActiveZone.Remove(this);
-
-                if (currentBoost.Active)
-                {
-                    currentBoost.Active = false;
-                    target.RemoveBoost(currentBoost, this);
-                }
-
-                game.ThrowEvent(new()
-                {
-                    ["Type"] = "EffectRemovedActiveZone",
-                    ["Id"] = EffectId
-                });
-
-                // Unsubscribe to avoid memory leaks
-                game.BakuganDestroyed -= OnBakuganDestroyed;
+                currentBoost.Active = false;
+                target.RemoveBoost(currentBoost, this);
             }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+
+            // Unsubscribe to avoid memory leaks
+            User.OnDestroyed -= OnUserDestroyed;
         }
 
         public void Negate(bool asCounter)
@@ -248,7 +245,7 @@ namespace AB_Server.Abilities
             }
 
             // Unsubscribe in case Negate is called directly
-            game.BakuganDestroyed -= OnBakuganDestroyed;
+            User.OnDestroyed -= OnUserDestroyed;
 
             game.ThrowEvent(new()
             {
@@ -481,33 +478,31 @@ namespace AB_Server.Abilities
                 Targets[i].ContinuousBoost(currentBoosts[i], this);
             }
 
-            game.BakuganDestroyed += OnUserDefeated;
+            User.OnDestroyed += OnUserDestroyed;
         }
 
-        private void OnUserDefeated(Bakugan defeated, byte owner)
+        private void OnUserDestroyed()
         {
-            if (defeated == User)
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < Targets.Length; i++)
             {
-                game.ActiveZone.Remove(this);
-
-                for (int i = 0; i < Targets.Length; i++)
+                if (currentBoosts[i].Active)
                 {
-                    if (currentBoosts[i].Active)
-                    {
-                        currentBoosts[i].Active = false;
-                        Targets[i].RemoveBoost(currentBoosts[i], this);
-                    }
+                    currentBoosts[i].Active = false;
+                    Targets[i].RemoveBoost(currentBoosts[i], this);
                 }
-
-                game.ThrowEvent(new()
-                {
-                    ["Type"] = "EffectRemovedActiveZone",
-                    ["Id"] = EffectId
-                });
-
-                game.BakuganDestroyed -= OnUserDefeated;
             }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+
+            User.OnDestroyed -= OnUserDestroyed;
         }
+
 
         public void Negate(bool asCounter)
         {
@@ -525,7 +520,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.BakuganDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDestroyed;
 
             game.ThrowEvent(new()
             {
@@ -566,32 +561,29 @@ namespace AB_Server.Abilities
                 Targets[i].ContinuousBoost(currentBoosts[i], this);
             }
 
-            game.BakuganDestroyed += OnUserDefeated;
+            User.OnDestroyed += OnUserDefeated;
         }
 
-        private void OnUserDefeated(Bakugan defeated, byte owner)
+        private void OnUserDefeated()
         {
-            if (defeated == User)
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < Targets.Length; i++)
             {
-                game.ActiveZone.Remove(this);
-
-                for (int i = 0; i < Targets.Length; i++)
+                if (currentBoosts[i].Active)
                 {
-                    if (currentBoosts[i].Active)
-                    {
-                        currentBoosts[i].Active = false;
-                        Targets[i].RemoveBoost(currentBoosts[i], this);
-                    }
+                    currentBoosts[i].Active = false;
+                    Targets[i].RemoveBoost(currentBoosts[i], this);
                 }
-
-                game.ThrowEvent(new()
-                {
-                    ["Type"] = "EffectRemovedActiveZone",
-                    ["Id"] = EffectId
-                });
-
-                game.BakuganDestroyed -= OnUserDefeated;
             }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+
+            User.OnDestroyed -= OnUserDefeated;
         }
 
         public void Negate(bool asCounter)
@@ -610,7 +602,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.BakuganDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDefeated;
 
             game.ThrowEvent(new()
             {
@@ -651,32 +643,29 @@ namespace AB_Server.Abilities
                 Targets.Add(target);
             }
 
-            game.BakuganDestroyed += OnUserDefeated;
+            User.OnDestroyed += OnUserDefeated;
         }
 
-        private void OnUserDefeated(Bakugan defeated, byte owner)
+        private void OnUserDefeated()
         {
-            if (defeated == User)
+            game.ActiveZone.Remove(this);
+
+            for (int i = 0; i < Targets.Count; i++)
             {
-                game.ActiveZone.Remove(this);
-
-                for (int i = 0; i < Targets.Count; i++)
+                if (currentBoosts[i].Active)
                 {
-                    if (currentBoosts[i].Active)
-                    {
-                        currentBoosts[i].Active = false;
-                        Targets[i].RemoveBoost(currentBoosts[i], this);
-                    }
+                    currentBoosts[i].Active = false;
+                    Targets[i].RemoveBoost(currentBoosts[i], this);
                 }
-
-                game.ThrowEvent(new()
-                {
-                    ["Type"] = "EffectRemovedActiveZone",
-                    ["Id"] = EffectId
-                });
-
-                game.BakuganDestroyed -= OnUserDefeated;
             }
+
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = EffectId
+            });
+
+            User.OnDestroyed -= OnUserDefeated;
         }
 
         public void Negate(bool asCounter)
@@ -692,7 +681,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.BakuganDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDefeated;
 
             game.ThrowEvent(new()
             {

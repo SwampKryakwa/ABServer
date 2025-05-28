@@ -51,6 +51,8 @@ namespace AB_Server
 
     internal class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
     {
+        public delegate void Destroyed();
+
         public Game Game = game;
 
         public int BID = BID;
@@ -63,6 +65,9 @@ namespace AB_Server
         public short BasePower = power;
         public List<Boost> Boosts = [];
         public List<Boost> ContinuousBoosts = [];
+
+        public event Destroyed OnDestroyed;
+
         public int Power
         {
             get => (BasePower + Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value));
@@ -671,6 +676,7 @@ namespace AB_Server
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
 
+                OnDestroyed?.Invoke();
                 Game.OnBakuganDestroyed(this, Owner.Id);
 
                 game.ThrowEvent(new JObject {
@@ -715,6 +721,8 @@ namespace AB_Server
 
                 Boosts.ForEach(x => x.Active = false);
                 Boosts.Clear();
+
+                OnDestroyed?.Invoke();
                 Game.OnBakuganDestroyed(this, Owner.Id);
             }
         }

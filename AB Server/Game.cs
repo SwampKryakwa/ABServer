@@ -600,9 +600,9 @@ namespace AB_Server
             JObject moves = new()
             {
                 { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
-                { "CanOpenGate", Players[player].HasOpenableGates() },
+                { "CanOpenGate", Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0 },
                 { "CanThrowBakugan", !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
-                { "CanActivateAbility", Players[player].HasActivateableAbilities() && (Players[player].AbilityBlockers.Count == 0) },
+                { "CanActivateAbility", Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0 },
                 { "CanEndTurn", Players[player].CanEndTurn() },
                 { "CanEndBattle", Players[player].HasBattlingBakugan() },
 

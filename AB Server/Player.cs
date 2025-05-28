@@ -24,6 +24,7 @@ namespace AB_Server
         public string DisplayName;
         public byte Avatar;
         public List<object> AbilityBlockers = new();
+        public List<object> GateBlockers = new();
 
         public List<Bakugan> Bakugans { get; } = new();
         public List<AbilityCard> AbilityHand = new();

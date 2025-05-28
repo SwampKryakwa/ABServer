@@ -4,7 +4,7 @@
     {
         public override void TriggerEffect()
         {
-            new ContinuousBoostMultipleSameUntilDefeatedEffect(User, Owner.BakuganOwned.Where(b => b != User).ToArray(), 80, TypeId, (int)CardKind.FusionAbility, IsCopy).Activate();
+            new ContinuousBoostMultipleSameUntilDestroyedEffect(User, Owner.BakuganOwned.Where(b => b != User).ToArray(), 80, TypeId, (int)CardKind.FusionAbility, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

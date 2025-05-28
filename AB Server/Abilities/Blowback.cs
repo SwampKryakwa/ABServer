@@ -2,53 +2,12 @@
 
 namespace AB_Server.Abilities
 {
-    internal class Blowback : AbilityCard
+    internal class Blowback(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
-        public Blowback(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        {
-            CondTargetSelectors =
-            [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETRACTTARGET", TargetValidator = target => IsTargetValid(target, User)}
-            ];
-        }
-
         public override void TriggerEffect() =>
-            new BlowbackEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new RetractBakuganEffect(User, User, TypeId, (int)Kind, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.IsAttribute(Attribute.Zephyros) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
-
-        public static bool IsTargetValid(Bakugan target, Bakugan user) =>
-            target.OnField() && target.Owner == user.Owner;
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
-    }
-
-    internal class BlowbackEffect
-    {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
-        Game game { get => User.Game; }
-
-        public Player Onwer { get; set; }
-        bool IsCopy;
-
-        public BlowbackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.target = target;
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-
-            if (target.Position is GateCard positionGate)
-                target.ToHand(positionGate.EnterOrder);
-        }
+            Owner.BakuganOwned.Any(b => b.IsAttribute(Attribute.Zephyros)) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
     }
 }

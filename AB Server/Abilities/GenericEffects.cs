@@ -187,7 +187,7 @@ namespace AB_Server.Abilities
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kind">The kind of card or effect.</param>
     /// <param name="isCopy">Whether this effect is a copy.</param>
-    class ContinuousBoostUntilDefeatedEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
+    class ContinuousBoostUntilDestroyedEffect(Bakugan user, Bakugan target, short boostAmount, int typeId, CardKind kind, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
         public int EffectId { get; set; } = user.Game.NextEffectId++;
@@ -451,7 +451,7 @@ namespace AB_Server.Abilities
     /// <summary>
     /// Applies the same continuous boost to multiple Bakugan, removed when the user Bakugan is defeated.
     /// </summary>
-    class ContinuousBoostMultipleSameUntilDefeatedEffect(Bakugan user, Bakugan[] boostTargets, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
+    class ContinuousBoostMultipleSameUntilDestroyedEffect(Bakugan user, Bakugan[] boostTargets, short boostAmount, int typeId, int kindId, bool isCopy) : IActive
     {
         public int TypeId { get; } = typeId;
         public int KindId { get; } = kindId;
@@ -561,10 +561,10 @@ namespace AB_Server.Abilities
                 Targets[i].ContinuousBoost(currentBoosts[i], this);
             }
 
-            User.OnDestroyed += OnUserDefeated;
+            User.OnDestroyed += OnUserDestroyed;
         }
 
-        private void OnUserDefeated()
+        private void OnUserDestroyed()
         {
             game.ActiveZone.Remove(this);
 
@@ -583,7 +583,7 @@ namespace AB_Server.Abilities
                 ["Id"] = EffectId
             });
 
-            User.OnDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDestroyed;
         }
 
         public void Negate(bool asCounter)
@@ -602,7 +602,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            User.OnDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDestroyed;
 
             game.ThrowEvent(new()
             {
@@ -643,10 +643,10 @@ namespace AB_Server.Abilities
                 Targets.Add(target);
             }
 
-            User.OnDestroyed += OnUserDefeated;
+            User.OnDestroyed += OnUserDestroyed;
         }
 
-        private void OnUserDefeated()
+        private void OnUserDestroyed()
         {
             game.ActiveZone.Remove(this);
 
@@ -665,7 +665,7 @@ namespace AB_Server.Abilities
                 ["Id"] = EffectId
             });
 
-            User.OnDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDestroyed;
         }
 
         public void Negate(bool asCounter)
@@ -681,7 +681,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            User.OnDestroyed -= OnUserDefeated;
+            User.OnDestroyed -= OnUserDestroyed;
 
             game.ThrowEvent(new()
             {
@@ -697,13 +697,14 @@ namespace AB_Server.Abilities
     /// <remarks>
     /// When activated, this effect triggers an ability effect and moves the specified Bakugan to the target Gate Card.
     /// </remarks>
-    /// <param name="user">The Bakugan being moved by the effect.</param>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="target">The Bakugan being moved by the effect.</param>
     /// <param name="moveTarget">The Gate Card to move the Bakugan to.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
     /// <param name="moveEffect">An optional JObject describing the move effect animation.</param>
     /// <param name="isCopy">Whether this effect is a copy.</param>
-    class MoveEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeId, int kindId, JObject? moveEffect = null, bool isCopy = false)
+    class MoveBakuganEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeId, int kindId, JObject? moveEffect = null, bool isCopy = false)
     {
         int typeId = typeId;
         int kindId = kindId;
@@ -722,25 +723,53 @@ namespace AB_Server.Abilities
     }
 
     /// <summary>
+    /// Effect that returns a Bakugan on the field to it's owner's hand
+    /// </summary>
+    /// <remarks>
+    /// When activated, this effect triggers an ability effect and returns a Bakugan on the field to it's owner's hand.
+    /// </remarks>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="target">The Bakugan being retracted by the effect.</param>
+    /// <param name="typeId">The type identifier for the effect.</param>
+    /// <param name="kindId">The kind identifier for the effect.</param>
+    /// <param name="isCopy">Whether this effect is a copy.</param>
+    internal class RetractBakuganEffect(Bakugan user, Bakugan target, int typeId, int kindId, bool isCopy)
+    {
+        int typeId = typeId;
+        int kindId = kindId;
+        Bakugan user = user;
+        Bakugan target = target;
+        Game game { get => user.Game; }
+        bool isCopy = isCopy;
+
+        public void Activate()
+        {
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+
+            if (target.Position is GateCard positionGate)
+                target.ToHand(positionGate.EnterOrder);
+        }
+    }
+
+    /// <summary>
     /// Effect that negates a specified Gate Card
     /// </summary>
     /// <remarks>
     /// When activated, this effect triggers an ability effect negates the target Gate Card.
     /// </remarks>
-    /// <param name="user">The Bakugan being moved by the effect.</param>
-    /// <param name="moveTarget">The Gate Card to move the Bakugan to.</param>
+    /// <param name="user">The Bakugan using the effect.</param>
+    /// <param name="target">The Gate Card being negated.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    /// <param name="moveEffect">An optional JObject describing the move effect animation.</param>
     /// <param name="isCopy">Whether this effect is a copy.</param>
-    internal class NegateGateEffect(Bakugan user, GateCard target, int typeID, int kindId, bool IsCopy)
+    internal class NegateGateEffect(Bakugan user, GateCard target, int typeId, int kindId, bool isCopy)
     {
-        int typeId = typeID;
+        int typeId = typeId;
         int kindId = kindId;
         Bakugan user = user;
         GateCard target = target;
         Game game { get => user.Game; }
-        bool IsCopy = IsCopy;
+        bool isCopy = isCopy;
 
         public void Activate()
         {

@@ -28,29 +28,28 @@ namespace AB_Server.Abilities
             return false;
         }
     }
-    internal class AirBattleEffect
+    internal class AirBattleEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public AirBattleEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.target = target;
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
+        int typeId { get; } = typeID;
+        Bakugan user = user;
+        Bakugan target = target;
+        Game game { get => user.Game; }
+        Player owner;
+        bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, 0, user));
 
-            game.StartLongRangeBattle(User, target);
+            target.Owner.GateBlockers.Add(this);
+            game.OnLongRangeBattleOver = AfterBattleOver;
+            game.StartLongRangeBattle(user, target);
+        }
+
+        public void AfterBattleOver()
+        {
+            if (user.Position is GateCard positionGate)
+                user.ToHand(positionGate.EnterOrder);
         }
     }
 }

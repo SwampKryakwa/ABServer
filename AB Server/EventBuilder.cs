@@ -346,15 +346,23 @@ namespace AB_Server
                 ["Owner"] = card.Owner.Id
             };
 
-        public static JObject AddEffectToActiveZone(IActive active, bool isCopy) =>
-            new() {
-                { "Type", "EffectAddedActiveZone" },
-                { "IsCopy", isCopy },
-                { "Card", active.TypeId },
-                { "Kind", (int)active.Kind },
-                { "Id", active.EffectId },
-                { "User", active.User.BID },
-                { "Owner", active.Owner.Id }
+        public static JObject AddMarkerToActiveZone(IActive active, bool isCopy) =>
+            new()
+            {
+                ["Type"] = "EffectAddedActiveZone",
+                ["IsCopy"] = isCopy,
+                ["Card"] = active.TypeId,
+                ["Kind"] = (int)active.Kind,
+                ["Id"] = active.EffectId,
+                ["User"] = active.User.BID,
+                ["Owner"] = active.Owner.Id
+            };
+
+        public static JObject RemoveMarkerFromActiveZone(IActive active) =>
+            new()
+            {
+                ["Type"] = "EffectRemovedActiveZone",
+                ["Id"] = active.EffectId
             };
 
         public static JObject GateOpen(GateCard card)

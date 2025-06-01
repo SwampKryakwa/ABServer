@@ -37,7 +37,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             game.BakuganAdded += OnBakuganAdded;
             game.BakuganDestroyed += OnBakuganDestroyed;
@@ -51,33 +51,21 @@ namespace AB_Server.Abilities
             }
         }
 
-        public void Negate(bool asCounter)
-        {
-            game.BakuganAdded -= OnBakuganAdded;
-            game.BakuganDestroyed -= OnBakuganDestroyed;
-
-            game.ActiveZone.Remove(this);
-
-            game.ThrowEvent(new()
-            {
-                { "Type", "EffectRemovedActiveZone" },
-                { "Id", EffectId }
-            });
-        }
+        public void Negate(bool asCounter) => StopEffect();
 
         private void OnBakuganDestroyed(Bakugan target, byte owner)
         {
-            if (target != User) return;
+            if (target == User) StopEffect();
+        }
+
+        void StopEffect()
+        {
             game.ActiveZone.Remove(this);
 
             game.BakuganAdded -= OnBakuganAdded;
-            game.BakuganDestroyed -= OnBakuganDestroyed; 
+            game.BakuganDestroyed -= OnBakuganDestroyed;
 
-            game.ThrowEvent(new()
-            {
-                { "Type", "EffectRemovedActiveZone" },
-                { "Id", EffectId }
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 }

@@ -39,42 +39,30 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
             game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.AbilityBlockers.Add(this));
 
             game.TurnEnd += CheckEffectOver;
 
-            User.affectingEffects.Add(this);
+            User.AffectingEffects.Add(this);
         }
 
         //is not negatable after turn ends
         public void CheckEffectOver()
         {
             if (turnsPassed++ == 1)
-            {
-                game.ActiveZone.Remove(this);
-                Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
-                game.TurnEnd -= CheckEffectOver;
-
-                game.ThrowEvent(new()
-                {
-                    ["Type"] = "EffectRemovedActiveZone",
-                    ["Id"] = EffectId
-                });
-            }
+                StopEffect();
         }
 
-        public void Negate(bool asCounter)
+        public void Negate(bool asCounter) => StopEffect();
+
+        void StopEffect()
         {
             game.ActiveZone.Remove(this);
             Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
             game.TurnEnd -= CheckEffectOver;
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 }

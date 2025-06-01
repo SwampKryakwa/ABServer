@@ -59,7 +59,8 @@ namespace AB_Server
         public BakuganType Type = type;
         public bool IsPartner = false;
 
-        public List<object> affectingEffects = [];
+        public List<object> AffectingEffects = [];
+        public List<object> AbilityBlockers = [];
 
         public short DefaultPower { get; } = power;
         public short BasePower = power;

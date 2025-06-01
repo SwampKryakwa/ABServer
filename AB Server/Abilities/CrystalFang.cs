@@ -21,36 +21,10 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new CrystalFangEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new BoostEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, -100, TypeId, (int)Kind).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart;
-    }
-
-    internal class CrystalFangEffect
-    {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public CrystalFangEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.target = target;
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-
-            target.Boost(new Boost(-100), this);
-        }
     }
 }
 

@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != User.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.Position is GateCard enemGate && User.Position is GateCard userGate && enemGate.IsAdjacent(userGate)}
             ];
         }
 
@@ -24,19 +24,19 @@ namespace AB_Server.Abilities
 
     internal class LeapStingEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; } = typeID;
-        public Bakugan User = user;
+        int TypeId { get; } = typeID;
+        Bakugan User = user;
         Bakugan target = target;
         Game game { get => User.Game; }
-
-        public Player Onwer { get; set; }
         bool IsCopy = IsCopy;
 
         public void Activate()
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
+            target.AbilityBlockers.Add(this);
             game.StartLongRangeBattle(User, target);
+            game.OnLongRangeBattleOver = () => target.AbilityBlockers.Remove(this);
         }
     }
 }

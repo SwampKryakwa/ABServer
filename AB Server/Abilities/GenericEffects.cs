@@ -151,7 +151,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(boostAmount);
             target.ContinuousBoost(currentBoost, this);
@@ -167,11 +167,7 @@ namespace AB_Server.Abilities
                 target.RemoveBoost(currentBoost, this);
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -205,12 +201,12 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(boostAmount);
             target.ContinuousBoost(currentBoost, this);
 
-            // Subscribe to the BakuganDestroyed event for this Bakugan
+            
             User.OnDestroyed += OnUserDestroyed;
         }
 
@@ -224,14 +220,9 @@ namespace AB_Server.Abilities
                 target.RemoveBoost(currentBoost, this);
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
-
-            // Unsubscribe to avoid memory leaks
             User.OnDestroyed -= OnUserDestroyed;
+
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
 
         public void Negate(bool asCounter)
@@ -244,14 +235,9 @@ namespace AB_Server.Abilities
                 target.RemoveBoost(currentBoost, this);
             }
 
-            // Unsubscribe in case Negate is called directly
             User.OnDestroyed -= OnUserDestroyed;
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -286,7 +272,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
             for (int i = 0; i < Targets.Length; i++)
@@ -312,11 +298,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -352,7 +334,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
             for (int i = 0; i < Targets.Length; i++)
@@ -378,11 +360,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -416,7 +394,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
             {
@@ -440,11 +418,7 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -469,7 +443,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
             for (int i = 0; i < Targets.Length; i++)
@@ -494,13 +468,9 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
-
             User.OnDestroyed -= OnUserDestroyed;
+
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
 
 
@@ -522,11 +492,7 @@ namespace AB_Server.Abilities
 
             User.OnDestroyed -= OnUserDestroyed;
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -552,7 +518,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
             for (int i = 0; i < Targets.Length; i++)
@@ -577,13 +543,9 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
-
             User.OnDestroyed -= OnUserDestroyed;
+
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
 
         public void Negate(bool asCounter)
@@ -604,11 +566,7 @@ namespace AB_Server.Abilities
 
             User.OnDestroyed -= OnUserDestroyed;
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 
@@ -633,7 +591,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Add(this);
 
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
-            game.ThrowEvent(EventBuilder.AddEffectToActiveZone(this, IsCopy));
+            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
             {
@@ -659,13 +617,9 @@ namespace AB_Server.Abilities
                 }
             }
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
-
             User.OnDestroyed -= OnUserDestroyed;
+
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
 
         public void Negate(bool asCounter)
@@ -683,11 +637,7 @@ namespace AB_Server.Abilities
 
             User.OnDestroyed -= OnUserDestroyed;
 
-            game.ThrowEvent(new()
-            {
-                ["Type"] = "EffectRemovedActiveZone",
-                ["Id"] = EffectId
-            });
+            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
     }
 

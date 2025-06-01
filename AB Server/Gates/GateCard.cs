@@ -203,7 +203,7 @@ namespace AB_Server.Gates
 
         public CardKind Kind { get; } = CardKind.Gate;
 
-        public bool IsTouching(GateCard card)
+        public bool IsAdjacent(GateCard card)
         {
             return AreTouching(this, card);
         }

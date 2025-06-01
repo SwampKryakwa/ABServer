@@ -27,7 +27,7 @@
             foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Subterra)))
             {
                 bakugan.ChangeAttribute(Attribute.Aqua, this);
-                bakugan.affectingEffects.Add(this);
+                bakugan.AffectingEffects.Add(this);
             }
 
             game.BakuganReturned += OnBakuganReturned;
@@ -37,7 +37,7 @@
 
         private void OnBakuganReturned(Bakugan target, byte owner)
         {
-            if (target.affectingEffects.Contains(this))
+            if (target.AffectingEffects.Contains(this))
                 target.ChangeAttribute(target.BaseAttribute, this);
 
             game.ChainStep();

@@ -15,30 +15,11 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new SlingBlazerEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, (CondTargetSelectors[1] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
+            new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, (CondTargetSelectors[1] as GateSelector).SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy);
 
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget)) && Game.GateIndex.Any(x => x.IsAdjacentHorizontally(user.Position as GateCard));
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget)) && Game.GateIndex.Any(x => x.IsAdjacentHorizontally(user.Position as GateCard));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget));
-    }
-    internal class SlingBlazerEffect(Bakugan user, Bakugan target, GateCard moveTarget, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        Bakugan User = user;
-        Bakugan target = target;
-        GateCard moveTarget = moveTarget;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
-
-            target.Move(moveTarget, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID });
-        }
     }
 }

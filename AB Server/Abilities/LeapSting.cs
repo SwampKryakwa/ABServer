@@ -35,8 +35,8 @@ namespace AB_Server.Abilities
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
             target.AbilityBlockers.Add(this);
-            game.StartLongRangeBattle(User, target);
             game.OnLongRangeBattleOver = () => target.AbilityBlockers.Remove(this);
+            game.StartLongRangeBattle(User, target);
         }
     }
 }

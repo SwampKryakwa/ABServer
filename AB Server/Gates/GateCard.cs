@@ -205,22 +205,10 @@ namespace AB_Server.Gates
 
         public bool IsAdjacent(GateCard card)
         {
-            return AreTouching(this, card);
+            return AreAdjacent(this, card);
         }
 
-        public bool IsTouching((int X, int Y) pos)
-        {
-            return AreTouching(Position, pos);
-        }
-
-        public static bool AreTouching((int X, int Y) pos1, (int X, int Y) pos2)
-        {
-            int DX = Math.Abs(pos1.X - pos2.X);
-            int DY = Math.Abs(pos1.Y - pos2.Y);
-            return (DX + DY) == 1;
-        }
-
-        public static bool AreTouching(GateCard card1, GateCard card2)
+        public static bool AreAdjacent(GateCard card1, GateCard card2)
         {
             if (!card1.OnField || !card2.OnField) return false;
             int DX = Math.Abs(card1.Position.X - card2.Position.X);
@@ -238,6 +226,11 @@ namespace AB_Server.Gates
         {
             if (!OnField || !card.OnField) return false;
             return (card.Position.X - Position.X) == 0 && Math.Abs(card.Position.Y - Position.Y) == 1;
+        }
+
+        public bool IsDiagonal(GateCard otherCard)
+        {
+            return Math.Abs(otherCard.Position.X - Position.X) == 1 && Math.Abs(otherCard.Position.Y - Position.Y) == 1;
         }
 
         public virtual void Negate(bool asCounter = false)

@@ -71,7 +71,7 @@ namespace AB_Server
         //Long-range battles stuff
         public bool LongRangeBattleGoing;
         public Bakugan? Attacker;
-        public Bakugan? Target;
+        public Bakugan[]? Targets;
         public Action? OnLongRangeBattleOver;
 
         //Game flow
@@ -581,7 +581,7 @@ namespace AB_Server
         public void ThrowMoveStart()
         {
             CurrentWindow = ActivationWindow.Normal;
-            ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Target.Owner.Id : ActivePlayer });
+            ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Targets.First().Owner.Id : ActivePlayer });
         }
 
         public JObject GetPossibleMoves(int player)
@@ -864,8 +864,9 @@ namespace AB_Server
 
         private void ResolveLongRangeBattle()
         {
-            if (Target.Power < Attacker.Power && Target.OnField() && Attacker.OnField())
-                Target.DestroyOnField((Target.Position as GateCard).EnterOrder);
+            foreach (var target in Targets)
+                if (target.Power < Attacker.Power && target.OnField() && Attacker.OnField())
+                    target.DestroyOnField((target.Position as GateCard).EnterOrder);
             OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;
             ThrowMoveStart();
@@ -1007,11 +1008,11 @@ namespace AB_Server
             chainElement.Resolve();
         }
 
-        public void StartLongRangeBattle(Bakugan attacker, Bakugan target)
+        public void StartLongRangeBattle(Bakugan attacker, params Bakugan[] targets)
         {
             if (LongRangeBattleGoing) return;
             Attacker = attacker;
-            Target = target;
+            Targets = targets;
             LongRangeBattleGoing = true;
         }
     }

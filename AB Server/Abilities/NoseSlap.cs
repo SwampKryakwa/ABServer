@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && (x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && ((x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard) || (x.Position as GateCard).IsDiagonal(User.Position as GateCard))}
             ];
         }
 
@@ -19,24 +19,26 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.OnField && x.IsAdjacentVertically(user.Position as GateCard) && x.Bakugans.Any(user.IsEnemyOf));
+            user.Game.GateIndex.Any(x => x.OnField && (x.IsAdjacentVertically(user.Position as GateCard) || x.IsDiagonal(user.Position as GateCard)) && x.Bakugans.Any(user.IsEnemyOf));
     }
 
     internal class NoseSlapEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
     {
-        public int TypeId { get; } = typeID;
-        public Bakugan User = user;
+        int typeId { get; } = typeID;
+        Bakugan user = user;
         Bakugan target = target;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
+        Game game { get => user.Game; }
         bool IsCopy = IsCopy;
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, 0, user));
 
-            game.StartLongRangeBattle(User, target);
+            game.OnLongRangeBattleOver = () =>
+            {
+                if (target.OnField() && user.Position is GateCard gatePosition) user.DestroyOnField(gatePosition.EnterOrder);
+            };
+            game.StartLongRangeBattle(user, target);
         }
     }
 }

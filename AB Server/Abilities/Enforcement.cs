@@ -4,7 +4,6 @@
     {
         public override void TriggerEffect()
         {
-            // Use the generic ContinuousBoostEffect from GenericEffects.cs
             new ContinuousBoostEffect(User, User, 50, TypeId, CardKind.NormalAbility, IsCopy).Activate();
         }
 

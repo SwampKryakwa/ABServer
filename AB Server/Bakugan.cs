@@ -728,6 +728,9 @@ namespace AB_Server
             }
         }
 
+        /// <summary>
+        /// Shows if the Bakugan is on the field, or, in other words, is standing
+        /// </summary>
         public bool OnField() =>
             Position is GateCard;
 

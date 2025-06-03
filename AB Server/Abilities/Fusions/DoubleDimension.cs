@@ -6,7 +6,7 @@
         {
             CondTargetSelectors =
             [
-                new ActiveSelector() { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x is AbilityCard && x.User.OnField() && x.User.IsEnemyOf(User) }
+                new ActiveSelector() { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x is AbilityCard && x.User.IsEnemyOf(User) }
             ];
         }
 
@@ -40,7 +40,8 @@
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
-            target.Boost(new Boost((short)-target.Power), this);
+            if (target.OnField())
+                target.Boost(new Boost((short)-target.Power), this);
         }
     }
 }

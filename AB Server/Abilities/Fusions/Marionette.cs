@@ -12,17 +12,13 @@ namespace AB_Server.Abilities
             [
                 new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = ValidTarget}
             ];
-
-            ResTargetSelectors =
-            [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x != (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan.Position && (User.Position as GateCard).IsAdjacent(x)}
-            ];
         }
 
         public override void TriggerEffect()
         {
-            if ((ResTargetSelectors[0] as GateSelector).SelectedGate != null)
-                new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, (ResTargetSelectors[0] as GateSelector).SelectedGate, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy).Activate();
+            var target = (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan;
+            if ((target.Position as GateCard).IsAdjacent(User.Position as GateCard))
+                new MoveBakuganEffect(User, target, User.Position as GateCard, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

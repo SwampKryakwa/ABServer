@@ -33,6 +33,12 @@ namespace AB_Server.Abilities.Fusions
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
 
+            game.OnLongRangeBattleOver = () =>
+            {
+                foreach (var target in targets.Where(x => x.OnField()))
+                    target.Boost(new Boost((short)-target.Power), this);
+            };
+            game.StartLongRangeBattle(user, targets);
             foreach (var target in targets)
             {
                 if (target.Power < user.Power)

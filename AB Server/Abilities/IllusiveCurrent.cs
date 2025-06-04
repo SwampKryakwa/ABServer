@@ -8,15 +8,13 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner &&  User.IsAttribute(Attribute.Aqua)
-                ?  x.InHand()
-                :  x.InHand() && x.MainAttribute == Attribute.Aqua}
+                new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InHand() }
             ];
         }
 
         public override void TriggerEffect() => new IllusiveCurrentEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && ((user.IsAttribute(Attribute.Aqua) && Owner.Bakugans.Count != 0) || user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua)));
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua));
 
         public static new bool HasValidTargets(Bakugan user) => user.OnField();
     }
@@ -35,7 +33,7 @@ namespace AB_Server.Abilities
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
 
-            if (User.Position is GateCard positionGate && selectedBakugan.Position is Player)
+            if (User.Position is GateCard positionGate && selectedBakugan.InHand())
             {
                 User.ToHand(positionGate.EnterOrder);
                 selectedBakugan.AddFromHand(positionGate);

@@ -248,7 +248,11 @@ namespace AB_Server.Abilities
 
         protected void SendResTargetForSelection()
         {
-            if (currentTarget == ResTargetSelectors.Length) Resolution();
+            if (currentTarget == ResTargetSelectors.Length)
+            {
+                Resolution();
+                return;
+            }
             while (!ResTargetSelectors[currentTarget].HasValidTargets(Game))
             {
                 currentTarget++;

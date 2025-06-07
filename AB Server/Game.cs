@@ -158,6 +158,7 @@ namespace AB_Server
             NewEvents = new List<JObject>[playerCount];
             PlayerAnswers = new JObject[playerCount];
             OnAnswer = new Action[playerCount];
+            OnCancel = new Action[playerCount];
             for (byte i = 0; i < playerCount; i++)
                 NewEvents[i] = [];
             TeamCount = sideCount;

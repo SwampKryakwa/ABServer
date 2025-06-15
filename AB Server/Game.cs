@@ -442,7 +442,7 @@ namespace AB_Server
                     ["Type"] = "PhaseChange",
                     ["Phase"] = "Main"
                 });
-                CheckForBattles();
+                UpdateBattleStates();
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
         }
@@ -528,6 +528,32 @@ namespace AB_Server
         }
 
         bool anyBattlesStarted;
+        void UpdateBattleStates()
+        {
+            //Starting started battles
+            anyBattlesStarted = false;
+            foreach (var gate in GateIndex.Where(x => x.OnField))
+            {
+                if (gate.BattleStarted || !gate.IsBattleGoing) continue;
+                gate.CheckAutoBattleStart();
+                gate.BattleStarted = true;
+                anyBattlesStarted = true;
+            }
+
+            if (anyBattlesStarted)
+                playersPassed.Clear();
+
+            //Cleaning up over battles
+            playersPassed.Clear();
+            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
+                g.DetermineWinner();
+
+            shouldTurnEnd = true;
+            OpenEndBattleGates();
+
+            NextStep = OpenStartBattleGates;
+        }
+
         void CheckForBattles()
         {
             anyBattlesStarted = false;
@@ -543,7 +569,6 @@ namespace AB_Server
                 playersPassed.Clear();
 
             NextStep = OpenStartBattleGates;
-            OpenStartBattleGates();
         }
 
         void OpenStartBattleGates()
@@ -814,7 +839,7 @@ namespace AB_Server
                 if (LongRangeBattleGoing)
                     ResolveLongRangeBattle();
                 else
-                    CheckForBattles();
+                    UpdateBattleStates();
         }
 
         void OpenEndBattleGates()
@@ -860,7 +885,7 @@ namespace AB_Server
             if (shouldTurnEnd)
                 EndTurn();
             else
-                CheckForBattles();
+                UpdateBattleStates();
         }
 
         private void ResolveLongRangeBattle()
@@ -881,7 +906,7 @@ namespace AB_Server
 
             if (GateIndex.Any(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
             {
-                CheckForBattles();
+                UpdateBattleStates();
                 return;
             }
 

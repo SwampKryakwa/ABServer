@@ -17,7 +17,6 @@
 
         public override void CheckAutoBattleStart()
         {
-            Console.WriteLine("Checking if JW can be open");
             if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
                 game.AutoGatesToOpen.Add(this);
         }
@@ -70,7 +69,7 @@
         {
             Console.WriteLine("Is JW's target not null: " + target is not null);
             if (target is not null)
-                DetermineWinner();
+                BattleDeclaredOver = true;
 
             game.ChainStep();
         }

@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server
 {
@@ -373,11 +374,7 @@ namespace AB_Server
                         ["Type"] = a.TypeId,
                         ["Kind"] = (int)a.Kind
                     })),
-                    ["Gates"] = new JArray(player.GateHand.Select(g => new JObject
-                    {
-                        ["CID"] = g.CardId,
-                        ["Type"] = g.TypeId
-                    }))
+                    ["Gates"] = gates
                 });
                 NewEvents[i].Add(new JObject { ["Type"] = "PickGateEvent", ["Prompt"] = "pick_gate_start", ["Gates"] = gates });
                 ThrowEvent(new JObject { ["Type"] = "PlayerGatesColors", ["Player"] = i, ["Color"] = Players[i].PlayerColor });
@@ -405,6 +402,7 @@ namespace AB_Server
 
         public void StartTurn()
         {
+            shouldTurnEnd = false;
             ActivePlayer = TurnPlayer;
 
             //Reset flags
@@ -442,7 +440,7 @@ namespace AB_Server
                     ["Type"] = "PhaseChange",
                     ["Phase"] = "Main"
                 });
-                CheckForBattles();
+                UpdateBattleStates();
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
         }
@@ -527,9 +525,21 @@ namespace AB_Server
             }
         }
 
-        bool anyBattlesStarted;
-        void CheckForBattles()
+        void CheckAnyBattlesToUpdateState()
         {
+            if (GateIndex.Any(x => x.BattleDeclaredOver) || GateIndex.Any(x => !x.BattleStarted && x.IsBattleGoing))
+                UpdateBattleStates();
+            else if (shouldTurnEnd)
+                EndTurn();
+            else
+                ThrowMoveStart();
+        }
+
+        bool anyBattlesStarted;
+        bool anyBattlesEnded;
+        void UpdateBattleStates()
+        {
+            //Starting started battles
             anyBattlesStarted = false;
             foreach (var gate in GateIndex.Where(x => x.OnField))
             {
@@ -537,26 +547,44 @@ namespace AB_Server
                 gate.CheckAutoBattleStart();
                 gate.BattleStarted = true;
                 anyBattlesStarted = true;
+                playersPassed.Clear();
             }
 
-            if (anyBattlesStarted)
-                playersPassed.Clear();
+            //Cleaning up over battles
+            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
+            {
+                anyBattlesEnded = true;
+                g.DetermineWinner();
+                g.CheckAutoBattleEnd();
+            }
 
-            NextStep = OpenStartBattleGates;
-            OpenStartBattleGates();
+            OpenBattleStateChangeGates();
         }
 
-        void OpenStartBattleGates()
+        void OpenBattleStateChangeGates()
         {
             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = GateIndex.Any(x => x.OnField && x.BattleOver) ? OpenEndBattleGates : ThrowMoveStart;
-                Console.WriteLine("Are there battles to end? " + GateIndex.Any(x => x.OnField && x.BattleOver));
                 if (anyBattlesStarted)
+                {
+                    NextStep = () =>
+                    {
+                        NextStep = EndBattles;
+                        if (anyBattlesEnded)
+                            SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
+                        else
+                            CheckAnyBattlesToUpdateState();
+                    };
                     SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
+                }
+                else if (anyBattlesEnded)
+                {
+                    NextStep = EndBattles;
+                    SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
+                }
                 else
-                    NextStep();
+                    CheckAnyBattlesToUpdateState();
             }
             else
             {
@@ -622,7 +650,6 @@ namespace AB_Server
         bool shouldTurnEnd = false;
         public void GameStep(JObject selection)
         {
-            shouldTurnEnd = false;
             if (LongRangeBattleGoing)
                 NextStep = ResolveLongRangeBattle;
             string moveType = selection["Type"].ToString();
@@ -731,6 +758,7 @@ namespace AB_Server
 
                     var battlingPlayers = Players.Where(x => x.HasBattlingBakugan());
                     var allBattlingPlayersPassed = true;
+                    Console.WriteLine("Players passed count: " + playersPassed.Count);
                     foreach (var player in battlingPlayers)
                     {
                         if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
@@ -740,25 +768,10 @@ namespace AB_Server
                     {
                         playersPassed.Clear();
                         foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
-                            g.DetermineWinner();
-
-                        int loser = -1;
-                        foreach (var p in Players)
-                            if (!p.BakuganOwned.Any(x => !x.Defeated))
-                            {
-                                loser = p.Id;
-                                break;
-                            }
-
-                        if (loser != -1)
-                        {
-                            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", false }, { "Victor", Players.First(x => x.Id != loser).Id } });
-                            Over = true;
-                            break;
-                        }
+                            g.BattleDeclaredOver = true;
 
                         shouldTurnEnd = true;
-                        OpenEndBattleGates();
+                        UpdateBattleStates();
                         return;
                     }
 
@@ -814,7 +827,7 @@ namespace AB_Server
                 if (LongRangeBattleGoing)
                     ResolveLongRangeBattle();
                 else
-                    CheckForBattles();
+                    UpdateBattleStates();
         }
 
         void OpenEndBattleGates()
@@ -857,10 +870,7 @@ namespace AB_Server
                 gate.BattleOver = false;
             }
             BattlesOver?.Invoke();
-            if (shouldTurnEnd)
-                EndTurn();
-            else
-                CheckForBattles();
+            CheckAnyBattlesToUpdateState();
         }
 
         private void ResolveLongRangeBattle()
@@ -881,7 +891,7 @@ namespace AB_Server
 
             if (GateIndex.Any(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
             {
-                CheckForBattles();
+                CheckAnyBattlesToUpdateState();
                 return;
             }
 

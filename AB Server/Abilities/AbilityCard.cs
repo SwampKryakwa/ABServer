@@ -243,6 +243,7 @@ namespace AB_Server.Abilities
 
         public void Resolve()
         {
+            currentTarget = 0;
             SendResTargetForSelection();
         }
 
@@ -257,6 +258,11 @@ namespace AB_Server.Abilities
             {
                 currentTarget++;
                 if (currentTarget == ResTargetSelectors.Length) break;
+            }
+            if (currentTarget == ResTargetSelectors.Length)
+            {
+                Resolution();
+                return;
             }
             if (ResTargetSelectors[currentTarget].Condition())
             {
@@ -337,7 +343,7 @@ namespace AB_Server.Abilities
 
         void AcceptResTarget()
         {
-            var currentSelector = CondTargetSelectors[currentTarget];
+            var currentSelector = ResTargetSelectors[currentTarget];
             if (currentSelector is BakuganSelector bakuganSelector)
                 bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugan"]];
             else if (currentSelector is GateSelector gateSelector)
@@ -364,7 +370,7 @@ namespace AB_Server.Abilities
                 throw new NotImplementedException();
             }
             currentTarget++;
-            SendCondTargetForSelection();
+            SendResTargetForSelection();
         }
 
         protected void Resolution()

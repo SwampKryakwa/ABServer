@@ -45,6 +45,7 @@ namespace AB_Server.Gates
 
         public bool BattleStarted = false;
         public bool IsBattleGoing { get => Freezing.Count == 0 && Bakugans.Select(x => x.Owner.TeamId).Distinct().Count() > 1; }
+        public bool BattleDeclaredOver = false;
         public bool BattleOver = false;
         public bool IsFrozen { get => Freezing.Count != 0; }
         public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
@@ -82,6 +83,7 @@ namespace AB_Server.Gates
         public virtual void DetermineWinner()
         {
             BattleOver = true;
+            BattleDeclaredOver = false;
             BattleStarted = false;
 
             foreach (Bakugan b in Bakugans)

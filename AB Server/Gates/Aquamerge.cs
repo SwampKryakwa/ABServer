@@ -32,15 +32,13 @@
 
             game.BakuganReturned += OnBakuganReturned;
 
-            game.NextStep();
+            game.ChainStep();
         }
 
         private void OnBakuganReturned(Bakugan target, byte owner)
         {
             if (target.AffectingEffects.Contains(this))
                 target.ChangeAttribute(target.BaseAttribute, this);
-
-            game.ChainStep();
         }
     }
 }

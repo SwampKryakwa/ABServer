@@ -50,7 +50,7 @@
             game.ChainStep();
         }
 
-        bool resolved;
+        bool resolved = true;
 
         public override void Dispose()
         {

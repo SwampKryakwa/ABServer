@@ -83,6 +83,7 @@ namespace AB_Server.Gates
         public virtual void DetermineWinner()
         {
             BattleOver = true;
+            BattleDeclaredOver = false;
             BattleStarted = false;
 
             foreach (Bakugan b in Bakugans)

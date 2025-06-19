@@ -488,10 +488,6 @@ namespace AB_Server
             int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
-                CardChain.Add(AbilityIndex[id]);
-                AbilityIndex[id].EffectId = NextEffectId++;
-                ActiveZone.Add(AbilityIndex[id]);
-
                 AbilityIndex[id].Setup(false);
             }
         }
@@ -648,7 +644,7 @@ namespace AB_Server
         }
 
         bool shouldTurnEnd = false;
-        public void GameStep(JObject selection)
+        public void GameStep(JObject selection, int movePlayer)
         {
             if (LongRangeBattleGoing)
                 NextStep = ResolveLongRangeBattle;
@@ -657,6 +653,7 @@ namespace AB_Server
             bool DontThrowTurnStartEvent = false;
             if (moveType != "pass" && moveType != "draw")
                 playersPassed.Clear();
+
             Console.WriteLine("Move type: " + moveType);
             switch (moveType)
             {
@@ -715,12 +712,12 @@ namespace AB_Server
                     {
                         DontThrowTurnStartEvent = true;
                         DoNotMakeStep = true;
-                        CardChain.Add(AbilityIndex[abilitySelection]);
-                        AbilityIndex[abilitySelection].EffectId = NextEffectId++;
-                        ActiveZone.Add(AbilityIndex[abilitySelection]);
-
                         AbilityIndex[abilitySelection].Setup(false);
                     }
+                    break;
+                case "cancel":
+                    OnCancel[movePlayer]();
+
                     break;
                 case "open":
                     GateCard gateToOpen = GateIndex[(int)selection["gate"]];
@@ -812,7 +809,8 @@ namespace AB_Server
                 var startPlayer = ActivePlayer;
                 while (true)
                 {
-                    ActivePlayer++;
+                    if (moveType != "cancel")
+                        ActivePlayer++;
                     if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
                     if (Players[ActivePlayer].HasBattlingBakugan())
                         break;
@@ -986,10 +984,6 @@ namespace AB_Server
             int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
             {
-                CardChain.Add(AbilityIndex[id]);
-                AbilityIndex[id].EffectId = NextEffectId++;
-                ActiveZone.Add(AbilityIndex[id]);
-
                 AbilityIndex[id].Setup(true);
             }
         }

@@ -244,7 +244,7 @@ namespace AB_Server
                                         game = GIDToGame[GID];
                                         player = (int)postedJson["playerID"];
 
-                                        game.GameStep(postedJson);
+                                        game.GameStep(postedJson, player);
                                         break;
 
                                     case "leave":
@@ -290,7 +290,7 @@ namespace AB_Server
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            listener.Prefixes.Add("http://*:8081/");
+            listener.Prefixes.Add("http://*:8080/");
             listener.Start();
 
             // Handle requests

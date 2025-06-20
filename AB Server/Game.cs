@@ -18,10 +18,10 @@ namespace AB_Server
         //Static data
         static readonly (byte X, byte Y)[] FirstCardPositions =
         [
-            (0, 1),
-            (1, 1),
-            (0, 2),
-            (1, 2)
+            (1, 2),
+            (2, 2),
+            (1, 3),
+            (2, 3)
         ];
 
         //Player data
@@ -41,7 +41,7 @@ namespace AB_Server
         public Dictionary<long, List<JObject>> SpectatorEvents = [];
 
         //Game field
-        public GateCard?[,] Field = new GateCard[2, 3];
+        public GateCard?[,] Field = new GateCard[4, 5];
         public List<GateCard> GateSetList = [];
         public List<IActive> ActiveZone = [];
         public List<IChainable> CardChain = [];

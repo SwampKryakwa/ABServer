@@ -25,6 +25,7 @@ namespace AB_Server.Gates
             (x, y) => new Reloaded(x, y),
             (x, y) => new AdditionalTask(x, y),
             (x, y) => new QuicksandFreeze(x, y),
+            (x, y) => new NegativeDelta(x, y),
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)
@@ -196,7 +197,7 @@ namespace AB_Server.Gates
         }
 
         public virtual bool IsOpenable() =>
-            OpenBlocking.Count == 0 && !Negated && OnField && IsBattleGoing && !IsOpen;
+            OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || Bakugans.Any(x => game.Targets.Contains(x))) && !IsOpen;
 
         public virtual int TypeId =>
             throw new NotImplementedException();

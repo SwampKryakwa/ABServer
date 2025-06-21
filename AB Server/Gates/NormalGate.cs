@@ -20,28 +20,27 @@ namespace AB_Server.Gates
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
+
+            game.CheckChain(Owner, this);
+        }
+
+        public void Setup()
+        {
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+
+            if (!Negated && target.Position == this)
+                target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);
+
+            game.ChainStep();
+        }
+
+        public override void Resolve()
+        {
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
             ));
 
             game.OnAnswer[Owner.Id] = Setup;
-        }
-
-        Bakugan target;
-
-        public void Setup()
-        {
-            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
-
-            game.CheckChain(Owner, this);
-        }
-
-        public override void Resolve()
-        {
-            if (!Negated && target.Position == this)
-                target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);
-
-            game.ChainStep();
         }
     }
 }

@@ -115,7 +115,7 @@ namespace AB_Server
                 }
                 else if (combinedAttributes.Distinct().Count() == 1)
                 {
-                    ElementResonance elementResonance = new(Game.AbilityIndex.Count, this);
+                    ElementalFlash elementResonance = new(Game.AbilityIndex.Count, this);
                     Game.AbilityIndex.Add(elementResonance);
                     AbilityHand.Add(elementResonance);
                 }

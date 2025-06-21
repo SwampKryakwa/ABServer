@@ -27,24 +27,23 @@
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, EnterOrder[^1])
-            ));
-
-            game.OnAnswer[Owner.Id] = Setup1;
-        }
-
-        Bakugan target;
-
-        public void Setup1()
-        {
-            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
-
             game.CheckChain(Owner, this);
         }
 
         public override void Resolve()
         {
+
+            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, EnterOrder[^1])
+            ));
+
+            game.OnAnswer[Owner.Id] = Activate;
+        }
+
+        public void Activate()
+        {
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+
             if (!Negated && target.Position == this)
                 target.ToHand(EnterOrder);
 

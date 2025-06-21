@@ -20,7 +20,7 @@ namespace AB_Server.Gates
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner))
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
             game.OnAnswer[Owner.Id] = Setup1;
@@ -35,7 +35,7 @@ namespace AB_Server.Gates
 
 
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.BakuganIndex.Where(x => x.Owner == Owner && x.Position != this && x.OnField()))
+                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.BakuganIndex.Where(x => x.Owner == target1.Owner && x.Position != this && x.OnField()))
             ));
 
             game.OnAnswer[Owner.Id] = Setup2;
@@ -66,6 +66,6 @@ namespace AB_Server.Gates
         }
 
         public override bool IsOpenable() =>
-            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && Bakugans.Count >= 2 && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2 && game.BakuganIndex.Any(x => x.OnField() && x.Position != this);
+            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && base.IsOpenable && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2 && game.BakuganIndex.Any(x => x.OnField() && x.Position != this);
     }
 }

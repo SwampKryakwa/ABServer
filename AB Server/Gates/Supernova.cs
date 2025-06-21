@@ -26,17 +26,21 @@
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
+            game.CheckChain(Owner, this);
+        }
+
+        public override void Resolve()
+        {
             game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
-            game.OnAnswer[Owner.Id] = Setup1;
+            game.OnAnswer[Owner.Id] = Setup;
         }
 
         Bakugan target1;
-        Bakugan target2;
 
-        public void Setup1()
+        public void Setup()
         {
             target1 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
@@ -44,18 +48,13 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
             ));
 
-            game.OnAnswer[Owner.Id] = Setup2;
+            game.OnAnswer[Owner.Id] = Activate;
         }
 
-        public void Setup2()
+        public void Activate()
         {
-            target2 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+            Bakugan target2 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
 
-            game.CheckChain(Owner, this);
-        }
-
-        public override void Resolve()
-        {
             if (!Negated && target1.Position == this && target2.Position == this)
             {
                 var boost = target1.Power - target2.Power;

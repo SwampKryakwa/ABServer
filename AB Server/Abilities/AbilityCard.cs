@@ -55,7 +55,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new AdjacentCorrelation(cID, owner),
             (cID, owner) => new DiagonalCorrelation(cID, owner),
             (cID, owner) => new TripleNode(cID, owner),
-            (cID, owner) => new ElementResonance(cID, owner)
+            (cID, owner) => new ElementalFlash(cID, owner)
         ];
 
         public static AbilityCard CreateCard(Player owner, int cID, int type) =>

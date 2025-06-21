@@ -50,11 +50,11 @@
             game.ChainStep();
         }
 
-        bool resolved = true;
+        bool resolved;
 
         public override void Dispose()
         {
-            if (resolved || !IsOpen || Negated)
+            if (!IsOpen || resolved || Negated)
                 base.Dispose();
             else
             {

@@ -1,6 +1,6 @@
 ﻿namespace AB_Server.Abilities.Correlations
 {
-    internal class ElementResonance(int cID, Player owner) : AbilityCard(cID, owner, 3)
+    internal class ElementalFlash(int cID, Player owner) : AbilityCard(cID, owner, 3)
     {
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
 

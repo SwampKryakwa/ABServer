@@ -23,6 +23,12 @@ namespace AB_Server.Gates
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
+            game.CheckChain(Owner, this);
+        }
+
+        public override void Resolve()
+        {
+
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
@@ -34,17 +40,10 @@ namespace AB_Server.Gates
             game.OnAnswer[Owner.Id] = Setup;
         }
 
-        IActive target;
-
         public void Setup()
         {
-            target = game.ActiveZone.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]["array"][0]["active"]);
+            IActive target = game.ActiveZone.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]["array"][0]["active"]);
 
-            game.CheckChain(Owner, this);
-        }
-
-        public override void Resolve()
-        {
             if (!Negated)
                 target.Negate();
 

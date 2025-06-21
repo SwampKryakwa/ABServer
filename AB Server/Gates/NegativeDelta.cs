@@ -1,8 +1,8 @@
 ﻿namespace AB_Server.Gates
 {
-    internal class JokersWild : GateCard
+    internal class NegativeDelta : GateCard
     {
-        public JokersWild(int cID, Player owner)
+        public NegativeDelta(int cID, Player owner)
         {
             game = owner.Game;
             Owner = owner;
@@ -10,7 +10,7 @@
             CardId = cID;
         }
 
-        public override int TypeId { get; } = 5;
+        public override int TypeId { get; } = 13;
 
         public override bool IsOpenable() =>
             false;
@@ -32,8 +32,12 @@
 
         public override void Resolve()
         {
-            if (Bakugans.Any(x => x.IsAttribute(Attribute.Darkon)))
-                BattleDeclaredOver = true;
+            if (Bakugans.Any(x => x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
+                foreach (var bakugan in Bakugans.Where(x => x.MainAttribute == Attribute.Nova || x.MainAttribute == Attribute.Aqua || x.MainAttribute == Attribute.Lumina))
+                    bakugan.Boost(new Boost(-200), this);
+            else
+                foreach (var bakugan in Bakugans)
+                    bakugan.Boost(new Boost(-200), this);
 
             game.ChainStep();
         }

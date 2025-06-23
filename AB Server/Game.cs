@@ -996,8 +996,6 @@ namespace AB_Server
 
             CardChain.Reverse();
             ChainStep();
-
-            NextStep();
         }
 
         public void ChainStep()

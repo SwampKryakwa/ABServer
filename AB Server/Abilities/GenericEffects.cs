@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
     /// <param name="boostAmmount">The amount of boost to apply.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    class BoostEffect(Bakugan user, Bakugan boostTarget, short boostAmmount, int typeId, int kindId)
+    class BoostEffect(Bakugan? user, Bakugan boostTarget, short boostAmmount, int typeId, int kindId)
     {
 
         public int TypeId = typeId;
@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
         public void Activate()
         {
             game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
-            target.Boost(new Boost(boostAmmount), this);
+            target?.Boost(new Boost(boostAmmount), this);
         }
     }
 

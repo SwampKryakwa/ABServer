@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" },
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" , Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower)},
                 new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector).IsYes }
             ];
         }

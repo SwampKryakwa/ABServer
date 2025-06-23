@@ -197,7 +197,7 @@ namespace AB_Server.Gates
         }
 
         public virtual bool IsOpenable() =>
-            OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || Bakugans.Any(x => game.Targets.Contains(x))) && !IsOpen;
+            OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || (game.Targets is not null && Bakugans.Any(x => game.Targets.Contains(x)))) && !IsOpen;
 
         public virtual int TypeId =>
             throw new NotImplementedException();

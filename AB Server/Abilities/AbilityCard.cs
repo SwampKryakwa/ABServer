@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new Blowback(cID, owner, 5), Blowback.HasValidTargets),
 
             //Vol. 1 Bakugan abilities
-            ((cID, owner) => new SlingBlazer(cID, owner, 6), Marionette.HasValidTargets),
+            ((cID, owner) => new SlingBlazer(cID, owner, 6), SlingBlazer.HasValidTargets),
             ((cID, owner) => new LeapSting(cID, owner, 7), Blowback.HasValidTargets),
             ((cID, owner) => new MercilessTriumph(cID, owner, 8), MercilessTriumph.HasValidTargets),
 
@@ -47,7 +47,21 @@ namespace AB_Server.Abilities
 
             //Vol. 2 EX bakugan abilities
             ((cID, owner) => new Enforcement(cID, owner, 20), Enforcement.HasValidTargets),
-            ((cID, owner) => new VicariousVictim(cID, owner, 21), VicariousVictim.HasValidTargets)
+            ((cID, owner) => new VicariousVictim(cID, owner, 21), VicariousVictim.HasValidTargets),
+
+            //Vol. 3 attribute abilities
+            ((cID, owner) => new FireTornado(cID, owner, 22), FireTornado.HasValidTargets),
+            ((cID, owner) => new VanguardAdvance(cID, owner, 23), VanguardAdvance.HasValidTargets),
+            ((cID, owner) => new LightningTornado(cID, owner, 24), LightningTornado.HasValidTargets),
+            ((cID, owner) => new BloomOfAgony(cID, owner, 25), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new IllusiveCurrent(cID, owner, 26), IllusiveCurrent.HasValidTargets),
+            ((cID, owner) => new AirBattle(cID, owner, 27), AirBattle.HasValidTargets),
+            ((cID, owner) => new LightningShield(cID, owner, 28), LightningShield.HasValidTargets),
+            ((cID, owner) => new MirrorFlash(cID, owner, 29), MirrorFlash.HasValidTargets),
+            ((cID, owner) => new LightningTornado(cID, owner, 30), LightningTornado.HasValidTargets),
+            ((cID, owner) => new BloomOfAgony(cID, owner, 31), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new BlowAway(cID, owner, 32), BlowAway.HasValidTargets),
+            ((cID, owner) => new JumpOver(cID, owner, 33), JumpOver.HasValidTargets),
         ];
 
         public static Func<int, Player, AbilityCard>[] CorrelationCtrs =

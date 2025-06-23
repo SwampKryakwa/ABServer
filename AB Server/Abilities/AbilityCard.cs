@@ -128,7 +128,7 @@ namespace AB_Server.Abilities
         {
             if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
                 Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
-            if (CondTargetSelectors.Length == currentTarget) Activate();
+            if (CondTargetSelectors.Length <= currentTarget) Activate();
             else if (CondTargetSelectors[currentTarget].Condition())
             {
                 var currentSelector = CondTargetSelectors[currentTarget];
@@ -354,7 +354,7 @@ namespace AB_Server.Abilities
             else
             {
                 currentTarget++;
-                SendCondTargetForSelection();
+                SendResTargetForSelection();
             }
         }
 

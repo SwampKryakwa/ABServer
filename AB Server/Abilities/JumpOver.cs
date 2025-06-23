@@ -26,6 +26,6 @@ namespace AB_Server.Abilities
             user.Position is GateCard positionGate && user.IsAttribute(Attribute.Zephyros) && Game.GateIndex.Any(positionGate.IsAdjacentVertically) && Game.CurrentWindow == ActivationWindow.Normal;
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.IsAdjacentVertically(user.Position as GateCard);
+            user.Game.GateIndex.Any(x => x.IsAdjacentVertically(user.Position as GateCard));
     }
 }

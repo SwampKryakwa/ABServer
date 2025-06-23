@@ -26,6 +26,6 @@ namespace AB_Server.Abilities
             user.Position is GateCard positionGate && user.IsAttribute(Attribute.Nova) && Game.GateIndex.Any(positionGate.IsAdjacent) && Game.CurrentWindow == ActivationWindow.BattleEnd;
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.IsAdjacent(user.Position as GateCard);
+            user.Game.GateIndex.Any(x => x.IsAdjacent(user.Position as GateCard));
     }
 }

@@ -66,6 +66,6 @@ namespace AB_Server.Gates
         }
 
         public override bool IsOpenable() =>
-            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && base.IsOpenable && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2 && game.BakuganIndex.Any(x => x.OnField() && x.Position != this);
+            !IsOpen && Bakugans.Any(x => x.Owner == Owner) && base.IsOpenable() && game.GateIndex.Count(x => x.Bakugans.Any(y => y.Owner == Owner)) >= 2 && game.BakuganIndex.Any(x => x.OnField() && x.Position != this);
     }
 }

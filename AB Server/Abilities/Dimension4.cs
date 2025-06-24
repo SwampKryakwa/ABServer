@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
             new BoostEffect(User, (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, (short)-(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower, TypeId, (int)Kind).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Any(x => x.IsOpponentOf(user));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Type == BakuganType.Lucifer && user.OnField();

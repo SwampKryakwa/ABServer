@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsEnemyOf(User) && target.Position == User.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsOpponentOf(User) && target.Position == User.Position}
             ];
         }
 

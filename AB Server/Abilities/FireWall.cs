@@ -48,7 +48,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
 
             if (selectedOption == 0 && User.IsAttribute(Attribute.Nova))
                 target.Boost(new Boost((short)-target.AdditionalPower), this);

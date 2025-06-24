@@ -391,19 +391,5 @@ namespace AB_Server
                 { "CID", card.CardId }
             };
         }
-
-        public static JObject ActivateAbilityEffect(int abilityType, int abilityKind, Bakugan user) =>
-            new() {
-                { "Type", "AbilityActivateEffect" },
-                { "Kind", abilityKind },
-                { "Card", abilityType },
-                { "UserID", user.BID },
-                { "User", new JObject {
-                    { "Type", (int)user.Type },
-                    { "Attribute", (int)user.MainAttribute },
-                    { "Treatment", (int)user.Treatment },
-                    { "Power", user.Power }
-                }}
-            };
     }
 }

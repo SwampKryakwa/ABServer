@@ -8,7 +8,7 @@ namespace AB_Server.Abilities.Fusions
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsEnemyOf(User)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsOpponentOf(User)}
             ];
         }
 
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities.Fusions
                 new StrikeBackEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
     }
 
     internal class StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
@@ -42,7 +42,7 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
 
             if (user.InGrave())

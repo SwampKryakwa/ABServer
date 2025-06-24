@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
 
             if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganGrave)
             {

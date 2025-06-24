@@ -8,7 +8,7 @@ namespace AB_Server.Abilities.Fusions
         {
             CondTargetSelectors =
             [
-                new MultiBakuganSelector() { ClientType = "MBF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGETS", TargetValidator = x => x.OnField() && !(x.Position as GateCard)!.IsAdjacent(User.Position as GateCard) && x.Position != User.Position && x.IsEnemyOf(User) }
+                new MultiBakuganSelector() { ClientType = "MBF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGETS", TargetValidator = x => x.OnField() && !(x.Position as GateCard)!.IsAdjacent(User.Position as GateCard) && x.Position != User.Position && x.IsOpponentOf(User) }
             ];
         }
 
@@ -16,7 +16,7 @@ namespace AB_Server.Abilities.Fusions
             new TremorsEffect(User, (CondTargetSelectors[0] as MultiBakuganSelector)!.SelectedBakugans, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && !(x.Position as GateCard).IsAdjacent(user.Position as GateCard) && x.Position != user.Position && x.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && !(x.Position as GateCard).IsAdjacent(user.Position as GateCard) && x.Position != user.Position && x.IsOpponentOf(user));
     }
 
     internal class TremorsEffect(Bakugan user, Bakugan[] targets, int typeID, bool IsCopy)
@@ -31,7 +31,7 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             game.OnLongRangeBattleOver = () =>
             {

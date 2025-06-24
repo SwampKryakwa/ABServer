@@ -31,7 +31,7 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             if (target.Position is GateCard targetGate)
                 foreach (var bakugan in targetGate.Bakugans.Where(b => b != target))

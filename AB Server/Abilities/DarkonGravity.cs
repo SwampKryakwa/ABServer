@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
             new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, (User.Position as GateCard)!, TypeId, (int)Kind).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.OnField() && user.Owner.BakuganOwned.All(x => x.OnField()) && user.IsAttribute(Attribute.Darkon);
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.All(x => x.OnField()) && user.IsAttribute(Attribute.Darkon);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganOwned.All(x => x.OnField());

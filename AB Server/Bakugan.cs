@@ -71,14 +71,15 @@ namespace AB_Server
 
         public int Power
         {
-            get => (BasePower + Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value));
+            get => BasePower + Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value);
         }
         public int AdditionalPower
         {
-            get => (Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value));
+            get => Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value);
         }
 
         public Player Owner = owner;
+        public bool Frenzied = false;
 
         public Attribute BaseAttribute = attribute;
         public Attribute MainAttribute = attribute;
@@ -740,7 +741,7 @@ namespace AB_Server
         public bool InGrave() =>
             Position is BakuganGrave;
 
-        public bool IsEnemyOf(Bakugan bakugan) =>
+        public bool IsOpponentOf(Bakugan bakugan) =>
             Owner.TeamId != bakugan.Owner.TeamId;
 
         public bool HasNeighbourEnemies()
@@ -748,13 +749,13 @@ namespace AB_Server
             if (Position is GateCard positionGate)
             {
                 if (!OnField() ||
-                    !Game.BakuganIndex.Any(x => IsEnemyOf(x) && x.OnField())) return false;
+                    !Game.BakuganIndex.Any(x => IsOpponentOf(x) && x.OnField())) return false;
                 (int X, int Y) = positionGate.Position;
 
-                if (Game.GetGateByCoord(X - 1, Y) is GateCard gate1 && gate1.Bakugans.Any(IsEnemyOf)) return true;
-                if (Game.GetGateByCoord(X + 1, Y) is GateCard gate2 && gate2.Bakugans.Any(IsEnemyOf)) return true;
-                if (Game.GetGateByCoord(X, Y - 1) is GateCard gate3 && gate3.Bakugans.Any(IsEnemyOf)) return true;
-                if (Game.GetGateByCoord(X, Y + 1) is GateCard gate4 && gate4.Bakugans.Any(IsEnemyOf)) return true;
+                if (Game.GetGateByCoord(X - 1, Y) is GateCard gate1 && gate1.Bakugans.Any(IsOpponentOf)) return true;
+                if (Game.GetGateByCoord(X + 1, Y) is GateCard gate2 && gate2.Bakugans.Any(IsOpponentOf)) return true;
+                if (Game.GetGateByCoord(X, Y - 1) is GateCard gate3 && gate3.Bakugans.Any(IsOpponentOf)) return true;
+                if (Game.GetGateByCoord(X, Y + 1) is GateCard gate4 && gate4.Bakugans.Any(IsOpponentOf)) return true;
             }
             return false;
         }

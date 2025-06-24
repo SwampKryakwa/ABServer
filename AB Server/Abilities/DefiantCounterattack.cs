@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.Bakugans.Any(User.IsEnemyOf)}
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.Bakugans.Any(User.IsOpponentOf)}
             ];
         }
 
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
 
             User.FromGrave(battleGate);
         }

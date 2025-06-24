@@ -12,7 +12,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.InBattle && x.IsEnemyOf(User)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.InBattle && x.IsOpponentOf(User)}
             ];
         }
 
@@ -29,9 +29,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsEnemyOf);
+            user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Position.Bakugans.Any(user.IsEnemyOf);
+            user.Position.Bakugans.Any(user.IsOpponentOf);
     }
 }

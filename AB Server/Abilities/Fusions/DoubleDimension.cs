@@ -6,7 +6,7 @@
         {
             CondTargetSelectors =
             [
-                new ActiveSelector() { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x is AbilityCard && x.User.IsEnemyOf(User) }
+                new ActiveSelector() { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x is AbilityCard && x.User.IsOpponentOf(User) }
             ];
         }
 
@@ -14,7 +14,7 @@
             new DoubleDimensionEffect(User, (CondTargetSelectors[0] as ActiveSelector)!.SelectedActive.User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard && x.User.OnField() && x.User.IsEnemyOf(user));
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard && x.User.OnField() && x.User.IsOpponentOf(user));
     }
 
     internal class DoubleDimensionEffect
@@ -38,7 +38,7 @@
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             if (target.OnField())
                 target.Boost(new Boost((short)-target.Power), this);

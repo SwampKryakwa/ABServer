@@ -31,7 +31,7 @@
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             user.Boost(new Boost(50), this);
         }

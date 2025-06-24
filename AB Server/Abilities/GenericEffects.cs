@@ -28,7 +28,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             target?.Boost(new Boost(boostAmmount), this);
         }
     }
@@ -57,7 +56,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach (Bakugan target in targets)
                 target.Boost(new Boost(boostAmmount), this);
         }
@@ -87,7 +85,6 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
             foreach ((Bakugan target, short boostAmmount) in targets.Zip(boostAmmounts, Tuple.Create))
                 target.Boost(new Boost(boostAmmount), this);
         }
@@ -115,7 +112,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, user));
+            
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
                 target.Boost(new Boost(boostAmmount), this);
         }
@@ -150,7 +147,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(boostAmount);
@@ -200,7 +197,6 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoost = new Boost(boostAmount);
@@ -271,7 +267,6 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
@@ -333,7 +328,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
@@ -393,7 +388,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
@@ -442,7 +437,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
@@ -517,7 +512,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];
@@ -590,7 +585,7 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, KindId, User));
+            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             foreach (Bakugan target in game.BakuganIndex.Where(x => x.OnField()))
@@ -667,7 +662,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+            
             target.Move(moveTarget, moveEffect, MoveSource.Effect);
         }
     }
@@ -694,7 +689,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+            
 
             if (target.Position is GateCard positionGate)
                 target.ToHand(positionGate.EnterOrder);
@@ -723,7 +718,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, kindId, user));
+            
 
             target.IsOpen = true;
             target.Negate();

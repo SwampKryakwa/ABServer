@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != user.Position);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsEnemyOf(x));
+            user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsOpponentOf(x));
     }
 
     internal class LeapStingEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
 
             target.AbilityBlockers.Add(this);
             game.OnLongRangeBattleOver = () => target.AbilityBlockers.Remove(this);

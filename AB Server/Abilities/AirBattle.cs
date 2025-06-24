@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
             user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Zephyros)) && Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsEnemyOf(x));
+            user.Game.BakuganIndex.Any(x => x.OnField() && IsAdjacent(x.Position, user.Position) && user.IsOpponentOf(x));
 
         private static bool IsAdjacent(IBakuganContainer pos1, IBakuganContainer pos2)
         {
@@ -39,7 +39,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, 0, user));
+            
 
             target.Owner.GateBlockers.Add(this);
             game.OnLongRangeBattleOver = AfterBattleOver;

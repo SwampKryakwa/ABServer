@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(User.IsEnemyOf)}
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(User.IsOpponentOf)}
             ];
         }
 
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities
             new CutInSaberEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(user.IsEnemyOf));
+            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(user.IsOpponentOf));
     }
 
     internal class CutInSaberEffect
@@ -51,7 +51,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             if (user.InHand())
                 user.AddFromHand(targetGate);

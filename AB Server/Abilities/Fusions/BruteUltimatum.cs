@@ -35,7 +35,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             if (user.Position is GateCard positionGate)
                 target.AddFromHand(positionGate);

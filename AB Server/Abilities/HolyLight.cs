@@ -33,7 +33,7 @@
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
             target.Revive();
         }
     }

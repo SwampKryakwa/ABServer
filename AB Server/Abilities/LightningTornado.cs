@@ -8,8 +8,8 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" , Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower)},
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" , Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x) && x.BasePower > User.BasePower)},
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsOpponentOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
         }
 
@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 0, User));
+            
 
             // Increase the power of the user Bakugan by 100G
             User.Boost(new Boost(100), this);

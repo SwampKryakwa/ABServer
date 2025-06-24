@@ -12,8 +12,8 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsEnemyOf(x)) },
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) },
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsOpponentOf(x), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
         }
 
@@ -29,6 +29,6 @@ namespace AB_Server.Abilities
             user.InBattle && user.IsAttribute(Attribute.Nova);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Position.Bakugans.Any(x => user.IsEnemyOf(x) && x.Power > user.Power);
+            user.Position.Bakugans.Any(x => user.IsOpponentOf(x) && x.Power > user.Power);
     }
 }

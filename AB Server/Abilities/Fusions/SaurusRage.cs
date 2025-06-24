@@ -33,7 +33,7 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             user.Boost(new Boost((short)Math.Abs((user.Power - target.Power) * 2)), this);
         }

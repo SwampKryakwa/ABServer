@@ -42,7 +42,7 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(TypeId, 1, user));
+            
 
             if (target.Position is GateCard positionGate && user.InGrave())
             {

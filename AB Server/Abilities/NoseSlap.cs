@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.OnField && (x.IsAdjacentVertically(user.Position as GateCard) || x.IsDiagonal(user.Position as GateCard)) && x.Bakugans.Any(user.IsEnemyOf));
+            user.Game.GateIndex.Any(x => x.OnField && (x.IsAdjacentVertically(user.Position as GateCard) || x.IsDiagonal(user.Position as GateCard)) && x.Bakugans.Any(user.IsOpponentOf));
     }
 
     internal class NoseSlapEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
@@ -32,7 +32,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            game.ThrowEvent(EventBuilder.ActivateAbilityEffect(typeId, 0, user));
+            
 
             game.OnLongRangeBattleOver = () =>
             {

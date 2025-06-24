@@ -10,7 +10,7 @@
             ];
         }
 
-        public override void TriggerEffect() => new NegateGateEffect(User, (CondTargetSelectors[0] as GateSelector).SelectedGate, TypeId, (int)Kind, IsCopy).Activate();
+        public override void TriggerEffect() => new NegateGateEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 

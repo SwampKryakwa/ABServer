@@ -18,7 +18,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            Bakugan target = (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan;
+            Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
             short difference = (short)(User.Power - target.Power);
             new BoostMultipleVariousEffect(User, [User, target], [(short)-difference, difference], TypeId, (int)Kind).Activate();

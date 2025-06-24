@@ -23,7 +23,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-                new DefiantCounterattackEffect(User, (ResTargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
+                new DefiantCounterattackEffect(User, (ResTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InGrave();

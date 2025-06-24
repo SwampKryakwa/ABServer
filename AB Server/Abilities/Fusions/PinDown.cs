@@ -13,7 +13,7 @@ namespace AB_Server.Abilities.Fusions
         }
 
         public override void TriggerEffect() =>
-            new PinDownEffect(User, (ResTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new PinDownEffect(User, (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();

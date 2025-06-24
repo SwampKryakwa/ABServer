@@ -469,7 +469,7 @@ namespace AB_Server
 
         public void CheckWindow(int startingPlayer, int player)
         {
-            if ((bool)PlayerAnswers[player]["array"][0]["answer"])
+            if ((bool)PlayerAnswers[player]!["array"][0]["answer"])
             {
                 OnAnswer[player] = () => ResolveWindow(Players[player]);
                 NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
@@ -485,7 +485,7 @@ namespace AB_Server
 
         public void ResolveWindow(Player player)
         {
-            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
+            int id = (int)PlayerAnswers[player.Id]!["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
             {
                 AbilityIndex[id].Setup(false);
@@ -595,9 +595,9 @@ namespace AB_Server
                 ));
                 OnAnswer[ActivePlayer] = () =>
                 {
-                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
-                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
-                    GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
+                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+                    GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
                     ActivePlayer++;
                 };
             }
@@ -790,7 +790,7 @@ namespace AB_Server
                     NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
                     OnAnswer[toSuggestDraw] = () =>
                     {
-                        bool answer = (bool)PlayerAnswers[toSuggestDraw]["array"][0]["answer"];
+                        bool answer = (bool)PlayerAnswers[toSuggestDraw]!["array"][0]["answer"];
                         if (answer)
                         {
                             ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", true } });
@@ -852,9 +852,9 @@ namespace AB_Server
                 ));
                 OnAnswer[ActivePlayer] = () =>
                 {
-                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
-                    GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]].Open();
-                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]["array"][0]["gate"]]);
+                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+                    GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
+                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
                     ActivePlayer++;
                 };
             }
@@ -963,7 +963,7 @@ namespace AB_Server
 
         public void CheckCounter(Player player, IActive card, Player user)
         {
-            if (!(bool)PlayerAnswers[player.Id]["array"][0]["answer"])
+            if (!(bool)PlayerAnswers[player.Id]!["array"][0]["answer"])
             {
                 int next = player.Id + 1;
                 if (next == PlayerCount) next = 0;
@@ -981,7 +981,7 @@ namespace AB_Server
 
         public void ResolveCounter(Player player)
         {
-            int id = (int)PlayerAnswers[player.Id]["array"][0]["ability"];
+            int id = (int)PlayerAnswers[player.Id]!["array"][0]["ability"];
             if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
             {
                 AbilityIndex[id].Setup(true);

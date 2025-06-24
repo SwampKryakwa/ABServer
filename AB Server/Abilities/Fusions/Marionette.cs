@@ -16,8 +16,8 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            var target = (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan;
-            if ((target.Position as GateCard).IsAdjacent(User.Position as GateCard))
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if ((target.Position as GateCard)!.IsAdjacent(User.Position as GateCard))
                 new MoveBakuganEffect(User, target, User.Position as GateCard, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy).Activate();
         }
 

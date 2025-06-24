@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new BruteUltimatumEffect(User, (ResTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId).Activate();
+            new BruteUltimatumEffect(User, (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw;

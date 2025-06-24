@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new FireWallEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy, (ResTargetSelectors[0] as OptionSelector).SelectedOption).Activate();
+            new FireWallEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy, (ResTargetSelectors[0] as OptionSelector)!.SelectedOption).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);

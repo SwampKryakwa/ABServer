@@ -42,7 +42,7 @@ namespace AB_Server.Gates
 
         public void Setup()
         {
-            IActive target = game.ActiveZone.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]["array"][0]["active"]);
+            IActive target = game.ActiveZone.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]!["array"][0]["active"]);
 
             if (!Negated)
                 target.Negate();

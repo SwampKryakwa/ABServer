@@ -7,7 +7,7 @@
             CondTargetSelectors =
             [
                 new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner},
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan }
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
             ];
         }
 

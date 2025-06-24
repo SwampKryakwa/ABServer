@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
 
         public override void PickUser()
         {
-            FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["ability"]];
+            FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                 EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
@@ -24,7 +24,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new CutInSaberEffect(User, (CondTargetSelectors[0] as GateSelector).SelectedGate, TypeId, IsCopy).Activate();
+            new CutInSaberEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(user.IsEnemyOf));

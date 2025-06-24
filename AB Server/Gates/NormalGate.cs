@@ -26,7 +26,7 @@ namespace AB_Server.Gates
 
         public void Setup()
         {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);

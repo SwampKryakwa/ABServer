@@ -27,7 +27,7 @@
                 base.DetermineWinner();
         }
 
-        public virtual void Dispose()
+        public override void Dispose()
         {
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {

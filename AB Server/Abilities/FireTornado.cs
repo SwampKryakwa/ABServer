@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
             ResTargetSelectors =
             [
                 new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsEnemyOf(x)) },
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x), Condition = () => (ResTargetSelectors[0] as YesNoSelector).IsYes }
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
         }
 
@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         {
             new BoostEffect(User, User, 100, TypeId, (int)Kind);
 
-            if ((ResTargetSelectors[0] as YesNoSelector).IsYes && ResTargetSelectors[1] is BakuganSelector targetSelector)
+            if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes && ResTargetSelectors[1] is BakuganSelector targetSelector)
                 new BoostEffect(User, targetSelector.SelectedBakugan, -100, TypeId, (int)Kind);
         }
 

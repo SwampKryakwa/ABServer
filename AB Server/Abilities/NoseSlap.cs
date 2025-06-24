@@ -8,12 +8,12 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && ((x.Position as GateCard).IsAdjacentVertically(User.Position as GateCard) || (x.Position as GateCard).IsDiagonal(User.Position as GateCard))}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && ((x.Position as GateCard)!.IsAdjacentVertically(User.Position as GateCard) || (x.Position as GateCard).IsDiagonal(User.Position as GateCard))}
             ];
         }
 
         public override void TriggerEffect() =>
-            new NoseSlapEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new NoseSlapEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);

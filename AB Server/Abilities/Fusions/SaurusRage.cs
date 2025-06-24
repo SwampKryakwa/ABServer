@@ -11,7 +11,7 @@ namespace AB_Server.Abilities.Fusions
         }
 
         public override void TriggerEffect() =>
-            new SaurusRageEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new SaurusRageEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);

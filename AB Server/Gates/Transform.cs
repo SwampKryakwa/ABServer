@@ -35,7 +35,7 @@ namespace AB_Server.Gates
 
         public void Activate()
         {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(Owner.Bakugans.MaxBy(x => x.Power).Power - target.Power)), this);

@@ -120,7 +120,7 @@ namespace AB_Server.Abilities
         protected void RecieveUser()
         {
             currentTarget = 0;
-            User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+            User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
             SendCondTargetForSelection();
         }
 
@@ -210,23 +210,23 @@ namespace AB_Server.Abilities
         {
             var currentSelector = CondTargetSelectors[currentTarget];
             if (currentSelector is BakuganSelector bakuganSelector)
-                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugan"]];
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
             else if (currentSelector is GateSelector gateSelector)
-                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["gate"]];
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
             else if (currentSelector is AbilitySelector abilitySelector)
             {
                 //currently unused
                 throw new NotImplementedException();
             }
             else if (currentSelector is ActiveSelector activeSelector)
-                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
             else if (currentSelector is YesNoSelector yesNoSelector)
-                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"];
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
             else if (currentSelector is OptionSelector optionSelector)
-                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
-                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugans"];
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
                 Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
             }
@@ -362,23 +362,23 @@ namespace AB_Server.Abilities
         {
             var currentSelector = ResTargetSelectors[currentTarget];
             if (currentSelector is BakuganSelector bakuganSelector)
-                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugan"]];
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
             else if (currentSelector is GateSelector gateSelector)
-                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["gate"]];
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
             else if (currentSelector is AbilitySelector abilitySelector)
             {
                 //currently unused
                 throw new NotImplementedException();
             }
             else if (currentSelector is ActiveSelector activeSelector)
-                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["active"]);
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
             else if (currentSelector is YesNoSelector yesNoSelector)
-                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]["array"][0]["answer"];
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
             else if (currentSelector is OptionSelector optionSelector)
-                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]["array"][0]["option"];
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
-                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]["array"][0]["bakugans"];
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
                 Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
             }

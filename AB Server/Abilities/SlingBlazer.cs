@@ -18,7 +18,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan, (ResTargetSelectors[0] as GateSelector).SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy);
+            new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, (ResTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy);
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.InBattle && Game.BakuganIndex.Any(possibleTarget => possibleTarget.InBattle && user.IsEnemyOf(possibleTarget)) && Game.GateIndex.Any(x => x.IsAdjacentHorizontally(user.Position as GateCard));
 

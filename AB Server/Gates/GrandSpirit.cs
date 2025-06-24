@@ -37,7 +37,7 @@
 
         public void Activate()
         {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]["array"][0]["bakugan"]];
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
             if (!Negated && target.Position == this)
                 target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard gate && gate.Owner.TeamId != Owner.TeamId && gate != this))), this);

@@ -9,12 +9,12 @@ namespace AB_Server.Abilities
             ResTargetSelectors =
             [
                 new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET" , Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower)},
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector).IsYes }
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsEnemyOf(x) && x.BasePower > User.BasePower, Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
         }
 
         public override void TriggerEffect() =>
-            new LightningTornadoEffect(User, (ResTargetSelectors[1] as BakuganSelector).SelectedBakugan, TypeId, IsCopy).Activate();
+            new LightningTornadoEffect(User, (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.IsAttribute(Attribute.Lumina) && user.InBattle;

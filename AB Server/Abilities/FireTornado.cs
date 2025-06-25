@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AB_Server.Gates;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) },
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) && User.Position is GateCard positionGate && positionGate.Owner.TeamId != Owner.TeamId },
                 new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DECREASETARGET", TargetValidator = x => x.Position == User.Position && User.IsOpponentOf(x), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
         }

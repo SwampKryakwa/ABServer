@@ -410,15 +410,17 @@ namespace AB_Server.Abilities
         {
             Discard();
             if (Game.ActiveZone.Contains(this))
+            {
                 Game.ActiveZone.Remove(this);
 
-            Game.ThrowEvent(new()
-            {
-                { "Type", "AbilityRemovedActiveZone" },
-                { "Id", EffectId },
-                { "Card", TypeId },
-                { "Owner", Owner.Id }
-            });
+                Game.ThrowEvent(new()
+                {
+                    { "Type", "AbilityRemovedActiveZone" },
+                    { "Id", EffectId },
+                    { "Card", TypeId },
+                    { "Owner", Owner.Id }
+                });
+            }
             Game.ThrowEvent(EventBuilder.SendAbilityToGrave(this));
         }
         public virtual void Discard()

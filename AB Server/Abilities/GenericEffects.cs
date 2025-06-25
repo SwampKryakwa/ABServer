@@ -16,19 +16,11 @@ namespace AB_Server.Abilities
     /// <param name="boostAmmount">The amount of boost to apply.</param>
     /// <param name="typeId">The type identifier for the effect.</param>
     /// <param name="kindId">The kind identifier for the effect.</param>
-    class BoostEffect(Bakugan? user, Bakugan boostTarget, short boostAmmount, int typeId, int kindId)
+    class BoostEffect(Bakugan? user, Bakugan? boostTarget, short boostAmmount)
     {
-
-        public int TypeId = typeId;
-        public int KindId = kindId;
-        Bakugan user = user;
-        Bakugan target = boostTarget;
-        short boostAmmount = boostAmmount;
-        Game game { get => user.Game; }
-
         public void Activate()
         {
-            target?.Boost(new Boost(boostAmmount), this);
+            boostTarget?.Boost(new Boost(boostAmmount), this);
         }
     }
 

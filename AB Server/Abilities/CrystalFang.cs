@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new BoostEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, -100, TypeId, (int)Kind).Activate();
+            new BoostEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, -100).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart;

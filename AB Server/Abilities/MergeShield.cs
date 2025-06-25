@@ -12,12 +12,12 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() }
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsOpponentOf(User) }
             ];
         }
 
         public override void TriggerEffect() =>
-            new BoostEffect(User, User, (short)(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower, TypeId, (int)Kind).Activate();
+            new BoostEffect(User, User, (short)(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x.OnField() && x.IsAttribute(Attribute.Darkon)) && Game.BakuganIndex.Any(x => x.IsOpponentOf(user) && x.OnField());

@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
 
             short difference = (short)(User.Power - target.Power);
             new BoostMultipleVariousEffect(User, [User, target], [(short)-difference, difference], TypeId, (int)Kind).Activate();
-            new BoostEffect(User, User, -100, TypeId, (int)Kind).Activate();
+            new BoostEffect(User, User, -100).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

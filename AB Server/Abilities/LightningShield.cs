@@ -20,11 +20,11 @@ namespace AB_Server.Abilities
         {
             {
                 if (CondTargetSelectors[0] is BakuganSelector targetSelector && User.IsAttribute(Attribute.Lumina))
-                    new BoostEffect(User, targetSelector.SelectedBakugan, -100, TypeId, (int)Kind).Activate();
+                    new BoostEffect(User, targetSelector.SelectedBakugan, -100).Activate();
             }
             {
                 if (CondTargetSelectors[0] is BakuganSelector targetSelector && targetSelector.SelectedBakugan.Power > User.Power)
-                    new BoostEffect(User, targetSelector.SelectedBakugan, -100, TypeId, (int)Kind).Activate();
+                    new BoostEffect(User, targetSelector.SelectedBakugan, -100).Activate();
             }
         }
 

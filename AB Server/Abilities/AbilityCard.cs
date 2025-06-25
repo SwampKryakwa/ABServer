@@ -240,6 +240,7 @@ namespace AB_Server.Abilities
 
         public virtual void Activate()
         {
+            EffectId = Game.NextEffectId++;
             Game.ThrowEvent(new()
             {
                 ["Type"] = "AbilityAddedActiveZone",
@@ -252,7 +253,6 @@ namespace AB_Server.Abilities
                 ["Owner"] = Owner.Id
             });
 
-            EffectId = Game.NextEffectId++;
             Game.ActiveZone.Add(this);
             Game.CardChain.Add(this);
             Game.CheckChain(Owner, this, User);

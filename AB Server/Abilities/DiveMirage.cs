@@ -3,19 +3,28 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace AB_Server.Abilities
 {
-    internal class DiveMirage(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
+    internal class DiveMirage : AbilityCard
     {
+        public DiveMirage(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+        {
+            CondTargetSelectors =
+            [
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x == Game.GateSetList.Last() }
+            ];
+        }
+
         public override void TriggerEffect()
         {
-            new MoveBakuganEffect(User, User, Game.GateSetList.Last(), TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Submerge" }).Activate();    
+            new MoveBakuganEffect(User, User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Submerge" }).Activate();
             if (Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Aqua)))
-                new DiveMirageMarker(User, Game.GateSetList.Last(), Owner, Game, TypeId, Kind, IsCopy).Activate();
+                new DiveMirageMarker(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, Owner, Game, TypeId, Kind, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

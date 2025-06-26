@@ -17,13 +17,17 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, (User.Position as GateCard)!, TypeId, (int)Kind).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            new MoveBakuganEffect(User, target, (User.Position as GateCard)!, TypeId, (int)Kind).Activate();
+            target.TurnFrenzied();
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.All(x => x.OnField()) && user.IsAttribute(Attribute.Darkon);
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x != user && x.OnField()) && user.IsAttribute(Attribute.Darkon);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Owner.BakuganOwned.All(x => x.OnField());
+            user.Owner.BakuganOwned.Any(x => x != user && x.OnField());
     }
 }

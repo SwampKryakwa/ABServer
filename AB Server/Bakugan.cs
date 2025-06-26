@@ -1,6 +1,8 @@
 ﻿
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace AB_Server
 {
@@ -298,6 +300,26 @@ namespace AB_Server
             return oldAttribute;
         }
 
+        public void TurnFrenzied()
+        {
+            if (!OnField()) return;
+            Frenzied = true;
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganFrenzy",
+                ["Owner"] = Owner.Id,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)MainAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["BID"] = BID
+                }
+            });
+        }
+
         public void Move(GateCard destination, JObject MoveEffect, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;
@@ -542,6 +564,7 @@ namespace AB_Server
 
             if (Position is GateCard positionGate)
             {
+                Frenzied = false;
                 if (positionGate.MovingAwayEffectBlocking.Count != 0)
                     return;
 
@@ -598,6 +621,7 @@ namespace AB_Server
 
             foreach (var bakugan in removableBakugans)
             {
+                bakugan.Frenzied = false;
                 game.OnBakuganReturned(bakugan, bakugan.Owner.Id);
 
                 var entryOrder = (bakugan.Position as GateCard).EnterOrder;
@@ -645,6 +669,7 @@ namespace AB_Server
             if (IsDummy) return;
             if (Position is GateCard positionGate)
             {
+                Frenzied = false;
                 Defeated = true;
                 Position.Remove(this);
                 Position = Owner.BakuganGrave;

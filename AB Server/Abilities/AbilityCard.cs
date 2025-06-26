@@ -56,7 +56,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new AirBattle(cID, owner, 25), AirBattle.HasValidTargets),
             ((cID, owner) => new LightningTornado(cID, owner, 26), LightningTornado.HasValidTargets),
             ((cID, owner) => new MirrorFlash(cID, owner, 27), MirrorFlash.HasValidTargets),
-            ((cID, owner) => new LightningShield(cID, owner, 28), LightningShield.HasValidTargets),
+            ((cID, owner) => new DarkonGravity(cID, owner, 28), DarkonGravity.HasValidTargets),
             ((cID, owner) => new MergeShield(cID, owner, 29), MergeShield.HasValidTargets),
             ((cID, owner) => new DiveMirage(cID, owner, 30), DiveMirage.HasValidTargets),
             ((cID, owner) => new BloomOfAgony(cID, owner, 31), BloomOfAgony.HasValidTargets),
@@ -91,7 +91,7 @@ namespace AB_Server.Abilities
         public virtual bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
         public bool BakuganIsValid(Bakugan user) =>
-            Owner.AbilityBlockers.Count == 0 && IsActivateableByBakugan(user) && user.Owner == Owner;
+            Owner.AbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
         public virtual bool IsActivateableByBakugan(Bakugan user) =>
             throw new NotImplementedException();
         public virtual bool IsActivateableCounter() => IsActivateable();

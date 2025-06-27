@@ -16,11 +16,8 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect()
-        {
-            if ((short)(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower > 0)
-                new BoostEffect(User, User, (short)(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower).Activate();
-        }
+        public override void TriggerEffect() =>
+            new BoostEffect(User, User, (short)(ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AdditionalPower).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x.OnField() && x.IsAttribute(Attribute.Darkon)) && Game.BakuganIndex.Any(x => x.IsOpponentOf(user) && x.OnField());

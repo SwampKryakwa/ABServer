@@ -54,7 +54,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new VanguardAdvance(cID, owner, 23), VanguardAdvance.HasValidTargets),
             ((cID, owner) => new IllusiveCurrent(cID, owner, 24), IllusiveCurrent.HasValidTargets),
             ((cID, owner) => new AirBattle(cID, owner, 25), AirBattle.HasValidTargets),
-            ((cID, owner) => new LightningTornado(cID, owner, 26), LightningTornado.HasValidTargets),
+            ((cID, owner) => new LightningShield(cID, owner, 26), LightningShield.HasValidTargets),
             ((cID, owner) => new MirrorFlash(cID, owner, 27), MirrorFlash.HasValidTargets),
             ((cID, owner) => new DarkonGravity(cID, owner, 28), DarkonGravity.HasValidTargets),
             ((cID, owner) => new MergeShield(cID, owner, 29), MergeShield.HasValidTargets),

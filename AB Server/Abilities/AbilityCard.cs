@@ -9,8 +9,8 @@ namespace AB_Server.Abilities
         NormalAbility,
         FusionAbility,
         CorrelationAbility,
-        Gate,
-        NormalGate
+        CommandGate,
+        SpecialGate
     }
 
     internal class AbilityCard(int cID, Player owner, int typeId) : IActive, IChainable

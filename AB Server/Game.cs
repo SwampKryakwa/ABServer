@@ -864,8 +864,8 @@ namespace AB_Server
         {
             foreach (var gate in GateIndex.Where(x => x.OnField && x.BattleOver))
             {
-                gate.Dispose();
                 gate.BattleOver = false;
+                gate.Dispose();
             }
             BattlesOver?.Invoke();
             CheckAnyBattlesToUpdateState();

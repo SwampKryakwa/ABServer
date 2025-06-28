@@ -66,14 +66,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject AnyBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject AnyBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "B" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -95,14 +95,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject HandBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject HandBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BH" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -115,14 +115,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject FieldBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject FieldBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BF" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -135,14 +135,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject GraveBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject GraveBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BG" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -155,14 +155,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject AnyMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject AnyMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "MB" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -184,14 +184,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject HandMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject HandMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "MBH" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -204,14 +204,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject FieldMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject FieldMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "MBF" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -224,14 +224,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject GraveMultiBakuganSelection(string prompt, int ability, int abilityKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject GraveMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "MBG" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
                     { "Attribute", (int)x.MainAttribute },
@@ -244,14 +244,14 @@ namespace AB_Server
             };
         }
 
-        public static JObject FieldGateSelection(string prompt, int ability, int abilityKind, params IEnumerable<GateCard> gates)
+        public static JObject FieldGateSelection(string prompt, int ability, int cardKind, params IEnumerable<GateCard> gates)
         {
             return new()
             {
                 { "SelectionType", "GF" },
                 { "Message", prompt },
                 { "Card", ability },
-                { "CardKind", abilityKind },
+                { "CardKind", cardKind },
                 { "SelectionGates", new JArray(gates.Select(x => new JObject {
                     { "Type", x.TypeId },
                     { "PosX", x.Position.X },
@@ -295,6 +295,7 @@ namespace AB_Server
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {
+                    { "Kind", (int)card.Kind },
                     { "Type", RevealInfo ? card.TypeId : -2 }
                 } },
                 { "Owner", card.Owner.Id },
@@ -310,7 +311,8 @@ namespace AB_Server
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {
-                    { "Type", RevealInfo ? card.TypeId : -1 }
+                    { "Kind", (int)card.Kind },
+                    { "Type", RevealInfo ? card.TypeId : -2 }
                 } },
                 { "Owner", card.Owner.Id },
                 { "CID", card.CardId }
@@ -331,6 +333,7 @@ namespace AB_Server
             new()
             {
                 ["Type"] = "GateSentToGrave",
+                ["Kind"] = (int)card.Kind,
                 ["CardType"] = card.TypeId,
                 ["CID"] = card.CardId,
                 ["Owner"] = card.Owner.Id
@@ -373,6 +376,7 @@ namespace AB_Server
                 { "PosX", card.Position.X },
                 { "PosY", card.Position.Y },
                 { "GateData", new JObject {
+                    { "Kind", (int)card.Kind },
                     { "Type", card.TypeId } }
                 },
                 { "Owner", card.Owner.Id },

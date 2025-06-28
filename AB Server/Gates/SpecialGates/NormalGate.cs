@@ -1,4 +1,6 @@
-namespace AB_Server.Gates
+using AB_Server.Abilities;
+
+namespace AB_Server.Gates.SpecialGates
 {
     internal class NormalGate : GateCard
     {
@@ -11,6 +13,7 @@ namespace AB_Server.Gates
         }
 
         public override int TypeId { get; } = -1;
+        public override CardKind Kind { get; } = CardKind.SpecialGate;
 
         public override void Open()
         {

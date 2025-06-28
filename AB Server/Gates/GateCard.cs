@@ -174,11 +174,13 @@ namespace AB_Server.Gates
         {
             game.ThrowEvent(EventBuilder.GateRetracted(this, false), Owner.Id);
             game.NewEvents[Owner.Id].Add(EventBuilder.GateRetracted(this, true));
-            game.ThrowEvent(new JObject {
-                { "Type", "GateAddedToHand" },
-                { "Owner", Owner.Id },
-                { "GateType", TypeId },
-                { "CID", CardId }
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "GateAddedToHand",
+                ["Owner"] = Owner.Id,
+                ["Kind"] = (int)Kind,
+                ["GateType"] = TypeId,
+                ["CID"] = CardId
             });
             OnField = false;
             (byte posX, byte posY) = Position;
@@ -216,7 +218,7 @@ namespace AB_Server.Gates
 
         public int EffectId { get; set; }
 
-        public CardKind Kind { get; } = CardKind.Gate;
+        public virtual CardKind Kind { get; } = CardKind.CommandGate;
 
         public bool IsAdjacent(GateCard card)
         {
@@ -254,6 +256,21 @@ namespace AB_Server.Gates
             IsOpen = false;
 
             game.ThrowEvent(EventBuilder.GateNegated(this));
+        }
+
+        public void TransformFrom(GateCard source)
+        {
+            Bakugans = source.Bakugans;
+            EnterOrder = source.EnterOrder;
+            Freezing = source.Freezing;
+            OnField = source.OnField;
+            Position = source.Position;
+            BattleStarted = source.BattleStarted;
+            BattleDeclaredOver = source.BattleDeclaredOver;
+            BattleOver = source.BattleOver;
+            ThrowBlocking = source.ThrowBlocking;
+            MovingInEffectBlocking = source.MovingInEffectBlocking;
+            MovingAwayEffectBlocking = source.MovingAwayEffectBlocking;
         }
     }
 }

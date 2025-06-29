@@ -26,6 +26,14 @@ namespace AB_Server.Gates
             (x, y) => new AdditionalTask(x, y),
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => new NegativeDelta(x, y),
+
+            //Set 3 Gate Cards
+            (x, y) => new ResonanceCircuit(x, y),
+            (x, y) => new Shockwave(x, y),
+            (x, y) => new DarkInvitation(x, y),
+            (x, y) => new PowerSpike(x, y),
+            (x, y) => new MindGhost(x, y),
+            (x, y) => new Anastasis(x, y),
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)
@@ -80,9 +88,10 @@ namespace AB_Server.Gates
             BattleStarted = false;
         }
 
-
+        protected readonly List<Bakugan> bakugansDefeatedThisBattle = [];
         public virtual void DetermineWinner()
         {
+            bakugansDefeatedThisBattle.Clear();
             BattleOver = true;
             BattleDeclaredOver = false;
             BattleStarted = false;
@@ -121,7 +130,11 @@ namespace AB_Server.Gates
             int winnerPower = teamTotals.Max();
             List<int> sidesToDefeat = [];
             for (int i = 0; i < sides.Count; i++)
-                if (teamTotals[i] < winnerPower) sides[i].ForEach(x => x.DestroyOnField(EnterOrder, MoveSource.Game));
+                if (teamTotals[i] < winnerPower) sides[i].ForEach(x =>
+                {
+                    bakugansDefeatedThisBattle.Add(x);
+                    x.DestroyOnField(EnterOrder, MoveSource.Game);
+                });
 
             List<List<Bakugan>> survivingSides = sides.Where(x => x.Any(y => y.Position == this)).ToList();
             if (survivingSides.Count > 1)
@@ -129,7 +142,11 @@ namespace AB_Server.Gates
                 Bakugan randomFirstBakugan = EnterOrder[0][new Random().Next(EnterOrder[0].Length)];
                 for (int i = 0; i < survivingSides.Count; i++)
                     if (!survivingSides[i].Contains(randomFirstBakugan))
-                        survivingSides[i].ForEach(x => x.DestroyOnField(EnterOrder, MoveSource.Game)); ;
+                        survivingSides[i].ForEach(x =>
+                        {
+                            bakugansDefeatedThisBattle.Add(x);
+                            x.DestroyOnField(EnterOrder, MoveSource.Game);
+                        });
             }
 
             game.BattlesToEnd.Add(this);

@@ -429,6 +429,7 @@ namespace AB_Server.Abilities
             }
             Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
         }
+
         public virtual void Discard()
         {
             if (Owner.AbilityHand.Contains(this))
@@ -439,6 +440,24 @@ namespace AB_Server.Abilities
             Game.ThrowEvent(new()
             {
                 ["Type"] = "AbilityRemovedFromHand",
+                ["CID"] = CardId,
+                ["Owner"] = Owner.Id
+            });
+        }
+
+        public void FromDropToHand()
+        {
+            if (Owner.AbilityDrop.Contains(this))
+            {
+                Owner.AbilityDrop.Remove(this);
+                Owner.AbilityHand.Add(this);
+            }
+
+            Game.ThrowEvent(new()
+            {
+                ["Type"] = "AbilityAddedToHand",
+                ["Kind"] = (int)Kind,
+                ["CardType"] = TypeId,
                 ["CID"] = CardId,
                 ["Owner"] = Owner.Id
             });

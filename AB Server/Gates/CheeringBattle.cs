@@ -25,24 +25,25 @@
 
         public override void Resolve()
         {
+            if (!Negated)
+            {
+                game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+                    EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[Owner.Id].Bakugans)
+                ));
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[Owner.Id].Bakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = Activate;
+                game.OnAnswer[Owner.Id] = Activate;
+            }
+            else
+                game.CheckChain(Owner, this);
         }
 
         public void Activate()
         {
             Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
-            if (!Negated && target.InHand())
-            {
-                target.AddFromHand(this);
-                var newPower = int.Parse(target.Power.ToString().Substring(1));
-                target.Boost(new Boost((short)(newPower - target.Power)), this);
-            }
+            target.AddFromHand(this);
+            var newPower = int.Parse(target.Power.ToString().Substring(1));
+            target.Boost(new Boost((short)(newPower - target.Power)), this);
 
             game.ChainStep();
         }

@@ -1,0 +1,74 @@
+﻿using AB_Server.Abilities;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AB_Server.Gates
+{
+    internal class DarkInvitation : GateCard
+    {
+        public DarkInvitation(int cID, Player owner)
+        {
+            game = owner.Game;
+            Owner = owner;
+
+            CardId = cID;
+        }
+
+        public override int TypeId { get; } = 16;
+
+        public override void Open()
+        {
+            IsOpen = true;
+            game.ActiveZone.Add(this);
+            game.CardChain.Add(this);
+            EffectId = game.NextEffectId++;
+            game.ThrowEvent(EventBuilder.GateOpen(this));
+
+            game.CheckChain(Owner, this);
+        }
+
+        Player targetPlayer;
+        public override void Resolve()
+        {
+            targetPlayer = game.Players.First(x => x.TeamId != Owner.TeamId);
+
+            if (!Negated)
+            {
+                game.NewEvents[targetPlayer.Id].Add(EventBuilder.SelectionBundler(false,
+                    EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
+                ));
+
+                game.OnAnswer[Owner.Id] = Confirm;
+            }
+            else
+                game.CheckChain(Owner, this);
+        }
+
+        public void Confirm()
+        {
+            if ((bool)game.PlayerAnswers[Owner.Id]!["array"][0]["answer"])
+            {
+                game.NewEvents[targetPlayer.Id].Add(EventBuilder.SelectionBundler(false,
+                    EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[targetPlayer.Id].Bakugans)
+                ));
+
+                game.OnAnswer[Owner.Id] = Activate;
+            }
+            else
+                game.ChainStep();
+        }
+
+        public void Activate()
+        {
+            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[targetPlayer.Id]!["array"][0]["bakugan"]];
+
+            target.AddFromHand(this);
+
+            game.ChainStep();
+        }
+    }
+}

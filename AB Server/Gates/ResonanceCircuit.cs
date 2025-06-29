@@ -36,9 +36,8 @@ namespace AB_Server.Gates
 
             game.NewEvents[Owner.Id].Add(new JObject {
                 { "Type", "StartSelection" },
-                { "Count", 1 },
                 { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", TypeId, (int)Kind, game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
+                    EventBuilder.AbilitySelection("INFO_GATE_ABILITYTARGET", game.AbilityIndex.Where(x => x.Owner == Owner && x.Kind == CardKind.CorrelationAbility))
                 } }
             });
 
@@ -47,14 +46,17 @@ namespace AB_Server.Gates
 
         public void Activate()
         {
-            IActive target = game.AbilityIndex.First(x => x.EffectId == (int)game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]);
+            AbilityCard target = game.AbilityIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
             if (!Negated)
-                target.Negate();
+                target.FromDropToHand();
 
             game.ChainStep();
         }
 
-        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable();
+        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable()
+            && Owner.BakuganOwned.DistinctBy(x => x.Type).Count() == Owner.BakuganOwned.Count
+            && Owner.BakuganOwned.DistinctBy(x => x.BaseAttribute).Count() == Owner.BakuganOwned.Count
+            && Owner.BakuganOwned.DistinctBy(x => x.BasePower).Count() == Owner.BakuganOwned.Count;
     }
 }

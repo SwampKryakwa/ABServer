@@ -147,14 +147,26 @@ namespace AB_Server.Gates
 
                 IsOpen = false;
                 OnField = false;
-                Owner.GateGrave.Add(this);
+                Owner.GateDrop.Add(this);
 
                 game.Field[Position.X, Position.Y] = null;
 
                 game.ThrowEvent(EventBuilder.RemoveGate(this));
-                game.ThrowEvent(EventBuilder.SendGateToGrave(this));
+                game.ThrowEvent(EventBuilder.SendGateToDrop(this));
             }
             else game.NextStep();
+        }
+
+        public virtual void ToDrop()
+        {
+            IsOpen = false;
+            OnField = false;
+            Owner.GateDrop.Add(this);
+
+            game.Field[Position.X, Position.Y] = null;
+
+            game.ThrowEvent(EventBuilder.RemoveGate(this));
+            game.ThrowEvent(EventBuilder.SendGateToDrop(this));
         }
 
         public virtual void Set(byte posX, byte posY)
@@ -271,6 +283,18 @@ namespace AB_Server.Gates
             ThrowBlocking = source.ThrowBlocking;
             MovingInEffectBlocking = source.MovingInEffectBlocking;
             MovingAwayEffectBlocking = source.MovingAwayEffectBlocking;
+
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "GateTransformed",
+                ["FromId"] = source.CardId,
+                ["FromPosX"] = source.Position.X,
+                ["FromPosY"] = source.Position.Y,
+                ["ToId"] = CardId,
+                ["ToKind"] = (int)Kind,
+                ["ToType"] = TypeId,
+                ["ToOwner"] = Owner.Id
+            });
         }
     }
 }

@@ -5,13 +5,13 @@ using System.Numerics;
 
 namespace AB_Server
 {
-    internal class BakuganGrave : IBakuganContainer
+    internal class BakuganDrop : IBakuganContainer
     {
         public Player Player;
 
         public List<Bakugan> Bakugans { get; } = new();
 
-        public BakuganGrave(Player player)
+        public BakuganDrop(Player player)
         {
             Player = player;
         }
@@ -30,9 +30,9 @@ namespace AB_Server
         public List<AbilityCard> AbilityHand = new();
         public List<GateCard> GateHand = new();
 
-        public BakuganGrave BakuganGrave;
-        public List<AbilityCard> AbilityGrave = new();
-        public List<GateCard> GateGrave = new();
+        public BakuganDrop BakuganDrop;
+        public List<AbilityCard> AbilityDrop = new();
+        public List<GateCard> GateDrop = new();
 
         public List<Bakugan> BakuganOwned = new();
 
@@ -40,7 +40,7 @@ namespace AB_Server
         public bool HadThrownBakugan = false;
         public bool HadUsedCounter = false;
 
-        public short hp = 3;
+        public bool Defeated { get => BakuganOwned.Any(x => !x.Defeated); }
 
         public Game Game;
 
@@ -52,7 +52,7 @@ namespace AB_Server
             Id = id;
             TeamId = sideID;
             DisplayName = displayName;
-            BakuganGrave = new(this);
+            BakuganDrop = new(this);
         }
 
         public void ProvideDeck(dynamic deck)

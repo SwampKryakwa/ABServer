@@ -16,7 +16,7 @@ namespace AB_Server.Abilities
         {
             this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.OnAnswer[Owner.Id] = RecieveUser;
@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
                 new DefiantCounterattackEffect(User, (ResTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InGrave();
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InDrop();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(gate => gate.BattleOver);
@@ -53,7 +53,7 @@ namespace AB_Server.Abilities
         {
             
 
-            User.FromGrave(battleGate);
+            User.FromDrop(battleGate);
         }
     }
 }

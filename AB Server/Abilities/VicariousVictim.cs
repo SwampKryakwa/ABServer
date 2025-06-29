@@ -8,13 +8,13 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InGrave()}
+                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InDrop()}
             ];
         }
 
         public override void TriggerEffect() => new IllusiveCurrentEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganGrave.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
     }
 
     internal class VicariousVictimEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
@@ -31,9 +31,9 @@ namespace AB_Server.Abilities
         {
             
 
-            if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganGrave)
+            if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganDrop)
             {
-                selectedBakugan.FromGrave(positionGate);
+                selectedBakugan.FromDrop(positionGate);
                 User.DestroyOnField(positionGate.EnterOrder);
             }
         }

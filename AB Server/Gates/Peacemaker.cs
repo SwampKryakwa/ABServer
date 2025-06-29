@@ -37,12 +37,12 @@
 
             IsOpen = false;
             OnField = false;
-            Owner.GateGrave.Add(this);
+            Owner.GateDrop.Add(this);
 
             game.Field[Position.X, Position.Y] = null;
 
             game.ThrowEvent(EventBuilder.RemoveGate(this));
-            game.ThrowEvent(EventBuilder.SendGateToGrave(this));
+            game.ThrowEvent(EventBuilder.SendGateToDrop(this));
         }
     }
 }

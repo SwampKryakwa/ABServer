@@ -17,7 +17,7 @@ namespace AB_Server.Abilities.Fusions
             FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.OnAnswer[Owner.Id] = RecieveUser;
@@ -27,28 +27,20 @@ namespace AB_Server.Abilities.Fusions
                 new RevivalRoarEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.InGrave() && user.Type == BakuganType.Griffon && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
+            Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
     }
 
     internal class RevivalRoarEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)
     {
-        public int TypeId { get; } = typeID;
-        Bakugan user = user;
-        Bakugan target = target;
-        Game game { get => user.Game; }
-
         Player owner { get => user.Owner; }
-        bool IsCopy = isCopy;
 
         public void Activate()
         {
-            
-
-            if (target.Position is GateCard positionGate && user.InGrave())
+            if (target.Position is GateCard positionGate && user.InDrop())
             {
                 target.DestroyOnField(positionGate.EnterOrder);
-                user.FromGrave(positionGate);
-                user.Boost(new Boost((short)(owner.BakuganGrave.Bakugans.Count * 100)), this);
+                user.FromDrop(positionGate);
+                user.Boost(new Boost((short)(owner.BakuganDrop.Bakugans.Count * 100)), this);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿
+﻿    
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
@@ -36,7 +36,11 @@ namespace AB_Server
         Elephant,
         Tigress,
         Garrison,
-        Griffon
+        Griffon,
+        Knight,
+        Worm,
+        Shredder,
+        Fairy
     }
 
     enum MoveSource : byte
@@ -127,7 +131,7 @@ namespace AB_Server
                     { "Power", Power },
                     { "IsPartner", IsPartner },
                     { "InHand", InHand() },
-                    { "InGrave", InGrave() },
+                    { "InGrave", InDrop() },
                     { "BID", BID }
                 } }
             });
@@ -152,7 +156,7 @@ namespace AB_Server
                     { "Power", Power },
                     { "IsPartner", IsPartner },
                     { "InHand", InHand() },
-                    { "InGrave", InGrave() },
+                    { "InGrave", InDrop() },
                     { "BID", BID }
                 } }
             });
@@ -470,7 +474,7 @@ namespace AB_Server
             }
         }
 
-        public void FromGrave(GateCard destination, MoveSource mover = MoveSource.Effect)
+        public void FromDrop(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;
 
@@ -484,7 +488,7 @@ namespace AB_Server
             destination.BattleOver = false;
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
-            Game.OnBakuganPlacedFromGrave(this, Owner.Id, destination);
+            Game.OnBakuganPlacedFromDrop(this, Owner.Id, destination);
 
             game.ThrowEvent(new JObject
                 {
@@ -672,8 +676,8 @@ namespace AB_Server
                 Frenzied = false;
                 Defeated = true;
                 Position.Remove(this);
-                Position = Owner.BakuganGrave;
-                Owner.BakuganGrave.Bakugans.Add(this);
+                Position = Owner.BakuganDrop;
+                Owner.BakuganDrop.Bakugans.Add(this);
 
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
@@ -728,8 +732,8 @@ namespace AB_Server
             {
                 Defeated = true;
                 Position.Remove(this);
-                Position = Owner.BakuganGrave;
-                Owner.BakuganGrave.Bakugans.Add(this);
+                Position = Owner.BakuganDrop;
+                Owner.BakuganDrop.Bakugans.Add(this);
 
                 game.ThrowEvent(new JObject {
                     { "Type", "BakuganRemovedFromHand" },
@@ -763,8 +767,8 @@ namespace AB_Server
         public bool InHand() =>
             Position is Player;
 
-        public bool InGrave() =>
-            Position is BakuganGrave;
+        public bool InDrop() =>
+            Position is BakuganDrop;
 
         public bool IsOpponentOf(Bakugan bakugan) =>
             Owner.TeamId != bakugan.Owner.TeamId;

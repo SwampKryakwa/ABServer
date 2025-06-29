@@ -17,7 +17,7 @@ namespace AB_Server.Abilities.Fusions
             FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                EventBuilder.GraveBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
                 ));
 
             Game.OnAnswer[Owner.Id] = RecieveUser;
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities.Fusions
                 new StrikeBackEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InGrave() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.InDrop() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
     }
 
     internal class StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
@@ -45,9 +45,9 @@ namespace AB_Server.Abilities.Fusions
             
 
 
-            if (user.InGrave())
+            if (user.InDrop())
             {
-                user.FromGrave((target.Position as GateCard));
+                user.FromDrop((target.Position as GateCard));
                 user.Boost(new Boost((short)(target.Power - user.Power + 10)), this);
             }
         }

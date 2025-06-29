@@ -94,7 +94,7 @@ namespace AB_Server
         public delegate void BakuganRevivedEffect(Bakugan target, byte owner);
         public delegate void BakuganThrownEffect(Bakugan target, byte owner, IBakuganContainer pos);
         public delegate void BakuganAddedEffect(Bakugan target, byte owner, IBakuganContainer pos);
-        public delegate void BakuganPlacedFromGraveEffect(Bakugan target, byte owner, IBakuganContainer pos);
+        public delegate void BakuganPlacedFromDropEffect(Bakugan target, byte owner, IBakuganContainer pos);
         public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateOpenEffect(GateCard target);
@@ -113,7 +113,7 @@ namespace AB_Server
         public event BakuganRevivedEffect BakuganRevived;
         public event BakuganThrownEffect BakuganThrown;
         public event BakuganAddedEffect BakuganAdded;
-        public event BakuganPlacedFromGraveEffect BakuganPlacedFromGrave;
+        public event BakuganPlacedFromDropEffect BakuganPlacedFromDrop;
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
         public event GateOpenEffect GateOpen;
@@ -135,9 +135,9 @@ namespace AB_Server
             BakuganAdded?.Invoke(target, owner, pos);
             BakuganThrown?.Invoke(target, owner, pos);
         }
-        public void OnBakuganPlacedFromGrave(Bakugan target, byte owner, IBakuganContainer pos)
+        public void OnBakuganPlacedFromDrop(Bakugan target, byte owner, IBakuganContainer pos)
         {
-            BakuganPlacedFromGrave?.Invoke(target, owner, pos);
+            BakuganPlacedFromDrop?.Invoke(target, owner, pos);
             BakuganAdded?.Invoke(target, owner, pos);
         }
         public void OnBakuganReturned(Bakugan target, byte owner) =>
@@ -229,7 +229,7 @@ namespace AB_Server
                     ["Owner"] = x.Owner.Id,
                     ["IsCopy"] = false
                 })),
-                ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InDrop()).Select(x => new JObject
                 {
                     ["BID"] = x.BID,
                     ["Owner"] = x.Owner.Id,
@@ -239,14 +239,14 @@ namespace AB_Server
                     ["IsPartner"] = x.IsPartner,
                     ["Power"] = x.Power
                 })),
-                ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityDrop).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,
                     ["Kind"] = (int)x.Kind,
                     ["CardType"] = x.TypeId
                 })),
-                ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateDrop).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,
@@ -323,7 +323,7 @@ namespace AB_Server
                         ["Owner"] = x.Owner.Id,
                         ["IsCopy"] = false
                     })),
-                    ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InGrave()).Select(x => new JObject
+                    ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InDrop()).Select(x => new JObject
                     {
                         ["BID"] = x.BID,
                         ["Owner"] = x.Owner.Id,
@@ -333,14 +333,14 @@ namespace AB_Server
                         ["IsPartner"] = x.IsPartner,
                         ["Power"] = x.Power
                     })),
-                    ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityGrave).Select(x => new JObject
+                    ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityDrop).Select(x => new JObject
                     {
                         ["CID"] = x.CardId,
                         ["Owner"] = x.Owner.Id,
                         ["Kind"] = (int)x.Kind,
                         ["CardType"] = x.TypeId
                     })),
-                    ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateGrave).Select(x => new JObject
+                    ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateDrop).Select(x => new JObject
                     {
                         ["CID"] = x.CardId,
                         ["Owner"] = x.Owner.Id,
@@ -524,7 +524,16 @@ namespace AB_Server
 
         void CheckAnyBattlesToUpdateState()
         {
-            if (GateIndex.Any(x => x.BattleDeclaredOver) || GateIndex.Any(x => !x.BattleStarted && x.IsBattleGoing))
+            if (Players.Where(x => !x.Defeated).Select(x => x.TeamId).Distinct().Count() == 1)
+            {
+                ThrowEvent(new JObject
+                {
+                    ["Type"] = "GameOver",
+                    ["Victor"] = Players.Where(x => !x.Defeated).First().Id,
+                    ["VictorTeam"] = Players.Where(x => !x.Defeated).First().TeamId
+                });
+            }
+            else if (GateIndex.Any(x => x.BattleDeclaredOver) || GateIndex.Any(x => !x.BattleStarted && x.IsBattleGoing))
                 UpdateBattleStates();
             else if (shouldTurnEnd)
                 EndTurn();

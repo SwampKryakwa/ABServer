@@ -135,7 +135,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject GraveBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject DropBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -224,7 +224,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject GraveMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject DropMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -329,7 +329,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject SendGateToGrave(GateCard card) =>
+        public static JObject SendGateToDrop(GateCard card) =>
             new()
             {
                 ["Type"] = "GateSentToGrave",
@@ -339,7 +339,7 @@ namespace AB_Server
                 ["Owner"] = card.Owner.Id
             };
 
-        public static JObject SendAbilityToGrave(AbilityCard card) =>
+        public static JObject SendAbilityToDrop(AbilityCard card) =>
             new()
             {
                 ["Type"] = "AbilitySentToGrave",

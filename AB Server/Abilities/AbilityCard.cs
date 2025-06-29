@@ -52,16 +52,22 @@ namespace AB_Server.Abilities
             //Vol. 3 attribute abilities
             ((cID, owner) => new FireTornado(cID, owner, 22), FireTornado.HasValidTargets),
             ((cID, owner) => new VanguardAdvance(cID, owner, 23), VanguardAdvance.HasValidTargets),
-            ((cID, owner) => new IllusiveCurrent(cID, owner, 24), IllusiveCurrent.HasValidTargets),
+            ((cID, owner) => new MagmaProminence(cID, owner, 24), MagmaProminence.HasValidTargets),
             ((cID, owner) => new AirBattle(cID, owner, 25), AirBattle.HasValidTargets),
             ((cID, owner) => new LightningShield(cID, owner, 26), LightningShield.HasValidTargets),
             ((cID, owner) => new MirrorFlash(cID, owner, 27), MirrorFlash.HasValidTargets),
             ((cID, owner) => new DarkonGravity(cID, owner, 28), DarkonGravity.HasValidTargets),
             ((cID, owner) => new MergeShield(cID, owner, 29), MergeShield.HasValidTargets),
             ((cID, owner) => new DiveMirage(cID, owner, 30), DiveMirage.HasValidTargets),
-            ((cID, owner) => new BloomOfAgony(cID, owner, 31), BloomOfAgony.HasValidTargets),
+            ((cID, owner) => new EssenceShift(cID, owner, 31), EssenceShift.HasValidTargets),
             ((cID, owner) => new BlowAway(cID, owner, 32), BlowAway.HasValidTargets),
             ((cID, owner) => new JumpOver(cID, owner, 33), JumpOver.HasValidTargets),
+
+            //Vol. 3 Bakugan abilities
+            ((cID, owner) => new CommandConvergence(cID, owner, 34), CommandConvergence.HasValidTargets),
+            ((cID, owner) => new Earthmover(cID, owner, 35), Earthmover.HasValidTargets),
+            ((cID, owner) => new SlashZero(cID, owner, 36), SlashZero.HasValidTargets),
+            ((cID, owner) => new MercilessTriumph(cID, owner, 37), MercilessTriumph.HasValidTargets),
         ];
 
         public static Func<int, Player, AbilityCard>[] CorrelationCtrs =
@@ -140,7 +146,7 @@ namespace AB_Server.Abilities
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BH" => EventBuilder.HandBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BF" => EventBuilder.FieldBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
-                            "BG" => EventBuilder.GraveBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
+                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
                         }
                         ));
                 }
@@ -187,7 +193,7 @@ namespace AB_Server.Abilities
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.GraveMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
                         }
                         ));
                 }
@@ -292,7 +298,7 @@ namespace AB_Server.Abilities
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BH" => EventBuilder.HandBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BF" => EventBuilder.FieldBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
-                            "BG" => EventBuilder.GraveBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
+                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
                         }
                         ));
                 }
@@ -339,7 +345,7 @@ namespace AB_Server.Abilities
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.GraveMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
                         }
                         ));
                 }
@@ -421,14 +427,14 @@ namespace AB_Server.Abilities
                     { "Owner", Owner.Id }
                 });
             }
-            Game.ThrowEvent(EventBuilder.SendAbilityToGrave(this));
+            Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
         }
         public virtual void Discard()
         {
             if (Owner.AbilityHand.Contains(this))
                 Owner.AbilityHand.Remove(this);
             if (!IsCopy)
-                Owner.AbilityGrave.Add(this);
+                Owner.AbilityDrop.Add(this);
 
             Game.ThrowEvent(new()
             {
@@ -451,7 +457,7 @@ namespace AB_Server.Abilities
                 { "Card", TypeId },
                 { "Owner", Owner.Id }
             });
-            Game.ThrowEvent(EventBuilder.SendAbilityToGrave(this));
+            Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
         }
 
         public virtual void TriggerEffect() =>

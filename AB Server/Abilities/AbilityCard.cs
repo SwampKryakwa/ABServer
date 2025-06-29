@@ -67,7 +67,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new CommandConvergence(cID, owner, 34), CommandConvergence.HasValidTargets),
             ((cID, owner) => new Earthmover(cID, owner, 35), Earthmover.HasValidTargets),
             ((cID, owner) => new SlashZero(cID, owner, 36), SlashZero.HasValidTargets),
-            ((cID, owner) => new MercilessTriumph(cID, owner, 37), MercilessTriumph.HasValidTargets),
+            ((cID, owner) => new ScarletWaltz(cID, owner, 37), ScarletWaltz.HasValidTargets),
         ];
 
         public static Func<int, Player, AbilityCard>[] CorrelationCtrs =
@@ -96,7 +96,7 @@ namespace AB_Server.Abilities
 
         public virtual bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
-        public bool BakuganIsValid(Bakugan user) =>
+        public virtual bool BakuganIsValid(Bakugan user) =>
             Owner.AbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
         public virtual bool IsActivateableByBakugan(Bakugan user) =>
             throw new NotImplementedException();

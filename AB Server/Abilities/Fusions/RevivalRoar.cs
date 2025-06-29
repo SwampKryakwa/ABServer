@@ -7,9 +7,9 @@ namespace AB_Server.Abilities.Fusions
         public RevivalRoar(int cID, Player owner) : base(cID, owner, 10, typeof(VicariousVictim))
         {
             CondTargetSelectors =
-                [
-                    new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Owner == Owner}
-                ];
+            [
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Owner == Owner }
+            ];
         }
 
         public override void PickUser()
@@ -27,7 +27,7 @@ namespace AB_Server.Abilities.Fusions
                 new RevivalRoarEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
+            Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
     }
 
     internal class RevivalRoarEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)

@@ -36,7 +36,6 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-            
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             game.BakuganAdded += OnBakuganAdded;

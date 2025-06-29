@@ -15,21 +15,25 @@ namespace AB_Server.Abilities
             (cID, owner) => new Tremors(cID, owner),
             (cID, owner) => new CutInSaber(cID, owner),
             (cID, owner) => new Alliance(cID, owner),
-            (cID, owner) => new RevivalRoar(cID, owner)
+            (cID, owner) => new RevivalRoar(cID, owner),
+            (cID, owner) => new PowerAccord(cID, owner),
+            (cID, owner) => new GrandDevourer(cID, owner),
+            (cID, owner) => new SilentPact(cID, owner),
+            (cID, owner) => new HarmonicGrace(cID, owner)
         ];
+
         public override CardKind Kind { get; } = CardKind.FusionAbility;
-        public Type BaseAbilityType = baseAbilityType;
         public AbilityCard FusedTo;
         bool asCounter;
 
-        public bool BakuganIsValid(Bakugan user) =>
-            user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
+        public override bool BakuganIsValid(Bakugan user) =>
+            Owner.AbilityBlockers.Count == 0 && !user.Frenzied && user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
 
         public override void Setup(bool asCounter)
         {
             this.asCounter = asCounter;
             Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(BaseAbilityType.IsInstanceOfType))
+                EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(baseAbilityType.IsInstanceOfType))
                 ));
             Game.OnAnswer[Owner.Id] = PickUser;
         }
@@ -68,6 +72,6 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateable() =>
-            Owner.BakuganOwned.Any(BakuganIsValid) && Owner.AbilityHand.Any(BaseAbilityType.IsInstanceOfType);
+            Owner.BakuganOwned.Any(BakuganIsValid) && Owner.AbilityHand.Any(baseAbilityType.IsInstanceOfType);
     }
 }

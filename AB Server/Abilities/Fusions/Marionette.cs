@@ -18,7 +18,7 @@ namespace AB_Server.Abilities
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             if ((target.Position as GateCard)!.IsAdjacent(User.Position as GateCard))
-                new MoveBakuganEffect(User, target, User.Position as GateCard, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["EffectSource"] = User.BID }, IsCopy).Activate();
+                new MoveBakuganEffect(User, target, User.Position as GateCard, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID }, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

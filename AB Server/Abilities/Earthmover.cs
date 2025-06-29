@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
         {
             var target = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
 
-            target.Bakugans.ForEach(x => x.ToHand(target.EnterOrder));
+            new List<Bakugan>(target.Bakugans).ForEach(x => x.ToHand(target.EnterOrder));
 
             target.ToDrop();
         }

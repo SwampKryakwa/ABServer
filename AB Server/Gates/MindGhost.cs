@@ -47,7 +47,7 @@ namespace AB_Server.Gates
         public override void Resolve()
         {
             if (!Negated)
-                Bakugans.ForEach(x => x.DestroyOnField(EnterOrder));
+                new List<Bakugan>(Bakugans).ForEach(x => x.DestroyOnField(EnterOrder));
 
             game.ChainStep();
         }

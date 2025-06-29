@@ -103,19 +103,8 @@ namespace AB_Server.Gates
 
             List<List<Bakugan>> sides = [];
 
-            foreach (Bakugan bakugan in Bakugans.Where(x => !x.Frenzied))
-            {
-                if (sides.Any(x => x.Any(y => y.Owner.TeamId == bakugan.Owner.TeamId)))
-                {
-                    List<Bakugan> side = sides.First(x => x.Any(y => y.Owner.TeamId == bakugan.Owner.TeamId)).ToList();
-                    side.Add(bakugan);
-                }
-                else
-                {
-                    List<Bakugan> side = [bakugan];
-                    sides.Add(side);
-                }
-            }
+            for (int i = 0; i < game.TeamCount; i++)
+                sides.Add(Bakugans.Where(x => !x.Frenzied && x.Owner.TeamId == i).ToList());
 
             foreach (Bakugan bakugan in Bakugans.Where(x => x.Frenzied))
                 sides.Add([bakugan]);

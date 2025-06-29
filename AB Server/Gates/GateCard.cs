@@ -197,7 +197,7 @@ namespace AB_Server.Gates
                 ["Type"] = "GateAddedToHand",
                 ["Owner"] = Owner.Id,
                 ["Kind"] = (int)Kind,
-                ["GateType"] = TypeId,
+                ["CardType"] = TypeId,
                 ["CID"] = CardId
             });
             OnField = false;

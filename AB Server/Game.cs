@@ -516,7 +516,7 @@ namespace AB_Server
                 {
                     ["Type"] = "GateAddedToHand",
                     ["Owner"] = player.Id,
-                    ["GateType"] = -1,
+                    ["CardType"] = -1,
                     ["CID"] = gate.CardId
                 });
             }

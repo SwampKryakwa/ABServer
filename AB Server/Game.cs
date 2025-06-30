@@ -547,6 +547,7 @@ namespace AB_Server
         {
             //Starting started battles
             anyBattlesStarted = false;
+            anyBattlesEnded = false;
             foreach (var gate in GateIndex.Where(x => x.OnField))
             {
                 if (gate.BattleStarted || !gate.IsBattleGoing) continue;

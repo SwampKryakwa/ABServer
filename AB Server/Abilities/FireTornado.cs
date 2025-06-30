@@ -30,6 +30,6 @@ namespace AB_Server.Abilities
             user.InBattle && user.IsAttribute(Attribute.Nova);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Position.Bakugans.Any(x => user.IsOpponentOf(x) && x.Power > user.Power);
+            Game.CurrentWindow == ActivationWindow.Normal && user.Position.Bakugans.Any(x => user.IsOpponentOf(x) && x.Power > user.Power);
     }
 }

@@ -1,4 +1,4 @@
-﻿    
+﻿
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations;
@@ -120,20 +120,23 @@ namespace AB_Server
 
             Boosts.Add(boost);
 
-            game.ThrowEvent(new JObject {
-                { "Type", "BakuganBoostedEvent" },
-                { "Owner", Owner.Id },
-                { "Boost", boost.Value },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "InHand", InHand() },
-                    { "InGrave", InDrop() },
-                    { "BID", BID }
-                } }
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganBoostedEvent",
+                ["Owner"] = Owner.Id,
+                ["Boost"] = boost.Value,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)MainAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["BasePower"] = BasePower,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["InHand"] = InHand(),
+                    ["InGrave"] = InDrop(),
+                    ["BID"] = BID
+                }
             });
 
             Game.OnBakuganBoosted(this, boost, source);
@@ -226,19 +229,23 @@ namespace AB_Server
                 { "IsPartner", IsPartner },
                 { "BID", BID }
             });
-            game.ThrowEvent(new JObject {
-                { "Type", "BakuganAddedEvent" },
-                { "PosX", destination.Position.X },
-                { "PosY", destination.Position.Y },
-                { "Owner", Owner.Id },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID } }
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganAddedEvent",
+                ["PosX"] = destination.Position.X,
+                ["PosY"] = destination.Position.Y,
+                ["Owner"] = Owner.Id,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)MainAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["BasePower"] = BasePower,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["BID"] = BID
                 }
+
             });
             Game.OnBakuganAdded(this, Owner.Id, destination);
             BattleEndedInDraw = false; // Reset flag
@@ -263,19 +270,22 @@ namespace AB_Server
                 { "IsPartner", IsPartner },
                 { "BID", BID }
             });
-            game.ThrowEvent(new JObject {
-                { "Type", "BakuganThrownEvent" },
-                { "PosX", destination.Position.X },
-                { "PosY", destination.Position.Y },
-                { "Owner", Owner.Id },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID }
-                } }
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganThrownEvent",
+                ["PosX"] = destination.Position.X,
+                ["PosY"] = destination.Position.Y,
+                ["Owner"] = Owner.Id,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)MainAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["BasePower"] = BasePower,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["BID"] = BID
+                }
             });
             Game.OnBakuganThrown(this, Owner.Id, destination);
             BattleEndedInDraw = false; // Reset flag
@@ -345,20 +355,23 @@ namespace AB_Server
 
                 destination.EnterOrder.Add([this]);
 
-                game.ThrowEvent(new JObject {
-                    { "Type", "BakuganMovedEvent" },
-                    { "PosX", destination.Position.X },
-                    { "PosY", destination.Position.Y },
-                    { "Owner", Owner.Id },
-                    { "Bakugan", new JObject {
-                        { "Type", (int)Type },
-                        { "Attribute", (int)MainAttribute },
-                        { "Treatment", (int)Treatment },
-                        { "Power", Power },
-                        { "IsPartner", IsPartner },
-                        { "BID", BID } }
+                game.ThrowEvent(new JObject
+                {
+                    ["Type"] = "BakuganMovedEvent",
+                    ["PosX"] = destination.Position.X,
+                    ["PosY"] = destination.Position.Y,
+                    ["Owner"] = Owner.Id,
+                    ["Bakugan"] = new JObject
+                    {
+                        ["Type"] = (int)Type,
+                        ["Attribute"] = (int)MainAttribute,
+                        ["Treatment"] = (int)Treatment,
+                        ["BasePower"] = BasePower,
+                        ["Power"] = Power,
+                        ["IsPartner"] = IsPartner,
+                        ["BID"] = BID
                     },
-                    { "MoveEffect", MoveEffect }
+                    ["MoveEffect"] = MoveEffect
                 });
 
                 destination.Bakugans.Add(this);

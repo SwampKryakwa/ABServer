@@ -646,7 +646,7 @@ namespace AB_Server
                 { "IsAPass", (isBattleGoing && playersPassed.Count < (Players.Count(x=>x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing },
 
                 { "SettableGates", gateArray },
-                { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } } )) },
+                { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId }, { "TypeId", x.TypeId }, { "KindId", (int)x.Kind }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } } )) },
                 { "ThrowableBakugan", bakuganArray },
                 { "ValidThrowPositions", new JArray(GateIndex.Where(x=>x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject { { "CID", x.CardId }, { "Owner", x.Owner.Id }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } })) },
                 { "ActivateableAbilities", new JArray(Players[player].AbilityHand.Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CanActivate", x.IsActivateable() } })) }

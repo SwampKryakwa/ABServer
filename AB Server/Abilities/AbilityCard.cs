@@ -53,7 +53,7 @@ namespace AB_Server.Abilities
             ((cID, owner) => new FireTornado(cID, owner, 22), FireTornado.HasValidTargets),
             ((cID, owner) => new VanguardAdvance(cID, owner, 23), VanguardAdvance.HasValidTargets),
             ((cID, owner) => new MagmaProminence(cID, owner, 24), MagmaProminence.HasValidTargets),
-            ((cID, owner) => new AirBattle(cID, owner, 25), AirBattle.HasValidTargets),
+            ((cID, owner) => new GateBuilding(cID, owner, 25), GateBuilding.HasValidTargets),
             ((cID, owner) => new LightningShield(cID, owner, 26), LightningShield.HasValidTargets),
             ((cID, owner) => new MirrorFlash(cID, owner, 27), MirrorFlash.HasValidTargets),
             ((cID, owner) => new DarkonGravity(cID, owner, 28), DarkonGravity.HasValidTargets),
@@ -185,16 +185,28 @@ namespace AB_Server.Abilities
                         EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
                         ));
                 }
+                else if (currentSelector is GateSlotSelector slotSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.FieldSlotSelection(currentSelector.Message, TypeId, (int)Kind)
+                        ));
+                }
                 else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
                 {
                     Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
-                            "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
                         }
+                        ));
+                }
+                else if (currentSelector is MultiGateSlotSelector multiSlotSelector)
+                {
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.MultiFieldSlotSelection(currentSelector.Message, TypeId, (int)Kind, multiSlotSelector.MinNumber, multiSlotSelector.MaxNumber)
                         ));
                 }
                 else
@@ -230,11 +242,17 @@ namespace AB_Server.Abilities
                 yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
             else if (currentSelector is OptionSelector optionSelector)
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+            else if (currentSelector is GateSlotSelector slotSelector)
+                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
                 JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
-                multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
-                Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
+                multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
+            }
+            else if (currentSelector is MultiGateSlotSelector multiSlotSelector)
+            {
+                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
+                multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)[0], (int)(x as JArray)[1]))];
             }
             else
             {
@@ -342,10 +360,10 @@ namespace AB_Server.Abilities
                     Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
-                            "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
                         }
                         ));
                 }
@@ -385,7 +403,7 @@ namespace AB_Server.Abilities
             else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
             {
                 JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
-                multiBakuganSelector.SelectedBakugans = bakuganIds.Select(x => Game.BakuganIndex[(int)x]).ToArray();
+                multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
                 Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
             }
             else

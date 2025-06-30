@@ -155,7 +155,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject AnyMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject AnyMultiBakuganSelection(string prompt, int ability, int cardKind, int min, int max, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -180,11 +180,13 @@ namespace AB_Server
                     { "Owner", x.Owner.Id },
                     { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
-                }) ) }
+                }) ) },
+                { "Min", min },
+                { "Max", max }
             };
         }
 
-        public static JObject HandMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject HandMultiBakuganSelection(string prompt, int ability, int cardKind, int min, int max, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -200,11 +202,13 @@ namespace AB_Server
                     { "Owner", x.Owner.Id },
                     { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
-                }) ) }
+                }) ) },
+                { "Min", min },
+                { "Max", max }
             };
         }
 
-        public static JObject FieldMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject FieldMultiBakuganSelection(string prompt, int ability, int cardKind, int min, int max, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -220,11 +224,13 @@ namespace AB_Server
                     { "Owner", x.Owner.Id },
                     { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
-                }) ) }
+                }) ) },
+                { "Min", min },
+                { "Max", max }
             };
         }
 
-        public static JObject DropMultiBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject DropMultiBakuganSelection(string prompt, int ability, int cardKind, int min, int max, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
@@ -240,7 +246,33 @@ namespace AB_Server
                     { "Owner", x.Owner.Id },
                     { "IsPartner", x.IsPartner },
                     { "BID", x.BID }
-                }) ) }
+                }) ) },
+                { "Min", min },
+                { "Max", max }
+            };
+        }
+
+        public static JObject FieldSlotSelection(string prompt, int ability, int cardKind)
+        {
+            return new()
+            {
+                ["SelectionType"] = "S",
+                ["Message"] = prompt,
+                ["Card"] = ability,
+                ["CardKind"] = cardKind
+            };
+        }
+
+        public static JObject MultiFieldSlotSelection(string prompt, int ability, int cardKind, int min = 0, int max = 7)
+        {
+            return new()
+            {
+                ["SelectionType"] = "MS",
+                ["Message"] = prompt,
+                ["Card"] = ability,
+                ["CardKind"] = cardKind,
+                ["Min"] = min,
+                ["Max"] = max
             };
         }
 
@@ -248,16 +280,17 @@ namespace AB_Server
         {
             return new()
             {
-                { "SelectionType", "GF" },
-                { "Message", prompt },
-                { "Card", ability },
-                { "CardKind", cardKind },
-                { "SelectionGates", new JArray(gates.Select(x => new JObject {
-                    { "Type", x.TypeId },
-                    { "PosX", x.Position.X },
-                    { "PosY", x.Position.Y },
-                    { "CID", x.CardId }
-                }) ) }
+                ["SelectionType"] = "GF",
+                ["Message"] = prompt,
+                ["Card"] = ability,
+                ["CardKind"] = cardKind,
+                ["SelectionGates"] = new JArray(gates.Select(x => new JObject
+                {
+                    ["Type"] = x.TypeId,
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                    ["CID"] = x.CardId
+                }))
             };
         }
 

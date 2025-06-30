@@ -61,7 +61,7 @@ namespace AB_Server
 
     class GateSelector : Selector
     {
-        public Func<GateCard, bool> TargetValidator;
+        public Func<GateCard, bool> TargetValidator = (x) => true;
         public GateCard SelectedGate;
 
         public override bool HasValidTargets(Game game) { return game.GateIndex.Any(TargetValidator); }
@@ -69,7 +69,7 @@ namespace AB_Server
 
     class BakuganSelector : Selector
     {
-        public Func<Bakugan, bool> TargetValidator;
+        public Func<Bakugan, bool> TargetValidator = (x) => true;
         public Bakugan SelectedBakugan;
 
         public override bool HasValidTargets(Game game) { return game.BakuganIndex.Any(TargetValidator); }
@@ -77,7 +77,7 @@ namespace AB_Server
 
     class AbilitySelector : Selector
     {
-        public Func<AbilityCard, bool> TargetValidator;
+        public Func<AbilityCard, bool> TargetValidator = (x) => true;
         public AbilityCard SelectedAbility;
 
         public override bool HasValidTargets(Game game) { return game.AbilityIndex.Any(TargetValidator); }
@@ -85,15 +85,23 @@ namespace AB_Server
 
     class ActiveSelector : Selector
     {
-        public Func<IActive, bool> TargetValidator;
+        public Func<IActive, bool> TargetValidator = (x) => true;
         public IActive SelectedActive;
 
         public override bool HasValidTargets(Game game) { return game.ActiveZone.Any(TargetValidator); }
     }
 
+    class GateSlotSelector : Selector
+    {
+        public Func<GateCard, bool> TargetValidator = (x) => true;
+        public (int X, int Y) SelectedSlot;
+
+        public override bool HasValidTargets(Game game) { return game.Field.Cast<GateCard?>().Count(x => x is null) > 4; }
+    }
+
     class MultiGateSelector : Selector
     {
-        public Func<GateCard, bool> TargetValidator;
+        public Func<GateCard, bool> TargetValidator = (x) => true;
         public GateCard[] SelectedGates;
         public int MinNumber = 0;
         public int MaxNumber = 7;
@@ -103,7 +111,7 @@ namespace AB_Server
 
     class MultiBakuganSelector : Selector
     {
-        public Func<Bakugan, bool> TargetValidator;
+        public Func<Bakugan, bool> TargetValidator = (x) => true;
         public Bakugan[] SelectedBakugans;
         public int MinNumber = 0;
         public int MaxNumber = 7;
@@ -113,7 +121,7 @@ namespace AB_Server
 
     class MultiAbilitySelector : Selector
     {
-        public Func<AbilityCard, bool> TargetValidator;
+        public Func<AbilityCard, bool> TargetValidator = (x) => true;
         public AbilityCard[] SelectedAbilities;
         public int MinNumber = 0;
         public int MaxNumber = 7;
@@ -123,11 +131,21 @@ namespace AB_Server
 
     class MultiActiveSelector : Selector
     {
-        public Func<IActive, bool> TargetValidator;
+        public Func<IActive, bool> TargetValidator = (x) => true;
         public IActive[] SelectedActives;
         public int MinNumber = 0;
         public int MaxNumber = 7;
 
         public override bool HasValidTargets(Game game) { return game.ActiveZone.Count(TargetValidator) >= MinNumber; }
+    }
+
+    class MultiGateSlotSelector : Selector
+    {
+        public Func<GateCard, bool> TargetValidator = (x) => true;
+        public (int X, int Y)[] SelectedSlots;
+        public int MinNumber = 0;
+        public int MaxNumber = 7;
+
+        public override bool HasValidTargets(Game game) { return game.Field.Cast<GateCard?>().Count(x => x is null) > 4 + MinNumber; }
     }
 }

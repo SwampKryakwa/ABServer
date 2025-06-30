@@ -395,8 +395,8 @@ namespace AB_Server
                             ["Owner"] = j
                         });
                         GateIndex[id].Set(FirstCardPositions[j].X, FirstCardPositions[j].Y);
-                        StartTurn();
                     }
+                    StartTurn();
                 };
             }
         }

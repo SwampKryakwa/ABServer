@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            new MoveBakuganEffect(User, User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind/*, new JObject() { ["MoveEffect"] = "Fireball" }*/).Activate();
+            new MoveBakuganEffect(User, User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Fireball" }).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

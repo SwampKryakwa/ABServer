@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x!=User && x.Owner == Owner && x.OnField() }
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x != User && x.IsAttribute(Attribute.Darkon) && x.Owner == Owner && x.OnField() }
             ];
         }
 
@@ -25,9 +25,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x != user && x.OnField()) && user.IsAttribute(Attribute.Darkon);
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x != user && x.OnField() && x.IsAttribute(Attribute.Darkon)) && user.IsAttribute(Attribute.Darkon);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Owner.BakuganOwned.Any(x => x != user && x.OnField());
+            user.Owner.BakuganOwned.Any(x => x != user && x.IsAttribute(Attribute.Darkon) && x.Owner == user.Owner && x.OnField());
     }
 }

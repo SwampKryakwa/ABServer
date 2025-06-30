@@ -104,7 +104,7 @@ namespace AB_Server.Gates
             List<List<Bakugan>> sides = [];
 
             for (int i = 0; i < game.TeamCount; i++)
-                sides.Add(Bakugans.Where(x => !x.Frenzied && x.Owner.TeamId == i).ToList());
+                sides.Add([.. Bakugans.Where(x => !x.Frenzied && x.Owner.TeamId == i)]);
 
             foreach (Bakugan bakugan in Bakugans.Where(x => x.Frenzied))
                 sides.Add([bakugan]);
@@ -125,7 +125,7 @@ namespace AB_Server.Gates
                     x.DestroyOnField(EnterOrder, MoveSource.Game);
                 });
 
-            List<List<Bakugan>> survivingSides = sides.Where(x => x.Any(y => y.Position == this)).ToList();
+            List<List<Bakugan>> survivingSides = [.. sides.Where(x => x.Any(y => y.Position == this))];
             if (survivingSides.Count > 1)
             {
                 Bakugan randomFirstBakugan = EnterOrder[0][new Random().Next(EnterOrder[0].Length)];

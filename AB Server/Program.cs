@@ -11,8 +11,7 @@ namespace AB_Server
         public static string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+            return new string([.. Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)])]);
         }
 
         public static Dictionary<string, Room> Rooms = new();
@@ -216,10 +215,6 @@ namespace AB_Server
                                         });
                                         break;
 
-                                    case "checkturnstart":
-                                        answer.Add("turnplayer", new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = GIDToGame[(string)postedJson["gid"]].ActivePlayer });
-                                        break;
-
                                     case "getmoves":
                                         GID = (string)postedJson["gid"];
                                         game = GIDToGame[GID];
@@ -290,7 +285,7 @@ namespace AB_Server
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            listener.Prefixes.Add("http://*:8081/");
+            listener.Prefixes.Add("http://*:8080/");
             listener.Start();
 
             // Handle requests

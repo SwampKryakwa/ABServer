@@ -341,7 +341,7 @@ namespace AB_Server
 
                 int f = oldPosition.EnterOrder.IndexOf(oldPosition.EnterOrder.First(x => x.Contains(this)));
                 if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
-                else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != this).ToArray();
+                else oldPosition.EnterOrder[f] = [.. oldPosition.EnterOrder[f].Where(x => x != this)];
 
                 destination.EnterOrder.Add([this]);
 
@@ -374,7 +374,7 @@ namespace AB_Server
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
 
-            List<Bakugan> bakuganToMove = bakugans.ToList();
+            List<Bakugan> bakuganToMove = [.. bakugans];
 
             foreach (var bakugan in bakugans)
             {
@@ -391,7 +391,7 @@ namespace AB_Server
 
                     int f = oldPosition.EnterOrder.IndexOf(oldPosition.EnterOrder.First(x => x.Contains(bakugan)));
                     if (oldPosition.EnterOrder[f].Length == 1) oldPosition.EnterOrder.RemoveAt(f);
-                    else oldPosition.EnterOrder[f] = oldPosition.EnterOrder[f].Where(x => x != bakugan).ToArray();
+                    else oldPosition.EnterOrder[f] = [.. oldPosition.EnterOrder[f].Where(x => x != bakugan)];
 
                     game.ThrowEvent(new JObject {
                         { "Type", "BakuganMovedEvent" },
@@ -414,7 +414,7 @@ namespace AB_Server
                 }
             }
 
-            destination.EnterOrder.Add(bakuganToMove.ToArray());
+            destination.EnterOrder.Add([.. bakuganToMove]);
 
             foreach (var bakugan in bakuganToMove)
             {
@@ -431,7 +431,7 @@ namespace AB_Server
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
 
-            List<Bakugan> bakuganToAdd = bakugans.ToList();
+            List<Bakugan> bakuganToAdd = [.. bakugans];
 
             foreach (var bakugan in bakugans)
             {
@@ -463,7 +463,7 @@ namespace AB_Server
                 });
             }
 
-            destination.EnterOrder.Add(bakuganToAdd.ToArray());
+            destination.EnterOrder.Add([.. bakuganToAdd]);
 
             foreach (var bakugan in bakuganToAdd)
             {
@@ -578,7 +578,7 @@ namespace AB_Server
 
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
-                else entryOrder[f] = entryOrder[f].Where(x => x != this).ToArray();
+                else entryOrder[f] = [.. entryOrder[f].Where(x => x != this)];
 
                 game.ThrowEvent(new JObject
                 {
@@ -620,7 +620,7 @@ namespace AB_Server
             var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField()).ToArray();
 
             if (mover == MoveSource.Effect)
-                removableBakugans = providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0).ToArray();
+                removableBakugans = [.. providedBakugans.Where(x => (x.Position as GateCard).MovingAwayEffectBlocking.Count == 0)];
             Console.WriteLine($"Removable Bakugan: " + removableBakugans.Count());
 
             foreach (var bakugan in removableBakugans)
@@ -631,7 +631,7 @@ namespace AB_Server
                 var entryOrder = (bakugan.Position as GateCard).EnterOrder;
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
-                else entryOrder[f] = entryOrder[f].Where(x => x != bakugan).ToArray();
+                else entryOrder[f] = [.. entryOrder[f].Where(x => x != bakugan)];
 
                 bakugan.Position.Remove(bakugan);
                 bakugan.Owner.Bakugans.Add(bakugan);
@@ -681,7 +681,7 @@ namespace AB_Server
 
                 int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(this)));
                 if (entryOrder[f].Length == 1) entryOrder.RemoveAt(f);
-                else entryOrder[f] = entryOrder[f].Where(x => x != this).ToArray();
+                else entryOrder[f] = [.. entryOrder[f].Where(x => x != this)];
 
                 game.ThrowEvent(new JObject
                 {

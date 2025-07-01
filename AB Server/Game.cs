@@ -635,21 +635,21 @@ namespace AB_Server
 
             JObject moves = new()
             {
-                { "CanSetGate", Players[player].HasSettableGates() && !isBattleGoing },
-                { "CanOpenGate", Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0 },
-                { "CanThrowBakugan", !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x=>x.OnField) },
-                { "CanActivateAbility", Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0 },
-                { "CanEndTurn", Players[player].CanEndTurn() },
-                { "CanEndBattle", Players[player].HasBattlingBakugan() },
+                ["CanSetGate"] = Players[player].HasSettableGates() && !isBattleGoing,
+                ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
+                ["CanThrowBakugan"] = !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField),
+                ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
+                ["CanEndTurn"] = Players[player].CanEndTurn(),
+                ["CanEndBattle"] = Players[player].HasBattlingBakugan(),
 
-                { "IsASkip", !Players[player].HadThrownBakugan },
-                { "IsAPass", (isBattleGoing && playersPassed.Count < (Players.Count(x=>x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing },
+                ["IsASkip"] = !Players[player].HadThrownBakugan,
+                ["IsAPass"] = (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
-                { "SettableGates", gateArray },
-                { "OpenableGates", new JArray(Players[player].OpenableGates().Select(x => new JObject { { "CID", x.CardId }, { "TypeId", x.TypeId }, { "KindId", (int)x.Kind }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } } )) },
-                { "ThrowableBakugan", bakuganArray },
-                { "ValidThrowPositions", new JArray(GateIndex.Where(x=>x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject { { "CID", x.CardId }, { "Owner", x.Owner.Id }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } })) },
-                { "ActivateableAbilities", new JArray(Players[player].AbilityHand.Select(x => new JObject { { "cid", x.CardId }, { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CanActivate", x.IsActivateable() } })) }
+                ["SettableGates"] = gateArray,
+                ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject { ["CID"] = x.CardId, ["TypeId"] = x.TypeId, ["KindId"] = (int)x.Kind, ["PosX"] = x.Position.X, ["PosY"] = x.Position.Y })),
+                ["ThrowableBakugan"] = bakuganArray,
+                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject { { "CID", x.CardId }, { "Owner", x.Owner.Id }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } })),
+                ["ActivateableAbilities"] = new JArray(Players[player].AbilityHand.Select(ability => new JObject { { "cid", ability.CardId }, { "Type", ability.TypeId }, { "Kind", (int)ability.Kind }, { "CanActivate", ability.IsActivateable() }, { "PossibleUsers", new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID)) }))
             };
             return moves;
         }

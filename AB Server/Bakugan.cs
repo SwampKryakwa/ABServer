@@ -148,20 +148,23 @@ namespace AB_Server
 
             ContinuousBoosts.Add(boost);
 
-            game.ThrowEvent(new JObject {
-                { "Type", "BakuganBoostedEvent" },
-                { "Owner", Owner.Id },
-                { "Boost", boost.Value },
-                { "Bakugan", new JObject {
-                    { "Type", (int)Type },
-                    { "Attribute", (int)MainAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "InHand", InHand() },
-                    { "InGrave", InDrop() },
-                    { "BID", BID }
-                } }
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganBoostedEvent",
+                ["Owner"] = Owner.Id,
+                ["Boost"] = boost.Value,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)MainAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["BasePower"] = BasePower,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["InHand"] = InHand(),
+                    ["InGrave"] = InDrop(),
+                    ["BID"] = BID
+                }
             });
 
             Game.OnBakuganBoosted(this, boost, source);

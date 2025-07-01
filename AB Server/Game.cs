@@ -524,13 +524,13 @@ namespace AB_Server
 
         void CheckAnyBattlesToUpdateState()
         {
-            if (Players.Where(x => !x.Defeated).Select(x => x.TeamId).Distinct().Count() == 1)
+            if (Players.Where(x => x.Alive).Select(x => x.TeamId).Distinct().Count() == 1)
             {
                 ThrowEvent(new JObject
                 {
                     ["Type"] = "GameOver",
-                    ["Victor"] = Players.Where(x => !x.Defeated).First().Id,
-                    ["VictorTeam"] = Players.Where(x => !x.Defeated).First().TeamId
+                    ["Victor"] = Players.Where(x => x.Alive).First().Id,
+                    ["VictorTeam"] = Players.Where(x => x.Alive).First().TeamId
                 });
             }
             else if (GateIndex.Any(x => x.BattleDeclaredOver) || GateIndex.Any(x => !x.BattleStarted && x.IsBattleGoing))
@@ -649,7 +649,7 @@ namespace AB_Server
                 ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject { ["CID"] = x.CardId, ["TypeId"] = x.TypeId, ["KindId"] = (int)x.Kind, ["PosX"] = x.Position.X, ["PosY"] = x.Position.Y })),
                 ["ThrowableBakugan"] = bakuganArray,
                 ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject { { "CID", x.CardId }, { "Owner", x.Owner.Id }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } })),
-                ["ActivateableAbilities"] = new JArray(Players[player].AbilityHand.Select(ability => new JObject { { "cid", ability.CardId }, { "Type", ability.TypeId }, { "Kind", (int)ability.Kind }, { "CanActivate", ability.IsActivateable() }, { "PossibleUsers", new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID)) }))
+                ["ActivateableAbilities"] = new JArray(Players[player].AbilityHand.Select(ability => new JObject { ["cid"] = ability.CardId, ["Type"] = ability.TypeId, ["Kind"] = (int)ability.Kind, ["CanActivate"] = ability.IsActivateable(), ["PossibleUsers"] = new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID)) }))
             };
             return moves;
         }

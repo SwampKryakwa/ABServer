@@ -40,7 +40,7 @@ namespace AB_Server
         public bool HadThrownBakugan = false;
         public bool HadUsedCounter = false;
 
-        public bool Defeated { get => BakuganOwned.Any(x => !x.Defeated); }
+        public bool Alive { get => BakuganOwned.Any(x => !x.Defeated); }
 
         public Game Game;
 

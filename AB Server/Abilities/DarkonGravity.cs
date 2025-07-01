@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace AB_Server.Abilities
         public override void TriggerEffect()
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            new MoveBakuganEffect(User, target, (User.Position as GateCard)!, TypeId, (int)Kind).Activate();
+            new MoveBakuganEffect(User, target, (User.Position as GateCard)!, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID }).Activate();
             target.TurnFrenzied();
         }
 

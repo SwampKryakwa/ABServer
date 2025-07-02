@@ -16,8 +16,11 @@ namespace AB_Server.Abilities.Fusions
             ];
         }
 
-        public override void TriggerEffect() =>
-            User.Boost(new Boost((short)(80 * Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute((Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption)))), this);
+        public override void TriggerEffect()
+        {
+            User.ChangeAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption, this);
+            User.Boost(new Boost((short)(80 * Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption)))), this);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();

@@ -34,10 +34,6 @@ namespace AB_Server.Gates.SpecialGates
 
         public override void Resolve()
         {
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
-            ));
-
             foreach (var bakugan in Bakugans.Where(x => x.IsAttribute(Attribute.Subterra)))
             {
                 bakugan.Boost(new Boost(80), this);

@@ -17,7 +17,7 @@ namespace AB_Server.Abilities.Fusions
 
             ResTargetSelectors =
             [
-                new OptionSelector() { Condition = () => User.IsAttribute(Attribute.Nova), Message = "INFO_PICKER_HARMONICGRACE", ForPlayer = (p) => p == Owner, OptionCount = 2, SelectedOption = 1}
+                new OptionSelector() { Message = "INFO_PICKER_HARMONICGRACE", ForPlayer = (p) => p == Owner, OptionCount = 2, SelectedOption = 1}
             ];
         }
 

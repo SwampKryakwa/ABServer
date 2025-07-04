@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            new BoostMultipleSameEffect(User, [.. Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute((Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption))], 100, TypeId, (int)Kind).Activate();
+            new BoostMultipleSameEffect(User, [.. Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption))], 100, TypeId, (int)Kind).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();

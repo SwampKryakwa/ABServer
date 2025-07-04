@@ -31,8 +31,6 @@ namespace AB_Server.Abilities.Fusions
 
         public void Activate()
         {
-            
-
             game.OnLongRangeBattleOver = () =>
             {
                 foreach (var target in targets.Where(x => x.OnField()))

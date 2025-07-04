@@ -18,7 +18,7 @@
         {
             IsOpen = true;
             game.ActiveZone.Add(this);
-            game.CardChain.Add(this);
+            game.CardChain.Push(this);
             EffectId = game.NextEffectId++;
             for (int i = 0; i < game.PlayerCount; i++)
                 game.NewEvents[i].Add(EventBuilder.GateOpen(this));

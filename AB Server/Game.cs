@@ -45,7 +45,7 @@ namespace AB_Server
         public GateCard?[,] Field = new GateCard[4, 5];
         public List<GateCard> GateSetList = [];
         public List<IActive> ActiveZone = [];
-        public List<IChainable> CardChain = [];
+        public Stack<IChainable> CardChain = [];
 
         public GateCard? GetGateByCoord(int X, int Y)
         {
@@ -607,7 +607,7 @@ namespace AB_Server
                 OnAnswer[ActivePlayer] = () =>
                 {
                     AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
-                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+                    CardChain.Push(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
                     GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
                     ActivePlayer++;
                 };
@@ -865,7 +865,7 @@ namespace AB_Server
                 {
                     AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
                     GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
-                    CardChain.Add(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+                    CardChain.Push(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
                     ActivePlayer++;
                 };
             }
@@ -1005,7 +1005,6 @@ namespace AB_Server
         {
             ExecutingChain = true;
 
-            CardChain.Reverse();
             ChainStep();
         }
 
@@ -1017,9 +1016,7 @@ namespace AB_Server
                 NextStep();
                 return;
             }
-            var chainElement = CardChain[0];
-            CardChain.RemoveAt(0);
-            chainElement.Resolve();
+            CardChain.Pop().Resolve();
         }
 
         public void StartLongRangeBattle(Bakugan attacker, params Bakugan[] targets)

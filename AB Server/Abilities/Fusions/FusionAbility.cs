@@ -68,7 +68,7 @@ namespace AB_Server.Abilities
             });
 
             Game.ActiveZone.Add(this);
-            Game.CardChain.Add(this);
+            Game.CardChain.Push(this);
             Game.CheckChain(Owner, this, User);
         }
 

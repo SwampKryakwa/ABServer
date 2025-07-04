@@ -19,7 +19,7 @@ namespace AB_Server.Gates.SpecialGates
         {
             IsOpen = true;
             game.ActiveZone.Add(this);
-            game.CardChain.Add(this);
+            game.CardChain.Push(this);
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 

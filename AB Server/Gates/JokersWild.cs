@@ -13,13 +13,7 @@
         public override int TypeId { get; } = 5;
 
         public override bool IsOpenable() =>
-            false;
-
-        public override void CheckAutoBattleStart()
-        {
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
+            base.IsOpenable() && Bakugans.Any(x => x.Power < 0 && x.IsAttribute(Attribute.Darkon));
 
         public override void Open()
         {
@@ -32,8 +26,11 @@
 
         public override void Resolve()
         {
-            if (Bakugans.Any(x => x.IsAttribute(Attribute.Darkon)))
-                BattleDeclaredOver = true;
+            if (!Negated)
+                foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Darkon)))
+                {
+                    bakugan.DestroyOnField(EnterOrder);
+                }
 
             game.ChainStep();
         }

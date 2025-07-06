@@ -12,7 +12,7 @@
 
         public override int TypeId { get; } = 11;
 
-        public override bool IsOpenable() => 
+        public override bool IsOpenable() =>
             false;
 
         public override void CheckAutoBattleStart()
@@ -36,15 +36,39 @@
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, EnterOrder[^1])
             ));
 
-            game.OnAnswer[Owner.Id] = Activate;
+            game.OnAnswer[Owner.Id] = ReturnTargetToHand;
         }
 
-        public void Activate()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+        Bakugan target;
 
-            if (!Negated && target.Position == this)
-                target.ToHand(EnterOrder);
+        public void ReturnTargetToHand()
+        {
+            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+
+            if (Negated)
+            {
+                game.ChainStep();
+                return;
+            }
+
+            if (target.OnField())
+                target.ToHand((target.Position as GateCard)!.EnterOrder);
+
+            if (target.Owner.Bakugans.Any(x => x != target))
+            {
+                game.NewEvents[target.Owner.Id].Add(EventBuilder.SelectionBundler(false,
+                    EventBuilder.FieldBakuganSelection("INFO_GATE_ADDTARGET", TypeId, (int)Kind, target.Owner.Bakugans.Where(x => x != target))
+                ));
+
+                game.OnAnswer[Owner.Id] = AddOtherBakugan;
+            }
+            else
+                game.ChainStep();
+        }
+
+        public void AddOtherBakugan()
+        {
+            game.BakuganIndex[(int)game.PlayerAnswers[target.Owner.Id]!["array"][0]["bakugan"]].AddFromHand(this);
 
             game.ChainStep();
         }

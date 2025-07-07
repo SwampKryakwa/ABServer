@@ -17,9 +17,9 @@
             if (CondTargetSelectors[0] is BakuganSelector targetSelector && Bakugan.IsAdjacent(User, targetSelector.SelectedBakugan))
             {
                 if (User.IsOpponentOf(targetSelector.SelectedBakugan))
-                    new BoostEffect(User, User, 200).Activate();
+                    User.Boost(200, this);
                 else
-                    new BoostEffect(User, User, 100).Activate();
+                    User.Boost(100, this);
             }
         }
 

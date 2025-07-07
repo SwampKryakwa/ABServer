@@ -134,6 +134,34 @@ namespace AB_Server
             IsDummy = true
         };
 
+        public void Boost(int boost, object source)
+        {
+            if (IsDummy || InHand()) return;
+
+            Boosts.Add(new Boost((short)boost));
+
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganBoostedEvent",
+                ["Owner"] = Owner.Id,
+                ["Boost"] = boost,
+                ["Bakugan"] = new JObject
+                {
+                    ["Type"] = (int)Type,
+                    ["Attribute"] = (int)BaseAttribute,
+                    ["Treatment"] = (int)Treatment,
+                    ["BasePower"] = BasePower,
+                    ["Power"] = Power,
+                    ["IsPartner"] = IsPartner,
+                    ["InHand"] = InHand(),
+                    ["InGrave"] = InDrop(),
+                    ["BID"] = BID
+                }
+            });
+
+            Game.OnBakuganBoosted(this, boost, source);
+        }
+
         public void Boost(Boost boost, object source)
         {
             if (IsDummy || InHand()) return;
@@ -909,7 +937,7 @@ namespace AB_Server
                 attrs1.Contains(Attribute.Zephyros) && attrs2.Contains(Attribute.Lumina);
         }
 
-        public static bool IsTripleNode(params IEnumerable<Bakugan> bakugans)
+        public static bool IsTripleNode(out bool isPositive, params IEnumerable<Bakugan> bakugans)
         {
             List<Attribute> attrs = [];
             foreach (Bakugan b in bakugans)
@@ -919,8 +947,14 @@ namespace AB_Server
                 else
                     attrs.AddRange(b.attributeChanges[^1].Attributes);
             }
-            return (attrs.Contains(Attribute.Aqua) && attrs.Contains(Attribute.Nova) && attrs.Contains(Attribute.Lumina)) ||
-                (attrs.Contains(Attribute.Subterra) && attrs.Contains(Attribute.Zephyros) && attrs.Contains(Attribute.Darkon));
+            isPositive = false;
+            if (attrs.Contains(Attribute.Aqua) && attrs.Contains(Attribute.Nova) && attrs.Contains(Attribute.Lumina))
+            {
+                isPositive = true; return true;
+            }
+            else if
+                (attrs.Contains(Attribute.Subterra) && attrs.Contains(Attribute.Zephyros) && attrs.Contains(Attribute.Darkon)) return true;
+            else return false;
         }
     }
 }

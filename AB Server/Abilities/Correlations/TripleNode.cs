@@ -15,7 +15,11 @@
 
         public override void TriggerEffect()
         {
-            if (CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
+            bool isPositive;
+            if (CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(out isPositive, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
+            {
+                if (isPositive)
+            }
                 new BoostMultipleSameEffect(User, [User, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan], 200, TypeId, (int)Kind);
         }
 

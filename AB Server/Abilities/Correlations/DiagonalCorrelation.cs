@@ -15,7 +15,10 @@
         public override void TriggerEffect()
         {
             if (CondTargetSelectors[0] is BakuganSelector targetSelector && Bakugan.IsDiagonal(targetSelector.SelectedBakugan, User))
-                new BoostMultipleSameEffect(User, [User, targetSelector.SelectedBakugan], 100, TypeId, (int)Kind);
+            {
+                User.Boost(100, this);
+               targetSelector.SelectedBakugan.Boost(100, this);
+            }
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

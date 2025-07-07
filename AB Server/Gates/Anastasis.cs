@@ -60,7 +60,7 @@ namespace AB_Server.Gates
         {
             Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
-            target.Revive();
+            target.MoveFromDropToHand();
 
             game.ChainStep();
         }

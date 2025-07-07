@@ -19,7 +19,7 @@
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
                     b.JustEndedBattle = false;
-                    b.ToHand(EnterOrder);
+                    b.MoveFromFieldToHand(EnterOrder);
                 }
                 game.BattlesToEnd.Add(this);
             }
@@ -32,7 +32,7 @@
             foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
                 b.JustEndedBattle = false;
-                b.ToHand(EnterOrder);
+                b.MoveFromFieldToHand(EnterOrder);
             }
 
             IsOpen = false;

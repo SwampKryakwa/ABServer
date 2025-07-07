@@ -76,7 +76,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -85,7 +85,7 @@ namespace AB_Server
                 }) ) },
                 { "SelectionHandBakugans", new JArray(bakugans.Where(x=>x.InHand()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -105,7 +105,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -125,7 +125,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -145,7 +145,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -165,7 +165,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionFieldBakugans", new JArray(bakugans.Where(x=>x.OnField()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -174,7 +174,7 @@ namespace AB_Server
                 }) ) },
                 { "SelectionHandBakugans", new JArray(bakugans.Where(x=>x.InHand()).Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -196,7 +196,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -218,7 +218,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },
@@ -240,7 +240,7 @@ namespace AB_Server
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },
-                    { "Attribute", (int)x.MainAttribute },
+                    { "Attribute", (int)x.BaseAttribute },
                     { "Treatment", (int)x.Treatment },
                     { "Power", x.Power },
                     { "Owner", x.Owner.Id },

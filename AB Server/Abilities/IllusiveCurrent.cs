@@ -35,7 +35,7 @@ namespace AB_Server.Abilities
 
             if (User.Position is GateCard positionGate && selectedBakugan.InHand())
             {
-                User.ToHand(positionGate.EnterOrder);
+                User.MoveFromFieldToHand(positionGate.EnterOrder);
                 selectedBakugan.AddFromHand(positionGate);
             }
         }

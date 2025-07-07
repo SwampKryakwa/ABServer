@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Abilities
 {
@@ -12,30 +13,27 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() => new IllusiveCurrentEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var selectedBakugan = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (User.Position is GateCard positionGate)
+                if (selectedBakugan.Position is BakuganDrop)
+                {
+                    selectedBakugan.MoveFromDropToField(positionGate);
+                    User.MoveFromFieldToDrop(positionGate.EnterOrder);
+                }
+                else if (selectedBakugan.Position is GateCard targetPositionGate)
+                {
+                    selectedBakugan.Move(positionGate, new JObject { ["MoveEffect"] = "Slide" });
+                    User.Move(targetPositionGate, new JObject { ["MoveEffect"] = "Slide" });
+                }
+                else if (selectedBakugan.Position is Player)
+                {
+                    selectedBakugan.AddFromHand(positionGate);
+                    User.MoveFromFieldToHand(positionGate.EnterOrder);
+                }
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
-    }
-
-    internal class VicariousVictimEffect(Bakugan user, Bakugan selectedBakugan, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        public Bakugan User = user;
-        Bakugan selectedBakugan = selectedBakugan;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            
-
-            if (User.Position is GateCard positionGate && selectedBakugan.Position is BakuganDrop)
-            {
-                selectedBakugan.FromDrop(positionGate);
-                User.DestroyOnField(positionGate.EnterOrder);
-            }
-        }
     }
 }

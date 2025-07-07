@@ -29,7 +29,7 @@
             if (!Negated)
                 foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Darkon)))
                 {
-                    bakugan.DestroyOnField(EnterOrder);
+                    bakugan.MoveFromFieldToDrop(EnterOrder);
                 }
 
             game.ChainStep();

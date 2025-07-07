@@ -6,7 +6,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.IsOpponentOf(User) && target.OnField()}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField()}
             ];
         }
 
@@ -24,7 +24,7 @@ namespace AB_Server.Abilities
             new BoostEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, -100).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.BattleStart;
+            (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.Normal;
     }
 }
 

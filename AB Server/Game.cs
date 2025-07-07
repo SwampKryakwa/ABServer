@@ -364,7 +364,7 @@ namespace AB_Server
                     {
                         ["BID"] = b.BID,
                         ["BakuganType"] = (int)b.Type,
-                        ["Attribute"] = (int)b.MainAttribute,
+                        ["Attribute"] = (int)b.BaseAttribute,
                         ["Treatment"] = (int)b.Treatment,
                         ["Power"] = b.Power,
                         ["IsPartner"] = b.IsPartner
@@ -631,7 +631,7 @@ namespace AB_Server
             JArray bakuganArray = new JArray();
 
             foreach (var bakugan in Players[player].ThrowableBakugan())
-                bakuganArray.Add(new JObject { ["BID"] = bakugan.BID, ["Type"] = (int)bakugan.Type, ["Attribute"] = (int)bakugan.MainAttribute, ["Treatment"] = (int)bakugan.Treatment, ["IsPartner"] = bakugan.IsPartner, ["Power"] = bakugan.Power });
+                bakuganArray.Add(new JObject { ["BID"] = bakugan.BID, ["Type"] = (int)bakugan.Type, ["Attribute"] = (int)bakugan.BaseAttribute, ["Treatment"] = (int)bakugan.Treatment, ["IsPartner"] = bakugan.IsPartner, ["Power"] = bakugan.Power });
 
             JObject moves = new()
             {
@@ -886,7 +886,7 @@ namespace AB_Server
         {
             foreach (var target in Targets)
                 if (target.Power < Attacker.Power && target.OnField() && Attacker.OnField())
-                    target.DestroyOnField((target.Position as GateCard).EnterOrder);
+                    target.MoveFromFieldToDrop((target.Position as GateCard).EnterOrder);
             OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;
             ThrowMoveStart();

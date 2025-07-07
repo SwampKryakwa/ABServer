@@ -12,7 +12,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => !x.Bakugans.Any(x=>x.Owner != Owner) }
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => !x.Bakugans.Any(x=>x.Owner.TeamId != Owner.TeamId) }
             ];
         }
 
@@ -20,7 +20,7 @@ namespace AB_Server.Abilities
         {
             var target = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
 
-            new List<Bakugan>(target.Bakugans).ForEach(x => x.ToHand(target.EnterOrder));
+            new List<Bakugan>(target.Bakugans).ForEach(x => x.MoveFromFieldToHand(target.EnterOrder));
 
             target.ToDrop();
         }

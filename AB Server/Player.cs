@@ -97,7 +97,7 @@ namespace AB_Server
             }
             else
             {
-                HashSet<Attribute> combinedAttributes = new(BakuganOwned.Select(x => x.MainAttribute));
+                HashSet<Attribute> combinedAttributes = new(BakuganOwned.Select(x => x.BaseAttribute));
                 if (combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Nova, Attribute.Lumina, Attribute.Aqua }) ||
                        combinedAttributes.SetEquals(new HashSet<Attribute> { Attribute.Zephyros, Attribute.Subterra, Attribute.Darkon }))
                 {

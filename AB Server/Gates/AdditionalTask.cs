@@ -52,7 +52,7 @@
             }
 
             if (target.OnField())
-                target.ToHand((target.Position as GateCard)!.EnterOrder);
+                target.MoveFromFieldToHand((target.Position as GateCard)!.EnterOrder);
 
             if (target.Owner.Bakugans.Any(x => x != target))
             {

@@ -122,7 +122,7 @@ namespace AB_Server.Gates
                 if (teamTotals[i] < winnerPower) sides[i].ForEach(x =>
                 {
                     bakugansDefeatedThisBattle.Add(x);
-                    x.DestroyOnField(EnterOrder, MoveSource.Game);
+                    x.MoveFromFieldToDrop(EnterOrder, MoveSource.Game);
                 });
 
             List<List<Bakugan>> survivingSides = [.. sides.Where(x => x.Any(y => y.Position == this))];
@@ -134,7 +134,7 @@ namespace AB_Server.Gates
                         survivingSides[i].ForEach(x =>
                         {
                             bakugansDefeatedThisBattle.Add(x);
-                            x.DestroyOnField(EnterOrder, MoveSource.Game);
+                            x.MoveFromFieldToDrop(EnterOrder, MoveSource.Game);
                         });
             }
 
@@ -148,7 +148,7 @@ namespace AB_Server.Gates
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
                     b.JustEndedBattle = false;
-                    b.ToHand(EnterOrder);
+                    b.MoveFromFieldToHand(EnterOrder);
                 }
 
                 IsOpen = false;

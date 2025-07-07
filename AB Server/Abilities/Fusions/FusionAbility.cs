@@ -14,7 +14,7 @@ namespace AB_Server.Abilities
             (cID, owner) => new SaurusRage(cID, owner),
             (cID, owner) => new Tremors(cID, owner),
             (cID, owner) => new CutInSaber(cID, owner),
-            (cID, owner) => new Alliance(cID, owner),
+            (cID, owner) => new CoreLinkage(cID, owner),
             (cID, owner) => new RevivalRoar(cID, owner),
             (cID, owner) => new PowerAccord(cID, owner),
             (cID, owner) => new GrandDevourer(cID, owner),

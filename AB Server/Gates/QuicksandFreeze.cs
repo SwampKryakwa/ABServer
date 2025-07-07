@@ -63,7 +63,7 @@
                 {
                     b.JustEndedBattle = false;
                     if (b == target) continue;
-                    b.ToHand(EnterOrder);
+                    b.MoveFromFieldToHand(EnterOrder);
                 }
             }
         }

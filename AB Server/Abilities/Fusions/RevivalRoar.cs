@@ -23,8 +23,19 @@ namespace AB_Server.Abilities.Fusions
             Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
-        public override void TriggerEffect() =>
-                new RevivalRoarEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (target.Position is GateCard positionGate && User.InDrop())
+            {
+                target.MoveFromFieldToDrop(positionGate.EnterOrder);
+                User.MoveFromDropToField(positionGate);
+                foreach (var bakugan in Game.BakuganIndex.Where(x => x.OnField() && x.Owner.TeamId != Owner.TeamId))
+                {
+                    bakugan.Boost(new Boost((short)(Owner.BakuganDrop.Bakugans.Count * -80)), this);
+                }
+            }
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
@@ -38,8 +49,8 @@ namespace AB_Server.Abilities.Fusions
         {
             if (target.Position is GateCard positionGate && user.InDrop())
             {
-                target.DestroyOnField(positionGate.EnterOrder);
-                user.FromDrop(positionGate);
+                target.MoveFromFieldToDrop(positionGate.EnterOrder);
+                user.MoveFromDropToField(positionGate);
                 user.Boost(new Boost((short)(owner.BakuganDrop.Bakugans.Count * 100)), this);
             }
         }

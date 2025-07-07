@@ -8,37 +8,25 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner && ((x.Position as GateCard)!.IsAdjacentVertically(User.Position as GateCard) || (x.Position as GateCard).IsDiagonal(User.Position as GateCard))}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Position is GateCard posGate && x.Owner != Owner && posGate.IsAdjacent(User.Position as GateCard)}
             ];
         }
 
-        public override void TriggerEffect() =>
-            new NoseSlapEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            Game.OnLongRangeBattleOver = () =>
+            {
+                if (target.OnField() && User.Position is GateCard gatePosition) User.MoveFromFieldToDrop(gatePosition.EnterOrder);
+                else if (target.OnField() && User.Position is Player) User.MoveFromHandToDrop();
+            };
+            Game.StartLongRangeBattle(User, target);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.OnField && (x.IsAdjacentVertically(user.Position as GateCard) || x.IsDiagonal(user.Position as GateCard)) && x.Bakugans.Any(user.IsOpponentOf));
-    }
-
-    internal class NoseSlapEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-    {
-        int typeId { get; } = typeID;
-        Bakugan user = user;
-        Bakugan target = target;
-        Game game { get => user.Game; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            
-
-            game.OnLongRangeBattleOver = () =>
-            {
-                if (target.OnField() && user.Position is GateCard gatePosition) user.DestroyOnField(gatePosition.EnterOrder);
-            };
-            game.StartLongRangeBattle(user, target);
-        }
+            user.Game.BakuganIndex.Any(x => x.Position is GateCard posGate && x.Owner != user.Owner && posGate.IsAdjacent(user.Position as GateCard));
     }
 }

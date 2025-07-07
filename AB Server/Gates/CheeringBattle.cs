@@ -12,20 +12,9 @@
 
         public override int TypeId { get; } = 3;
 
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
         public override void Resolve()
         {
-            if (!Negated)
+            if (!Negated && Owner.Bakugans.Count >= 0 && game.BakuganIndex.Count(x => x.Owner.TeamId != Owner.TeamId) > game.BakuganIndex.Count(x => x.Owner == Owner))
             {
                 game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
                     EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[Owner.Id].Bakugans)
@@ -42,7 +31,7 @@
             Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
             target.AddFromHand(this);
-            var newPower = int.Parse(target.Power.ToString().Substring(1));
+            var newPower = target.Power - (target.Power / 100 * 100);
             target.Boost(new Boost((short)(newPower - target.Power)), this);
 
             game.ChainStep();

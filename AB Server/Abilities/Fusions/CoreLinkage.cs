@@ -1,6 +1,6 @@
 ﻿namespace AB_Server.Abilities.Fusions
 {
-    internal class Alliance(int cID, Player owner) : FusionAbility(cID, owner, 9, typeof(Enforcement))
+    internal class CoreLinkage(int cID, Player owner) : FusionAbility(cID, owner, 9, typeof(Enforcement))
     {
         public override void TriggerEffect()
         {

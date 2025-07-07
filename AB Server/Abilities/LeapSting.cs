@@ -32,10 +32,13 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            
-
             target.AbilityBlockers.Add(this);
-            game.OnLongRangeBattleOver = () => target.AbilityBlockers.Remove(this);
+            game.OnLongRangeBattleOver = () =>
+            {
+                target.AbilityBlockers.Remove(this);
+                if (User.Position is GateCard positionGate)
+                    User.MoveFromFieldToHand(positionGate.EnterOrder);
+            };
             game.StartLongRangeBattle(User, target);
         }
     }

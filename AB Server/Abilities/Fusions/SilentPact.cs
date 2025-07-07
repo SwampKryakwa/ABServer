@@ -10,6 +10,17 @@
             ];
         }
 
+        public override void PickUser()
+        {
+            FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
+
+            Game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+                ));
+
+            Game.OnAnswer[Owner.Id] = RecieveUser;
+        }
+
         public override void TriggerEffect()
         {
             new SilentPactMarker(User, (Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption, Owner, IsCopy).Activate();
@@ -38,33 +49,31 @@
 
             User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
-            oldAttribute = User.ChangeAttribute(newAttribute, this);
-            User.Game.BakuganReturned += OnBakuganRemovedFromField;
-            User.Game.BakuganDestroyed += OnBakuganRemovedFromField;
+            User.ChangeAttribute(newAttribute, this);
+            User.OnRemovedFromField += Stop;
+            User.OnFromHandToDrop += Refresh;
+            User.OnFromDropToHand += Refresh;
+
         }
 
-        private void OnBakuganRemovedFromField(Bakugan target, byte owner)
+        private void Stop()
         {
             User.Game.ActiveZone.Remove(this);
 
-            User.Game.BakuganReturned -= OnBakuganRemovedFromField;
-            User.Game.BakuganDestroyed -= OnBakuganRemovedFromField;
+            User.OnRemovedFromField -= Stop;
+            User.OnFromHandToDrop -= Refresh;
+            User.OnFromDropToHand -= Refresh;
 
             User.ChangeAttribute(oldAttribute, this);
 
             User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }
 
-        public void Negate(bool asCounter = false)
+        private void Refresh()
         {
-            User.Game.ActiveZone.Remove(this);
-
-            User.Game.BakuganReturned -= OnBakuganRemovedFromField;
-            User.Game.BakuganDestroyed -= OnBakuganRemovedFromField;
-
-            User.ChangeAttribute(oldAttribute, this);
-
-            User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
+            User.ChangeAttribute(newAttribute, this);
         }
+
+        public void Negate(bool asCounter = false) => Stop();
     }
 }

@@ -10,32 +10,12 @@ namespace AB_Server.Abilities.Fusions
             ];
         }
 
-        public override void TriggerEffect() =>
-            new SaurusRageEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            User.Boost(new Boost((short)Math.Abs((User.Power - (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Power) * 2)), this);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);
-    }
-
-    internal class SaurusRageEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        public Bakugan user = user;
-        public Bakugan target = target;
-        Game game { get => user.Game; }
-
-
-        public Player Owner { get => user.Owner; }
-
-        public CardKind Kind { get; } = CardKind.FusionAbility;
-
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            
-
-            user.Boost(new Boost((short)Math.Abs((user.Power - target.Power) * 2)), this);
-        }
     }
 }

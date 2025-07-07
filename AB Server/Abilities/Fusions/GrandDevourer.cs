@@ -13,17 +13,30 @@ namespace AB_Server.Abilities.Fusions
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTROYTARGET", TargetValidator = x => x.OnField() && x.Power < 0 }
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTROYTARGET", TargetValidator = x => x.OnField() }
+            ];
+
+            ResTargetSelectors =
+            [
+                new YesNoSelector() { ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_WANTDISCARD", Condition = () =>(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner.AbilityHand.Count != 0 },
+                new AbilitySelector() { ClientType = "A", Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes, ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_DISCARDTARGET", TargetValidator = x => x.Owner == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner }
             ];
         }
 
         public override void TriggerEffect()
         {
-            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            if (target.Position is GateCard positionGate)
-                target.DestroyOnField(positionGate.EnterOrder);
-            else if (target.Position is Player)
-                target.DestroyInHand();
+            if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
+            {
+                (ResTargetSelectors[1] as AbilitySelector)!.SelectedAbility.Discard();
+            }
+            else
+            {
+                var target = (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan;
+                if (target.Position is GateCard posGate)
+                    target.MoveFromFieldToDrop(posGate.EnterOrder);
+                else if (target.InHand())
+                    target.MoveFromHandToDrop();
+            }
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

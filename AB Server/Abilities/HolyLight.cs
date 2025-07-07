@@ -34,7 +34,7 @@
         public void Activate()
         {
             
-            target.Revive();
+            target.MoveFromDropToHand();
         }
     }
 }

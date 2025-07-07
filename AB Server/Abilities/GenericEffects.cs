@@ -684,7 +684,7 @@ namespace AB_Server.Abilities
             
 
             if (target.Position is GateCard positionGate)
-                target.ToHand(positionGate.EnterOrder);
+                target.MoveFromFieldToHand(positionGate.EnterOrder);
         }
     }
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,24 +16,16 @@ namespace AB_Server.Abilities.Fusions
             [
                 new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner}
             ];
-
-            ResTargetSelectors =
-            [
-                new OptionSelector() { Message = "INFO_PICKER_HARMONICGRACE", ForPlayer = (p) => p == Owner, OptionCount = 2, SelectedOption = 1}
-            ];
         }
 
         public override void TriggerEffect()
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            switch ((ResTargetSelectors[0] as OptionSelector)!.SelectedOption)
+            if (User.Position is GateCard posGate && target.OnField())
             {
-                case 0:
-                    target.Boost(new Boost((short)User.Power), this);
-                    break;
-                case 1:
-                    User.Boost(new Boost((short)target.Power), this);
-                    break;
+                target.Move(posGate, new JObject { ["MoveEffect"] = "Slide" });
+                target.Boost(new Boost((short)User.Power), this);
+                User.MoveFromFieldToHand(posGate.EnterOrder);
             }
         }
 

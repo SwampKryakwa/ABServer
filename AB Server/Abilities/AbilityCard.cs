@@ -164,8 +164,15 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is AbilitySelector abilitySelector)
                 {
-                    //currently unused
-                    throw new NotImplementedException();
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
+                            "AF" => throw new NotImplementedException(),
+                            "AH" => throw new NotImplementedException(),
+                            "AG" => throw new NotImplementedException()
+                        }
+                        ));
                 }
                 else if (currentSelector is ActiveSelector activeSelector)
                 {
@@ -334,8 +341,15 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is AbilitySelector abilitySelector)
                 {
-                    //currently unused
-                    throw new NotImplementedException();
+                    Game.NewEvents[Game.Players.First(currentSelector.ForPlayer).Id].Add(EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
+                            "AF" => throw new NotImplementedException(),
+                            "AH" => throw new NotImplementedException(),
+                            "AG" => throw new NotImplementedException()
+                        }
+                        ));
                 }
                 else if (currentSelector is ActiveSelector activeSelector)
                 {

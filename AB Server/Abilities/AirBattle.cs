@@ -49,7 +49,7 @@ namespace AB_Server.Abilities
         public void AfterBattleOver()
         {
             if (user.Position is GateCard positionGate)
-                user.ToHand(positionGate.EnterOrder);
+                user.MoveFromFieldToHand(positionGate.EnterOrder);
         }
     }
 }

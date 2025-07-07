@@ -43,7 +43,7 @@ namespace AB_Server.Abilities.Fusions
                 {
                     // Destroy the target Bakugan if it is on the field
                     if (target.Position is GateCard positionGate)
-                        target.DestroyOnField(positionGate.EnterOrder);
+                        target.MoveFromFieldToDrop(positionGate.EnterOrder);
                 }
             }
         }

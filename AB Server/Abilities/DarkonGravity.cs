@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
         public override void TriggerEffect()
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            new DarkonGravityMarker(User, target, TypeId, Kind, Owner, IsCopy);
+            new DarkonGravityMarker(User, target, TypeId, Kind, Owner, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
@@ -58,6 +58,7 @@ namespace AB_Server.Abilities
         {
             target.StopFrenzy();
             Owner.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
+            target.OnRemovedFromField -= Stop;
         }
 
         public void Negate(bool asCounter = false)

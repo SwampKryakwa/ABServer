@@ -5,7 +5,7 @@
         public override CardKind Kind { get; } = CardKind.CorrelationAbility;
 
         public override void TriggerEffect() =>
-            new BoostEffect(User, User, 50).Activate();
+            User.Boost(50, this);
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Select(x => x.BaseAttribute).Distinct().Count() == 1;

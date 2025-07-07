@@ -23,38 +23,13 @@ namespace AB_Server.Abilities
             Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
-        public override void TriggerEffect() =>
-            new CutInSaberEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            if (User.InHand())
+                User.AddFromHand((CondTargetSelectors[0] as GateSelector)!.SelectedGate);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(user.IsOpponentOf));
-    }
-
-    internal class CutInSaberEffect
-    {
-        public int TypeId { get; }
-        Bakugan user;
-        GateCard targetGate;
-        Game game { get => user.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public CutInSaberEffect(Bakugan user, GateCard targetGate, int typeID, bool IsCopy)
-        {
-            this.user = user;
-            this.targetGate = targetGate;
-            this.IsCopy = IsCopy;
-
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            
-
-            if (user.InHand())
-                user.AddFromHand(targetGate);
-        }
     }
 }

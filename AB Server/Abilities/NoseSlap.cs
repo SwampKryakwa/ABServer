@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Position is GateCard posGate && x.Owner != Owner && posGate.IsAdjacent(User.Position as GateCard)}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ATTACKTARGET", TargetValidator = x => x.Position is GateCard posGate && x.Owner != Owner && posGate.IsAdjacent((User.Position as GateCard)!)}
             ];
         }
 
@@ -27,6 +27,6 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => x.Position is GateCard posGate && x.Owner != user.Owner && posGate.IsAdjacent(user.Position as GateCard));
+            user.Game.BakuganIndex.Any(x => x.Position is GateCard posGate && x.Owner != user.Owner && posGate.IsAdjacent((user.Position as GateCard)!));
     }
 }

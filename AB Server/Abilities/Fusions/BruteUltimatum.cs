@@ -12,33 +12,14 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new BruteUltimatumEffect(User, (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (User.Position is GateCard positionGate)
+                target?.AddFromHand(positionGate);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw;
-    }
-
-    internal class BruteUltimatumEffect
-    {
-        public int TypeId { get; }
-        Bakugan user;
-        Bakugan target;
-        Game game { get => user.Game; }
-
-        public BruteUltimatumEffect(Bakugan user, Bakugan target, int typeID)
-        {
-            this.user = user;
-            this.target = target;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-            
-
-            if (user.Position is GateCard positionGate)
-                target.AddFromHand(positionGate);
-        }
     }
 }

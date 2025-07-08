@@ -34,6 +34,13 @@ namespace AB_Server
         {
             Bakugans.Add(bakugan);
         }
+
+        public static bool IsAdjacent(IBakuganContainer pos1, IBakuganContainer pos2)
+        {
+            if (pos1 is GateCard gate1 && pos2 is GateCard gate2)
+                return GateCard.AreAdjacent(gate1, gate2);
+            return false;
+        }
     }
 
     abstract class Selector

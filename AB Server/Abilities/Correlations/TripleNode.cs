@@ -15,8 +15,7 @@
 
         public override void TriggerEffect()
         {
-            bool isPositive;
-            if (isFusion && CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(out isPositive, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
+            if (CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(out _, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
             {
                 User.Boost(200, this);
                 targetSelector1.SelectedBakugan.Boost(200, this);

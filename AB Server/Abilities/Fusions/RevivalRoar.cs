@@ -40,19 +40,4 @@ namespace AB_Server.Abilities.Fusions
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
     }
-
-    internal class RevivalRoarEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)
-    {
-        Player owner { get => user.Owner; }
-
-        public void Activate()
-        {
-            if (target.Position is GateCard positionGate && user.InDrop())
-            {
-                target.MoveFromFieldToDrop(positionGate.EnterOrder);
-                user.MoveFromDropToField(positionGate);
-                user.Boost(new Boost((short)(owner.BakuganDrop.Bakugans.Count * 100)), this);
-            }
-        }
-    }
 }

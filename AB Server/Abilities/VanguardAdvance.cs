@@ -14,19 +14,17 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.IsAdjacent(User.Position as GateCard) && x.Bakugans.Any(User.IsOpponentOf) }
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.IsAdjacent((User.Position as GateCard)!) && x.Bakugans.Any(User.IsOpponentOf) }
             ];
         }
 
-        public override void TriggerEffect()
-        {
-            new MoveBakuganEffect(User, User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Fireball" }).Activate();
-        }
+        public override void TriggerEffect() =>
+            GenericEffects.MoveBakuganEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Fireball" });
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.Position is GateCard positionGate && user.IsAttribute(Attribute.Nova) && Game.GateIndex.Any(x => positionGate.IsAdjacent(x) && x.Bakugans.Any(user.IsOpponentOf) && Game.CurrentWindow == ActivationWindow.BattleEnd);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.GateIndex.Any(x => x.IsAdjacent(user.Position as GateCard) && x.Bakugans.Any(user.IsOpponentOf));
+            user.Game.GateIndex.Any(x => x.IsAdjacent((user.Position as GateCard)!) && x.Bakugans.Any(user.IsOpponentOf));
     }
 }

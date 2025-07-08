@@ -417,6 +417,22 @@ namespace AB_Server
             };
         }
 
+        public static JObject GateRevealed(GateCard card)
+        {
+            return new()
+            {
+                { "Type", "GateRevealedEvent" },
+                { "PosX", card.Position.X },
+                { "PosY", card.Position.Y },
+                { "GateData", new JObject {
+                    { "Kind", (int)card.Kind },
+                    { "Type", card.TypeId } }
+                },
+                { "Owner", card.Owner.Id },
+                { "CID", card.CardId }
+            };
+        }
+
         public static JObject GateNegated(GateCard card)
         {
             return new JObject

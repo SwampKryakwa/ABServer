@@ -12,8 +12,17 @@ namespace AB_Server.Abilities.Fusions
             ];
         }
 
-        public override void TriggerEffect() =>
-            new PinDownEffect(User, (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (target is null) return;
+            if (target.Position is GateCard targetGate)
+                foreach (var bakugan in targetGate.Bakugans.Where(b => b != target))
+                {
+                    int powerDifference = 400 - bakugan.Power;
+                    bakugan.Boost(new Boost((short)powerDifference), this);
+                }
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();

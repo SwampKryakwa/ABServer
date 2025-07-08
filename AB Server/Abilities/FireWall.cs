@@ -15,8 +15,14 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new FireWallEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy, (ResTargetSelectors[0] as OptionSelector)!.SelectedOption).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if ((ResTargetSelectors[0] as OptionSelector)!.SelectedOption == 0 && User.IsAttribute(Attribute.Nova))
+                target.Boost(new Boost((short)-target.AdditionalPower), this);
+            else
+                target.Boost(new Boost(-50), this);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.InBattle && user.Position.Bakugans.Any(x => x.Owner != Owner);
@@ -48,7 +54,7 @@ namespace AB_Server.Abilities
 
         public void Activate()
         {
-            
+
 
             if (selectedOption == 0 && User.IsAttribute(Attribute.Nova))
                 target.Boost(new Boost((short)-target.AdditionalPower), this);

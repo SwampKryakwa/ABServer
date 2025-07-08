@@ -6,11 +6,16 @@
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATENEGATETARGET", TargetValidator = x => x.OnField}
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATENEGATETARGET", TargetValidator = x => x.OnField }
             ];
         }
 
-        public override void TriggerEffect() => new NegateGateEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
+            Game.ThrowEvent(EventBuilder.GateRevealed(target));
+            target.Negate();
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 

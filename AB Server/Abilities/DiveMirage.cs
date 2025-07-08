@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            new MoveBakuganEffect(User, User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, (int)Kind, new JObject() { ["MoveEffect"] = "Submerge" }).Activate();
+            GenericEffects.MoveBakuganEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Submerge" });
             if (Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Aqua)))
                 new DiveMirageMarker(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, Owner, Game, TypeId, Kind, IsCopy).Activate();
         }

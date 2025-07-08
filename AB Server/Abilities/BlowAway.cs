@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
         public override void TriggerEffect()
         {
             GateCard[] possibleDestinations = [.. Game.GateIndex.Where(x => x != User.Position && x.OnField)];
-            new MoveBakuganEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, possibleDestinations[new Random().Next(possibleDestinations.Length)], TypeId, (int)Kind).Activate();
+            GenericEffects.MoveBakuganEffect((CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, possibleDestinations[new Random().Next(possibleDestinations.Length)]);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

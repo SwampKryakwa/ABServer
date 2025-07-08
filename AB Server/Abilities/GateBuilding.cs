@@ -19,7 +19,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            var slots = (CondTargetSelectors[0] as MultiGateSlotSelector).SelectedSlots;
+            var slots = (CondTargetSelectors[0] as MultiGateSlotSelector)!.SelectedSlots;
 
             foreach (var slot in slots)
             {

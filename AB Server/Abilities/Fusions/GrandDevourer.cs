@@ -18,7 +18,7 @@ namespace AB_Server.Abilities.Fusions
 
             ResTargetSelectors =
             [
-                new YesNoSelector() { ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_WANTDISCARD", Condition = () =>(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner.AbilityHand.Count != 0 },
+                new YesNoSelector() { ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_WANTDISCARD", Condition = () =>(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner.AbilityHand.Count != 0, IsYes = false },
                 new AbilitySelector() { ClientType = "A", Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes, ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_DISCARDTARGET", TargetValidator = x => x.Owner == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner }
             ];
         }
@@ -31,7 +31,7 @@ namespace AB_Server.Abilities.Fusions
             }
             else
             {
-                var target = (CondTargetSelectors[0] as BakuganSelector).SelectedBakugan;
+                var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
                 if (target.Position is GateCard posGate)
                     target.MoveFromFieldToDrop(posGate.EnterOrder);
                 else if (target.InHand())

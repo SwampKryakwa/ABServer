@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.Bakugans.Any(User.IsOpponentOf)}
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField && x.Bakugans.Any(User.IsOpponentOf) }
             ];
         }
 
@@ -22,39 +22,17 @@ namespace AB_Server.Abilities
             Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
-        public override void TriggerEffect() =>
-            new DefiantCounterattackEffect(User, (ResTargetSelectors[0] as GateSelector)!.SelectedGate, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            if (User.InDrop() && (ResTargetSelectors[0] as GateSelector)!.SelectedGate is GateCard targetGate && targetGate.OnField)
+                User.MoveFromDropToField(targetGate);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InDrop();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(gate => gate.BattleOver);
-    }
-    internal class DefiantCounterattackEffect
-    {
-        public int TypeId { get; }
-        Bakugan User;
-        GateCard battleGate;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-
-        public DefiantCounterattackEffect(Bakugan user, GateCard battleGate, int typeID, bool IsCopy)
-        {
-            User = user;
-            this.battleGate = battleGate;
-            this.IsCopy = IsCopy;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-
-
-            User.MoveFromDropToField(battleGate);
-        }
     }
 }
 

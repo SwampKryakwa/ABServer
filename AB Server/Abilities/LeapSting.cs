@@ -12,8 +12,18 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new LeapStingEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            target.AbilityBlockers.Add(this);
+            Game.OnLongRangeBattleOver = () =>
+            {
+                target.AbilityBlockers.Remove(this);
+                if (User.Position is GateCard positionGate)
+                    User.MoveFromFieldToHand(positionGate.EnterOrder);
+            };
+            Game.StartLongRangeBattle(User, target);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != user.Position);

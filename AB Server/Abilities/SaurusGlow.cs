@@ -1,19 +1,16 @@
 
 namespace AB_Server.Abilities
 {
-    internal class SaurusGlow : AbilityCard
+    internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
-        public SaurusGlow(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-        { }
-
         public override void TriggerEffect() =>
-            new SaurusGlowEffect(User, TypeId, IsCopy).Activate();
+            new SaurusGlowMarker(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
     }
 
-    internal class SaurusGlowEffect : IActive
+    internal class SaurusGlowMarker : IActive
     {
         public int TypeId { get; }
         public int EffectId { get; set; }
@@ -24,7 +21,7 @@ namespace AB_Server.Abilities
         public Player Owner { get; set; }
         bool IsCopy;
 
-        public SaurusGlowEffect(Bakugan user, int typeID, bool IsCopy)
+        public SaurusGlowMarker(Bakugan user, int typeID, bool IsCopy)
         {
             User = user;
             this.IsCopy = IsCopy; Owner = user.Owner;

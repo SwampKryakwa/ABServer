@@ -13,32 +13,16 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect() =>
-            new LightningTornadoEffect(User, (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.IsAttribute(Attribute.Lumina) && user.InBattle;
-    }
-
-    internal class LightningTornadoEffect(Bakugan user, Bakugan target, int typeID, bool isCopy)
-    {
-        public int TypeId { get; } = typeID;
-        public Bakugan User = user;
-        Bakugan target = target;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy = isCopy;
-
-        public void Activate()
+        public override void TriggerEffect()
         {
-            
-
             // Increase the power of the user Bakugan by 100G
             User.Boost(new Boost(100), this);
 
             // If a target Bakugan is selected, decrease its power by 100G
-            target?.Boost(new Boost(-100), this);
+            (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(new Boost(-100), this);
         }
+
+        public override bool IsActivateableByBakugan(Bakugan user) =>
+            user.IsAttribute(Attribute.Lumina) && user.InBattle;
     }
 }

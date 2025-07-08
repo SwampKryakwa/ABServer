@@ -1,11 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace AB_Server.Abilities
 {
@@ -49,7 +43,7 @@ namespace AB_Server.Abilities
 
             Owner.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
-            new MoveBakuganEffect(User, target, (User.Position as GateCard)!, TypeId, (int)Kind, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID }).Activate();
+            GenericEffects.MoveBakuganEffect(target, (User.Position as GateCard)!, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
             target.TurnFrenzied();
             target.OnRemovedFromField += Stop;
         }

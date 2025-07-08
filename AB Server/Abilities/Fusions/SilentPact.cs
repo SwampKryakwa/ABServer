@@ -41,7 +41,7 @@
         public Bakugan User { get; set; } = user;
         public Player Owner { get; set; } = owner;
 
-        Attribute oldAttribute;
+        AttributeState attributeState;
 
         public void Activate()
         {
@@ -49,7 +49,7 @@
 
             User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
-            User.ChangeAttribute(newAttribute, this);
+            attributeState = User.ChangeAttribute(newAttribute, this);
             User.OnRemovedFromField += Stop;
             User.OnFromHandToDrop += Refresh;
             User.OnFromDropToHand += Refresh;
@@ -64,7 +64,7 @@
             User.OnFromHandToDrop -= Refresh;
             User.OnFromDropToHand -= Refresh;
 
-            User.ChangeAttribute(oldAttribute, this);
+            User.RevertAttributeChange(attributeState, this);
 
             User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }

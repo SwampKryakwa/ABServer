@@ -23,33 +23,17 @@ namespace AB_Server.Abilities.Fusions
             Game.OnAnswer[Owner.Id] = RecieveUser;
         }
 
-        public override void TriggerEffect() =>
-                new StrikeBackEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (User.InDrop())
+            {
+                User.MoveFromDropToField((target.Position as GateCard)!);
+                User.Boost((short)(target.Power - User.Power + 10), this);
+            }
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.BattleEnd && user.InDrop() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
-    }
-
-    internal class StrikeBackEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        Bakugan user = user;
-        Bakugan target = target;
-        Game game { get => user.Game; }
-
-        public Player Onwer { get; set; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            
-
-
-            if (user.InDrop())
-            {
-                user.MoveFromDropToField((target.Position as GateCard));
-                user.Boost(new Boost((short)(target.Power - user.Power + 10)), this);
-            }
-        }
     }
 }

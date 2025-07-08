@@ -10,10 +10,8 @@ namespace AB_Server.Abilities.Fusions
             ];
         }
 
-        public override void TriggerEffect()
-        {
+        public override void TriggerEffect() =>
             User.Boost(new Boost((short)Math.Abs((User.Power - (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Power) * 2)), this);
-        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);

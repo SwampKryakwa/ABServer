@@ -146,7 +146,8 @@ namespace AB_Server.Abilities
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BH" => EventBuilder.HandBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BF" => EventBuilder.FieldBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
-                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
+                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -158,7 +159,8 @@ namespace AB_Server.Abilities
                             "G" => throw new NotImplementedException(),
                             "GF" => EventBuilder.FieldGateSelection(currentSelector.Message, TypeId, (int)Kind, Game.GateIndex.Where(gateSelector.TargetValidator)),
                             "GH" => throw new NotImplementedException(),
-                            "GG" => throw new NotImplementedException()
+                            "GG" => throw new NotImplementedException(),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -170,7 +172,8 @@ namespace AB_Server.Abilities
                             "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
                             "AF" => throw new NotImplementedException(),
                             "AH" => throw new NotImplementedException(),
-                            "AG" => throw new NotImplementedException()
+                            "AG" => throw new NotImplementedException(),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -206,7 +209,8 @@ namespace AB_Server.Abilities
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -259,7 +263,7 @@ namespace AB_Server.Abilities
             else if (currentSelector is MultiGateSlotSelector multiSlotSelector)
             {
                 JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
-                multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)[0], (int)(x as JArray)[1]))];
+                multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
             }
             else
             {
@@ -323,7 +327,8 @@ namespace AB_Server.Abilities
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BH" => EventBuilder.HandBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
                             "BF" => EventBuilder.FieldBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
-                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator))
+                            "BG" => EventBuilder.DropBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -335,7 +340,8 @@ namespace AB_Server.Abilities
                             "G" => throw new NotImplementedException(),
                             "GF" => EventBuilder.FieldGateSelection(currentSelector.Message, TypeId, (int)Kind, Game.GateIndex.Where(gateSelector.TargetValidator)),
                             "GH" => throw new NotImplementedException(),
-                            "GG" => throw new NotImplementedException()
+                            "GG" => throw new NotImplementedException(),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -347,7 +353,8 @@ namespace AB_Server.Abilities
                             "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
                             "AF" => throw new NotImplementedException(),
                             "AH" => throw new NotImplementedException(),
-                            "AG" => throw new NotImplementedException()
+                            "AG" => throw new NotImplementedException(),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -377,7 +384,8 @@ namespace AB_Server.Abilities
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBH" => EventBuilder.HandMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
                             "MBF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
-                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator))
+                            "MBG" => EventBuilder.DropMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            _ => throw new NotImplementedException()
                         }
                         ));
                 }
@@ -430,7 +438,8 @@ namespace AB_Server.Abilities
 
         protected void Resolution()
         {
-            TriggerEffect();
+            if (!counterNegated)
+                TriggerEffect();
             Dispose();
             Game.ChainStep();
         }

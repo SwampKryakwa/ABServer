@@ -21,8 +21,9 @@ namespace AB_Server.Abilities
             Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
             short difference = (short)(User.Power - target.Power);
-            new BoostMultipleVariousEffect(User, [User, target], [(short)-difference, difference], TypeId, (int)Kind).Activate();
-            new BoostEffect(User, User, -100).Activate();
+            User.Boost(-difference, this);
+            target.Boost(difference, this);
+            User.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

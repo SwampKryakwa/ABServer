@@ -10,31 +10,17 @@
             ];
         }
 
-        public override void TriggerEffect() =>
-                new HolyLightEffect(User, (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan, TypeId, IsCopy).Activate();
+        public override void TriggerEffect()
+        {
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (target.InDrop())
+                target.MoveFromDropToHand();
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0;
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganDrop.Bakugans.Count != 0;
-    }
-
-    internal class HolyLightEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)
-    {
-        public int TypeId { get; } = typeID;
-        public Bakugan User = user;
-        Bakugan target = target;
-        Game game { get => User.Game; }
-
-
-        public Player Onwer { get; set; }
-        bool IsCopy = IsCopy;
-
-        public void Activate()
-        {
-            
-            target.MoveFromDropToHand();
-        }
     }
 }

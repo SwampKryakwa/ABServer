@@ -24,7 +24,6 @@ namespace AB_Server.Abilities
 
         public override CardKind Kind { get; } = CardKind.FusionAbility;
         public AbilityCard FusedTo;
-        bool asCounter;
 
         public override bool BakuganIsValid(Bakugan user) =>
             Owner.AbilityBlockers.Count == 0 && !user.Frenzied && user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;

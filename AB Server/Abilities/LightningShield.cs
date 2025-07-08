@@ -18,13 +18,12 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
+            if (CondTargetSelectors[0] is BakuganSelector targetSelector)
             {
-                if (CondTargetSelectors[0] is BakuganSelector targetSelector && User.IsAttribute(Attribute.Lumina))
-                    new BoostEffect(User, targetSelector.SelectedBakugan, -100).Activate();
-            }
-            {
-                if (CondTargetSelectors[0] is BakuganSelector targetSelector && targetSelector.SelectedBakugan.Power > User.Power)
-                    new BoostEffect(User, targetSelector.SelectedBakugan, -100).Activate();
+                if (!targetSelector.SelectedBakugan.IsAttribute(Attribute.Lumina))
+                    targetSelector.SelectedBakugan.Boost(-100, this);
+                if (targetSelector.SelectedBakugan.Power > User.Power)
+                    targetSelector.SelectedBakugan.Boost(-100, this);
             }
         }
 

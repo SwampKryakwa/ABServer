@@ -6,14 +6,15 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position }
             ];
         }
 
         public override void TriggerEffect()
         {
             var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            target.Boost(new Boost((short)-target.AdditionalPower), this);
+
+            target?.Boost(new Boost((short)-target.AdditionalPower), this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

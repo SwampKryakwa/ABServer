@@ -20,10 +20,10 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            new BoostEffect(User, User, 100).Activate();
+            User.Boost(100, this);
 
             if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes && ResTargetSelectors[1] is BakuganSelector targetSelector)
-                new BoostEffect(User, targetSelector.SelectedBakugan, -100).Activate();
+                targetSelector?.SelectedBakugan.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

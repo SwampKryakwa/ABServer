@@ -31,7 +31,7 @@
 
         public override void Resolve()
         {
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 
@@ -44,7 +44,7 @@
         {
             target1 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
             ));
 

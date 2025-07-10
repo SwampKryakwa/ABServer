@@ -26,7 +26,7 @@ namespace AB_Server.Gates
         public override void Resolve()
         {
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x.Owner == Owner))
             ));
 

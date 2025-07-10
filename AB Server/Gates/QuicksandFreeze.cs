@@ -24,7 +24,7 @@
             EffectId = game.NextEffectId++;
             game.ThrowEvent(EventBuilder.GateOpen(this));
 
-            game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                 EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
             ));
 

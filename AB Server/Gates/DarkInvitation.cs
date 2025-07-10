@@ -38,7 +38,7 @@ namespace AB_Server.Gates
 
             if (!Negated)
             {
-                game.NewEvents[targetPlayer.Id].Add(EventBuilder.SelectionBundler(false,
+                game.ThrowEvent(targetPlayer.Id,EventBuilder.SelectionBundler(false,
                     EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
                 ));
 
@@ -52,7 +52,7 @@ namespace AB_Server.Gates
         {
             if ((bool)game.PlayerAnswers[Owner.Id]!["array"][0]["answer"])
             {
-                game.NewEvents[targetPlayer.Id].Add(EventBuilder.SelectionBundler(false,
+                game.ThrowEvent(targetPlayer.Id, EventBuilder.SelectionBundler(false,
                     EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[targetPlayer.Id].Bakugans)
                 ));
 

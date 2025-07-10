@@ -29,7 +29,7 @@ namespace AB_Server.Gates
         public override void Resolve()
         {
 
-            game.NewEvents[Owner.Id].Add(new JObject {
+            game.ThrowEvent(Owner.Id, new JObject {
                 { "Type", "StartSelection" },
                 { "Count", 1 },
                 { "Selections", new JArray {

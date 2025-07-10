@@ -264,6 +264,11 @@ namespace AB_Server
             foreach (var spectator in Spectators)
                 SpectatorEvents[spectator].Add(@event);
         }
+        public void ThrowEvent(int reciever, JObject @event)
+        {
+            Console.WriteLine(@event);
+            NewEvents[reciever].Add(@event);
+        }
 
         public JArray GetEvents(int player)
         {
@@ -969,7 +974,7 @@ namespace AB_Server
         public void SuggestCounter(Player player, IActive card, Player user)
         {
             OnAnswer[player.Id] = () => CheckCounter(player, card, user);
-            NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
+            ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
         }
 
         public void CheckCounter(Player player, IActive card, Player user)
@@ -986,7 +991,7 @@ namespace AB_Server
                 player.HadUsedCounter = true;
                 OnAnswer[player.Id] = () => ResolveCounter(player);
 
-                NewEvents[player.Id].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
         }
 

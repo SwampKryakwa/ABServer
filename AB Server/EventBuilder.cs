@@ -115,13 +115,13 @@ namespace AB_Server
             };
         }
 
-        public static JObject FieldBakuganSelection(string prompt, int ability, int cardKind, params IEnumerable<Bakugan> bakugans)
+        public static JObject FieldBakuganSelection(string prompt, int cardType, int cardKind, params IEnumerable<Bakugan> bakugans)
         {
             return new()
             {
                 { "SelectionType", "BF" },
                 { "Message", prompt },
-                { "Card", ability },
+                { "Card", cardType },
                 { "CardKind", cardKind },
                 { "SelectionBakugans", new JArray(bakugans.Select(x => new JObject {
                     { "Type", (int)x.Type },

@@ -931,8 +931,8 @@ namespace AB_Server
         public static bool IsAdjacent(Bakugan bakugan1, Bakugan bakugan2)
         {
 
-            List<Attribute> attrs1 = [.. bakugan1.attributeChanges[^1].Attributes];
-            List<Attribute> attrs2 = [.. bakugan1.attributeChanges[^1].Attributes];
+            List<Attribute> attrs1 = bakugan1.attributeChanges.Count == 0 ? [bakugan1.BaseAttribute] : [.. bakugan1.attributeChanges[^1].Attributes];
+            List<Attribute> attrs2 = bakugan2.attributeChanges.Count == 0 ? [bakugan2.BaseAttribute] : [.. bakugan2.attributeChanges[^1].Attributes];
 
             return attrs1.Contains(Attribute.Nova) && attrs2.Contains(Attribute.Subterra) ||
                 attrs1.Contains(Attribute.Subterra) && attrs2.Contains(Attribute.Lumina) ||
@@ -946,7 +946,7 @@ namespace AB_Server
         {
 
             List<Attribute> attrs1 = bakugan1.attributeChanges.Count == 0 ? [bakugan1.BaseAttribute] : [.. bakugan1.attributeChanges[^1].Attributes];
-            List<Attribute> attrs2 = bakugan1.attributeChanges.Count == 0 ? [bakugan1.BaseAttribute] : [.. bakugan1.attributeChanges[^1].Attributes];
+            List<Attribute> attrs2 = bakugan2.attributeChanges.Count == 0 ? [bakugan2.BaseAttribute] : [.. bakugan2.attributeChanges[^1].Attributes];
 
             return attrs1.Contains(Attribute.Nova) && attrs2.Contains(Attribute.Darkon) ||
                 attrs1.Contains(Attribute.Darkon) && attrs2.Contains(Attribute.Nova) ||

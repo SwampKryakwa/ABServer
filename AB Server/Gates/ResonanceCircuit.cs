@@ -34,7 +34,7 @@ namespace AB_Server.Gates
         public override void Resolve()
         {
 
-            game.NewEvents[Owner.Id].Add(new JObject {
+            game.ThrowEvent(Owner.Id, new JObject {
                 { "Type", "StartSelection" },
                 { "Selections", new JArray {
                     EventBuilder.AbilitySelection("INFO_GATE_ABILITYTARGET", game.AbilityIndex.Where(x => x.Owner == Owner && x.Kind == CardKind.CorrelationAbility))

@@ -16,7 +16,7 @@
         {
             if (!Negated && Owner.Bakugans.Count >= 0 && game.BakuganIndex.Count(x => x.Owner.TeamId != Owner.TeamId) > game.BakuganIndex.Count(x => x.Owner == Owner))
             {
-                game.NewEvents[Owner.Id].Add(EventBuilder.SelectionBundler(false,
+                game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                     EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[Owner.Id].Bakugans)
                 ));
 

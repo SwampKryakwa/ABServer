@@ -183,7 +183,7 @@ namespace AB_Server.Gates
             Owner.GateHand.Remove(this);
             Position = (posX, posY);
             game.ThrowEvent(EventBuilder.GateSet(this, false), Owner.Id);
-            game.NewEvents[Owner.Id].Add(EventBuilder.GateSet(this, true));
+            game.ThrowEvent(Owner.Id, EventBuilder.GateSet(this, true));
             game.GateSetList.Add(this);
             game.OnGateAdded(this, Owner.Id, posX, posY);
         }
@@ -191,7 +191,7 @@ namespace AB_Server.Gates
         public virtual void Retract()
         {
             game.ThrowEvent(EventBuilder.GateRetracted(this, false), Owner.Id);
-            game.NewEvents[Owner.Id].Add(EventBuilder.GateRetracted(this, true));
+            game.ThrowEvent(Owner.Id, EventBuilder.GateRetracted(this, true));
             game.ThrowEvent(new JObject
             {
                 ["Type"] = "GateAddedToHand",

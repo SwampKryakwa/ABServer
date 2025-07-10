@@ -36,7 +36,7 @@ namespace AB_Server.Gates
         {
             if (!Negated)
             {
-                game.NewEvents[Owner.Id].Add(new JObject
+                game.ThrowEvent(Owner.Id, new JObject
                 {
                     ["Type"] = "StartSelection",
                     ["Selections"] = new JArray {

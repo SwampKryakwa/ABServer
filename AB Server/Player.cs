@@ -69,7 +69,6 @@ namespace AB_Server
                 int attr = (int)b["Attribute"];
                 int treatment = (int)b["Treatment"];
 
-                Console.WriteLine(Game);
                 Bakugan bak = new((BakuganType)type, power, (Attribute)attr, (Treatment)treatment, this, Game, Game.BakuganIndex.Count);
                 Game.BakuganIndex.Add(bak);
                 Bakugans.Add(bak);

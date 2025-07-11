@@ -114,7 +114,7 @@ namespace AB_Server
 
         public bool IsAttribute(Attribute attr)
         {
-            return attributeChanges.Count == 0 ? BaseAttribute == attr : attributeChanges[^0].IsAttribute(attr);
+            return attributeChanges.Count == 0 ? BaseAttribute == attr : attributeChanges[^1].IsAttribute(attr);
         }
 
         public IBakuganContainer Position = owner;

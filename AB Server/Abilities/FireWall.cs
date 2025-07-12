@@ -30,37 +30,5 @@ namespace AB_Server.Abilities
         public static new bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(x => x.Owner != user.Owner);
     }
-
-    internal class FireWallEffect
-    {
-        public int TypeId { get; }
-        public Bakugan User;
-        Bakugan target;
-        Game game { get => User.Game; }
-
-        public Player Owner { get; set; }
-        bool IsCopy;
-        int selectedOption;
-
-        public FireWallEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy, int selectedOption)
-        {
-            User = user;
-            this.target = target;
-
-            this.IsCopy = IsCopy;
-            this.selectedOption = selectedOption;
-            TypeId = typeID;
-        }
-
-        public void Activate()
-        {
-
-
-            if (selectedOption == 0 && User.IsAttribute(Attribute.Nova))
-                target.Boost(new Boost((short)-target.AdditionalPower), this);
-            else
-                target.Boost(new Boost(-50), this);
-        }
-    }
 }
 

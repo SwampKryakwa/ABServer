@@ -296,7 +296,7 @@ namespace AB_Server
 
         public static JObject ActiveSelection(string message, int card, int kind, params IEnumerable<IActive> actives)
         {
-            JArray jsonActives = new();
+            JArray jsonActives = [];
 
             foreach (IActive active in actives)
             {

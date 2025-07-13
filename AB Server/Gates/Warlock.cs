@@ -29,13 +29,9 @@ namespace AB_Server.Gates
         public override void Resolve()
         {
 
-            game.ThrowEvent(Owner.Id, new JObject {
-                { "Type", "StartSelection" },
-                { "Count", 1 },
-                { "Selections", new JArray {
-                    EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", TypeId, (int)Kind, game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
-                } }
-            });
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
+                EventBuilder.ActiveSelection("INFO_GATE_ABILITYNEGATETARGET", TypeId, (int)Kind, game.ActiveZone.Where(x => x is not GateCard && x is not AbilityCard).ToArray())
+            ));
 
             game.OnAnswer[Owner.Id] = Setup;
         }

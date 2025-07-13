@@ -36,7 +36,7 @@ namespace AB_Server.Abilities
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             game.BakuganAdded += OnBakuganAdded;
-            game.BakuganDestroyed += OnBakuganDestroyed;
+            User.OnDestroyed += OnUserDestroyed;
         }
 
         private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
@@ -49,9 +49,9 @@ namespace AB_Server.Abilities
 
         public void Negate(bool asCounter) => StopEffect();
 
-        private void OnBakuganDestroyed(Bakugan target, byte owner)
+        private void OnUserDestroyed()
         {
-            if (target == User) StopEffect();
+            StopEffect();
         }
 
         void StopEffect()
@@ -59,7 +59,7 @@ namespace AB_Server.Abilities
             game.ActiveZone.Remove(this);
 
             game.BakuganAdded -= OnBakuganAdded;
-            game.BakuganDestroyed -= OnBakuganDestroyed;
+            User.OnDestroyed -= OnUserDestroyed;
 
             game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         }

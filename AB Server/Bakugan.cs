@@ -804,7 +804,7 @@ namespace AB_Server
                 {
                     ["Type"] = "BakuganRemoved",
                     ["Owner"] = Owner.Id,
-                    ["IsDestroy"] = false,
+                    ["IsDestroy"] = true,
                     ["Bakugan"] = new JObject
                     {
                         ["Type"] = (int)Type,

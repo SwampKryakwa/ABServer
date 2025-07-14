@@ -645,16 +645,17 @@ namespace AB_Server
                 ["Owner"] = Owner.Id,
                 ["HpLeft"] = Owner.BakuganOwned.Count(x => !x.Defeated)
             });
-            game.ThrowEvent(new JObject {
-                    { "Type", "BakuganAddedToHand" },
-                    { "Owner", Owner.Id },
-                    { "BakuganType", (int)Type },
-                    { "Attribute", (int)BaseAttribute },
-                    { "Treatment", (int)Treatment },
-                    { "Power", Power },
-                    { "IsPartner", IsPartner },
-                    { "BID", BID }
-                });
+            game.ThrowEvent(new JObject
+            {
+                ["Type"] = "BakuganAddedToHand",
+                ["Owner"] = Owner.Id,
+                ["BakuganType"] = (int)Type,
+                ["Attribute"] = (int)BaseAttribute,
+                ["Treatment"] = (int)Treatment,
+                ["Power"] = Power,
+                ["IsPartner"] = IsPartner,
+                ["BID"] = BID
+            });
             game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemovedFromGrave",

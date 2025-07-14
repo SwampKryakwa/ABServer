@@ -461,10 +461,10 @@ namespace AB_Server.Abilities
 
                 Game.ThrowEvent(new()
                 {
-                    { "Type", "AbilityRemovedActiveZone" },
-                    { "Id", EffectId },
-                    { "Card", TypeId },
-                    { "Owner", Owner.Id }
+                    ["Type"] = "AbilityRemovedActiveZone",
+                    ["Id"] = EffectId,
+                    ["Card"] = TypeId,
+                    ["Owner"] = Owner.Id
                 });
             }
             Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
@@ -511,10 +511,10 @@ namespace AB_Server.Abilities
 
             Game.ThrowEvent(new()
             {
-                { "Type", "AbilityRemovedActiveZone" },
-                { "Id", EffectId },
-                { "Card", TypeId },
-                { "Owner", Owner.Id }
+                ["Type"] = "AbilityRemovedActiveZone",
+                ["Id"] = EffectId,
+                ["Card"] = TypeId,
+                ["Owner"] = Owner.Id
             });
             Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
         }

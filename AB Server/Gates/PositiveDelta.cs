@@ -12,15 +12,6 @@
 
         public override int TypeId { get; } = 6;
 
-        public override bool IsOpenable() =>
-            false;
-
-        public override void CheckAutoBattleStart()
-        {
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
-
         public override void Open()
         {
             IsOpen = true;

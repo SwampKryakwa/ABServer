@@ -740,7 +740,7 @@ namespace AB_Server
 
                     if (gateToOpen == null)
                     {
-                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                         break;
                     }
 
@@ -751,14 +751,14 @@ namespace AB_Server
                         gateToOpen.Open();
                     }
                     else
-                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
 
                     break;
                 case "pass":
                     Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
                     if (!isBattleGoing && !LongRangeBattleGoing)
                     {
-                        NewEvents[ActivePlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                         break;
                     }
                     if (LongRangeBattleGoing)
@@ -792,7 +792,7 @@ namespace AB_Server
                 case "end":
                     if (!Players[TurnPlayer].CanEndTurn())
                     {
-                        NewEvents[TurnPlayer].Add(new JObject { { "Type", "InvalidAction" } });
+                        NewEvents[TurnPlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                         break;
                     }
                     else

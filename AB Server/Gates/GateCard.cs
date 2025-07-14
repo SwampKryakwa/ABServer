@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server.Gates
 {
-    internal class GateCard : IBakuganContainer, IActive, IChainable
+    abstract class GateCard : IBakuganContainer, IActive, IChainable
     {
         public Bakugan User { get; set; } = null;
 
@@ -224,9 +224,7 @@ namespace AB_Server.Gates
             game.CheckChain(Owner, this);
         }
 
-        public virtual void Resolve()
-        {
-        }
+        public abstract void Resolve();
 
         public virtual bool IsOpenable() =>
             OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || (game.Targets is not null && Bakugans.Any(x => game.Targets.Contains(x)))) && !IsOpen;

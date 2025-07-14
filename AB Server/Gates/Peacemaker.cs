@@ -12,6 +12,8 @@
 
         public override int TypeId { get; } = 1;
 
+        public override void Resolve() {}
+
         public override void DetermineWinner()
         {
             if (IsOpen)

@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         SpecialGate
     }
 
-    internal class AbilityCard(int cID, Player owner, int typeId) : IActive, IChainable
+    abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChainable
     {
         public static (Func<int, Player, AbilityCard> constructor, Func<Bakugan, bool> validTarget)[] AbilityCtrs =
         [
@@ -98,8 +98,7 @@ namespace AB_Server.Abilities
             Game.BakuganIndex.Any(BakuganIsValid);
         public virtual bool BakuganIsValid(Bakugan user) =>
             Owner.AbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
-        public virtual bool IsActivateableByBakugan(Bakugan user) =>
-            throw new NotImplementedException();
+        public abstract bool IsActivateableByBakugan(Bakugan user);
         public virtual bool IsActivateableCounter() => IsActivateable();
 
         public static bool HasValidTargets(Bakugan user) => true;
@@ -520,8 +519,7 @@ namespace AB_Server.Abilities
             Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
         }
 
-        public virtual void TriggerEffect() =>
-            throw new NotImplementedException();
+        public abstract void TriggerEffect();
 
         public virtual void Negate(bool asCounter)
         {

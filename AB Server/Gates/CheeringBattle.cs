@@ -14,7 +14,7 @@
 
         public override void Resolve()
         {
-            if (!Negated && Owner.Bakugans.Count >= 0 && game.BakuganIndex.Count(x => x.Owner.TeamId != Owner.TeamId) > game.BakuganIndex.Count(x => x.Owner == Owner))
+            if (!Negated && Owner.Bakugans.Count >= 0 && game.BakuganIndex.Count(x => x.OnField() && x.Owner.TeamId != Owner.TeamId) > game.BakuganIndex.Count(x => x.OnField() && x.Owner == Owner))
             {
                 game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
                     EventBuilder.HandBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, game.Players[Owner.Id].Bakugans)

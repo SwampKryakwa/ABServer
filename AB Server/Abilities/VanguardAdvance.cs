@@ -22,7 +22,7 @@ namespace AB_Server.Abilities
             GenericEffects.MoveBakuganEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Fireball" });
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Position is GateCard positionGate && user.IsAttribute(Attribute.Nova) && Game.GateIndex.Any(x => positionGate.IsAdjacent(x) && x.Bakugans.Any(user.IsOpponentOf) && Game.CurrentWindow == ActivationWindow.BattleEnd);
+            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Position is GateCard positionGate && user.IsAttribute(Attribute.Nova) && Game.GateIndex.Any(x => positionGate.IsAdjacent(x) && x.Bakugans.Any(user.IsOpponentOf));
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(x => x.IsAdjacent((user.Position as GateCard)!) && x.Bakugans.Any(user.IsOpponentOf));

@@ -175,7 +175,7 @@ namespace AB_Server.Gates
             game.ThrowEvent(EventBuilder.SendGateToDrop(this));
         }
 
-        public virtual void Set(byte posX, byte posY)
+        public void Set(byte posX, byte posY)
         {
             IsOpen = false;
             game.Field[posX, posY] = this;
@@ -186,6 +186,27 @@ namespace AB_Server.Gates
             game.ThrowEvent(Owner.Id, EventBuilder.GateSet(this, true));
             game.GateSetList.Add(this);
             game.OnGateAdded(this, Owner.Id, posX, posY);
+        }
+
+        public static void MultiSet(Game game, GateCard[] gateCards, (byte posX, byte posY)[] positions, byte[] setBy)
+        {
+            for (int i = 0; i < gateCards.Length; i++)
+            {
+                GateCard card = gateCards[i];
+                card.IsOpen = false;
+                card.OnField = true;
+                card.Owner.GateHand.Remove(card);
+                game.Field[positions[i].posX, positions[i].posY] = card;
+                card.Position = positions[i];
+                game.GateSetList.Add(card);
+            }
+
+            var settables = gateCards.Zip(setBy, (first, second) => (first, second)).ToArray();
+            for (byte i = 0; i < game.PlayerCount; i++)
+                game.ThrowEvent(i, EventBuilder.MultiGateSet(settables, i));
+
+            for (int i = 0; i < gateCards.Length; i++)
+                game.OnGateAdded(gateCards[i], setBy[i], positions[i].posX, positions[i].posY);
         }
 
         public virtual void Retract()

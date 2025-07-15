@@ -387,7 +387,10 @@ namespace AB_Server
                 OnAnswer[i] = () =>
                 {
                     if (PlayerAnswers.Contains(null)) return;
-                    for (byte j = 0; j < PlayerAnswers.Length; j++)
+                    GateCard[] cards = new GateCard[PlayerCount];
+                    (byte, byte)[] positions = new (byte, byte)[PlayerCount];
+                    byte[] players = new byte[PlayerCount];
+                    for (byte j = 0; j < PlayerCount; j++)
                     {
                         dynamic selection = PlayerAnswers[j];
                         int id = (int)selection["gate"];
@@ -399,8 +402,13 @@ namespace AB_Server
                             ["CID"] = GateIndex[id].CardId,
                             ["Owner"] = j
                         });
-                        GateIndex[id].Set(FirstCardPositions[j].X, FirstCardPositions[j].Y);
+                        cards[j] = GateIndex[id];
+                        positions[j] = (FirstCardPositions[j].X, FirstCardPositions[j].Y);
+                        players[j] = j;
                     }
+
+                    GateCard.MultiSet(this, cards, positions, players);
+
                     StartTurn();
                 };
             }

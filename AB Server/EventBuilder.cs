@@ -367,6 +367,26 @@ namespace AB_Server
             };
         }
 
+        public static JObject MultiGateSet((GateCard card, byte setBy)[] cards, byte forPlayer)
+        {
+            return new()
+            {
+                ["Type"] = "GateMultiSetEvent",
+                ["Cards"] = JArray.FromObject(cards.Select(card => new JObject
+                {
+                    ["PosX"] = card.card.Position.X,
+                    ["PosY"] = card.card.Position.Y,
+                    ["GateData"] = new JObject
+                    {
+                        ["Kind"] = (int)card.card.Kind,
+                        ["Type"] = card.setBy == forPlayer ? card.card.TypeId : -2
+                    },
+                    ["Owner"] = card.card.Owner.Id,
+                    ["CID"] = card.card.CardId
+                }))
+            };
+        }
+
         public static JObject GateRetracted(GateCard card, bool RevealInfo)
         {
             return new()

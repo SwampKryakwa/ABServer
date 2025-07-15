@@ -1,4 +1,5 @@
-﻿using AB_Server.Gates.SpecialGates;
+﻿using AB_Server.Gates;
+using AB_Server.Gates.SpecialGates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,20 @@ namespace AB_Server.Abilities
         {
             var slots = (CondTargetSelectors[0] as MultiGateSlotSelector)!.SelectedSlots;
 
-            foreach (var slot in slots)
+            List<GateOfSubterra80> cards = [];
+            List<(byte, byte)> positions = [];
+            List<byte> players = [];
+            
+            foreach ((int X, int Y) in slots)
             {
                 var gate = new GateOfSubterra80(Game.GateIndex.Count, Owner);
                 Game.GateIndex.Add(gate);
-                gate.Set((byte)slot.X, (byte)slot.Y);
+                cards.Add(gate);
+                positions.Add(((byte)X, (byte)Y));
+                players.Add(Owner.Id);
             }
+
+            GateCard.MultiSet(Game, [.. cards], [.. positions], [.. players]);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

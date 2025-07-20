@@ -54,8 +54,10 @@ namespace AB_Server.Gates
 
         public bool BattleStarted = false;
         public bool IsBattleGoing { get => Freezing.Count == 0 && (Bakugans.Select(x => x.Owner.TeamId).Distinct().Count() > 1 || (Bakugans.Count >= 2 && Bakugans.Any(x => x.Frenzied))); }
+        public bool BattleStarting { get => !BattleStarted && IsBattleGoing; }
         public bool BattleDeclaredOver = false;
         public bool BattleOver = false;
+        public bool BattleEnding { get => BattleDeclaredOver && !BattleOver; }
         public bool IsFrozen { get => Freezing.Count != 0; }
         public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
         public List<object> Freezing = new();
@@ -248,7 +250,7 @@ namespace AB_Server.Gates
         public abstract void Resolve();
 
         public virtual bool IsOpenable() =>
-            OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || (game.Targets is not null && Bakugans.Any(x => game.Targets.Contains(x)))) && !IsOpen;
+            game.CurrentWindow == ActivationWindow.Normal && OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || (game.Targets is not null && Bakugans.Any(x => game.Targets.Contains(x)))) && !IsOpen;
 
         public virtual int TypeId =>
             throw new NotImplementedException();

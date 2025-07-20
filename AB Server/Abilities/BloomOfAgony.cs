@@ -1,3 +1,5 @@
+using AB_Server.Gates;
+
 namespace AB_Server.Abilities
 {
     internal class BloomOfAgony : AbilityCard
@@ -10,6 +12,6 @@ namespace AB_Server.Abilities
                 target.Boost(-300, this);
         }
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.BattleStart && user.OnField() && user.IsAttribute(Attribute.Darkon);
+        public override bool IsActivateableByBakugan(Bakugan user) => user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Darkon);
     }
 }

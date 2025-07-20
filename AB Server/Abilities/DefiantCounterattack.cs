@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Raptor && user.InDrop();
+            Game.CurrentWindow == ActivationWindow.Intermediate && user.Type == BakuganType.Raptor && user.InDrop();
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.GateIndex.Any(gate => gate.BattleOver);

@@ -1,3 +1,5 @@
+using AB_Server.Gates;
+
 namespace AB_Server.Abilities
 {
     internal class MercilessTriumph : AbilityCard
@@ -17,7 +19,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw && Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+            user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleEnding && user.JustEndedBattle && !user.BattleEndedInDraw && Game.BakuganIndex.Any(target => IsTargetValid(target, user));
 
         static bool IsTargetValid(Bakugan target, Bakugan user) =>
             target.OnField() && target != user;

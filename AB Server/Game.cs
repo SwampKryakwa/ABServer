@@ -9,10 +9,9 @@ namespace AB_Server
     enum ActivationWindow : byte
     {
         Normal,
-        BattleStart,
-        BattleEnd,
         TurnStart,
         TurnEnd,
+        Intermediate
     }
     internal class Game
     {
@@ -454,7 +453,7 @@ namespace AB_Server
                     ["Type"] = "PhaseChange",
                     ["Phase"] = "Main"
                 });
-                UpdateBattleStates();
+                CheckAnyBattlesToUpdateState();
             };
             SuggestWindow(ActivationWindow.TurnStart, ActivePlayer, ActivePlayer);
         }
@@ -547,90 +546,145 @@ namespace AB_Server
                 });
             }
             else if (GateIndex.Any(x => x.BattleDeclaredOver) || GateIndex.Any(x => !x.BattleStarted && x.IsBattleGoing))
-                UpdateBattleStates();
-            else if (shouldTurnEnd)
+            {
+                Console.WriteLine("Starting intermediate step");
+                if (CurrentWindow != ActivationWindow.Intermediate)
+                {
+                    CurrentWindow = ActivationWindow.Intermediate;
+                    if (GateIndex.Any(x => x.IsOpenable()))
+                    {
+                        ActivePlayer = Players.First(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable())).Id;
+                        ThrowMoveStart();
+                    }
+                    else if (AbilityIndex.Any(x => x.IsActivateable()))
+                    {
+                        ActivePlayer = Players.First(x => AbilityIndex.Any(a => a.Owner == x && a.IsActivateable())).Id;
+                        ThrowMoveStart();
+                    }
+                    else
+                        ChangeBattleStates();
+                }
+                else ThrowMoveStart();
+            }
+            else
+                ChangeBattleStates();
+        }
+
+        void ChangeBattleStates()
+        {
+            Console.WriteLine("Changing battle states");
+            foreach (var gate in GateIndex.Where(x => x.OnField && x.BattleStarting))
+                gate.BattleStarted = true;
+
+            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
+            {
+                g.DetermineWinner();
+                g.Dispose();
+            }
+                
+            CurrentWindow = ActivationWindow.Normal;
+            if (shouldTurnEnd)
                 EndTurn();
             else
                 ThrowMoveStart();
         }
 
-        bool anyBattlesStarted;
-        bool anyBattlesEnded;
-        void UpdateBattleStates()
-        {
-            //Starting started battles
-            anyBattlesStarted = false;
-            anyBattlesEnded = false;
-            foreach (var gate in GateIndex.Where(x => x.OnField))
-            {
-                if (gate.BattleStarted || !gate.IsBattleGoing) continue;
-                gate.CheckAutoBattleStart();
-                gate.BattleStarted = true;
-                anyBattlesStarted = true;
-                playersPassed.Clear();
-            }
+        // bool anyBattlesStarted;
+        // bool anyBattlesEnded;
+        // void UpdateBattleStates()
+        // {
+        //     //Starting started battles
+        //     anyBattlesStarted = false;
+        //     anyBattlesEnded = false;
+        //     foreach (var gate in GateIndex.Where(x => x.OnField))
+        //     {
+        //         if (gate.BattleStarted || !gate.IsBattleGoing) continue;
+        //         gate.CheckAutoBattleStart();
+        //         gate.BattleStarted = true;
+        //         anyBattlesStarted = true;
+        //         playersPassed.Clear();
+        //     }
 
-            //Cleaning up over battles
-            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
-            {
-                anyBattlesEnded = true;
-                g.DetermineWinner();
-                g.CheckAutoBattleEnd();
-            }
+        //     //Cleaning up over battles
+        //     foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
+        //     {
+        //         anyBattlesEnded = true;
+        //         g.DetermineWinner();
+        //         g.CheckAutoBattleEnd();
+        //     }
 
-            OpenBattleStateChangeGates();
-        }
+        //     OpenBattleStateChangeGates();
+        // }
 
-        void OpenBattleStateChangeGates()
-        {
-            if (ActivePlayer == PlayerCount) ActivePlayer = 0;
-            if (AutoGatesToOpen.Count == 0)
-            {
-                if (anyBattlesStarted)
-                {
-                    NextStep = () =>
-                    {
-                        NextStep = EndBattles;
-                        if (anyBattlesEnded)
-                            SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
-                        else
-                            CheckAnyBattlesToUpdateState();
-                    };
-                    SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
-                }
-                else if (anyBattlesEnded)
-                {
-                    NextStep = EndBattles;
-                    SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
-                }
-                else
-                    CheckAnyBattlesToUpdateState();
-            }
-            else
-            {
-                while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
-                {
-                    ActivePlayer++;
-                    if (ActivePlayer == PlayerCount) ActivePlayer = 0;
-                }
+        // void OpenBattleStateChangeGates()
+        // {
+        //     if (ActivePlayer == PlayerCount) ActivePlayer = 0;
+        //     if (AutoGatesToOpen.Count == 0)
+        //     {
+        //         if (anyBattlesStarted)
+        //         {
+        //             NextStep = () =>
+        //             {
+        //                 NextStep = EndBattles;
+        //                 if (anyBattlesEnded)
+        //                     SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
+        //                 else
+        //                     CheckAnyBattlesToUpdateState();
+        //             };
+        //             SuggestWindow(ActivationWindow.BattleStart, TurnPlayer, TurnPlayer);
+        //         }
+        //         else if (anyBattlesEnded)
+        //         {
+        //             NextStep = EndBattles;
+        //             SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
+        //         }
+        //         else
+        //             CheckAnyBattlesToUpdateState();
+        //     }
+        //     else
+        //     {
+        //         while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
+        //         {
+        //             ActivePlayer++;
+        //             if (ActivePlayer == PlayerCount) ActivePlayer = 0;
+        //         }
 
-                NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
-                    EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
-                ));
-                OnAnswer[ActivePlayer] = () =>
-                {
-                    AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
-                    CardChain.Push(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
-                    GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
-                    ActivePlayer++;
-                };
-            }
-        }
+        //         NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
+        //             EventBuilder.FieldGateSelection("INFO_OPENSTARTBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
+        //         ));
+        //         OnAnswer[ActivePlayer] = () =>
+        //         {
+        //             AutoGatesToOpen.Remove(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+        //             CardChain.Push(GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]]);
+        //             GateIndex[(int)PlayerAnswers[ActivePlayer]!["array"][0]["gate"]].Open();
+        //             ActivePlayer++;
+        //         };
+        //     }
+        // }
 
         public void ThrowMoveStart()
         {
-            CurrentWindow = ActivationWindow.Normal;
-            ThrowEvent(new JObject { ["Type"] = "PlayerTurnStart", ["PID"] = LongRangeBattleGoing ? Targets.First().Owner.Id : ActivePlayer });
+            ThrowEvent(new JObject
+            {
+                ["Type"] = "PlayerTurnStart",
+                ["PID"] = LongRangeBattleGoing ? Targets!.First().Owner.Id : ActivePlayer,
+
+                ["BattlesGoing"] = new JArray(GateIndex.Where(x => x.IsBattleGoing).Select(x => new JObject
+                {
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                })),
+                ["BattlesStarting"] = new JArray(GateIndex.Where(x => x.BattleStarting).Select(x => new JObject
+                {
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                })),
+                ["BattlesEnding"] = new JArray(GateIndex.Where(x => x.BattleEnding).Select(x => new JObject
+                {
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y,
+                }))
+            });
         }
 
         public JObject GetPossibleMoves(int player)
@@ -648,15 +702,15 @@ namespace AB_Server
 
             JObject moves = new()
             {
-                ["CanSetGate"] = Players[player].HasSettableGates() && !isBattleGoing,
+                ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !isBattleGoing,
                 ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
-                ["CanThrowBakugan"] = !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField),
+                ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField),
                 ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
-                ["CanEndTurn"] = Players[player].CanEndTurn(),
-                ["CanEndBattle"] = Players[player].HasBattlingBakugan(),
+                ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
+                ["CanEndBattle"] = (!GateIndex.Any(x => x.Owner == Players[player] && x.IsOpenable()) && CurrentWindow == ActivationWindow.Intermediate) || Players[player].HasBattlingBakugan(),
 
                 ["IsASkip"] = !Players[player].HadThrownBakugan,
-                ["IsAPass"] = (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
+                ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
                 ["SettableGates"] = gateArray,
                 ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject { ["CID"] = x.CardId, ["TypeId"] = x.TypeId, ["KindId"] = (int)x.Kind, ["PosX"] = x.Position.X, ["PosY"] = x.Position.Y })),
@@ -764,7 +818,7 @@ namespace AB_Server
                     break;
                 case "pass":
                     Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
-                    if (!isBattleGoing && !LongRangeBattleGoing)
+                    if (CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !LongRangeBattleGoing)
                     {
                         NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                         break;
@@ -776,24 +830,47 @@ namespace AB_Server
                     }
 
                     playersPassed.Add(Players[ActivePlayer]);
-
-                    var battlingPlayers = Players.Where(x => x.HasBattlingBakugan());
-                    var allBattlingPlayersPassed = true;
-                    Console.WriteLine("Players passed count: " + playersPassed.Count);
-                    foreach (var player in battlingPlayers)
+                    if (CurrentWindow == ActivationWindow.Intermediate)
                     {
-                        if (!playersPassed.Contains(player)) allBattlingPlayersPassed = false;
+                        var allPlayersPassed = true;
+                        Console.WriteLine("Players passed count: " + playersPassed.Count);
+                        foreach (var player in Players)
+                        {
+                            if (!playersPassed.Contains(player))
+                            {
+                                allPlayersPassed = false; break;
+                            }
+                        }
+                        if (allPlayersPassed)
+                        {
+                            playersPassed.Clear();
+                            ChangeBattleStates();
+                            return;
+                        }
                     }
-                    Console.WriteLine("All battling players passed: " + allBattlingPlayersPassed);
-                    if (allBattlingPlayersPassed)
+                    else
                     {
-                        playersPassed.Clear();
-                        foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
-                            g.BattleDeclaredOver = true;
+                        var battlingPlayers = Players.Where(x => x.HasBattlingBakugan());
+                        var allBattlingPlayersPassed = true;
+                        Console.WriteLine("Players passed count: " + playersPassed.Count);
+                        foreach (var player in battlingPlayers)
+                        {
+                            if (!playersPassed.Contains(player))
+                            {
+                                allBattlingPlayersPassed = false; break;
+                            }
+                        }
+                        Console.WriteLine("All battling players passed: " + allBattlingPlayersPassed);
+                        if (allBattlingPlayersPassed)
+                        {
+                            playersPassed.Clear();
+                            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
+                                g.BattleDeclaredOver = true;
 
-                        shouldTurnEnd = true;
-                        UpdateBattleStates();
-                        return;
+                            shouldTurnEnd = true;
+                            CheckAnyBattlesToUpdateState();
+                            return;
+                        }
                     }
 
                     break;
@@ -828,7 +905,12 @@ namespace AB_Server
                     DoNotMakeStep = true;
                     break;
             }
-            if (isBattleGoing)
+            if (CurrentWindow == ActivationWindow.Intermediate)
+            {
+                ActivePlayer++;
+                if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+            }
+            else if (isBattleGoing)
             {
                 var startPlayer = ActivePlayer;
                 while (true)
@@ -849,18 +931,14 @@ namespace AB_Server
                 if (LongRangeBattleGoing)
                     ResolveLongRangeBattle();
                 else
-                    UpdateBattleStates();
+                    CheckAnyBattlesToUpdateState();
         }
 
         void OpenEndBattleGates()
         {
             if (AutoGatesToOpen.Count == 0)
             {
-                NextStep = EndBattles;
-                if (GateIndex.Any(x => x.OnField && x.BattleOver))
-                    SuggestWindow(ActivationWindow.BattleEnd, TurnPlayer, TurnPlayer);
-                else
-                    EndBattles();
+                CheckAnyBattlesToUpdateState();
             }
             else
             {

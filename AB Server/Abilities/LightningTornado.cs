@@ -23,6 +23,6 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.IsAttribute(Attribute.Lumina) && user.InBattle;
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.InBattle;
     }
 }

@@ -30,6 +30,6 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleStart && user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(user.IsOpponentOf));
+        user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.BattleStarting && gateCard.Bakugans.Any(user.IsOpponentOf));
     }
 }

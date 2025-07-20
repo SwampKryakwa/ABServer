@@ -20,6 +20,6 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.BattleEnd && user.Type == BakuganType.Glorius && user.OnField() && user.JustEndedBattle && !user.BattleEndedInDraw;
+            user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleEnding && user.JustEndedBattle && !user.BattleEndedInDraw;
     }
 }

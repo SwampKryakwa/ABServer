@@ -12,22 +12,7 @@
         public override int TypeId { get; } = 9;
 
         public override bool IsOpenable() =>
-            false;
-
-        public override void CheckAutoBattleStart()
-        {
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
-
-        public override void Open()
-        {
-            IsOpen = true;
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
         public override void Resolve()
         {

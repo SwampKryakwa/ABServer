@@ -18,9 +18,10 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 18;
 
-        public override bool IsOpenable() => false;
+        public override bool IsOpenable() =>
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && AtLeastTwoBakuganFromSameTeam() && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        public override void CheckAutoBattleStart()
+        bool AtLeastTwoBakuganFromSameTeam()
         {
             int[] teamsCount = new int[game.TeamCount];
             for (int i = 0; i < game.TeamCount; i++)
@@ -29,19 +30,7 @@ namespace AB_Server.Gates
             foreach (var bakugan in Bakugans)
                 teamsCount[bakugan.Owner.TeamId]++;
 
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated && teamsCount.Any(x => x >= 2))
-                game.AutoGatesToOpen.Add(this);
-        }
-
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
+            return teamsCount.Any(x => x >= 2);
         }
 
         public override void Resolve()

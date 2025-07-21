@@ -15,15 +15,6 @@
         public override bool IsOpenable() =>
             base.IsOpenable() && Bakugans.Any(x => x.Power < 0 && x.IsAttribute(Attribute.Darkon));
 
-        public override void Open()
-        {
-            IsOpen = true;
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
         public override void Resolve()
         {
             if (!Negated)

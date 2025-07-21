@@ -14,18 +14,6 @@
 
         public override bool IsOpenable() => base.IsOpenable() && Bakugans.Any(x => x.Owner == Owner);
 
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            for (int i = 0; i < game.PlayerCount; i++)
-                game.NewEvents[i].Add(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
         public override void Resolve()
         {
             game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,

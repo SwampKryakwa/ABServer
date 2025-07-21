@@ -21,17 +21,6 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 15;
 
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
         public override void Resolve()
         {
             if (!Negated)

@@ -12,15 +12,6 @@
 
         public override int TypeId { get; } = 6;
 
-        public override void Open()
-        {
-            IsOpen = true;
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
         public override void Resolve()
         {
             if (Bakugans.Any(x => x.BaseAttribute == Attribute.Nova || x.BaseAttribute == Attribute.Aqua || x.BaseAttribute == Attribute.Lumina))

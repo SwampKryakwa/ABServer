@@ -11,21 +11,6 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 10;
 
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = Setup1;
-        }
-
         Bakugan target1;
         Bakugan target2;
 

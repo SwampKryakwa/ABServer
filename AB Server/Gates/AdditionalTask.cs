@@ -13,23 +13,8 @@
         public override int TypeId { get; } = 11;
 
         public override bool IsOpenable() =>
-            false;
-
-        public override void CheckAutoBattleStart()
-        {
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
-
-        public override void Open()
-        {
-            IsOpen = true;
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
-
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
+            
         public override void Resolve()
         {
             game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
@@ -57,10 +42,10 @@
             if (target.Owner.Bakugans.Any(x => x != target))
             {
                 game.ThrowEvent(target.Owner.Id, EventBuilder.SelectionBundler(false,
-                    EventBuilder.FieldBakuganSelection("INFO_GATE_ADDTARGET", TypeId, (int)Kind, target.Owner.Bakugans.Where(x => x != target))
+                    EventBuilder.HandBakuganSelection("INFO_GATE_ADDTARGET", TypeId, (int)Kind, target.Owner.Bakugans.Where(x => x != target))
                 ));
 
-                game.OnAnswer[Owner.Id] = AddOtherBakugan;
+                game.OnAnswer[target.Owner.Id] = AddOtherBakugan;
             }
             else
                 game.ChainStep();

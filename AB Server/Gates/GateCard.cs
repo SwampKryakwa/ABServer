@@ -232,10 +232,6 @@ namespace AB_Server.Gates
             game.OnGateRemoved(this, Owner.Id, posX, posY);
         }
 
-        public virtual void CheckAutoBattleStart() { }
-
-        public virtual void CheckAutoBattleEnd() { }
-
         public virtual void Open()
         {
             game.OnGateOpen(this);

@@ -19,24 +19,8 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 19;
 
-        public override bool IsOpenable() => false;
-
-        public override void CheckAutoBattleEnd()
-        {
-            if (OpenBlocking.Count == 0 && !IsOpen && !Negated)
-                game.AutoGatesToOpen.Add(this);
-        }
-
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.CheckChain(Owner, this);
-        }
+        public override bool IsOpenable() =>
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleEnding && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
         public override void Resolve()
         {

@@ -62,7 +62,12 @@ namespace AB_Server
             {
                 ["SelectionType"] = "A",
                 ["Message"] = prompt,
-                ["SelectionAbilities"] = JArray.FromObject(abilities.Select(x => new JObject { { "Type", x.TypeId }, { "Kind", (int)x.Kind }, { "CID", x.CardId } }))
+                ["SelectionAbilities"] = JArray.FromObject(abilities.Select(x => new JObject
+                {
+                    ["Type"] = x.TypeId,
+                    ["Kind"] = (int)x.Kind,
+                    ["CID"] = x.CardId
+                }))
             };
         }
 
@@ -331,13 +336,24 @@ namespace AB_Server
             foreach (IActive active in actives)
             {
                 if (active is AbilityCard activeAbility)
-                {
-                    jsonActives.Add(new JObject { { "Type", "C" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "CID", activeAbility.CardId }, { "EID", active.EffectId } });
-                }
+                    jsonActives.Add(new JObject
+                    {
+                        ["Type"] = "C",
+                        ["ActiveOwner"] = active.Owner.Id,
+                        ["CardType"] = active.TypeId,
+                        ["CardKind"] = (int)active.Kind,
+                        ["CID"] = activeAbility.CardId,
+                        ["EID"] = active.EffectId
+                    });
                 else
-                {
-                    jsonActives.Add(new JObject { { "Type", "E" }, { "ActiveOwner", active.Owner.Id }, { "CardType", active.TypeId }, { "CardKind", (int)active.Kind }, { "EID", active.EffectId } });
-                }
+                    jsonActives.Add(new JObject
+                    {
+                        ["Type"] = "E",
+                        ["ActiveOwner"] = active.Owner.Id,
+                        ["CardType"] = active.TypeId,
+                        ["CardKind"] = (int)active.Kind,
+                        ["EID"] = active.EffectId
+                    });
             }
 
             return new JObject

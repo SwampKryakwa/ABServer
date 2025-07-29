@@ -581,7 +581,7 @@ namespace AB_Server
                 g.DetermineWinner();
                 g.Dispose();
             }
-                
+
             CurrentWindow = ActivationWindow.Normal;
             if (shouldTurnEnd)
                 EndTurn();
@@ -713,10 +713,30 @@ namespace AB_Server
                 ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
                 ["SettableGates"] = gateArray,
-                ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject { ["CID"] = x.CardId, ["TypeId"] = x.TypeId, ["KindId"] = (int)x.Kind, ["PosX"] = x.Position.X, ["PosY"] = x.Position.Y })),
+                ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["TypeId"] = x.TypeId,
+                    ["KindId"] = (int)x.Kind,
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y
+                })),
                 ["ThrowableBakugan"] = bakuganArray,
-                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject { { "CID", x.CardId }, { "Owner", x.Owner.Id }, { "PosX", x.Position.X }, { "PosY", x.Position.Y } })),
-                ["ActivateableAbilities"] = new JArray(Players[player].AbilityHand.Select(ability => new JObject { ["cid"] = ability.CardId, ["Type"] = ability.TypeId, ["Kind"] = (int)ability.Kind, ["CanActivate"] = ability.IsActivateable(), ["PossibleUsers"] = new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID)) }))
+                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject
+                {
+                    ["CID"] = x.CardId,
+                    ["Owner"] = x.Owner.Id,
+                    ["PosX"] = x.Position.X,
+                    ["PosY"] = x.Position.Y
+                })),
+                ["ActivateableAbilities"] = new JArray(Players[player].AbilityHand.Select(ability => new JObject
+                {
+                    ["cid"] = ability.CardId,
+                    ["Type"] = ability.TypeId,
+                    ["Kind"] = (int)ability.Kind,
+                    ["CanActivate"] = ability.IsActivateable(),
+                    ["PossibleUsers"] = new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID))
+                }))
             };
             return moves;
         }
@@ -894,7 +914,11 @@ namespace AB_Server
                         bool answer = (bool)PlayerAnswers[toSuggestDraw]!["array"][0]["answer"];
                         if (answer)
                         {
-                            ThrowEvent(new JObject { { "Type", "GameOver" }, { "Draw", true } });
+                            ThrowEvent(new JObject
+                            {
+                                ["Type"] = "GameOver",
+                                ["Draw"] = true
+                            });
                             Over = true;
                         }
                         else

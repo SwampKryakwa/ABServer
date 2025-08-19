@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace AB_Server.Abilities
 {
     internal class CrystalFang : AbilityCard
@@ -27,6 +29,9 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.Normal;
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(16, CardKind.NormalAbility, (cID, owner) => new CrystalFang(cID, owner, 16));
     }
 }
 

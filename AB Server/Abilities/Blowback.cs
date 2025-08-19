@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -12,5 +13,8 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Owner.BakuganOwned.Any(b => b.IsAttribute(Attribute.Zephyros)) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(5, CardKind.NormalAbility, (cID, owner) => new Blowback(cID, owner, 5));
     }
 }

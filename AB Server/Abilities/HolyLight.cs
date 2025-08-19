@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities
 {
     internal class HolyLight : AbilityCard
     {
@@ -22,5 +24,8 @@
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganDrop.Bakugans.Count != 0;
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(2, CardKind.NormalAbility, (cID, owner) => new HolyLight(cID, owner, 2));
     }
 }

@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -29,5 +30,8 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.OnField() && IBakuganContainer.IsAdjacent(x.Position, user.Position) && user.IsOpponentOf(x));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(14, CardKind.NormalAbility, (cID, owner) => new AirBattle(cID, owner, 14));
     }
 }

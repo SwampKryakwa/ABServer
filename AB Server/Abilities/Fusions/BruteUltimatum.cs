@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -21,5 +22,8 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleEnding && user.JustEndedBattle && !user.BattleEndedInDraw;
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(7, (cID, owner) => new BruteUltimatum(cID, owner));
     }
 }

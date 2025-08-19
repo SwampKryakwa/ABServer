@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities.Correlations
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities.Correlations
 {
     internal class DiagonalCorrelation : AbilityCard
     {
@@ -26,5 +28,8 @@
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => Bakugan.IsDiagonal(x, user) && x.Owner == user.Owner && x.OnField());
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(1, CardKind.CorrelationAbility, (cID, owner) => new DiagonalCorrelation(cID, owner));
     }
 }

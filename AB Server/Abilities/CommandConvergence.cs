@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -25,5 +26,8 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(34, CardKind.NormalAbility, (cID, owner) => new CommandConvergence(cID, owner, 34));
     }
 }

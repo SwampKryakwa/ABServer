@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -28,5 +29,8 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.Position is GateCard posGate && x.Owner != user.Owner && posGate.IsAdjacent((user.Position as GateCard)!));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(17, CardKind.NormalAbility, (cID, owner) => new NoseSlap(cID, owner, 17));
     }
 }

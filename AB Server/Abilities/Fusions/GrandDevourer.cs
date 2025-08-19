@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities.Fusions
 {
@@ -41,5 +42,8 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Worm && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(12, (cID, owner) => new GrandDevourer(cID, owner));
     }
 }

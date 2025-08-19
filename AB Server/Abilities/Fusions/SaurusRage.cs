@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace AB_Server.Abilities.Fusions
 {
     internal class SaurusRage : FusionAbility
@@ -15,5 +17,8 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(4, (cID, owner) => new SaurusRage(cID, owner));
     }
 }

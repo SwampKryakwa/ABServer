@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -25,6 +26,9 @@ namespace AB_Server.Abilities
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua));
 
         public static new bool HasValidTargets(Bakugan user) => user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(13, CardKind.NormalAbility, (cID, owner) => new IllusiveCurrent(cID, owner, 13));
     }
 }
 

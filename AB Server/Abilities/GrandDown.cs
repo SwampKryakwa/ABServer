@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities
 {
     internal class GrandDown : AbilityCard
     {
@@ -20,5 +22,8 @@
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
 
         public static new bool HasValidTargets(Bakugan user) => user.Game.GateIndex.Any(x => x.OnField && x.IsOpen);
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(3, CardKind.NormalAbility, (cID, owner) => new GrandDown(cID, owner, 3));
     }
 }

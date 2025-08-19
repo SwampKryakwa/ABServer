@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -32,5 +33,8 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(user.IsOpponentOf);
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(26, CardKind.NormalAbility, (cID, owner) => new LightningShield(cID, owner, 26));
     }
 }

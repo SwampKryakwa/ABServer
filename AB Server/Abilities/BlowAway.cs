@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -29,5 +30,8 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(x => x.Owner != user.Owner);
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(32, CardKind.NormalAbility, (cID, owner) => new BlowAway(cID, owner, 32));
     }
 }

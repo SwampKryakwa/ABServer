@@ -1,5 +1,6 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -35,5 +36,8 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(21, CardKind.NormalAbility, (cID, owner) => new VicariousVictim(cID, owner, 21));
     }
 }

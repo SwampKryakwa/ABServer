@@ -1,4 +1,4 @@
-
+using System.Runtime.CompilerServices;
 namespace AB_Server.Abilities
 {
     internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
@@ -8,6 +8,9 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(18, CardKind.NormalAbility, (cID, owner) => new SaurusGlow(cID, owner, 18));
     }
 
     internal class SaurusGlowMarker : IActive

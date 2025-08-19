@@ -4,23 +4,14 @@ namespace AB_Server.Abilities
 {
     internal abstract class FusionAbility(int cID, Player owner, int typeId, Type baseAbilityType) : AbilityCard(cID, owner, typeId)
     {
-        public static Func<int, Player, FusionAbility>[] FusionCtrs =
-        [
-            (cID, owner) => new BruteUltimatum(cID, owner),
-            (cID, owner) => new PinDown(cID, owner),
-            (cID, owner) => new Marionette(cID, owner),
-            (cID, owner) => new StrikeBack(cID, owner),
-            (cID, owner) => new DoubleDimension(cID, owner),
-            (cID, owner) => new SaurusRage(cID, owner),
-            (cID, owner) => new Tremors(cID, owner),
-            (cID, owner) => new CutInSaber(cID, owner),
-            (cID, owner) => new CoreLinkage(cID, owner),
-            (cID, owner) => new RevivalRoar(cID, owner),
-            (cID, owner) => new PowerAccord(cID, owner),
-            (cID, owner) => new GrandDevourer(cID, owner),
-            (cID, owner) => new SilentPact(cID, owner),
-            (cID, owner) => new HarmonicGrace(cID, owner)
-        ];
+        public static Func<int, Player, FusionAbility>[] FusionCtrs = Array.Empty<Func<int, Player, FusionAbility>>();
+
+        internal static void Register(int typeId, Func<int, Player, FusionAbility> constructor)
+        {
+            if (FusionCtrs.Length <= typeId)
+                Array.Resize(ref FusionCtrs, typeId + 1);
+            FusionCtrs[typeId] = constructor;
+        }
 
         public override CardKind Kind { get; } = CardKind.FusionAbility;
         public AbilityCard FusedTo;

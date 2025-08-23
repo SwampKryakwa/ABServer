@@ -32,7 +32,7 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Shredder && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(13, (cID, owner) => new SilentPact(cID, owner));
+        internal static void Init() => FusionAbility.Register(12, (cID, owner) => new SilentPact(cID, owner));
     }
 
     internal class SilentPactMarker(Bakugan user, Attribute newAttribute, Player owner, bool isCopy) : IActive

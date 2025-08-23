@@ -37,6 +37,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.Position is GateCard userPos && Game.BakuganIndex.Any(possibleTarget => possibleTarget.Position is GateCard targetPos && !targetPos.IsAdjacent(userPos) && targetPos != userPos && possibleTarget.IsOpponentOf(user));
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(5, (cID, owner) => new Tremors(cID, owner));
+        internal static void Init() => FusionAbility.Register(6, (cID, owner) => new Tremors(cID, owner));
     }
 }

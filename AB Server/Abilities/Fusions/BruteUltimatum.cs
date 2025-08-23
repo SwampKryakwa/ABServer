@@ -24,6 +24,6 @@ namespace AB_Server.Abilities
             user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleEnding && user.JustEndedBattle && !user.BattleEndedInDraw;
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(7, (cID, owner) => new BruteUltimatum(cID, owner));
+        internal static void Init() => FusionAbility.Register(0, (cID, owner) => new BruteUltimatum(cID, owner));
     }
 }

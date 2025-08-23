@@ -29,6 +29,6 @@ namespace AB_Server.Abilities
             bakugan.Owner != Owner && bakugan.Position is GateCard targetGate && User.Position is GateCard userGate && userGate != targetGate;
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(6, (cID, owner) => new Marionette(cID, owner));
+        internal static void Init() => FusionAbility.Register(2, (cID, owner) => new Marionette(cID, owner));
     }
 }

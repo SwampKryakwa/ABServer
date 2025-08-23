@@ -19,6 +19,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(4, (cID, owner) => new SaurusRage(cID, owner));
+        internal static void Init() => FusionAbility.Register(5, (cID, owner) => new SaurusRage(cID, owner));
     }
 }

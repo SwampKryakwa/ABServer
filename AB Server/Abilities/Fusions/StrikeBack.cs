@@ -38,6 +38,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Intermediate && user.InDrop() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(2, (cID, owner) => new StrikeBack(cID, owner));
+        internal static void Init() => FusionAbility.Register(3, (cID, owner) => new StrikeBack(cID, owner));
     }
 }

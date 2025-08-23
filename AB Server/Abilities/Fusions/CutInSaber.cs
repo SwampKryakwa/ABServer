@@ -34,6 +34,6 @@ namespace AB_Server.Abilities
         user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.BattleStarting && gateCard.Bakugans.Any(user.IsOpponentOf));
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(3, (cID, owner) => new CutInSaber(cID, owner));
+        internal static void Init() => FusionAbility.Register(7, (cID, owner) => new CutInSaber(cID, owner));
     }
 }

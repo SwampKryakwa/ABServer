@@ -13,6 +13,6 @@ namespace AB_Server.Abilities.Fusions
             user.OnField() && user.IsPartner && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal;
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(9, (cID, owner) => new CoreLinkage(cID, owner));
+        internal static void Init() => FusionAbility.Register(8, (cID, owner) => new CoreLinkage(cID, owner));
     }
 }

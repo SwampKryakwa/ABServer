@@ -42,6 +42,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(10, (cID, owner) => new RevivalRoar(cID, owner));
+        internal static void Init() => FusionAbility.Register(9, (cID, owner) => new RevivalRoar(cID, owner));
     }
 }

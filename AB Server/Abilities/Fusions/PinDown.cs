@@ -29,7 +29,7 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(8, (cID, owner) => new PinDown(cID, owner));
+        internal static void Init() => FusionAbility.Register(1, (cID, owner) => new PinDown(cID, owner));
     }
 
     internal class PinDownEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)

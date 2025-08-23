@@ -34,6 +34,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x != user);
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(14, (cID, owner) => new HarmonicGrace(cID, owner));
+        internal static void Init() => FusionAbility.Register(13, (cID, owner) => new HarmonicGrace(cID, owner));
     }
 }

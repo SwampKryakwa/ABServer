@@ -44,6 +44,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Worm && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(12, (cID, owner) => new GrandDevourer(cID, owner));
+        internal static void Init() => FusionAbility.Register(11, (cID, owner) => new GrandDevourer(cID, owner));
     }
 }

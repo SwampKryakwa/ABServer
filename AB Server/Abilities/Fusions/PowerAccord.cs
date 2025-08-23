@@ -27,6 +27,6 @@ namespace AB_Server.Abilities.Fusions
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(11, (cID, owner) => new PowerAccord(cID, owner));
+        internal static void Init() => FusionAbility.Register(10, (cID, owner) => new PowerAccord(cID, owner));
     }
 }

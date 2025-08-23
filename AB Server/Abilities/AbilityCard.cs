@@ -13,7 +13,7 @@ namespace AB_Server.Abilities
         SpecialGate
     }
 
-    abstract partial class AbilityCard(int cID, Player owner, int typeId) : IActive, IChainable
+    abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChainable
     {
         public static Func<int, Player, AbilityCard>[] AbilityCtrs = Array.Empty<Func<int, Player, AbilityCard>>();
         public static Func<int, Player, AbilityCard>[] CorrelationCtrs = Array.Empty<Func<int, Player, AbilityCard>>();

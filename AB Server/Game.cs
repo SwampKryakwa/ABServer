@@ -578,7 +578,6 @@ namespace AB_Server
 
             foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
             {
-                g.DetermineWinner();
                 g.Dispose();
             }
 
@@ -885,7 +884,10 @@ namespace AB_Server
                         {
                             playersPassed.Clear();
                             foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
+                            {
                                 g.BattleDeclaredOver = true;
+                                g.DetermineWinner();
+                            }
 
                             shouldTurnEnd = true;
                             CheckAnyBattlesToUpdateState();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -27,5 +28,8 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Worm && user.OnField() && Game.GateIndex.Any(x => !x.Bakugans.Any(x => x.Owner != Owner));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(35, CardKind.NormalAbility, (cID, owner) => new Earthmover(cID, owner, 35));
     }
 }

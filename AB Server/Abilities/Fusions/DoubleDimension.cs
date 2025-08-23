@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities
 {
     internal class DoubleDimension : FusionAbility
     {
@@ -19,5 +21,8 @@
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard && x.User.OnField() && x.User.IsOpponentOf(user));
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(1, (cID, owner) => new DoubleDimension(cID, owner));
     }
 }

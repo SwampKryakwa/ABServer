@@ -1,6 +1,7 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -26,5 +27,8 @@ namespace AB_Server.Abilities
 
         public bool ValidTarget(Bakugan bakugan) =>
             bakugan.Owner != Owner && bakugan.Position is GateCard targetGate && User.Position is GateCard userGate && userGate != targetGate;
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(6, (cID, owner) => new Marionette(cID, owner));
     }
 }

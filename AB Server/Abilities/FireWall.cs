@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace AB_Server.Abilities
 {
     internal class FireWall : AbilityCard
@@ -29,6 +31,9 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(x => x.Owner != user.Owner);
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(9, CardKind.NormalAbility, (cID, owner) => new FireWall(cID, owner, 9));
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities.Fusions
 {
@@ -39,5 +40,8 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(10, (cID, owner) => new RevivalRoar(cID, owner));
     }
 }

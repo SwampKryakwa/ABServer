@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities.Fusions
 {
@@ -31,5 +32,8 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x != user);
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(14, (cID, owner) => new HarmonicGrace(cID, owner));
     }
 }

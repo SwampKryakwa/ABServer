@@ -1,5 +1,6 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -24,6 +25,9 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Owner.BakuganOwned.Any(x => x != user && x.IsAttribute(Attribute.Darkon) && x.Owner == user.Owner && x.OnField());
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(28, CardKind.NormalAbility, (cID, owner) => new DarkonGravity(cID, owner, 28));
     }
 
     internal class DarkonGravityMarker (Bakugan user, Bakugan target, int typeId, CardKind kind, Player owner, bool isCopy) : IActive

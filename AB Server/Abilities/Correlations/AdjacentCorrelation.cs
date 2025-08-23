@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities.Correlations
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities.Correlations
 {
     internal class AdjacentCorrelation : AbilityCard
     {
@@ -28,5 +30,8 @@
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => Bakugan.IsAdjacent(user, x) && (x.OnField() || (x.Owner == user.Owner && x.InHand())));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(0, CardKind.CorrelationAbility, (cID, owner) => new AdjacentCorrelation(cID, owner));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities.Fusions
 {
@@ -26,6 +27,9 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(8, (cID, owner) => new PinDown(cID, owner));
     }
 
     internal class PinDownEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)

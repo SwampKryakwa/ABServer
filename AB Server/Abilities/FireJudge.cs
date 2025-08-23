@@ -1,4 +1,6 @@
-﻿namespace AB_Server.Abilities
+﻿using System.Runtime.CompilerServices;
+
+namespace AB_Server.Abilities
 {
     internal class FireJudge(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
     {
@@ -7,5 +9,8 @@
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(0, CardKind.NormalAbility, (cID, owner) => new FireJudge(cID, owner, 0));
     }
 }

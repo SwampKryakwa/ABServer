@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities.Fusions
 {
@@ -34,5 +35,8 @@ namespace AB_Server.Abilities.Fusions
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.Position is GateCard userPos && Game.BakuganIndex.Any(possibleTarget => possibleTarget.Position is GateCard targetPos && !targetPos.IsAdjacent(userPos) && targetPos != userPos && possibleTarget.IsOpponentOf(user));
+
+        [ModuleInitializer]
+        internal static void Init() => FusionAbility.Register(5, (cID, owner) => new Tremors(cID, owner));
     }
 }

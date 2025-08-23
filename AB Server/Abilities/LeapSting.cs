@@ -1,4 +1,5 @@
 ﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -30,6 +31,9 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsOpponentOf(x));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(7, CardKind.NormalAbility, (cID, owner) => new LeapSting(cID, owner, 7));
     }
 
     internal class LeapStingEffect(Bakugan user, Bakugan target, int typeID, bool IsCopy)

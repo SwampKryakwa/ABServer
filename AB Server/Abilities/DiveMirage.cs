@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Formats.Asn1.AsnWriter;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -29,6 +30,9 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Aqua) && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(30, CardKind.NormalAbility, (cID, owner) => new DiveMirage(cID, owner, 30));
     }
 
     internal class DiveMirageMarker(Bakugan user, GateCard target, Player owner, Game game, int typeId, CardKind kind, bool isCopy) : IActive

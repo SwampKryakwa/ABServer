@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -26,6 +27,9 @@ namespace AB_Server.Abilities
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(8, CardKind.NormalAbility, (cID, owner) => new MercilessTriumph(cID, owner, 8));
     }
 }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -40,5 +41,8 @@ namespace AB_Server.Abilities
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Subterra) && user.OnField();
+
+        [ModuleInitializer]
+        internal static void Init() => AbilityCard.Register(25, CardKind.NormalAbility, (cID, owner) => new GateBuilding(cID, owner, 25));
     }
 }

@@ -95,7 +95,6 @@ namespace AB_Server.Gates
         {
             bakugansDefeatedThisBattle.Clear();
             BattleOver = true;
-            BattleDeclaredOver = false;
             BattleStarted = false;
 
             foreach (Bakugan b in Bakugans)
@@ -145,6 +144,7 @@ namespace AB_Server.Gates
 
         public virtual void Dispose()
         {
+            BattleDeclaredOver = false;
             if (!IsBattleGoing)
             {
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))

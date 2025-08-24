@@ -283,7 +283,11 @@ namespace AB_Server
                 }
             });
             Game.OnBakuganAdded(this, Owner.Id, destination);
-            BattleEndedInDraw = false; // Reset flag
+
+            // Reset flags
+            BattleEndedInDraw = false; 
+            destination.BattleDeclaredOver = false;
+            destination.BattleOver = false;
         }
 
         public void Throw(GateCard destination)
@@ -325,7 +329,11 @@ namespace AB_Server
                 }
             });
             Game.OnBakuganThrown(this, Owner.Id, destination);
-            BattleEndedInDraw = false; // Reset flag
+
+            // Reset flags
+            BattleEndedInDraw = false; 
+            destination.BattleDeclaredOver = false;
+            destination.BattleOver = false;
         }
 
         public AttributeState ChangeAttribute(Attribute newAttribute, object source)
@@ -460,7 +468,10 @@ namespace AB_Server
                 Position = destination;
                 Game.OnBakuganMoved(this, destination);
 
-                BattleEndedInDraw = false; // Reset flag
+                // Reset flags
+                BattleEndedInDraw = false; 
+                destination.BattleDeclaredOver = false;
+                destination.BattleOver = false;
             }
         }
 
@@ -570,7 +581,10 @@ namespace AB_Server
                 destination.Bakugans.Add(bakugan);
                 bakugan.Position = destination;
                 game.OnBakuganMoved(bakugan, destination);
-                bakugan.BattleEndedInDraw = false; // Reset flag
+                // Reset flags
+                bakugan.BattleEndedInDraw = false; 
+                destination.BattleDeclaredOver = false;
+                destination.BattleOver = false;
             }
         }
 
@@ -624,7 +638,11 @@ namespace AB_Server
                 ["IsPartner"] = IsPartner,
                 ["BID"] = BID
             });
-            BattleEndedInDraw = false; // Reset flag
+
+            // Reset flags
+            BattleEndedInDraw = false; 
+            destination.BattleDeclaredOver = false;
+            destination.BattleOver = false;
         }
 
         public void MoveFromDropToHand()

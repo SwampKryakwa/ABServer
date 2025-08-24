@@ -29,7 +29,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf);
+            user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf) && Game.CurrentWindow == ActivationWindow.Normal;
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Position.Bakugans.Any(user.IsOpponentOf);

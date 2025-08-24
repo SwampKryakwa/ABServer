@@ -20,7 +20,7 @@ namespace AB_Server.Gates
         public override int TypeId { get; } = 19;
 
         public override bool IsOpenable() =>
-            game.CurrentWindow == ActivationWindow.Intermediate && BattleEnding && OpenBlocking.Count == 0 && !IsOpen && !Negated;
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleOver && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
         public override void Resolve()
         {

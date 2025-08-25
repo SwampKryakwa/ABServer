@@ -13,15 +13,36 @@ namespace AB_Server.Abilities
             ];
         }
 
-        public override void TriggerEffect()
+        GateCard oldUserPos;
+        public override void Resolve()
         {
-            var selectedBakugan = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            if (User.Position is GateCard positionGate && selectedBakugan.InHand())
+            if (counterNegated)
             {
-                User.MoveFromFieldToHand(positionGate.EnterOrder);
-                selectedBakugan.AddFromHand(positionGate);
+                Dispose();
+                Game.ChainStep();
+                return;
+            }
+            if (User.OnField())
+            {
+                oldUserPos = (User.Position as GateCard)!;
+                User.MoveFromFieldToHand(oldUserPos.EnterOrder);
+                base.Resolve();
+            }
+            else if (User.InDrop())
+            {
+                User.MoveFromDropToHand();
+                Dispose();
+                Game.ChainStep();
+            }
+            else
+            {
+                Dispose();
+                Game.ChainStep();
             }
         }
+
+        public override void TriggerEffect() =>
+            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AddFromHand(oldUserPos);
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua));
 

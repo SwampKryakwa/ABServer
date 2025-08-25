@@ -251,7 +251,7 @@ namespace AB_Server.Abilities
             Game.CheckChain(Owner, this, User);
         }
 
-        public void Resolve()
+        public virtual void Resolve()
         {
             currentTarget = 0;
             SendResTargetForSelection();

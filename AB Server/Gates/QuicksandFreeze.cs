@@ -13,7 +13,7 @@
         public override int TypeId { get; } = 12;
 
         public override bool IsOpenable() =>
-            game.CurrentWindow == ActivationWindow.Intermediate && BattleEnding && OpenBlocking.Count == 0 && !IsOpen && !Negated;
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleOver && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
         public override void Open()
         {

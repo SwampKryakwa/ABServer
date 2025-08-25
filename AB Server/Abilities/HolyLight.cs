@@ -8,7 +8,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Owner == Owner && x.Power == Game.BakuganIndex.Where(x=>x.InDrop()).Min(x=>x.Power) && x.InDrop()}
+                new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Power < User.Power && x.InDrop() }
             ];
         }
 
@@ -20,12 +20,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0;
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Owner.BakuganDrop.Bakugans.Count != 0;
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.OnField() && Owner.BakuganDrop.Bakugans.Any(x => x.Power < user.Power);
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(2, CardKind.NormalAbility, (cID, owner) => new HolyLight(cID, owner, 2));
+        internal static void Init() => Register(2, CardKind.NormalAbility, (cID, owner) => new HolyLight(cID, owner, 2));
     }
 }

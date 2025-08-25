@@ -15,7 +15,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.IsAdjacent((User.Position as GateCard)!) && x.Bakugans.Any(User.IsOpponentOf) }
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.IsAdjacent((User.Position as GateCard)!) && x.Owner.TeamId != Owner.TeamId }
             ];
         }
 

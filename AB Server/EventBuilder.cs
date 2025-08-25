@@ -486,7 +486,7 @@ namespace AB_Server
             };
         }
 
-        public static JObject GateRevealed(GateCard card)
+        public static JObject GateReveal(GateCard card)
         {
             return new()
             {

@@ -7,7 +7,7 @@ namespace AB_Server.Abilities
     {
         public IllusiveCurrent(int cID, Player owner, int typeId) : base(cID, owner, typeId)
         {
-            CondTargetSelectors =
+            ResTargetSelectors =
             [
                 new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InHand() }
             ];

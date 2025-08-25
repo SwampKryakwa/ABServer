@@ -8,7 +8,7 @@ namespace AB_Server.Abilities.Correlations
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField()}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target != User }
             ];
         }
 
@@ -19,7 +19,7 @@ namespace AB_Server.Abilities.Correlations
             if (CondTargetSelectors[0] is BakuganSelector targetSelector && Bakugan.IsDiagonal(targetSelector.SelectedBakugan, User))
             {
                 User.Boost(100, this);
-               targetSelector.SelectedBakugan.Boost(100, this);
+                targetSelector.SelectedBakugan.Boost(100, this);
             }
         }
 
@@ -30,6 +30,6 @@ namespace AB_Server.Abilities.Correlations
             user.Game.BakuganIndex.Any(x => Bakugan.IsDiagonal(x, user) && x.Owner == user.Owner && x.OnField());
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(1, CardKind.CorrelationAbility, (cID, owner) => new DiagonalCorrelation(cID, owner));
+        internal static void Init() => Register(1, CardKind.CorrelationAbility, (cID, owner) => new DiagonalCorrelation(cID, owner));
     }
 }

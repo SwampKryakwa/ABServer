@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using AB_Server.Gates;
 
 namespace AB_Server.Abilities
 {
@@ -13,7 +9,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.InBattle && x.IsOpponentOf(User) && x.Power > User.Power}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.IsOpponentOf(User) }
             ];
         }
 
@@ -24,14 +20,10 @@ namespace AB_Server.Abilities
             short difference = (short)(User.Power - target.Power);
             User.Boost(-difference, this);
             target.Boost(difference, this);
-            User.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf);
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Position.Bakugans.Any(x => user.IsOpponentOf(x) && x.Power > user.Power);
+            user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf);
 
         [ModuleInitializer]
         internal static void Init() => AbilityCard.Register(27, CardKind.NormalAbility, (cID, owner) => new MirrorFlash(cID, owner, 27));

@@ -8,7 +8,7 @@ namespace AB_Server.Abilities.Correlations
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField()}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target != User }
             ];
         }
 
@@ -32,6 +32,6 @@ namespace AB_Server.Abilities.Correlations
             user.Game.BakuganIndex.Any(x => Bakugan.IsAdjacent(user, x) && (x.OnField() || (x.Owner == user.Owner && x.InHand())));
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(0, CardKind.CorrelationAbility, (cID, owner) => new AdjacentCorrelation(cID, owner));
+        internal static void Init() => Register(0, CardKind.CorrelationAbility, (cID, owner) => new AdjacentCorrelation(cID, owner));
     }
 }

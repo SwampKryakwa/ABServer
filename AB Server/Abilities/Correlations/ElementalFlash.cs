@@ -13,6 +13,6 @@ namespace AB_Server.Abilities.Correlations
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Select(x => x.BaseAttribute).Distinct().Count() == 1;
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(3, CardKind.CorrelationAbility, (cID, owner) => new ElementalFlash(cID, owner));
+        internal static void Init() => Register(3, CardKind.CorrelationAbility, (cID, owner) => new ElementalFlash(cID, owner));
     }
 }

@@ -28,7 +28,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Owner.Bakugans.All(x => x.IsAttribute(Attribute.Subterra)) && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Subterra) && user.OnField();
 
         [ModuleInitializer]
         internal static void Init() => AbilityCard.Register(24, CardKind.NormalAbility, (cID, owner) => new MagmaProminence(cID, owner, 24));

@@ -2,7 +2,6 @@
 using AB_Server.Gates;
 using AB_Server.Gates.SpecialGates;
 using Newtonsoft.Json.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AB_Server
 {
@@ -21,7 +20,7 @@ namespace AB_Server
             (1, 2),
             (2, 2),
             (1, 1),
-            (2, 1)
+            (2, 3)
         ];
 
         //Player data

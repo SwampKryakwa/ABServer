@@ -285,7 +285,7 @@ namespace AB_Server
             Game.OnBakuganAdded(this, Owner.Id, destination);
 
             // Reset flags
-            BattleEndedInDraw = false; 
+            BattleEndedInDraw = false;
             destination.BattleDeclaredOver = false;
             destination.BattleOver = false;
         }
@@ -331,7 +331,7 @@ namespace AB_Server
             Game.OnBakuganThrown(this, Owner.Id, destination);
 
             // Reset flags
-            BattleEndedInDraw = false; 
+            BattleEndedInDraw = false;
             destination.BattleDeclaredOver = false;
             destination.BattleOver = false;
         }
@@ -469,7 +469,7 @@ namespace AB_Server
                 Game.OnBakuganMoved(this, destination);
 
                 // Reset flags
-                BattleEndedInDraw = false; 
+                BattleEndedInDraw = false;
                 destination.BattleDeclaredOver = false;
                 destination.BattleOver = false;
             }
@@ -582,7 +582,7 @@ namespace AB_Server
                 bakugan.Position = destination;
                 game.OnBakuganMoved(bakugan, destination);
                 // Reset flags
-                bakugan.BattleEndedInDraw = false; 
+                bakugan.BattleEndedInDraw = false;
                 destination.BattleDeclaredOver = false;
                 destination.BattleOver = false;
             }
@@ -640,7 +640,7 @@ namespace AB_Server
             });
 
             // Reset flags
-            BattleEndedInDraw = false; 
+            BattleEndedInDraw = false;
             destination.BattleDeclaredOver = false;
             destination.BattleOver = false;
         }
@@ -979,20 +979,21 @@ namespace AB_Server
         {
             List<Attribute> attrs = [];
             foreach (Bakugan b in bakugans)
-            {
                 if (b.attributeChanges.Count == 0)
                     attrs.Add(b.BaseAttribute);
                 else
                     attrs.AddRange(b.attributeChanges[^1].Attributes);
-            }
+
             isPositive = false;
             if (attrs.Contains(Attribute.Aqua) && attrs.Contains(Attribute.Nova) && attrs.Contains(Attribute.Lumina))
             {
-                isPositive = true; return true;
+                isPositive = true;
+                return true;
             }
-            else if
-                (attrs.Contains(Attribute.Subterra) && attrs.Contains(Attribute.Zephyros) && attrs.Contains(Attribute.Darkon)) return true;
-            else return false;
+            else if (attrs.Contains(Attribute.Subterra) && attrs.Contains(Attribute.Zephyros) && attrs.Contains(Attribute.Darkon))
+                return true;
+            else
+                return false;
         }
     }
 }

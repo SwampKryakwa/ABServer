@@ -180,13 +180,11 @@ namespace AB_Server
                 IsReady[team, position] = false;
                 Players[team, position] = null;
                 foreach (var item in Updates.Values)
-                {
                     item.Add(new()
                     {
                         ["Type"] = "PlayerLeft",
                         ["Position"] = Array.IndexOf(Players, uuid)
                     });
-                }
             }
             if (Updates.ContainsKey(uuid)) Updates.Remove(uuid);
             if (RoomOwner == uuid && playerPositions.Count != 0)
@@ -228,13 +226,11 @@ namespace AB_Server
             game = new((byte)(TeamCount * PlayersPerTeam), TeamCount);
             for (byte i = 0; i < TeamCount; i++)
                 for (byte j = 0; j < PlayersPerTeam; j++)
-                {
                     Updates[(long)Players[i, j]].Add(new()
                     {
                         ["Type"] = "DataRequest",
                         ["PlayerId"] = game.CreatePlayer(game, UserNames[i, j], i, (long)Players[i, j])
                     });
-                }
             return game;
         }
 

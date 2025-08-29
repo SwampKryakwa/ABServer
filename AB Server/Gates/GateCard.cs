@@ -1,5 +1,7 @@
 ﻿using AB_Server.Abilities;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace AB_Server.Gates
 {
@@ -188,6 +190,19 @@ namespace AB_Server.Gates
             game.ThrowEvent(Owner.Id, EventBuilder.GateSet(this, true));
             game.GateSetList.Add(this);
             game.OnGateAdded(this, Owner.Id, posX, posY);
+        }
+
+        public void Discard()
+        {
+            if (Owner.GateHand.Contains(this))
+                Owner.GateHand.Remove(this);
+            game.ThrowEvent(new()
+            {
+                ["Type"] = "GateRemovedFromHand",
+                ["CardType"] = TypeId,
+                ["CID"] = CardId,
+                ["Owner"] = Owner.Id
+            });
         }
 
         public static void MultiSet(Game game, GateCard[] gateCards, (byte posX, byte posY)[] positions, byte[] setBy)

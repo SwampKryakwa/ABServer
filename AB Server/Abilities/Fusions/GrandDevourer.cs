@@ -14,13 +14,13 @@ namespace AB_Server.Abilities.Fusions
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTROYTARGET", TargetValidator = x => x.OnField() }
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTROYTARGET", TargetValidator = x => x.OnField() && x.Owner != Owner }
             ];
 
             ResTargetSelectors =
             [
                 new YesNoSelector() { ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_WANTDISCARD", Condition = () =>(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner.AbilityHand.Count != 0, IsYes = false },
-                new AbilitySelector() { ClientType = "A", Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes, ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "INFO_ABILITY_DISCARDTARGET", TargetValidator = x => x.Owner == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner }
+                new GateSelector() { ClientType = "GH", Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes, ForPlayer = x => x == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner, Message = "Select a gate card to discard", TargetValidator = x => x.Owner == (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Owner }
             ];
         }
 
@@ -28,7 +28,7 @@ namespace AB_Server.Abilities.Fusions
         {
             if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
             {
-                (ResTargetSelectors[1] as AbilitySelector)!.SelectedAbility.Discard();
+                (ResTargetSelectors[1] as GateSelector)!.SelectedGate.Discard();
             }
             else
             {

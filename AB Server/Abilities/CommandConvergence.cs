@@ -19,15 +19,14 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            Bakugan[] targets = [.. Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption))];
-            foreach (Bakugan target in targets)
-                target.Boost(100, this);
+            foreach (var target in Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption)))
+                target.Boost(150, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(34, CardKind.NormalAbility, (cID, owner) => new CommandConvergence(cID, owner, 34));
+        internal static void Init() => Register(34, CardKind.NormalAbility, (cID, owner) => new CommandConvergence(cID, owner, 34));
     }
 }

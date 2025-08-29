@@ -9,7 +9,8 @@ namespace AB_Server.Abilities.Fusions
         {
             ResTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField()}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() },
+                new OptionSelector() { Message = "INFO_PICKER_PINDOWN", ForPlayer = (p) => p == Owner, OptionCount = 2 }
             ];
         }
 
@@ -17,12 +18,11 @@ namespace AB_Server.Abilities.Fusions
         {
             var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             if (target is null) return;
-            if (target.Position is GateCard targetGate)
-                foreach (var bakugan in targetGate.Bakugans.Where(b => b != target))
-                {
-                    int powerDifference = 400 - bakugan.Power;
-                    bakugan.Boost(new Boost((short)powerDifference), this);
-                }
+
+            int option = (ResTargetSelectors[1] as OptionSelector)!.SelectedOption;
+            short newPower = (short)(option == 0 ? 400 : 100);
+
+            target.Boost(new Boost((short)(newPower - target.Power)), this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

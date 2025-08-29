@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = ValidTarget}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = bakugan => bakugan.Owner != Owner && bakugan.OnField() }
             ];
         }
 
@@ -23,12 +23,9 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.Position is GateCard userGate && Game.BakuganIndex.Any(target => target.Owner != Owner && target.Position is GateCard targetGate && userGate != targetGate) && Game.GateIndex.Any(userGate.IsAdjacent);
-
-        public bool ValidTarget(Bakugan bakugan) =>
-            bakugan.Owner != Owner && bakugan.Position is GateCard targetGate && User.Position is GateCard userGate && userGate != targetGate;
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.Position is GateCard userGate && Game.GateIndex.Any(userGate.IsAdjacent);
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(2, (cID, owner) => new Marionette(cID, owner));
+        internal static void Init() => Register(2, (cID, owner) => new Marionette(cID, owner));
     }
 }

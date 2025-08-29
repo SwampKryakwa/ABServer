@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = gateCard => gateCard.IsBattleGoing && gateCard.Bakugans.Any(User.IsOpponentOf)}
+                new BakuganSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = possibleTarget => possibleTarget.Owner != Owner && possibleTarget.Position is GateCard posGate && posGate.BattleStarting }
             ];
         }
 
@@ -26,12 +26,13 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            if (User.InHand())
-                User.AddFromHand((CondTargetSelectors[0] as GateSelector)!.SelectedGate);
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (User.InHand() && target.Position is GateCard posGate)
+                User.AddFromHand(posGate);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Tigress && (user.InHand() || user.OnField()) && Game.GateIndex.Any(gateCard => gateCard.BattleStarting && gateCard.Bakugans.Any(user.IsOpponentOf));
+        user.Type == BakuganType.Tigress && user.InHand() && Game.GateIndex.Any(gateCard => gateCard.BattleStarting && gateCard.Bakugans.Any(user.IsOpponentOf));
 
         [ModuleInitializer]
         internal static void Init() => FusionAbility.Register(7, (cID, owner) => new CutInSaber(cID, owner));

@@ -9,7 +9,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = possibleTarget => possibleTarget.Owner != Owner && possibleTarget.Position is GateCard posGate && posGate.BattleStarting }
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = possibleTarget => possibleTarget.Owner != Owner && possibleTarget.Position is GateCard posGate && posGate.BattleStarting }
             ];
         }
 

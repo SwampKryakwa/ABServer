@@ -15,7 +15,7 @@ namespace AB_Server.Abilities.Fusions
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.InBattle && x.Owner != Owner}
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Owner == Owner && x != User}
             ];
         }
 
@@ -31,7 +31,7 @@ namespace AB_Server.Abilities.Fusions
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x != user);
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && !user.InBattle && Game.BakuganIndex.Any(x => x.OnField() && x != user && x.Owner == Owner);
 
         [ModuleInitializer]
         internal static void Init() => FusionAbility.Register(13, (cID, owner) => new HarmonicGrace(cID, owner));

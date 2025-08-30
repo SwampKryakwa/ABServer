@@ -47,6 +47,7 @@ namespace AB_Server.Abilities.Fusions
         public Player Owner { get; set; } = owner;
 
         AttributeState attributeState;
+        Boost boost;
 
         public void Activate()
         {
@@ -54,16 +55,18 @@ namespace AB_Server.Abilities.Fusions
 
             User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
+            boost = new Boost(50);
+            User.ContinuousBoost(boost, this);
             attributeState = User.ChangeAttribute(newAttribute, this);
             User.OnRemovedFromField += Stop;
             User.OnFromHandToDrop += Refresh;
             User.OnFromDropToHand += Refresh;
-
         }
 
         private void Stop()
         {
             User.Game.ActiveZone.Remove(this);
+            User.RemoveContinuousBoost(boost, this);
 
             User.OnRemovedFromField -= Stop;
             User.OnFromHandToDrop -= Refresh;

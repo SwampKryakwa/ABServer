@@ -21,29 +21,43 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 17;
 
-        public override void Resolve()
-        {
-            if (!Negated)
-            {
-                game.ThrowEvent(Owner.Id, new JObject
-                {
-                    ["Type"] = "StartSelection",
-                    ["Selections"] = new JArray {
-                        EventBuilder.FieldBakuganSelection("INFO_GATE_BOOSTTARGET", TypeId, (int)Kind, Bakugans)
-                    }
-                });
+        private Bakugan target;
 
-                game.OnAnswer[Owner.Id] = Activate;
-            }
-            else
+        public override void Open()
+        {
+            // Target 1 bakugan on this card
+            var candidates = Bakugans.ToArray();
+            if (candidates.Length == 0)
+            {
                 game.ChainStep();
+                return;
+            }
+
+            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
+                EventBuilder.FieldBakuganSelection("INFO_GATE_POWERSPIKE_SELECT", TypeId, (int)Kind, candidates)
+            ));
+
+            game.OnAnswer[Owner.Id] = () =>
+            {
+                target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+                game.CheckChain(Owner, this);
+            };
         }
 
-        public void Activate()
+        // Precompute the steps from -300 to +300 in increments of 50
+        int[] steps = Enumerable.Range(-6, 7).Select(i => i * 50).ToArray();
+        public override void Resolve()
         {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+            if (Negated || target == null || !target.OnField() || target.Position != this)
+            {
+                game.ChainStep();
+                return;
+            }
 
-            target.Boost(new Boost((short)(50 * new Random().Next(-6, 7))), this);
+            // Randomly pick -300 to +300 (in steps of 50)
+            int boost = steps[new Random().Next(steps.Length)];
+
+            target.Boost(new Boost((short)boost), this);
 
             game.ChainStep();
         }

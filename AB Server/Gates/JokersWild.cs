@@ -13,7 +13,7 @@
         public override int TypeId { get; } = 5;
 
         public override bool IsOpenable() =>
-            base.IsOpenable() && Bakugans.Any(x => x.Power < 0 && x.IsAttribute(Attribute.Darkon));
+            base.IsOpenable() && Bakugans.Any(x => x.Owner == Owner && x.Power < 0 && x.IsAttribute(Attribute.Darkon));
 
         public override void Resolve()
         {

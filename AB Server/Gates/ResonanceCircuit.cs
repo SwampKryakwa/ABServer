@@ -34,15 +34,14 @@ namespace AB_Server.Gates
         {
             AbilityCard target = game.AbilityIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
-            if (!Negated)
+            if (!Negated && Owner.BakuganOwned.DistinctBy(x => x.Type).Count() == Owner.BakuganOwned.Count
+            && Owner.BakuganOwned.DistinctBy(x => x.BaseAttribute).Count() == Owner.BakuganOwned.Count
+            && Owner.BakuganOwned.DistinctBy(x => x.BasePower).Count() == Owner.BakuganOwned.Count)
                 target.FromDropToHand();
 
             game.ChainStep();
         }
 
-        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable()
-            && Owner.BakuganOwned.DistinctBy(x => x.Type).Count() == Owner.BakuganOwned.Count
-            && Owner.BakuganOwned.DistinctBy(x => x.BaseAttribute).Count() == Owner.BakuganOwned.Count
-            && Owner.BakuganOwned.DistinctBy(x => x.BasePower).Count() == Owner.BakuganOwned.Count;
+        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable();
     }
 }

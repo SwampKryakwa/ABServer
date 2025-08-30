@@ -12,12 +12,16 @@
 
         public override int TypeId { get; } = 1;
 
-        public override void Resolve() {}
+        public override void Resolve() { }
 
         public override void DetermineWinner()
         {
             if (IsOpen)
             {
+                bakugansDefeatedThisBattle.Clear();
+                BattleOver = true;
+                BattleStarted = false;
+
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {
                     b.JustEndedBattle = false;
@@ -31,20 +35,25 @@
 
         public override void Dispose()
         {
-            foreach (Bakugan b in new List<Bakugan>(Bakugans))
+            if (IsOpen)
             {
-                b.JustEndedBattle = false;
-                b.MoveFromFieldToHand(EnterOrder);
+                foreach (Bakugan b in new List<Bakugan>(Bakugans))
+                {
+                    b.JustEndedBattle = false;
+                    b.MoveFromFieldToHand(EnterOrder);
+                }
+
+                IsOpen = false;
+                OnField = false;
+                Owner.GateDrop.Add(this);
+
+                game.Field[Position.X, Position.Y] = null;
+
+                game.ThrowEvent(EventBuilder.RemoveGate(this));
+                game.ThrowEvent(EventBuilder.SendGateToDrop(this));
             }
-
-            IsOpen = false;
-            OnField = false;
-            Owner.GateDrop.Add(this);
-
-            game.Field[Position.X, Position.Y] = null;
-
-            game.ThrowEvent(EventBuilder.RemoveGate(this));
-            game.ThrowEvent(EventBuilder.SendGateToDrop(this));
+            else
+                base.DetermineWinner();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AB_Server.Abilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,19 +20,7 @@ namespace AB_Server.Gates
         public override int TypeId { get; } = 18;
 
         public override bool IsOpenable() =>
-            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && AtLeastTwoBakuganFromSameTeam() && OpenBlocking.Count == 0 && !IsOpen && !Negated;
-
-        bool AtLeastTwoBakuganFromSameTeam()
-        {
-            int[] teamsCount = new int[game.TeamCount];
-            for (int i = 0; i < game.TeamCount; i++)
-                teamsCount[i] = 0;
-
-            foreach (var bakugan in Bakugans)
-                teamsCount[bakugan.Owner.TeamId]++;
-
-            return teamsCount.Any(x => x >= 2);
-        }
+            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && !Owner.AbilityDrop.Any(card => card is AbilityCard) && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
         public override void Resolve()
         {

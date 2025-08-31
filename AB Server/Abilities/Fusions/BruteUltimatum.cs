@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
         {
             var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             if (User.Position is GateCard positionGate)
-                target?.AddFromHand(positionGate);
+                target?.AddFromHandToField(positionGate);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

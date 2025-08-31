@@ -29,10 +29,10 @@ namespace AB_Server.Abilities.Fusions
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Shredder && user.OnField();
+            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Shredder && user.InHand();
 
         [ModuleInitializer]
-        internal static void Init() => FusionAbility.Register(12, (cID, owner) => new SilentPact(cID, owner));
+        internal static void Init() => Register(12, (cID, owner) => new SilentPact(cID, owner));
     }
 
     internal class SilentPactMarker(Bakugan user, Attribute newAttribute, Player owner, bool isCopy) : IActive
@@ -59,6 +59,8 @@ namespace AB_Server.Abilities.Fusions
             User.ContinuousBoost(boost, this);
             attributeState = User.ChangeAttribute(newAttribute, this);
             User.OnRemovedFromField += Stop;
+            User.OnFromHandToField += Refresh;
+            User.OnFromDropToField += Refresh;
             User.OnFromHandToDrop += Refresh;
             User.OnFromDropToHand += Refresh;
         }

@@ -339,7 +339,6 @@ namespace AB_Server.Abilities
         {
             game.ActiveZone.Add(this);
 
-
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
             currentBoosts = new Boost[Targets.Length];

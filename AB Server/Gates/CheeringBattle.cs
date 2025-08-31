@@ -64,7 +64,7 @@
             }
 
             // Place the second target onto this card
-            handBakugan.AddFromHand(this);
+            handBakugan.AddFromHandToField(this);
 
             // Then it gets -100G for each 100G in its power (after placement)
             int penalty = handBakugan.Power / 100 * 100;

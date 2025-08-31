@@ -42,7 +42,7 @@ namespace AB_Server.Abilities
         }
 
         public override void TriggerEffect() =>
-            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AddFromHand(oldUserPos);
+            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AddFromHandToField(oldUserPos);
 
         public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua));
 

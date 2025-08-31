@@ -1,6 +1,5 @@
 ﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
@@ -13,13 +12,18 @@ namespace AB_Server.Abilities
             [
                 new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = bakugan => bakugan.Owner != Owner && bakugan.OnField() }
             ];
+            ResTargetSelectors =
+            [
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = gate => gate.IsAdjacent((User.Position as GateCard)!) }
+            ];
         }
 
         public override void TriggerEffect()
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            if ((target.Position as GateCard)!.IsAdjacent((User.Position as GateCard)!))
-                GenericEffects.MoveBakuganEffect(target, (User.Position as GateCard)!, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
+            var destination = (ResTargetSelectors[0] as GateSelector)!.SelectedGate;
+            if (destination.OnField)
+                GenericEffects.MoveBakuganEffect(target, destination, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

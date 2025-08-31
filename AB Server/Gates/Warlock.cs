@@ -1,7 +1,4 @@
-﻿using AB_Server.Abilities;
-using Newtonsoft.Json.Linq;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class Warlock : GateCard
     {

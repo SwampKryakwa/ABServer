@@ -1,10 +1,4 @@
 ﻿using AB_Server.Gates.SpecialGates;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities

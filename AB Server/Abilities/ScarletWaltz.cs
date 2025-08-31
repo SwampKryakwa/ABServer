@@ -1,10 +1,4 @@
-﻿using AB_Server.Gates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -14,17 +8,21 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x != User },
+                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x != User }
+            ];
+
+            ResTargetSelectors =
+            [
                 new OptionSelector() { Message = "INFO_PICKER_SCARLETWALTZ", ForPlayer = (p) => p == Owner, OptionCount = 2 }
             ];
         }
 
         public override void TriggerEffect()
         {
-            var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             if (target is null || User is null) return;
 
-            int option = (ResTargetSelectors[1] as OptionSelector)!.SelectedOption;
+            int option = (ResTargetSelectors[0] as OptionSelector)!.SelectedOption;
             short boost = (short)(option == 0 ? 100 : -100);
 
             User.Boost(boost, this);

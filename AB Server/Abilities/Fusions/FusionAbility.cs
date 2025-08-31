@@ -1,6 +1,4 @@
-﻿using AB_Server.Abilities.Fusions;
-
-namespace AB_Server.Abilities
+﻿namespace AB_Server.Abilities
 {
     internal abstract partial class FusionAbility(int cID, Player owner, int typeId, Type baseAbilityType) : AbilityCard(cID, owner, typeId)
     {

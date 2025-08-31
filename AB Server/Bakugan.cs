@@ -1,9 +1,6 @@
 ﻿
 using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
 
 namespace AB_Server
 {
@@ -73,6 +70,8 @@ namespace AB_Server
     {
         public delegate void Destroyed();
         public delegate void RemovedFromField();
+        public delegate void FromHandToField();
+        public delegate void FromDropToField();
         public delegate void FromHandToDrop();
         public delegate void FromDropToHand();
 
@@ -92,6 +91,8 @@ namespace AB_Server
 
         public event Destroyed OnDestroyed;
         public event RemovedFromField OnRemovedFromField;
+        public event FromHandToField OnFromHandToField;
+        public event FromDropToField OnFromDropToField;
         public event FromHandToDrop OnFromHandToDrop;
         public event FromDropToHand OnFromDropToHand;
 
@@ -213,6 +214,8 @@ namespace AB_Server
                     ["BasePower"] = BasePower,
                     ["Power"] = Power,
                     ["IsPartner"] = IsPartner,
+                    ["InHand"] = InHand(),
+                    ["InGrave"] = InDrop(),
                     ["BID"] = BID
                 }
             });
@@ -241,7 +244,7 @@ namespace AB_Server
             });
         }
 
-        public void AddFromHand(GateCard destination, MoveSource mover = MoveSource.Effect)
+        public void AddFromHandToField(GateCard destination, MoveSource mover = MoveSource.Effect)
         {
             if (IsDummy) return;
 
@@ -283,6 +286,7 @@ namespace AB_Server
                 }
             });
             Game.OnBakuganAdded(this, Owner.Id, destination);
+            OnFromHandToField?.Invoke();
 
             // Reset flags
             BattleEndedInDraw = false;
@@ -329,6 +333,7 @@ namespace AB_Server
                 }
             });
             Game.OnBakuganThrown(this, Owner.Id, destination);
+            OnFromHandToField?.Invoke();
 
             // Reset flags
             BattleEndedInDraw = false;
@@ -603,6 +608,7 @@ namespace AB_Server
             destination.Bakugans.Add(this);
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromDrop(this, Owner.Id, destination);
+            OnFromDropToField?.Invoke();
 
             game.ThrowEvent(new JObject
             {

@@ -30,7 +30,7 @@ namespace AB_Server.Abilities
                 }
                 else if (selectedBakugan.Position is Player)
                 {
-                    selectedBakugan.AddFromHand(positionGate);
+                    selectedBakugan.AddFromHandToField(positionGate);
                     User.MoveFromFieldToHand(positionGate.EnterOrder);
                 }
         }

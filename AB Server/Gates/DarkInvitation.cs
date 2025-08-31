@@ -1,12 +1,4 @@
-﻿using AB_Server.Abilities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AB_Server.Gates
+﻿namespace AB_Server.Gates
 {
     internal class DarkInvitation : GateCard
     {
@@ -55,7 +47,7 @@ namespace AB_Server.Gates
         {
             Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[targetPlayer.Id]!["array"][0]["bakugan"]];
 
-            target.AddFromHand(this);
+            target.AddFromHandToField(this);
 
             game.ChainStep();
         }

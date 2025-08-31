@@ -81,7 +81,7 @@
                 {
                     var gateIndex = (int)game.PlayerAnswers[owner.Id]!["array"][0]["gate"];
                     var chosenGate = gateCandidates[gateIndex];
-                    chosenBakugan.AddFromHand(chosenGate);
+                    chosenBakugan.AddFromHandToField(chosenGate);
                     game.ChainStep();
                 };
             };

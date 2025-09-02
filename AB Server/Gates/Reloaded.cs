@@ -17,7 +17,7 @@ namespace AB_Server.Gates
 
         public override int TypeId { get; } = 10;
 
-        public override void Resolve()
+        public override void TriggerEffect()
         {
             var target1 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             var target2 = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;

@@ -16,7 +16,7 @@
         {
             if (!Negated)
             {
-                foreach (var gate in game.GateIndex.Where(x => x.OnField))
+                foreach (var gate in game.GateIndex.Where(x => x.OnField && x != this))
                     gate.Bakugans.ForEach(x => x.Boost(new Boost(-100), this));
                 foreach (var gate in game.GateIndex.Where(x => x.OnField && x.IsAdjacent(this)))
                     gate.Bakugans.ForEach(x => x.Boost(new Boost(-100), this));

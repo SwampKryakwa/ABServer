@@ -25,16 +25,14 @@
         public override bool IsOpenable() =>
             game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        GateCard targetPosition;
         public override void Resolve()
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            if (target.Position is not GateCard)
+            if (target.Position != this)
             {
                 game.ChainStep();
                 return;
             }
-            targetPosition = (target.Position as GateCard)!;
             target.MoveFromFieldToHand((target.Position as GateCard)!.EnterOrder);
             base.Resolve();
         }
@@ -42,7 +40,7 @@
         public override void TriggerEffect()
         {
             var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            target.AddFromHandToField(targetPosition);
+            target.AddFromHandToField(this);
         }
     }
 }

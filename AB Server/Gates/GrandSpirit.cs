@@ -24,7 +24,7 @@
             Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
             if (!Negated && target.Position == this)
-                target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard gate && gate.Owner == Owner && gate != this))), this);
+                target.Boost(new Boost((short)(50 * game.Field.Cast<GateCard?>().Count(x => x is GateCard gate && gate.Owner == Owner))), this);
         }
     }
 }

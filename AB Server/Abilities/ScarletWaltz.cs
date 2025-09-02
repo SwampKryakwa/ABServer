@@ -32,6 +32,6 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(37, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 37));
+        internal static void Init() => Register(37, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 37));
     }
 }

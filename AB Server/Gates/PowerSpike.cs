@@ -11,7 +11,7 @@
 
             CondTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this && x.Owner == Owner }
+                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this }
             ];
         }
 
@@ -19,7 +19,7 @@
 
         // Precompute the steps from -300 to +300 in increments of 50
         int[] steps = Enumerable.Range(-6, 7).Select(i => i * 50).ToArray();
-        public override void Resolve()
+        public override void TriggerEffect()
         {
             Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 

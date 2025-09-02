@@ -11,7 +11,7 @@
 
             CondTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => EnterOrder[^1].Contains(x) && x.Owner == Owner }
+                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => EnterOrder[^1].Contains(x) }
             ];
 
             ResTargetSelectors =

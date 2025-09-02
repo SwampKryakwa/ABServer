@@ -8,6 +8,11 @@
             Owner = owner;
 
             CardId = cID;
+
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this }
+            ];
         }
 
         public override int TypeId { get; } = 12;
@@ -15,39 +20,16 @@
         public override bool IsOpenable() =>
             game.CurrentWindow == ActivationWindow.Intermediate && BattleOver && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        public override void Open()
-        {
-            IsOpen = true;
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
-
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = Setup;
-        }
-
         Bakugan target;
-
-        public void Setup()
+        bool resolved;
+        public override void TriggerEffect()
         {
-            target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-
-            game.CheckChain(Owner, this);
-        }
-
-        public override void Resolve()
-        {
+            target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan; ;
             if (!Negated)
             {
                 resolved = false;
             }
-
-            game.ChainStep();
         }
-
-        bool resolved;
 
         public override void Dispose()
         {

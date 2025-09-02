@@ -322,7 +322,7 @@ namespace AB_Server.Abilities
                 }
                 else if (currentSelector is YesNoSelector yesNoSelector)
                 {
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
                         ));
                 }

@@ -8,64 +8,40 @@
             Owner = owner;
 
             CardId = cID;
+
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Owner.TeamId != Owner.TeamId && x.Position == this }
+            ];
+
+            ResTargetSelectors =
+            [
+                new OptionSelector() { Message = "INFO_PICKER_WARLOCK", ForPlayer = (p) => p == Owner, OptionCount = 2 }
+            ];
         }
 
         public override int TypeId { get; } = 2;
 
-        Bakugan targetedBakugan;
-
-        public override void Open()
+        public override void TriggerEffect()
         {
-            // Find opponent's Bakugan on this card
-            var targetables = Bakugans.Where(x => x.Owner != Owner).ToArray();
-            if (targetables.Length == 0)
+            int option = (ResTargetSelectors[0] as OptionSelector)!.SelectedOption;
+            Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            if (option == 0)
             {
-                game.ChainStep();
-                return;
+                // Set power to base power
+                target.Boost((short)(target.BasePower - target.Power), this);
             }
-
-            // Prompt to select an opponent Bakugan on this card
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, targetables)
-            ));
-            game.OnAnswer[Owner.Id] = () =>
+            else
             {
-                targetedBakugan = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-                game.CheckChain(Owner, this);
-            };
+                // Remove all markers created by the target
+                foreach (var effect in game.ActiveZone.Where(x => x.User == target))
+                {
+                    effect.Negate();
+                    game.ActiveZone.Remove(effect);
+                }
+            }
         }
 
-        public override void Resolve()
-        {
-            if (Negated || targetedBakugan is null || targetedBakugan.Position != this)
-            {
-                game.ChainStep();
-                return;
-            }
-
-            // Present the two options to the owner
-            game.ThrowEvent(Owner.Id, EventBuilder.OptionSelectionEvent("INFO_PICKER_WARLOCK", 2));
-            game.OnAnswer[Owner.Id] = () =>
-            {
-                int option = (int)game.PlayerAnswers[Owner.Id]!["option"];
-                if (option == 0)
-                {
-                    // Set power to base power
-                    targetedBakugan.Boost((short)(targetedBakugan.BasePower - targetedBakugan.Power), this);
-                }
-                else
-                {
-                    // Remove all markers created by the target
-                    foreach (var effect in game.ActiveZone.Where(x=>x.User == targetedBakugan))
-                    {
-                        effect.Negate();
-                        game.ActiveZone.Remove(effect);
-                    }
-                }
-                game.ChainStep();
-            };
-        }
-
-        public override bool IsOpenable() => Bakugans.Any(x=>x.Owner != Owner) && base.IsOpenable();
+        public override bool IsOpenable() => Bakugans.Any(x => x.Owner != Owner) && base.IsOpenable();
     }
 }

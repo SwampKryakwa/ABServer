@@ -7,6 +7,12 @@
             game = owner.Game;
             Owner = owner;
             CardId = cID;
+
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this },
+                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
+            ];
         }
 
         public override int TypeId { get; } = 9;
@@ -14,31 +20,10 @@
         public override bool IsOpenable() =>
             game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        public override void Resolve()
+        public override void TriggerEffect()
         {
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = Setup;
-        }
-
-        Bakugan target1;
-
-        public void Setup()
-        {
-            target1 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, Bakugans.Where(x => x != target1))
-            ));
-
-            game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        public void Activate()
-        {
-            Bakugan target2 = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+            var target1 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            var target2 = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
 
             if (!Negated && target1.Position == this && target2.Position == this)
             {
@@ -47,8 +32,6 @@
                 target1.Boost(new Boost((short)-boost), this);
                 target2.Boost(new Boost((short)boost), this);
             }
-
-            game.ChainStep();
         }
     }
 }

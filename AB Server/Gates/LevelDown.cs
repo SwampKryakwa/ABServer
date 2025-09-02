@@ -8,27 +8,21 @@ namespace AB_Server.Gates
             Owner = owner;
 
             CardId = cID;
+
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x=> x == Owner, Message = "INFO_GATE_DECREASETARGET", TargetValidator = x => x.Position == this }
+            ];
         }
 
         public override int TypeId { get; } = 0;
 
-        public override void Resolve()
+        public override void TriggerEffect()
         {
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_DECREASETARGET", TypeId, (int)Kind, Bakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        public void Activate()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+            Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
             if (!Negated && target.Power >= 400 && target.Position == this)
                 target.Boost(new Boost(-100), this);
-
-            game.ChainStep();
         }
     }
 }

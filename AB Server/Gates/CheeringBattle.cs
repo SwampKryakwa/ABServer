@@ -8,69 +8,25 @@
             Owner = owner;
 
             CardId = cID;
-        }
 
-        Bakugan fieldBakugan;
-        Bakugan handBakugan;
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Owner == Owner && x.Position == this },
+                new BakuganSelector { ClientType = "BH", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Owner == Owner && x.InHand() && x.BasePower < (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.BasePower }
+            ];
+        }
 
         public override int TypeId { get; } = 3;
-        
-        public override void Open()
+
+        public override void TriggerEffect()
         {
-            // Target 1 of your bakugan on this card
-            var ownBakugans = Bakugans.Where(x => x.Owner == Owner).ToArray();
-            if (ownBakugans.Length == 0)
-            {
-                game.ChainStep();
-                return;
-            }
-
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, (int)Kind, ownBakugans)
-            ));
-
-            game.OnAnswer[Owner.Id] = () =>
-            {
-                fieldBakugan = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-
-                // Target 1 bakugan with lower base power in your hand
-                var handCandidates = Owner.BakuganOwned
-                    .Where(x => x.InHand() && x.BasePower < fieldBakugan.BasePower).ToArray();
-
-                if (handCandidates.Length == 0)
-                {
-                    game.ChainStep();
-                    return;
-                }
-
-                game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                    EventBuilder.HandBakuganSelection("INFO_GATE_ADDTARGET", TypeId, (int)Kind, handCandidates)
-                ));
-
-                game.OnAnswer[Owner.Id] = () =>
-                {
-                    handBakugan = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-                    game.CheckChain(Owner, this);
-                };
-            };
-        }
-
-        public override void Resolve()
-        {
-            if (Negated || fieldBakugan == null || handBakugan == null || !fieldBakugan.OnField() || !handBakugan.InHand())
-            {
-                game.ChainStep();
-                return;
-            }
-
+            var handBakugan = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
             // Place the second target onto this card
             handBakugan.AddFromHandToField(this);
 
             // Then it gets -100G for each 100G in its power (after placement)
             int penalty = handBakugan.Power / 100 * 100;
             handBakugan.Boost((short)-penalty, this);
-
-            game.ChainStep();
         }
 
         public override bool IsOpenable() =>

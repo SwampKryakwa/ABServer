@@ -10,6 +10,11 @@ namespace AB_Server.Gates
             Owner = owner;
 
             CardId = cID;
+
+            CondTargetSelectors =
+            [
+                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => bakugansDefeatedThisBattle.Contains(x) }
+            ];
         }
 
         public override int TypeId { get; } = 19;
@@ -19,29 +24,9 @@ namespace AB_Server.Gates
 
         public override void Resolve()
         {
-            if (!Negated)
-            {
-                game.ThrowEvent(Owner.Id, new JObject
-                {
-                    ["Type"] = "StartSelection",
-                    ["Selections"] = new JArray {
-                        EventBuilder.FieldBakuganSelection("INFO_GATE_BOOSTTARGET", TypeId, (int)Kind, bakugansDefeatedThisBattle)
-                    }
-                });
-
-                game.OnAnswer[Owner.Id] = Activate;
-            }
-            else
-                game.ChainStep();
-        }
-
-        public void Activate()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+            Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
             target.MoveFromDropToHand();
-
-            game.ChainStep();
         }
     }
 }

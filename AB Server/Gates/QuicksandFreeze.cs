@@ -37,6 +37,7 @@
                 base.Dispose();
             else
             {
+                BattleDeclaredOver = false;
                 resolved = true;
                 foreach (Bakugan b in new List<Bakugan>(Bakugans))
                 {

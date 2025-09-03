@@ -558,7 +558,7 @@ namespace AB_Server
                     }
                     else if (AbilityIndex.Any(x => x.IsActivateable()))
                     {
-                        var playersWithActivateableAbilities = Players.Where(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable()));
+                        var playersWithActivateableAbilities = Players.Where(x => AbilityIndex.Any(a => a.Owner == x && a.IsActivateable()));
                         ActivePlayer = playersWithActivateableAbilities.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithActivateableAbilities.First().Id;
                         ThrowMoveStart();
                     }
@@ -722,7 +722,7 @@ namespace AB_Server
                     ["PosY"] = x.Position.Y
                 })),
                 ["ThrowableBakugan"] = bakuganArray,
-                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && x.ThrowBlocking.Count == 0).Select(x => new JObject
+                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && !x.Bakugans.Any(x=>x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,

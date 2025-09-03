@@ -10,10 +10,10 @@ namespace AB_Server.Abilities
                 new WaterRefrainMarker(User, TypeId, IsCopy).Activate();
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Aqua)) && Game.CurrentWindow == ActivationWindow.TurnStart && Game.TurnPlayer != Owner.Id && user.IsAttribute(Attribute.Aqua) && user.OnField();
+            Game.CurrentWindow == ActivationWindow.TurnStart && Game.Players[Game.TurnPlayer].TeamId != Owner.TeamId && user.IsAttribute(Attribute.Aqua) && user.OnField();
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(4, CardKind.NormalAbility, (cID, owner) => new WaterRefrain(cID, owner, 4));
+        internal static void Init() => Register(4, CardKind.NormalAbility, (cID, owner) => new WaterRefrain(cID, owner, 4));
     }
 
 

@@ -29,6 +29,6 @@ namespace AB_Server.Gates
                 target.FromDropToHand();
         }
 
-        public override bool IsOpenable() => game.ActiveZone.Any(x => x is not GateCard && x is not AbilityCard) && base.IsOpenable();
+        public override bool IsOpenable() => game.ActiveZone.Any(x => x is AbilityCard ability && ability.Kind == CardKind.CorrelationAbility) && base.IsOpenable();
     }
 }

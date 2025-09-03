@@ -388,17 +388,17 @@ namespace AB_Server
             return new()
             {
                 ["Type"] = "GateMultiSetEvent",
-                ["Cards"] = JArray.FromObject(cards.Select(card => new JObject
+                ["Cards"] = JArray.FromObject(cards.Select(cardInfo => new JObject
                 {
-                    ["PosX"] = card.card.Position.X,
-                    ["PosY"] = card.card.Position.Y,
+                    ["PosX"] = cardInfo.card.Position.X,
+                    ["PosY"] = cardInfo.card.Position.Y,
                     ["GateData"] = new JObject
                     {
-                        ["Kind"] = (int)card.card.Kind,
-                        ["Type"] = card.setBy == forPlayer ? card.card.TypeId : -2
+                        ["Kind"] = (int)cardInfo.card.Kind,
+                        ["Type"] = cardInfo.setBy == forPlayer ? cardInfo.card.TypeId : -2
                     },
-                    ["Owner"] = card.card.Owner.Id,
-                    ["CID"] = card.card.CardId
+                    ["Owner"] = cardInfo.card.Owner.Id,
+                    ["CID"] = cardInfo.card.CardId
                 }))
             };
         }

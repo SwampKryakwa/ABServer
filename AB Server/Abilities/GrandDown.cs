@@ -15,7 +15,7 @@ namespace AB_Server.Abilities
         public override void TriggerEffect()
         {
             var target = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
-            if (target.Negated)
+            if (!target.Negated)
             {
                 Game.ThrowEvent(EventBuilder.GateReveal(target));
                 target.Negate();

@@ -22,7 +22,7 @@ namespace AB_Server.Gates
         public override bool IsOpenable() =>
             game.CurrentWindow == ActivationWindow.Intermediate && BattleOver && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        public override void Resolve()
+        public override void TriggerEffect()
         {
             Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 

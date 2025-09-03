@@ -552,12 +552,14 @@ namespace AB_Server
                     CurrentWindow = ActivationWindow.Intermediate;
                     if (GateIndex.Any(x => x.IsOpenable()))
                     {
-                        ActivePlayer = Players.First(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable())).Id;
+                        var playersWithOpenableGates = Players.Where(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable()));
+                        ActivePlayer = playersWithOpenableGates.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithOpenableGates.First().Id;
                         ThrowMoveStart();
                     }
                     else if (AbilityIndex.Any(x => x.IsActivateable()))
                     {
-                        ActivePlayer = Players.First(x => AbilityIndex.Any(a => a.Owner == x && a.IsActivateable())).Id;
+                        var playersWithActivateableAbilities = Players.Where(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable()));
+                        ActivePlayer = playersWithActivateableAbilities.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithActivateableAbilities.First().Id;
                         ThrowMoveStart();
                     }
                     else
@@ -705,7 +707,7 @@ namespace AB_Server
                 ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField),
                 ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
                 ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
-                ["CanEndBattle"] = (!GateIndex.Any(x => x.Owner == Players[player] && x.IsOpenable()) && CurrentWindow == ActivationWindow.Intermediate) || Players[player].HasBattlingBakugan(),
+                ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (Players[player].HasBattlingBakugan() && CurrentWindow == ActivationWindow.Normal),
 
                 ["IsASkip"] = !Players[player].HadThrownBakugan,
                 ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,

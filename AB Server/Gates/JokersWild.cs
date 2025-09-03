@@ -15,15 +15,12 @@
         public override bool IsOpenable() =>
             base.IsOpenable() && Bakugans.Any(x => x.Owner == Owner && x.Power < 0 && x.IsAttribute(Attribute.Darkon));
 
-        public override void Resolve()
+        public override void TriggerEffect()
         {
-            if (!Negated)
-                foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Darkon)))
-                {
-                    bakugan.MoveFromFieldToDrop(EnterOrder);
-                }
-
-            game.ChainStep();
+            foreach (var bakugan in Bakugans.Where(x => !x.IsAttribute(Attribute.Darkon)).ToArray())
+            {
+                bakugan.MoveFromFieldToDrop(EnterOrder);
+            }
         }
     }
 }

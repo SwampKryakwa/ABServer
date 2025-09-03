@@ -6,15 +6,16 @@ namespace AB_Server.Abilities
     {
         public EssenceShift(int cId, Player owner, int typeId) : base(cId, owner, typeId)
         {
-            CondTargetSelectors =
+            ResTargetSelectors =
             [
+                new BakuganSelector() { ClientType = "BF", Message = "INFO_ABILITY_TARGET", ForPlayer = p => p == Owner, TargetValidator = x => x.OnField() },
                 new OptionSelector() { Message = "INFO_PICKER_ATTRIBUTE", ForPlayer = (p) => p == Owner, OptionCount = 6 }
             ];
         }
 
         public override void TriggerEffect()
         {
-            User.ChangeAttribute((Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption, this);
+            (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.ChangeAttribute((Attribute)(ResTargetSelectors[1] as OptionSelector)!.SelectedOption, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

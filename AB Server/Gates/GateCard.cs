@@ -9,14 +9,14 @@ namespace AB_Server.Gates
 
         static Func<int, Player, GateCard>[] GateCtrs =
         [
-            //Set 1 Gate Cards
+            //Vol. 1 Gate Cards
             (x, y) => new LevelDown(x, y),
             (x, y) => new Peacemaker(x, y),
             (x, y) => new Warlock(x, y),
             (x, y) => new CheeringBattle(x, y),
             (x, y) => new Transform(x, y),
 
-            //Set 2 Gate Cards
+            //Vol. 2 Gate Cards
             (x, y) => new JokersWild(x, y),
             (x, y) => new PositiveDelta(x, y),
             (x, y) => new Aquamerge(x, y),
@@ -27,13 +27,19 @@ namespace AB_Server.Gates
             (x, y) => new QuicksandFreeze(x, y),
             (x, y) => new NegativeDelta(x, y),
 
-            //Set 3 Gate Cards
+            //Vol. 3 Gate Cards
             (x, y) => new ResonanceCircuit(x, y),
             (x, y) => new Shockwave(x, y),
             (x, y) => new DarkInvitation(x, y),
             (x, y) => new PowerSpike(x, y),
             (x, y) => new MindGhost(x, y),
             (x, y) => new Anastasis(x, y),
+
+            //Vol. 3 EX Gate Cards
+            (x, y) => new DirectOpposition(x, y),
+            (x, y) => new WindForcement(x, y),
+            (x, y) => new EnergyMerge(x, y),
+            (x, y) => new DetonationZone(x, y),
         ];
 
         public static GateCard CreateCard(Player owner, int cID, int type)

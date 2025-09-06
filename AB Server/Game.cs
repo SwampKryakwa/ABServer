@@ -78,7 +78,7 @@ namespace AB_Server
         public Action NextStep;
 
         //Other data
-        byte playersCreated = 0;
+        byte[] playersCreatedInTeam;
         byte playersRegistered = 0;
         public int NextEffectId = 0;
         public bool DoNotMakeStep = false;
@@ -151,7 +151,7 @@ namespace AB_Server
         public void OnGateOpen(GateCard target) =>
             GateOpen?.Invoke(target);
 
-        public Game(byte playerCount, byte sideCount)
+        public Game(byte playerCount, byte teamCount)
         {
             PlayerCount = playerCount;
             Players = new Player[playerCount];
@@ -159,16 +159,18 @@ namespace AB_Server
             PlayerAnswers = new JObject[playerCount];
             OnAnswer = new Action[playerCount];
             OnCancel = new Action[playerCount];
+            playersCreatedInTeam = new byte[teamCount];
             for (byte i = 0; i < playerCount; i++)
                 NewEvents[i] = [];
-            TeamCount = sideCount;
+            TeamCount = teamCount;
         }
 
         public int CreatePlayer(Game game, string userName, byte team, long uuid)
         {
-            Players[playersCreated] = new Player(game, playersCreated, team, userName);
-            UidToPid.Add(uuid, playersCreated);
-            return playersCreated++;
+            int id = team * (PlayerCount / TeamCount) + playersCreatedInTeam[team];
+            Players[id] = new Player(game, (byte)id, team, userName);
+            UidToPid.Add(uuid, id);
+            return id;
         }
 
         public bool RegisterPlayer(byte playerId, JObject deck, byte ava)
@@ -1104,7 +1106,7 @@ namespace AB_Server
                 player.HadUsedCounter = true;
                 OnAnswer[player.Id] = () => ResolveCounter(player);
 
-                ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("CounterSelection", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+                ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_COUNTERSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
             }
         }
 

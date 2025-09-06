@@ -167,7 +167,7 @@ namespace AB_Server
 
         public int CreatePlayer(Game game, string userName, byte team, long uuid)
         {
-            int id = team * (PlayerCount / TeamCount) * playersCreatedInTeam[team]++ + team;
+            int id = TeamCount * playersCreatedInTeam[team]++ + team;
             Players[id] = new Player(game, (byte)id, team, userName);
             UidToPid.Add(uuid, id);
             return id;

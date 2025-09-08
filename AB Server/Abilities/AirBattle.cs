@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Zephyros)) && Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && HasValidTargets(user);
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
             user.Game.BakuganIndex.Any(x => x.OnField() && IBakuganContainer.IsAdjacent(x.Position, user.Position) && user.IsOpponentOf(x));

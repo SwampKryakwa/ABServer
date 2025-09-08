@@ -1,6 +1,7 @@
 ﻿using AB_Server.Abilities;
 using AB_Server.Abilities.Correlations;
 using AB_Server.Gates;
+using System.Numerics;
 
 namespace AB_Server
 {
@@ -182,7 +183,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !Game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan);
+            return !Game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
         }
 
         public bool HasBattlingBakugan() =>

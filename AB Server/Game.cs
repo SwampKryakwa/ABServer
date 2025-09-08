@@ -704,7 +704,7 @@ namespace AB_Server
             {
                 ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !isBattleGoing,
                 ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
-                ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField),
+                ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
                 ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
                 ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
                 ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (Players[player].HasBattlingBakugan() && CurrentWindow == ActivationWindow.Normal),

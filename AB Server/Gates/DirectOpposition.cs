@@ -35,11 +35,11 @@ namespace AB_Server.Gates
 
             foreach (var attr1 in target1Attrs)
                 foreach (var attr2 in target2Attrs)
-                    if ((upperTriple.Contains(attr1) && upperTriple.Contains(attr2)) || (lowerTriple.Contains(attr1) && lowerTriple.Contains(attr2)))
+                    if (attr1 != attr2 && ((upperTriple.Contains(attr1) && upperTriple.Contains(attr2)) || (lowerTriple.Contains(attr1) && lowerTriple.Contains(attr2))))
                     {
                         var difference = target1.Power - target2.Power;
-                        target1.Boost(-difference, this);
-                        target2.Boost(difference, this);
+                        target1.Boost(difference, this);
+                        target2.Boost(-difference, this);
                         return;
                     }
         }

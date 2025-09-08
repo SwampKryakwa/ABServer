@@ -26,7 +26,7 @@ namespace AB_Server.Gates
         public override void TriggerEffect()
         {
             Bakugan target1 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            Bakugan target2 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            Bakugan target2 = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
             
             if (target1.Position != this || target2.Position != this) return;
             
@@ -38,8 +38,8 @@ namespace AB_Server.Gates
                     if (attr1 != attr2 && ((upperTriple.Contains(attr1) && upperTriple.Contains(attr2)) || (lowerTriple.Contains(attr1) && lowerTriple.Contains(attr2))))
                     {
                         var difference = target1.Power - target2.Power;
-                        target1.Boost(difference, this);
-                        target2.Boost(-difference, this);
+                        target1.Boost(-difference, this);
+                        target2.Boost(difference, this);
                         return;
                     }
         }

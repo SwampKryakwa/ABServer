@@ -24,7 +24,7 @@ namespace AB_Server.Gates
         public override void TriggerEffect()
         {
             Bakugan target1 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            Bakugan target2 = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+            Bakugan target2 = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
 
             if (target1.Position == this)
             {

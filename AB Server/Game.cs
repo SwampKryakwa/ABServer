@@ -212,8 +212,8 @@ namespace AB_Server
                 ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
                 {
                     ["BID"] = x.BID,
-                    ["PosX"] = (x.Position as GateCard).Position.X,
-                    ["PosY"] = (x.Position as GateCard).Position.Y,
+                    ["PosX"] = (x.Position as GateCard)!.Position.X,
+                    ["PosY"] = (x.Position as GateCard)!.Position.Y,
                     ["Type"] = (int)x.Type,
                     ["Attribute"] = (int)x.BaseAttribute,
                     ["Treatment"] = (int)x.Treatment,
@@ -311,8 +311,8 @@ namespace AB_Server
                     ["FieldBakugan"] = new JArray(BakuganIndex.Where(x => x.OnField()).Select(x => new JObject
                     {
                         ["BID"] = x.BID,
-                        ["PosX"] = (x.Position as GateCard).Position.X,
-                        ["PosY"] = (x.Position as GateCard).Position.Y,
+                        ["PosX"] = (x.Position as GateCard)!.Position.X,
+                        ["PosY"] = (x.Position as GateCard)!.Position.Y,
                         ["Type"] = (int)x.Type,
                         ["Attribute"] = (int)x.BaseAttribute,
                         ["Treatment"] = (int)x.Treatment,
@@ -392,7 +392,7 @@ namespace AB_Server
                     byte[] players = new byte[PlayerCount];
                     for (byte j = 0; j < PlayerCount; j++)
                     {
-                        dynamic selection = PlayerAnswers[j];
+                        dynamic selection = PlayerAnswers[j]!;
                         int id = (int)selection["gate"];
 
                         ThrowEvent(new()
@@ -579,10 +579,8 @@ namespace AB_Server
             foreach (var gate in GateIndex.Where(x => x.OnField && x.BattleStarting))
                 gate.BattleStarted = true;
 
-            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
-            {
-                g.Dispose();
-            }
+            foreach (GateCard? g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.BattleDeclaredOver))
+                g!.Dispose();
 
             CurrentWindow = ActivationWindow.Normal;
             if (shouldTurnEnd)
@@ -748,7 +746,7 @@ namespace AB_Server
         {
             if (LongRangeBattleGoing)
                 NextStep = ResolveLongRangeBattle;
-            string moveType = selection["Type"].ToString();
+            string moveType = selection["Type"]!.ToString();
 
             bool DontThrowTurnStartEvent = false;
             if (moveType != "pass" && moveType != "draw")
@@ -758,10 +756,10 @@ namespace AB_Server
             switch (moveType)
             {
                 case "throw":
-                    if (Field[(int)selection["posX"], (int)selection["posY"]] is GateCard gateSelection)
+                    if (Field[(int)selection["posX"]!, (int)selection["posY"]!] is GateCard gateSelection)
                     {
                         Players[TurnPlayer].HadThrownBakugan = true;
-                        BakuganIndex[(int)selection["bakugan"]].Throw(gateSelection);
+                        BakuganIndex[(int)selection["bakugan"]!].Throw(gateSelection);
                     }
                     else
                     {
@@ -772,9 +770,9 @@ namespace AB_Server
                     }
                     break;
                 case "set":
-                    (byte X, byte Y) posSelection = ((byte)selection["posX"], (byte)selection["posY"]);
+                    (byte X, byte Y) = ((byte)selection["posX"]!, (byte)selection["posY"]!);
 
-                    if (Field[posSelection.X, posSelection.Y] != null)
+                    if (Field[X, Y] != null)
                     {
                         NewEvents[TurnPlayer].Add(new JObject
                         {
@@ -785,7 +783,7 @@ namespace AB_Server
                     {
                         Players[TurnPlayer].HadSetGate = true;
 
-                        var id = (byte)selection["gate"];
+                        var id = (byte)selection["gate"]!;
                         ThrowEvent(new()
                         {
                             ["Type"] = "GateRemovedFromHand",
@@ -794,12 +792,12 @@ namespace AB_Server
                             ["Owner"] = GateIndex[id].Owner.Id
                         });
 
-                        GateIndex[id].Set(posSelection.X, posSelection.Y);
+                        GateIndex[id].Set(X, Y);
                     }
 
                     break;
                 case "activate":
-                    int abilitySelection = (int)selection["ability"];
+                    int abilitySelection = (int)selection["ability"]!;
 
                     if (!AbilityIndex[abilitySelection].IsActivateable())
                     {
@@ -820,7 +818,7 @@ namespace AB_Server
 
                     break;
                 case "open":
-                    GateCard gateToOpen = GateIndex[(int)selection["gate"]];
+                    GateCard gateToOpen = GateIndex[(int)selection["gate"]!];
 
                     if (gateToOpen == null)
                     {
@@ -886,10 +884,10 @@ namespace AB_Server
                         if (allBattlingPlayersPassed)
                         {
                             playersPassed.Clear();
-                            foreach (var g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
+                            foreach (GateCard? g in Field.Cast<GateCard?>().Where(x => x is GateCard gate && gate.IsBattleGoing))
                             {
-                                g.BattleDeclaredOver = true;
-                                g.DetermineWinner();
+                                g!.BattleDeclaredOver = true;
+                                g!.DetermineWinner();
                             }
 
                             shouldTurnEnd = true;
@@ -1004,9 +1002,15 @@ namespace AB_Server
 
         private void ResolveLongRangeBattle()
         {
+            if (Targets is null || Attacker is null)
+            {
+                LongRangeBattleGoing = false;
+                ThrowMoveStart();
+                return;
+            }
             foreach (var target in Targets)
-                if (target.Power < Attacker.Power && target.OnField() && Attacker.OnField())
-                    target.MoveFromFieldToDrop((target.Position as GateCard).EnterOrder);
+                if (target.Power < Attacker.Power && target.Position is GateCard posGate  && Attacker.OnField())
+                    target.MoveFromFieldToDrop(posGate.EnterOrder);
             OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;
             ThrowMoveStart();

@@ -583,6 +583,7 @@ namespace AB_Server
                 g!.Dispose();
 
             CurrentWindow = ActivationWindow.Normal;
+            if (!isBattleGoing) ActivePlayer = TurnPlayer;
             if (shouldTurnEnd)
                 EndTurn();
             else
@@ -722,7 +723,7 @@ namespace AB_Server
                     ["PosY"] = x.Position.Y
                 })),
                 ["ThrowableBakugan"] = bakuganArray,
-                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && !x.Bakugans.Any(x=>x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0).Select(x => new JObject
+                ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
                     ["Owner"] = x.Owner.Id,
@@ -1009,7 +1010,7 @@ namespace AB_Server
                 return;
             }
             foreach (var target in Targets)
-                if (target.Power < Attacker.Power && target.Position is GateCard posGate  && Attacker.OnField())
+                if (target.Power < Attacker.Power && target.Position is GateCard posGate && Attacker.OnField())
                     target.MoveFromFieldToDrop(posGate.EnterOrder);
             OnLongRangeBattleOver?.Invoke();
             LongRangeBattleGoing = false;

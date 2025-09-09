@@ -11,7 +11,7 @@ namespace AB_Server.Gates
 
             CondTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.InDrop() }
+                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this }
             ];
         }
 

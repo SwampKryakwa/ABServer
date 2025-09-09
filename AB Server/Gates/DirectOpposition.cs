@@ -29,7 +29,7 @@ namespace AB_Server.Gates
             Bakugan target2 = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
             
             if (target1.Position != this || target2.Position != this) return;
-            
+
             Attribute[] target1Attrs = (target1.attributeChanges.Count > 0) ? [.. target1.attributeChanges[^1].Attributes] : [target1.BaseAttribute];
             Attribute[] target2Attrs = (target2.attributeChanges.Count > 0) ? [.. target2.attributeChanges[^1].Attributes] : [target2.BaseAttribute];
 

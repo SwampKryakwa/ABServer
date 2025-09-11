@@ -10,7 +10,7 @@ namespace AB_Server.Abilities
         {
             CondTargetSelectors =
             [
-                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x == Game.GateSetList.Last() }
+                new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x == Game.GateSetList.Last(x=>x.OnField) }
             ];
         }
 

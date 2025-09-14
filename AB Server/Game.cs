@@ -96,6 +96,7 @@ namespace AB_Server
         public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateOpenEffect(GateCard target);
+        public delegate void BattleAboutToStartEffect(GateCard position);
         public delegate void BattlesStartedEffect();
         public delegate void BattlesOverEffect();
         public delegate void TurnStartedEffect();
@@ -115,6 +116,7 @@ namespace AB_Server
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
         public event GateOpenEffect GateOpen;
+        public event BattleAboutToStartEffect BattleAboutToStart;
         public event BattlesStartedEffect BattlesStarted;
         public event BattlesOverEffect BattlesOver;
         public event TurnStartedEffect TurnStarted;
@@ -126,6 +128,8 @@ namespace AB_Server
             BakuganBoosted?.Invoke(target, boost, source);
         public void OnBakuganMoved(Bakugan target, IBakuganContainer pos) =>
             BakuganMoved?.Invoke(target, pos);
+        public void OnBattleAboutToStart(GateCard target) =>
+            BattleAboutToStart?.Invoke(target);
         public void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos) =>
             BakuganAdded?.Invoke(target, owner, pos);
         public void OnBakuganThrown(Bakugan target, byte owner, IBakuganContainer pos)

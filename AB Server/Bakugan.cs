@@ -248,6 +248,8 @@ namespace AB_Server
         {
             if (IsDummy) return;
 
+            var wasBattleGoing = destination.IsBattleGoing;
+
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
 
@@ -287,6 +289,10 @@ namespace AB_Server
             });
             Game.OnBakuganAdded(this, Owner.Id, destination);
             OnFromHandToField?.Invoke();
+            if (!wasBattleGoing && destination.IsBattleGoing)
+            {
+                Game.OnBattleAboutToStart(destination);
+            }
 
             // Reset flags
             BattleEndedInDraw = false;
@@ -297,7 +303,7 @@ namespace AB_Server
         public void Throw(GateCard destination)
         {
             if (IsDummy) return;
-
+            var wasBattleGoing = destination.IsBattleGoing;
             Position.Remove(this);
             Position = destination;
             destination.BattleOver = false;
@@ -334,6 +340,10 @@ namespace AB_Server
             });
             Game.OnBakuganThrown(this, Owner.Id, destination);
             OnFromHandToField?.Invoke();
+            if (!wasBattleGoing && destination.IsBattleGoing)
+            {
+                Game.OnBattleAboutToStart(destination);
+            }
 
             // Reset flags
             BattleEndedInDraw = false;
@@ -435,6 +445,7 @@ namespace AB_Server
 
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
+            var wasBattleGoing = destination.IsBattleGoing;
 
             if (Position is GateCard PositionGate)
             {
@@ -472,6 +483,10 @@ namespace AB_Server
                 destination.Bakugans.Add(this);
                 Position = destination;
                 Game.OnBakuganMoved(this, destination);
+                if (!wasBattleGoing && destination.IsBattleGoing)
+                {
+                    Game.OnBattleAboutToStart(destination);
+                }
 
                 // Reset flags
                 BattleEndedInDraw = false;
@@ -486,6 +501,7 @@ namespace AB_Server
                 return;
 
             List<Bakugan> bakuganToMove = [.. bakugans];
+            var wasBattleGoing = destination.IsBattleGoing;
 
             foreach (var bakugan in bakugans)
                 if (bakugan.Position is GateCard gatePosition)
@@ -534,6 +550,10 @@ namespace AB_Server
                 game.OnBakuganMoved(bakugan, destination);
                 bakugan.BattleEndedInDraw = false; // Reset flag
             }
+            if (!wasBattleGoing && destination.IsBattleGoing)
+            {
+                bakugans[0].Game.OnBattleAboutToStart(destination);
+            }
 
         }
 
@@ -541,6 +561,7 @@ namespace AB_Server
         {
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
+            var wasBattleGoing = destination.IsBattleGoing;
 
             List<Bakugan> bakuganToAdd = [.. bakugans];
 
@@ -591,6 +612,10 @@ namespace AB_Server
                 destination.BattleDeclaredOver = false;
                 destination.BattleOver = false;
             }
+            if (!wasBattleGoing && destination.IsBattleGoing)
+            {
+                bakugans[0].Game.OnBattleAboutToStart(destination);
+            }
         }
 
         public void MoveFromDropToField(GateCard destination, MoveSource mover = MoveSource.Effect)
@@ -599,6 +624,7 @@ namespace AB_Server
 
             if (destination.MovingInEffectBlocking.Count != 0)
                 return;
+            var wasBattleGoing = destination.IsBattleGoing;
 
             Defeated = false;
             Position.Remove(this);
@@ -609,6 +635,10 @@ namespace AB_Server
             destination.EnterOrder.Add([this]);
             Game.OnBakuganPlacedFromDrop(this, Owner.Id, destination);
             OnFromDropToField?.Invoke();
+            if (!wasBattleGoing && destination.IsBattleGoing)
+            {
+                Game.OnBattleAboutToStart(destination);
+            }
 
             Game.ThrowEvent(new JObject
             {

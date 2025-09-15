@@ -1,11 +1,5 @@
 ﻿using AB_Server.Gates;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace AB_Server.Abilities
 {
@@ -20,7 +14,7 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Normal && !user.InBattle && user.OnField() && user.IsAttribute(Attribute.Nova);
 
         [ModuleInitializer]
-        internal static void Init() => Register(38, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 39));
+        internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 39));
     }
 
     internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive

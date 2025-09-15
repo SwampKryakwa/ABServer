@@ -13,6 +13,6 @@ namespace AB_Server.Abilities
             Game.CurrentWindow == ActivationWindow.Intermediate && user.JustEndedBattle && !user.BattleEndedInDraw && user.OnField() && user.IsAttribute(Attribute.Nova);
 
         [ModuleInitializer]
-        internal static void Init() => Register(38, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 38));
+        internal static void Init() => Register(38, CardKind.NormalAbility, (cID, owner) => new FrenziedFlames(cID, owner, 38));
     }
 }

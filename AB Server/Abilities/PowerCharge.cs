@@ -11,7 +11,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && !user.InBattle && user.OnField() && user.IsAttribute(Attribute.Nova);
+            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField() && (!user.InBattle);
 
         [ModuleInitializer]
         internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 39));

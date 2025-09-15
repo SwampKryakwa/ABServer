@@ -26,10 +26,7 @@ namespace AB_Server.Abilities.Correlations
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && HasValidTargets(user);
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => Bakugan.IsAdjacent(user, x) && (x.OnField() || (x.Owner == user.Owner && x.InHand())));
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Game.BakuganIndex.Count(x=>x.OnField()) >= 2;
 
         [ModuleInitializer]
         internal static void Init() => Register(0, CardKind.CorrelationAbility, (cID, owner) => new AdjacentCorrelation(cID, owner));

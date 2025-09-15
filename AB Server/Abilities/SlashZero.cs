@@ -4,8 +4,13 @@ namespace AB_Server.Abilities
 {
     internal class SlashZero(int cId, Player owner, int typeId) : AbilityCard(cId, owner, typeId)
     {
-        public override void TriggerEffect() =>
-            User.Boost(new Boost((short)(80 * Owner.AbilityDrop.Count)), this);
+        public override void TriggerEffect()
+        {
+            if (User.Owner.AbilityDrop.Any(x => x.Kind == CardKind.FusionAbility))
+                User.Boost(80, this);
+            if (User.Owner.AbilityDrop.Any(x => x.Kind == CardKind.CorrelationAbility))
+                User.Boost(120, this);
+        }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Shredder && user.InBattle;

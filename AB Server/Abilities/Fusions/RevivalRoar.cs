@@ -31,10 +31,7 @@ namespace AB_Server.Abilities.Fusions
             {
                 target.MoveFromFieldToDrop(positionGate.EnterOrder);
                 User.MoveFromDropToField(positionGate);
-                foreach (var bakugan in Game.BakuganIndex.Where(x => x.OnField() && x.Owner.TeamId != Owner.TeamId))
-                {
-                    bakugan.Boost(new Boost((short)(Owner.BakuganDrop.Bakugans.Count * -80)), this);
-                }
+                User.Boost(80 * Owner.BakuganDrop.Bakugans.Count, this);
             }
         }
 

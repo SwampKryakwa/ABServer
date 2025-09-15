@@ -15,7 +15,7 @@ namespace AB_Server.Abilities
         public override void TriggerEffect()
         {
             foreach (var target in Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption)))
-                target.Boost(150, this);
+                target.Boost(120, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

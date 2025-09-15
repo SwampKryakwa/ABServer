@@ -19,14 +19,14 @@ namespace AB_Server.Abilities
 
     internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
     {
-        public int EffectId { get; set; }
+        public int EffectId { get; set; } = user.Game.NextEffectId++;
 
         public int TypeId { get; } = 39;
 
         public CardKind Kind { get; } = CardKind.NormalAbility;
 
         public Bakugan User { get; set; } = user;
-        public Player Owner { get; set; }
+        public Player Owner { get; set; } = user.Owner;
 
         public void Activate()
         {

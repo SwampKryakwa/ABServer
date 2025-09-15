@@ -302,53 +302,60 @@ namespace AB_Server
 
         public void Throw(GateCard destination)
         {
-            if (IsDummy) return;
-            var wasBattleGoing = destination.IsBattleGoing;
-            Position.Remove(this);
-            Position = destination;
-            destination.BattleOver = false;
-            destination.Bakugans.Add(this);
-            destination.EnterOrder.Add([this]);
-            Game.ThrowEvent(new JObject
+            try
             {
-                ["Type"] = "BakuganRemovedFromHand",
-                ["Owner"] = Owner.Id,
-                ["BakuganType"] = (int)Type,
-                ["Attribute"] = (int)BaseAttribute,
-                ["Treatment"] = (int)Treatment,
-                ["BasePower"] = BasePower,
-                ["Power"] = Power,
-                ["IsPartner"] = IsPartner,
-                ["BID"] = BID
-            });
-            Game.ThrowEvent(new JObject
-            {
-                ["Type"] = "BakuganThrownEvent",
-                ["PosX"] = destination.Position.X,
-                ["PosY"] = destination.Position.Y,
-                ["Owner"] = Owner.Id,
-                ["Bakugan"] = new JObject
+                if (IsDummy) return;
+                var wasBattleGoing = destination.IsBattleGoing;
+                Position.Remove(this);
+                Position = destination;
+                destination.BattleOver = false;
+                destination.Bakugans.Add(this);
+                destination.EnterOrder.Add([this]);
+                Game.ThrowEvent(new JObject
                 {
-                    ["Type"] = (int)Type,
+                    ["Type"] = "BakuganRemovedFromHand",
+                    ["Owner"] = Owner.Id,
+                    ["BakuganType"] = (int)Type,
                     ["Attribute"] = (int)BaseAttribute,
                     ["Treatment"] = (int)Treatment,
                     ["BasePower"] = BasePower,
                     ["Power"] = Power,
                     ["IsPartner"] = IsPartner,
                     ["BID"] = BID
+                });
+                Game.ThrowEvent(new JObject
+                {
+                    ["Type"] = "BakuganThrownEvent",
+                    ["PosX"] = destination.Position.X,
+                    ["PosY"] = destination.Position.Y,
+                    ["Owner"] = Owner.Id,
+                    ["Bakugan"] = new JObject
+                    {
+                        ["Type"] = (int)Type,
+                        ["Attribute"] = (int)BaseAttribute,
+                        ["Treatment"] = (int)Treatment,
+                        ["BasePower"] = BasePower,
+                        ["Power"] = Power,
+                        ["IsPartner"] = IsPartner,
+                        ["BID"] = BID
+                    }
+                });
+                Game.OnBakuganThrown(this, Owner.Id, destination);
+                OnFromHandToField?.Invoke();
+                if (!wasBattleGoing && destination.IsBattleGoing)
+                {
+                    Game.OnBattleAboutToStart(destination);
                 }
-            });
-            Game.OnBakuganThrown(this, Owner.Id, destination);
-            OnFromHandToField?.Invoke();
-            if (!wasBattleGoing && destination.IsBattleGoing)
-            {
-                Game.OnBattleAboutToStart(destination);
-            }
 
-            // Reset flags
-            BattleEndedInDraw = false;
-            destination.BattleDeclaredOver = false;
-            destination.BattleOver = false;
+                // Reset flags
+                BattleEndedInDraw = false;
+                destination.BattleDeclaredOver = false;
+                destination.BattleOver = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         public AttributeState ChangeAttribute(Attribute newAttribute, object source)

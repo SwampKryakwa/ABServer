@@ -425,7 +425,7 @@ namespace AB_Server
 
             //Reset flags
             Players[TurnPlayer].HadSetGate = false;
-            Players[TurnPlayer].HadThrownBakugan = false;
+            Players[TurnPlayer].RemainingThrows = 1;
             foreach (Player player in Players)
                 player.HadUsedCounter = false;
 
@@ -709,12 +709,12 @@ namespace AB_Server
             {
                 ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !isBattleGoing,
                 ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
-                ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !Players[player].HadThrownBakugan && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
+                ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && Players[player].RemainingThrows > 0 && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
                 ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
                 ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
                 ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (isBattleGoing && CurrentWindow == ActivationWindow.Normal),
 
-                ["IsASkip"] = !Players[player].HadThrownBakugan,
+                ["IsASkip"] = Players[player].RemainingThrows > 0,
                 ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
                 ["SettableGates"] = gateArray,
@@ -763,7 +763,7 @@ namespace AB_Server
                 case "throw":
                     if (Field[(int)selection["posX"]!, (int)selection["posY"]!] is GateCard gateSelection)
                     {
-                        Players[TurnPlayer].HadThrownBakugan = true;
+                        Players[TurnPlayer].RemainingThrows--;
                         BakuganIndex[(int)selection["bakugan"]!].Throw(gateSelection);
                     }
                     else

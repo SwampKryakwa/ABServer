@@ -37,7 +37,7 @@ namespace AB_Server
         public List<Bakugan> BakuganOwned = new();
 
         public bool HadSetGate = false;
-        public bool HadThrownBakugan = false;
+        public int RemainingThrows = 1;
         public bool HadUsedCounter = false;
 
         public bool Alive { get => BakuganOwned.Any(x => !x.Defeated); }
@@ -136,7 +136,7 @@ namespace AB_Server
             }
         }
         public bool HasThrowableBakugan() =>
-            Bakugans.Count != 0 && Game.Field.Cast<GateCard>().Any(x => x != null) && !HadThrownBakugan;
+            Bakugans.Count != 0 && Game.Field.Cast<GateCard>().Any(x => x != null) && RemainingThrows > 0;
 
         public bool HasActivateableAbilities() =>
             AbilityHand.Any(x => x.IsActivateable());
@@ -183,7 +183,7 @@ namespace AB_Server
 
         public bool CanEndTurn()
         {
-            return !Game.isBattleGoing && (!HasThrowableBakugan() || HadThrownBakugan || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
+            return !Game.isBattleGoing && (!HasThrowableBakugan() || RemainingThrows == 0 || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
         }
 
         public bool HasBattlingBakugan() =>

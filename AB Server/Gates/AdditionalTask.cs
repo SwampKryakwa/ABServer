@@ -24,7 +24,7 @@
         {
             var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
             target.MoveFromFieldToHand(EnterOrder);
-            target.Owner.HadThrownBakugan = false;
+            target.Owner.RemainingThrows++;
         }
     }
 }

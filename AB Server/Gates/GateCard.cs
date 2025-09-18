@@ -133,6 +133,7 @@ namespace AB_Server.Gates
             for (int i = 0; i < sides.Count; i++)
                 if (teamTotals[i] < winnerPower) sides[i].ForEach(x =>
                 {
+                    x.JustEndedBattle = false;
                     bakugansDefeatedThisBattle.Add(x);
                     x.MoveFromFieldToDrop(EnterOrder, MoveSource.Game);
                 });
@@ -145,6 +146,7 @@ namespace AB_Server.Gates
                     if (!survivingSides[i].Contains(randomFirstBakugan))
                         survivingSides[i].ForEach(x =>
                         {
+                            x.JustEndedBattle = false;
                             bakugansDefeatedThisBattle.Add(x);
                             x.MoveFromFieldToDrop(EnterOrder, MoveSource.Game);
                         });

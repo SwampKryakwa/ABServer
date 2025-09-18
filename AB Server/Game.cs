@@ -941,6 +941,11 @@ namespace AB_Server
             {
                 ActivePlayer++;
                 if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+                while (Players[ActivePlayer] is Player player && !(player.HasActivateableAbilities() || player.HasOpenableGates()))
+                {
+                    ActivePlayer++;
+                    if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
+                }
             }
             else if (isBattleGoing)
             {

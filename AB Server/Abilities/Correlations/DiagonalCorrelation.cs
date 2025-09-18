@@ -27,7 +27,7 @@ namespace AB_Server.Abilities.Correlations
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && HasValidTargets(user);
 
         public static new bool HasValidTargets(Bakugan user) =>
-            user.Game.BakuganIndex.Any(x => Bakugan.IsDiagonal(x, user) && x.Owner == user.Owner && x.OnField());
+            user.Game.BakuganIndex.Any(x => x.OnField() && x != user);
 
         [ModuleInitializer]
         internal static void Init() => Register(1, CardKind.CorrelationAbility, (cID, owner) => new DiagonalCorrelation(cID, owner));

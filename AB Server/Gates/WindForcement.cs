@@ -29,7 +29,7 @@ namespace AB_Server.Gates
             Attribute[] targetAttrs = (target.attributeChanges.Count > 0) ? [.. target.attributeChanges[^1].Attributes] : [target.BaseAttribute];
 
             int count = 0;
-            foreach (var bakugan in game.BakuganIndex.Where(x => x != target))
+            foreach (var bakugan in game.BakuganIndex.Where(x => x != target && x.OnField()))
                 foreach (var attr in targetAttrs)
                     if (bakugan.IsAttribute(attr))
                     {

@@ -17,7 +17,7 @@ namespace AB_Server.Abilities
         {
             GateOfSubterra80 transformedGate = new GateOfSubterra80(Game.GateIndex.Count, Owner);
             Game.GateIndex.Add(transformedGate);
-            transformedGate.TransformFrom((CondTargetSelectors[0] as GateSelector)!.SelectedGate);
+            transformedGate.TransformFrom((CondTargetSelectors[0] as GateSelector)!.SelectedGate, false);
             Game.Field[transformedGate.Position.X, transformedGate.Position.Y] = transformedGate;
         }
 

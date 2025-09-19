@@ -105,6 +105,15 @@ namespace AB_Server
         public override bool HasValidTargets(Game game) { return game.Field.Cast<GateCard?>().Count(x => x is null) > 4; }
     }
 
+    class TypeSelector : Selector
+    {
+        public CardKind[] SelectableKinds;
+        public int SelectedKind;
+        public int SelectedType;
+
+        public override bool HasValidTargets(Game game) => true;
+    }
+
     class MultiGateSelector : Selector
     {
         public Func<GateCard, bool> TargetValidator = (x) => true;

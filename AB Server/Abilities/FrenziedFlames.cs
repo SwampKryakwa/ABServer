@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities
 {
@@ -10,7 +11,7 @@ namespace AB_Server.Abilities
                 bak.Boost(300, this);
         }
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Intermediate && user.JustEndedBattle && !user.BattleEndedInDraw && user.OnField() && user.IsAttribute(Attribute.Nova);
+            Game.CurrentWindow == ActivationWindow.Intermediate && user.JustEndedBattle && !user.BattleEndedInDraw && user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova);
 
         [ModuleInitializer]
         internal static void Init() => Register(38, CardKind.NormalAbility, (cID, owner) => new FrenziedFlames(cID, owner, 38));

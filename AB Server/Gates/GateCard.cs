@@ -554,12 +554,12 @@ namespace AB_Server.Gates
         {
             if (!Negated)
                 TriggerEffect();
-                
+
             game.ChainStep();
         }
 
         public virtual void TriggerEffect()
-        {}
+        { }
 
         public virtual bool IsOpenable() =>
             game.CurrentWindow == ActivationWindow.Normal && OpenBlocking.Count == 0 && !Negated && OnField && (IsBattleGoing || (game.Targets is not null && Bakugans.Any(x => game.Targets.Contains(x)))) && !IsOpen;
@@ -609,7 +609,7 @@ namespace AB_Server.Gates
             game.ThrowEvent(EventBuilder.GateNegated(this));
         }
 
-        public void TransformFrom(GateCard source)
+        public void TransformFrom(GateCard source, bool conceded, params int[] revealTo)
         {
             Bakugans = source.Bakugans;
             EnterOrder = source.EnterOrder;
@@ -623,17 +623,33 @@ namespace AB_Server.Gates
             MovingInEffectBlocking = source.MovingInEffectBlocking;
             MovingAwayEffectBlocking = source.MovingAwayEffectBlocking;
 
-            game.ThrowEvent(new JObject
+            if (!conceded)
+                game.ThrowEvent(new JObject
+                {
+                    ["Type"] = "GateTransformed",
+                    ["FromId"] = source.CardId,
+                    ["FromPosX"] = source.Position.X,
+                    ["FromPosY"] = source.Position.Y,
+                    ["ToId"] = CardId,
+                    ["ToKind"] = (int)Kind,
+                    ["ToType"] = TypeId,
+                    ["ToOwner"] = Owner.Id
+                });
+            else
             {
-                ["Type"] = "GateTransformed",
-                ["FromId"] = source.CardId,
-                ["FromPosX"] = source.Position.X,
-                ["FromPosY"] = source.Position.Y,
-                ["ToId"] = CardId,
-                ["ToKind"] = (int)Kind,
-                ["ToType"] = TypeId,
-                ["ToOwner"] = Owner.Id
-            });
+                foreach (var player in game.Players)
+                    game.ThrowEvent(player.Id, new JObject
+                    {
+                        ["Type"] = "GateTransformed",
+                        ["FromId"] = source.CardId,
+                        ["FromPosX"] = source.Position.X,
+                        ["FromPosY"] = source.Position.Y,
+                        ["ToId"] = CardId,
+                        ["ToKind"] = revealTo.Contains(player.Id) ? (int)Kind : -1,
+                        ["ToType"] = revealTo.Contains(player.Id) ? TypeId : -2,
+                        ["ToOwner"] = Owner.Id
+                    });
+            }
         }
     }
 }

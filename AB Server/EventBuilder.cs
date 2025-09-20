@@ -311,6 +311,28 @@ namespace AB_Server
             };
         }
 
+        public static JObject CardTypeSelection(string prompt, int[] allowedKinds)
+        {
+            return new()
+            {
+                ["SelectionType"] = "T",
+                ["Message"] = prompt,
+                ["AllowedKinds"] = new JArray(allowedKinds)
+            };
+        }
+
+        public static JObject MultiCardTypeSelection(string prompt, int[] allowedKinds, int min, int max)
+        {
+            return new()
+            {
+                ["SelectionType"] = "MT",
+                ["Message"] = prompt,
+                ["AllowedKinds"] = new JArray(allowedKinds),
+                ["Min"] = min,
+                ["Max"] = max
+            };
+        }
+
         public static JObject FieldGateSelection(string prompt, int ability, int cardKind, params IEnumerable<GateCard> gates)
         {
             return new()
@@ -324,6 +346,22 @@ namespace AB_Server
                     ["Type"] = x.TypeId,
                     ["PosX"] = x.Position.X,
                     ["PosY"] = x.Position.Y,
+                    ["CID"] = x.CardId
+                }))
+            };
+        }
+
+        public static JObject HandGateSelection(string prompt, int ability, int cardKind, params IEnumerable<GateCard> gates)
+        {
+            return new()
+            {
+                ["SelectionType"] = "GH",
+                ["Message"] = prompt,
+                ["Card"] = ability,
+                ["CardKind"] = cardKind,
+                ["SelectionGates"] = new JArray(gates.Select(x => new JObject
+                {
+                    ["Type"] = x.TypeId,
                     ["CID"] = x.CardId
                 }))
             };

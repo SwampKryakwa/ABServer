@@ -14,20 +14,15 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            var target = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
-            if (!target.Negated)
-            {
-                Game.ThrowEvent(EventBuilder.GateReveal(target));
-                target.Negate();
-            }
-            else
-            {
-                foreach (var bak in target.Bakugans)
-                    bak.Boost(-bak.Power, this);
-            }
+            foreach (var target in Game.GateIndex.Where(x => x.OnField))
+                if (!target.Negated)
+                {
+                    Game.ThrowEvent(EventBuilder.GateReveal(target));
+                    target.Negate();
+                }
         }
 
-        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.GateIndex.Any(x => x.OnField && x.IsOpen);
+        public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon);
 
         [ModuleInitializer]
         internal static void Init() => Register(3, CardKind.NormalAbility, (cID, owner) => new GrandDown(cID, owner, 3));

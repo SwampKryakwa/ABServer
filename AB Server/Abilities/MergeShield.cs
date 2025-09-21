@@ -8,19 +8,26 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsOpponentOf(User) }
+                new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Owner.Bakugans.Count == 0 && User.OnField() && Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) },
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Position == User.Position && x.IsOpponentOf(User), Condition = () => Owner.Bakugans.Count == 0 && User.OnField() && Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) }
             ];
+        }
+
+        public override void Resolve()
+        {
+            User.Boost(100, this);
+            base.Resolve();
         }
 
         public override void TriggerEffect()
         {
-            User.Boost((ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.AdditionalPower ?? 0, this);
+            (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Any(x => x.OnField() && x.IsAttribute(Attribute.Darkon)) && Game.BakuganIndex.Any(x => x.IsOpponentOf(user) && x.OnField());
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.BakuganIndex.Any(x => x.IsOpponentOf(user) && x.OnField());
 
         [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(29, CardKind.NormalAbility, (cID, owner) => new MergeShield(cID, owner, 29));
+        internal static void Init() => Register(50, CardKind.NormalAbility, (cID, owner) => new MergeShield(cID, owner, 50));
     }
 }

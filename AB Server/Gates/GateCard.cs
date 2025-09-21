@@ -329,7 +329,7 @@ namespace AB_Server.Gates
                 else if (currentSelector is YesNoSelector yesNoSelector)
                 {
                     game.ThrowEvent(game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && game.CurrentWindow == ActivationWindow.Normal,
-                        EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
+                        EventBuilder.BoolSelectionEvent(yesNoSelector.Message)
                         ));
                 }
                 else if (currentSelector is GateSlotSelector slotSelector)
@@ -481,7 +481,7 @@ namespace AB_Server.Gates
                 else if (currentSelector is YesNoSelector yesNoSelector)
                 {
                     game.ThrowEvent(game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && game.CurrentWindow == ActivationWindow.Normal,
-                        EventBuilder.BoolSelectionEvent("INFO_WANTTARGET")
+                        EventBuilder.BoolSelectionEvent(yesNoSelector.Message)
                         ));
                 }
                 else if (currentSelector is OptionSelector optionSelector)

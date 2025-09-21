@@ -21,7 +21,7 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
+            (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

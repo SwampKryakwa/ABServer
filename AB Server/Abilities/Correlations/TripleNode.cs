@@ -24,6 +24,8 @@ namespace AB_Server.Abilities.Correlations
                 targetSelector2.SelectedBakugan.Boost(200, this);
             }
         }
+        public override bool BakuganIsValid(Bakugan user) =>
+            Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField();

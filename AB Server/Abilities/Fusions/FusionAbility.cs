@@ -15,7 +15,7 @@
         public AbilityCard FusedTo;
 
         public override bool BakuganIsValid(Bakugan user) =>
-            Owner.AbilityBlockers.Count == 0 && !user.Frenzied && user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
+            Owner.AbilityBlockers.Count == 0 && Owner.GreenAbilityBlockers.Count == 0 && !user.Frenzied && user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
 
         public override void Setup(bool asCounter)
         {

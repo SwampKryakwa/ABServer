@@ -26,7 +26,7 @@ namespace AB_Server.Abilities
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute(Attribute.Aqua)) == 3;
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute(Attribute.Aqua)) >= 3;
 
         [ModuleInitializer]
         internal static void Init() => Register(46, CardKind.NormalAbility, (cID, owner) => new FlashFlood(cID, owner, 46));

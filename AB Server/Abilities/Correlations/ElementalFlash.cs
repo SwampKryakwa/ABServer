@@ -8,9 +8,11 @@ namespace AB_Server.Abilities.Correlations
 
         public override void TriggerEffect() =>
             User.Boost(50, this);
+        public override bool BakuganIsValid(Bakugan user) =>
+            Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.Owner.BakuganOwned.Select(x => x.BaseAttribute).Distinct().Count() == 1;
+            Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && (user.Owner.BakuganOwned.All(x=>x.IsAttribute(Attribute.Aqua)) || user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Nova)) || user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Subterra)) || user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Lumina)) || user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Darkon)) || user.Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Zephyros)));
 
         [ModuleInitializer]
         internal static void Init() => Register(3, CardKind.CorrelationAbility, (cID, owner) => new ElementalFlash(cID, owner));

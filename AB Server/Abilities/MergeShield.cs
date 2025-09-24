@@ -21,13 +21,13 @@ namespace AB_Server.Abilities
 
         public override void TriggerEffect()
         {
-            (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
+            (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>
             Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.BakuganIndex.Any(x => x.IsOpponentOf(user) && x.OnField());
 
         [ModuleInitializer]
-        internal static void Init() => Register(50, CardKind.NormalAbility, (cID, owner) => new MergeShield(cID, owner, 50));
+        internal static void Init() => Register(29, CardKind.NormalAbility, (cID, owner) => new MergeShield(cID, owner, 29));
     }
 }

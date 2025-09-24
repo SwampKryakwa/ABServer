@@ -54,7 +54,7 @@ namespace AB_Server.Abilities
         public virtual bool IsActivateable() =>
             Game.BakuganIndex.Any(BakuganIsValid);
         public virtual bool BakuganIsValid(Bakugan user) =>
-            Owner.AbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
+            Owner.AbilityBlockers.Count == 0 && Owner.RedAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
         public abstract bool IsActivateableByBakugan(Bakugan user);
         public virtual bool IsActivateableCounter() => IsActivateable();
 

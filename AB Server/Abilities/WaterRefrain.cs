@@ -44,7 +44,7 @@ namespace AB_Server.Abilities
 
             
             game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
-            game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.AbilityBlockers.Add(this));
+            game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.RedAbilityBlockers.Add(this));
 
             game.TurnEnd += CheckEffectOver;
 

@@ -42,7 +42,7 @@ namespace AB_Server
                     StreamReader reader = new StreamReader(request.InputStream, Encoding.UTF8);
                     string body = reader.ReadToEnd();
 
-                    if (request.HttpMethod == "GET")
+                    if (request.HttpMethod == "GET" || request.HttpMethod == "POST")
                     {
                         try
                         {

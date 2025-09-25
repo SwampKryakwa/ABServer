@@ -50,16 +50,17 @@ namespace AB_Server
                             {
                                 string key = url.ToString();
 
+                                dynamic postedJson;
                                 try
                                 {
-                                    dynamic postedJson = JObject.Parse(body);
+                                    postedJson = JObject.Parse(body);
                                 }
                                 catch
                                 {
                                     Console.WriteLine(body);
                                     throw;
                                 }
-                                    string requestedResource = request.Url.ToString().Split('/')[^1];
+                                string requestedResource = request.Url.ToString().Split('/')[^1];
 
                                 // Decode the key value
                                 string[] dontlog = ["getupdates", "getplayerlist", "getallready", "checkstarted", "checkgamestarted", "getroomupdates", ""];

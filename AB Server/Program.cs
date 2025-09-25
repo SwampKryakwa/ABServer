@@ -286,6 +286,7 @@ namespace AB_Server
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
             listener.Prefixes.Add("http://*:" + (args.Length > 0 ? args[0] : "8080") + '/');
+            listener.Prefixes.Add("https://*:2" + (args.Length > 0 ? args[0] : "8080") + "/");
             listener.Start();
 
             // Handle requests

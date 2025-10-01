@@ -93,6 +93,7 @@ namespace AB_Server
         public delegate void BakuganThrownEffect(Bakugan target, byte owner, IBakuganContainer pos);
         public delegate void BakuganAddedEffect(Bakugan target, byte owner, IBakuganContainer pos);
         public delegate void BakuganPlacedFromDropEffect(Bakugan target, byte owner, IBakuganContainer pos);
+        public delegate void BakuganAttributeChangeEffect(Bakugan bakugan);
         public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
         public delegate void GateOpenEffect(GateCard target);
@@ -113,6 +114,7 @@ namespace AB_Server
         public event BakuganThrownEffect BakuganThrown;
         public event BakuganAddedEffect BakuganAdded;
         public event BakuganPlacedFromDropEffect BakuganPlacedFromDrop;
+        public event BakuganAttributeChangeEffect BakuganAttributeChanged;
         public event GateAddedEffect GateAdded;
         public event GateRemovedEffect GateRemoved;
         public event GateOpenEffect GateOpen;
@@ -148,6 +150,8 @@ namespace AB_Server
             BakuganDestroyed?.Invoke(target, owner);
         public void OnBakuganRevived(Bakugan target, byte owner) =>
             BakuganRevived?.Invoke(target, owner);
+        public void OnBakuganAtributeChange(Bakugan target) =>
+            BakuganAttributeChanged?.Invoke(target);
         public void OnGateAdded(GateCard target, byte owner, params byte[] pos) =>
             GateAdded?.Invoke(target, owner, pos);
         public void OnGateRemoved(GateCard target, byte owner, params byte[] pos) =>

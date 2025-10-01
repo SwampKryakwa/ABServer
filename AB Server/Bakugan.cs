@@ -381,6 +381,8 @@ namespace AB_Server
                 }
             });
 
+            Game.OnBakuganAtributeChange(this);
+
             return change;
         }
 

@@ -6,7 +6,7 @@ namespace AB_Server.Abilities.Fusions
     {
         public override void TriggerEffect()
         {
-            new ContinuousBoostMultipleSameUntilDestroyedEffect(User, [.. Owner.BakuganOwned.Where(b => b != User)], 80, TypeId, (int)CardKind.FusionAbility, IsCopy).Activate();
+            new ContinuousBoostMultipleSameUntilDestroyedEffect(User, [.. Owner.BakuganOwned.Where(b => b != User)], 50, TypeId, (int)CardKind.FusionAbility, IsCopy).Activate();
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

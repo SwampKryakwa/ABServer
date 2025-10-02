@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AB_Server.Gates;
 
 namespace AB_Server.Abilities
 {
@@ -8,14 +9,21 @@ namespace AB_Server.Abilities
         {
             ResTargetSelectors =
             [
-                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_BOOSTTARGET", TargetValidator = x => x.IsOpponentOf(User) }
+                new YesNoSelector { Message = "INFO_WANTTARGET", ForPlayer = (p) => p == Owner, Condition = () => Owner.Bakugans.Count == 0 && User.Position is GateCard posGate && posGate.Bakugans.Any(x=>x.IsOpponentOf(User)) },
+                new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_BOOSTTARGET", TargetValidator = x => x.IsOpponentOf(User), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
             ];
+        }
+
+        public override void Resolve()
+        {
+            User.Boost(100, this);
+            base.Resolve();
         }
 
         public override void TriggerEffect()
         {
-            User.Boost(300, this);
-            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Boost(300, this);
+            if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
+                (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.Boost(-100, this);
         }
 
         public override bool IsActivateableByBakugan(Bakugan user) =>

@@ -22,8 +22,8 @@ namespace AB_Server.Abilities
         public CardKind Kind { get; } = CardKind.NormalAbility;
         public Bakugan User { get; set; } = user;
         Game game { get => User.Game; }
-        Dictionary<Bakugan, Boost> currentBoosts;
-        List<Bakugan> targets;
+        Dictionary<Bakugan, Boost> currentBoosts = [];
+        List<Bakugan> targets = [];
         public Player Owner { get; set; } = user.Owner;
 
         public void Activate()

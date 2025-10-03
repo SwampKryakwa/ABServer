@@ -1,31 +1,30 @@
-﻿namespace AB_Server.Gates
+﻿namespace AB_Server.Gates;
+
+internal class AdditionalTask : GateCard
 {
-    internal class AdditionalTask : GateCard
+    public AdditionalTask(int cID, Player owner) : base(cID, owner)
     {
-        public AdditionalTask(int cID, Player owner)
-        {
-            game = owner.Game;
-            Owner = owner;
+        Game = owner.Game;
+        Owner = owner;
 
-            CardId = cID;
+        CardId = cID;
 
-            CondTargetSelectors =
-            [
-                new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => EnterOrder[^1].Contains(x) }
-            ];
-        }
+        CondTargetSelectors =
+        [
+            new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => EnterOrder[^1].Contains(x) }
+        ];
+    }
 
-        public override int TypeId { get; } = 11;
+    public override int TypeId { get; } = 11;
 
-        public override bool IsOpenable() =>
-            game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
+    public override bool IsOpenable() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate && BattleStarting && OpenBlocking.Count == 0 && !IsOpen && !Negated;
 
-        public override void TriggerEffect()
-        {
-            var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-            target.MoveFromFieldToHand(EnterOrder);
-            if (!target.Owner.BakuganOwned.Any(x => x.OnField()))
-                target.Owner.RemainingThrows++;
-        }
+    public override void TriggerEffect()
+    {
+        var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+        target.MoveFromFieldToHand(EnterOrder);
+        if (!target.Owner.BakuganOwned.Any(x => x.OnField()))
+            target.Owner.RemainingThrows++;
     }
 }

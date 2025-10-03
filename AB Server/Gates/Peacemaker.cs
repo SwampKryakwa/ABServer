@@ -1,57 +1,48 @@
-﻿namespace AB_Server.Gates
+﻿namespace AB_Server.Gates;
+
+internal class Peacemaker(int cID, Player owner) : GateCard(cID, owner)
 {
-    internal class Peacemaker : GateCard
+    public override int TypeId { get; } = 1;
+
+    public override void DetermineWinner()
     {
-        public Peacemaker(int cID, Player owner)
+        if (IsOpen)
         {
-            game = owner.Game;
-            Owner = owner;
+            bakugansDefeatedThisBattle.Clear();
+            BattleOver = true;
+            BattleStarted = false;
 
-            CardId = cID;
-        }
-
-        public override int TypeId { get; } = 1;
-
-        public override void DetermineWinner()
-        {
-            if (IsOpen)
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
-                bakugansDefeatedThisBattle.Clear();
-                BattleOver = true;
-                BattleStarted = false;
-
-                foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                {
-                    b.JustEndedBattle = false;
-                    b.MoveFromFieldToHand(EnterOrder);
-                }
-                game.BattlesToEnd.Add(this);
+                b.JustEndedBattle = false;
+                b.MoveFromFieldToHand(EnterOrder);
             }
-            else
-                base.DetermineWinner();
+            Game.BattlesToEnd.Add(this);
         }
+        else
+            base.DetermineWinner();
+    }
 
-        public override void Dispose()
+    public override void Dispose()
+    {
+        if (IsOpen)
         {
-            if (IsOpen)
+            foreach (Bakugan b in new List<Bakugan>(Bakugans))
             {
-                foreach (Bakugan b in new List<Bakugan>(Bakugans))
-                {
-                    b.JustEndedBattle = false;
-                    b.MoveFromFieldToHand(EnterOrder);
-                }
-
-                IsOpen = false;
-                OnField = false;
-                Owner.GateDrop.Add(this);
-
-                game.Field[Position.X, Position.Y] = null;
-
-                game.ThrowEvent(EventBuilder.RemoveGate(this));
-                game.ThrowEvent(EventBuilder.SendGateToDrop(this));
+                b.JustEndedBattle = false;
+                b.MoveFromFieldToHand(EnterOrder);
             }
-            else
-                base.DetermineWinner();
+
+            IsOpen = false;
+            OnField = false;
+            Owner.GateDrop.Add(this);
+
+            Game.Field[Position.X, Position.Y] = null;
+
+            Game.ThrowEvent(EventBuilder.RemoveGate(this));
+            Game.ThrowEvent(EventBuilder.SendGateToDrop(this));
         }
+        else
+            base.DetermineWinner();
     }
 }

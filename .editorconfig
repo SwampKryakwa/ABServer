@@ -5,3 +5,8 @@ dotnet_style_readonly_field = false
 
 # CS8618: Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Рассмотрите возможность добавления модификатора "required" или объявления значения, допускающего значение NULL.
 dotnet_diagnostic.CS8618.severity = none
+
+dotnet_diagnostic.IDE0220.severity = none
+dotnet_diagnostic.CA1507.severity = none
+dotnet_diagnostic.CS8625.severity = none
+csharp_style_namespace_declarations = file_scoped:warning

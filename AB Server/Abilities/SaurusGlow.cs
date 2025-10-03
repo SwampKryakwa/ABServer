@@ -1,70 +1,69 @@
 using System.Runtime.CompilerServices;
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities;
+
+internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
+    public override void TriggerEffect() =>
+        new SaurusGlowMarker(User, TypeId, IsCopy).Activate();
+
+    public override bool IsActivateableByBakugan(Bakugan user) =>
+        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
+
+    [ModuleInitializer]
+    internal static void Init() => Register(18, CardKind.NormalAbility, (cID, owner) => new SaurusGlow(cID, owner, 18));
+}
+
+internal class SaurusGlowMarker : IActive
+{
+    public int TypeId { get; }
+    public int EffectId { get; set; }
+    public CardKind Kind { get; } = CardKind.NormalAbility;
+    public Bakugan User { get; set; }
+    Game game { get => User.Game; }
+
+    public Player Owner { get; set; }
+    bool IsCopy;
+
+    public SaurusGlowMarker(Bakugan user, int typeID, bool IsCopy)
     {
-        public override void TriggerEffect() =>
-            new SaurusGlowMarker(User, TypeId, IsCopy).Activate();
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
-
-        [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(18, CardKind.NormalAbility, (cID, owner) => new SaurusGlow(cID, owner, 18));
+        User = user;
+        this.IsCopy = IsCopy; Owner = user.Owner;
+        TypeId = typeID;
+        EffectId = game.NextEffectId++;
     }
 
-    internal class SaurusGlowMarker : IActive
+    public void Activate()
     {
-        public int TypeId { get; }
-        public int EffectId { get; set; }
-        public CardKind Kind { get; } = CardKind.NormalAbility;
-        public Bakugan User { get; set; }
-        Game game { get => User.Game; }
+        game.ActiveZone.Add(this);
 
-        public Player Owner { get; set; }
-        bool IsCopy;
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
-        public SaurusGlowMarker(Bakugan user, int typeID, bool IsCopy)
+        game.BakuganAdded += OnBakuganAdded;
+        User.OnDestroyed += OnUserDestroyed;
+    }
+
+    private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
+    {
+        if (User.OnField() && target.BasePower > User.BasePower)
         {
-            User = user;
-            this.IsCopy = IsCopy; Owner = user.Owner;
-            TypeId = typeID;
-            EffectId = game.NextEffectId++;
+            User.Boost(new Boost(50), this);
         }
+    }
 
-        public void Activate()
-        {
-            game.ActiveZone.Add(this);
+    public void Negate(bool asCounter) => StopEffect();
 
-            game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+    private void OnUserDestroyed()
+    {
+        StopEffect();
+    }
 
-            game.BakuganAdded += OnBakuganAdded;
-            User.OnDestroyed += OnUserDestroyed;
-        }
+    void StopEffect()
+    {
+        game.ActiveZone.Remove(this);
 
-        private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
-        {
-            if (User.OnField() && target.BasePower > User.BasePower)
-            {
-                User.Boost(new Boost(50), this);
-            }
-        }
+        game.BakuganAdded -= OnBakuganAdded;
+        User.OnDestroyed -= OnUserDestroyed;
 
-        public void Negate(bool asCounter) => StopEffect();
-
-        private void OnUserDestroyed()
-        {
-            StopEffect();
-        }
-
-        void StopEffect()
-        {
-            game.ActiveZone.Remove(this);
-
-            game.BakuganAdded -= OnBakuganAdded;
-            User.OnDestroyed -= OnUserDestroyed;
-
-            game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
-        }
+        game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
     }
 }

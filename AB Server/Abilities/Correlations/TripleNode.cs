@@ -1,39 +1,38 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace AB_Server.Abilities.Correlations
+namespace AB_Server.Abilities.Correlations;
+
+internal class TripleNode : AbilityCard
 {
-    internal class TripleNode : AbilityCard
+    public TripleNode(int cID, Player owner) : base(cID, owner, 2)
     {
-        public TripleNode(int cID, Player owner) : base(cID, owner, 2)
-        {
-            CondTargetSelectors =
-            [
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != User },
-                new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != User && target != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
-            ];
-        }
-
-        public override CardKind Kind { get; } = CardKind.CorrelationAbility;
-
-        public override void TriggerEffect()
-        {
-            if (CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(out _, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
-            {
-                User.Boost(200, this);
-                targetSelector1.SelectedBakugan.Boost(200, this);
-                targetSelector2.SelectedBakugan.Boost(200, this);
-            }
-        }
-        public override bool BakuganIsValid(Bakugan user) =>
-            Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
-
-        public static new bool HasValidTargets(Bakugan user) =>
-            user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());
-
-        [ModuleInitializer]
-        internal static void Init() => AbilityCard.Register(2, CardKind.CorrelationAbility, (cID, owner) => new TripleNode(cID, owner));
+        CondTargetSelectors =
+        [
+            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != User },
+            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target.Owner == owner && target != User && target != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
+        ];
     }
+
+    public override CardKind Kind { get; } = CardKind.CorrelationAbility;
+
+    public override void TriggerEffect()
+    {
+        if (CondTargetSelectors[0] is BakuganSelector targetSelector1 && CondTargetSelectors[1] is BakuganSelector targetSelector2 && Bakugan.IsTripleNode(out _, targetSelector1.SelectedBakugan, targetSelector2.SelectedBakugan, User))
+        {
+            User.Boost(200, this);
+            targetSelector1.SelectedBakugan.Boost(200, this);
+            targetSelector2.SelectedBakugan.Boost(200, this);
+        }
+    }
+    public override bool BakuganIsValid(Bakugan user) =>
+        Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
+
+    public override bool IsActivateableByBakugan(Bakugan user) =>
+        Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
+
+    public static new bool HasValidTargets(Bakugan user) =>
+        user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());
+
+    [ModuleInitializer]
+    internal static void Init() => Register(2, CardKind.CorrelationAbility, (cID, owner) => new TripleNode(cID, owner));
 }

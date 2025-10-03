@@ -1,48 +1,40 @@
 using AB_Server.Abilities;
 
-namespace AB_Server.Gates.SpecialGates
+namespace AB_Server.Gates.SpecialGates;
+
+internal class NormalGate : GateCard
 {
-    internal class NormalGate : GateCard
+    
+    public override int TypeId { get; } = 0;
+    public override CardKind Kind { get; } = CardKind.SpecialGate;
+
+    public override void Open()
     {
-        public NormalGate(int cID, Player owner)
-        {
-            game = owner.Game;
-            Owner = owner;
+        IsOpen = true;
+        Game.ActiveZone.Add(this);
+        Game.CardChain.Push(this);
+        EffectId = Game.NextEffectId++;
+        Game.ThrowEvent(EventBuilder.GateOpen(this));
 
-            CardId = cID;
-        }
+        Game.CheckChain(Owner, this);
+    }
 
-        public override int TypeId { get; } = 0;
-        public override CardKind Kind { get; } = CardKind.SpecialGate;
+    public override void Resolve()
+    {
+        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
+            EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
+        ));
 
-        public override void Open()
-        {
-            IsOpen = true;
-            game.ActiveZone.Add(this);
-            game.CardChain.Push(this);
-            EffectId = game.NextEffectId++;
-            game.ThrowEvent(EventBuilder.GateOpen(this));
+        Game.OnAnswer[Owner.Id] = Activate;
+    }
 
-            game.CheckChain(Owner, this);
-        }
+    public void Activate()
+    {
+        Bakugan target = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
 
-        public override void Resolve()
-        {
-            game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
-            ));
+        if (!Negated && target.Position == this)
+            target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);
 
-            game.OnAnswer[Owner.Id] = Activate;
-        }
-
-        public void Activate()
-        {
-            Bakugan target = game.BakuganIndex[(int)game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
-
-            if (!Negated && target.Position == this)
-                target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);
-
-            game.ChainStep();
-        }
+        Game.ChainStep();
     }
 }

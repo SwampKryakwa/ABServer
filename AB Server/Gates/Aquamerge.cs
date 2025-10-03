@@ -1,23 +1,14 @@
-﻿namespace AB_Server.Gates
+﻿namespace AB_Server.Gates;
+
+internal class Aquamerge(int cID, Player owner) : GateCard(cID, owner)
 {
-    internal class Aquamerge : GateCard
+    public override int TypeId { get; } = 7;
+
+    public override void Resolve()
     {
-        public Aquamerge(int cID, Player owner)
-        {
-            game = owner.Game;
-            Owner = owner;
+        foreach (var bakugan in Game.BakuganIndex.Where(x => x.OnField() && !x.IsAttribute(Attribute.Subterra)))
+            bakugan.ChangeAttribute(Attribute.Aqua, this);
 
-            CardId = cID;
-        }
-
-        public override int TypeId { get; } = 7;
-
-        public override void Resolve()
-        {
-            foreach (var bakugan in game.BakuganIndex.Where(x => x.OnField() && !x.IsAttribute(Attribute.Subterra)))
-                bakugan.ChangeAttribute(Attribute.Aqua, this);
-
-            game.ChainStep();
-        }
+        Game.ChainStep();
     }
 }

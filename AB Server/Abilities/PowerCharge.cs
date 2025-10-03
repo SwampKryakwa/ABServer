@@ -1,63 +1,62 @@
 ﻿using AB_Server.Gates;
 using System.Runtime.CompilerServices;
 
-namespace AB_Server.Abilities
+namespace AB_Server.Abilities;
+
+internal class PowerCharge(int cId, Player owner, int typeId) : AbilityCard(cId, owner, typeId)
 {
-    internal class PowerCharge(int cId, Player owner, int typeId) : AbilityCard(cId, owner, typeId)
+    public override void TriggerEffect()
     {
-        public override void TriggerEffect()
-        {
-            new PowerChargeMarker(User, IsCopy).Activate();
-        }
-
-        public override bool IsActivateableByBakugan(Bakugan user) =>
-            Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField() && (!user.InBattle);
-
-        [ModuleInitializer]
-        internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new PowerCharge(cID, owner, 39));
+        new PowerChargeMarker(User, IsCopy).Activate();
     }
 
-    internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
+    public override bool IsActivateableByBakugan(Bakugan user) =>
+        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField() && (!user.InBattle);
+
+    [ModuleInitializer]
+    internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new PowerCharge(cID, owner, 39));
+}
+
+internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
+{
+    public int EffectId { get; set; } = user.Game.NextEffectId++;
+
+    public int TypeId { get; } = 39;
+
+    public CardKind Kind { get; } = CardKind.NormalAbility;
+
+    public Bakugan User { get; set; } = user;
+    public Player Owner { get; set; } = user.Owner;
+
+    public void Activate()
     {
-        public int EffectId { get; set; } = user.Game.NextEffectId++;
+        User.Game.ActiveZone.Add(this);
 
-        public int TypeId { get; } = 39;
+        User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
-        public CardKind Kind { get; } = CardKind.NormalAbility;
+        User.Game.BattleAboutToStart += OnBattleStart;
+    }
 
-        public Bakugan User { get; set; } = user;
-        public Player Owner { get; set; } = user.Owner;
-
-        public void Activate()
+    public void OnBattleStart(GateCard position)
+    {
+        if (User.Position == position)
         {
-            User.Game.ActiveZone.Add(this);
-
-            User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
-
-            User.Game.BattleAboutToStart += OnBattleStart;
-        }
-
-        public void OnBattleStart(GateCard position)
-        {
-            if (User.Position == position)
-            {
-                User.Boost(200, this);
-                CeaseMarker();
-            }
-        }
-
-        public void Negate(bool asCounter = false)
-        {
+            User.Boost(200, this);
             CeaseMarker();
         }
+    }
 
-        public void CeaseMarker()
-        {
-            User.Game.ActiveZone.Remove(this);
+    public void Negate(bool asCounter = false)
+    {
+        CeaseMarker();
+    }
 
-            User.Game.BattleAboutToStart -= OnBattleStart;
+    public void CeaseMarker()
+    {
+        User.Game.ActiveZone.Remove(this);
 
-            User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
-        }
+        User.Game.BattleAboutToStart -= OnBattleStart;
+
+        User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
     }
 }

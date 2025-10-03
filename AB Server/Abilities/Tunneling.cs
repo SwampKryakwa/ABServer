@@ -14,7 +14,7 @@ internal class Tunneling : AbilityCard
     {
         CondTargetSelectors =
         [
-            new BakuganSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = b => b.Position is GateCard targetPosGate && User.Position is GateCard userPosGate && targetPosGate != userPosGate && Game.GateIndex.Any(x=>x.IsBetween(userPosGate, targetPosGate)) },
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = b => b.Position is GateCard targetPosGate && User.Position is GateCard userPosGate && targetPosGate != userPosGate && Game.GateIndex.Any(x=>x.IsBetween(userPosGate, targetPosGate)) },
             new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATION", TargetValidator = g => User.Position is GateCard userPosGate &&(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Position is GateCard targetPosGate && g.IsBetween(userPosGate, targetPosGate) }
         ];
     }

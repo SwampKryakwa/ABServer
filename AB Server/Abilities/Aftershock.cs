@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities;
@@ -13,7 +12,7 @@ internal class Aftershock : AbilityCard
         ];
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) => user.IsAttribute(Attribute.Subterra) && user.OnField();
+    public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Subterra) && user.OnField();
 
     public override void TriggerEffect()
     {
@@ -27,7 +26,7 @@ internal class Aftershock : AbilityCard
         };
         Game.TurnEnd += removeMark;
     }
-    
+
     [ModuleInitializer]
     internal static void Init() => Register(54, CardKind.NormalAbility, (cID, owner) => new Aftershock(cID, owner, 54));
 }

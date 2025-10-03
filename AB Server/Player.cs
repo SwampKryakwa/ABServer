@@ -39,7 +39,8 @@ internal class Player : IBakuganContainer
     public List<Bakugan> BakuganOwned = new();
 
     public bool HadSetGate = false;
-    public int RemainingThrows = 1;
+    public int UsedThrows = 0;
+    public int AllowedThrows = 1;
     public bool HadUsedCounter = false;
 
     public bool Alive { get => BakuganOwned.Any(x => !x.Defeated); }
@@ -138,7 +139,7 @@ internal class Player : IBakuganContainer
         }
     }
     public bool HasThrowableBakugan() =>
-        Bakugans.Count != 0 && Game.Field.Cast<GateCard>().Any(x => x != null) && RemainingThrows > 0;
+        Bakugans.Count != 0 && Game.Field.Cast<GateCard>().Any(x => x != null) && UsedThrows < AllowedThrows;
 
     public bool HasActivateableAbilities() =>
         AbilityHand.Any(x => x.IsActivateable());
@@ -185,7 +186,7 @@ internal class Player : IBakuganContainer
 
     public bool CanEndTurn()
     {
-        return !Game.isBattleGoing && (!HasThrowableBakugan() || RemainingThrows == 0 || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
+        return !Game.isBattleGoing && (!HasThrowableBakugan() || UsedThrows > 0 || AllowedThrows == 0 || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
     }
 
     public bool HasBattlingBakugan() =>

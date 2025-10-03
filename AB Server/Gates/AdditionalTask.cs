@@ -25,6 +25,6 @@ internal class AdditionalTask : GateCard
         var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
         target.MoveFromFieldToHand(EnterOrder);
         if (!target.Owner.BakuganOwned.Any(x => x.OnField()))
-            target.Owner.RemainingThrows++;
+            target.Owner.AllowedThrows++;
     }
 }

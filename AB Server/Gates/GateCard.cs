@@ -651,6 +651,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
                     ["ToOwner"] = Owner.Id
                 });
         }
+        source.OnField = false;
     }
 
     public bool IsBetween(GateCard card1, GateCard card2)

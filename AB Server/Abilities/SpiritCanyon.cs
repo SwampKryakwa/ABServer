@@ -8,7 +8,7 @@ internal class SpiritCanyon(int cID, Player owner, int typeId) : AbilityCard(cID
     public override void TriggerEffect()
     {
         User.Boost(Game.GateIndex.Count(x => x.OnField && x.Owner == Owner) * 50, this);
-        if (User.Position is GateCard posGate && posGate.Owner.TeamId != Owner.TeamId)
+        if (User.Position is GateCard posGate && posGate.Owner.TeamId != Owner.TeamId && posGate.IsOpen)
             User.Boost(Game.GateIndex.Count(x => x.OnField && x.Owner.TeamId != Owner.TeamId) * 50, this);
     }
 

@@ -4,11 +4,6 @@ internal class WindForcement : GateCard
 {
     public WindForcement(int cID, Player owner) : base(cID, owner)
     {
-        Game = owner.Game;
-        Owner = owner;
-
-        CardId = cID;
-
         CondTargetSelectors =
         [
             new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this }

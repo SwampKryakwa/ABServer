@@ -172,6 +172,16 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                         ));
                     break;
 
+                case MultiGateSelector multiGateSelector:
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        currentSelector.ClientType switch
+                        {
+                            "MGF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            _ => throw new NotImplementedException()
+                        }
+                        ));
+                    break;
+
                 case MultiGateSlotSelector multiSlotSelector:
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.MultiFieldSlotSelection(currentSelector.Message, TypeId, (int)Kind, multiSlotSelector.MinNumber, multiSlotSelector.MaxNumber)

@@ -176,7 +176,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
-                            //"MGF" => EventBuilder.FieldMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
+                            "MGF" => EventBuilder.FieldMultiGateSelection(currentSelector.Message, TypeId, (int)Kind, multiGateSelector.MinNumber, multiGateSelector.MaxNumber, Game.GateIndex.Where(multiGateSelector.TargetValidator)),
                             _ => throw new NotImplementedException()
                         }
                         ));
@@ -242,6 +242,11 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             case MultiBakuganSelector multiBakuganSelector:
                 JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
+                break;
+
+            case MultiGateSelector multiGateSelector:
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
                 break;
 
             case MultiGateSlotSelector multiSlotSelector:
@@ -447,6 +452,11 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             case MultiBakuganSelector multiBakuganSelector:
                 JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
+                break;
+
+            case MultiGateSelector multiGateSelector:
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
                 break;
 
             case MultiGateSlotSelector multiSlotSelector:

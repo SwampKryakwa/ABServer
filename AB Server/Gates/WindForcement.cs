@@ -6,7 +6,7 @@ internal class WindForcement : GateCard
     {
         CondTargetSelectors =
         [
-            new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Position == this }
+            new BakuganSelector { ClientType = "BF", ForPlayer = x => x == Owner, Message = "INFO_GATE_BOOSTTARGET", TargetValidator = x => x.Position == this }
         ];
     }
 

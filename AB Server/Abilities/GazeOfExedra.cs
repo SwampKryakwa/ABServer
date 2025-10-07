@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 
@@ -18,6 +19,11 @@ internal class GazeOfExedra : AbilityCard
         if (target.InHand())
         {
             target.MoveFromHandToDrop();
+            User.Boost(200, this);
+        }
+        else if (target.OnField())
+        {
+            target.MoveFromFieldToDrop((target.Position as GateCard)!.EnterOrder);
             User.Boost(200, this);
         }
     }

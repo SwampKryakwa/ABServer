@@ -35,15 +35,13 @@ internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
         User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         User.Game.BattleAboutToStart += OnBattleStart;
+        User.OnRemovedFromField += CeaseMarker;
     }
 
     public void OnBattleStart(GateCard position)
     {
         if (User.Position == position)
-        {
             User.Boost(200, this);
-            CeaseMarker();
-        }
     }
 
     public void Negate(bool asCounter = false)
@@ -56,6 +54,7 @@ internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
         User.Game.ActiveZone.Remove(this);
 
         User.Game.BattleAboutToStart -= OnBattleStart;
+        User.OnRemovedFromField -= CeaseMarker;
 
         User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
     }

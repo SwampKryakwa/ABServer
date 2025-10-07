@@ -9,8 +9,8 @@ internal class OreganoMurder : AbilityCard
     {
         ResTargetSelectors =
         [
-            new YesNoSelector { Message = "INFO_WANTTARGET", ForPlayer = (p) => p == Owner, Condition = () => Owner.Bakugans.Count == 0 && User.Position is GateCard posGate && posGate.Bakugans.Any(x=>x.IsOpponentOf(User)) },
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_BOOSTTARGET", TargetValidator = x => x.IsOpponentOf(User), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
+            new YesNoSelector { ForPlayer = (p) => p == Owner, Message = "INFO_WANTTARGET", Condition = () => Owner.Bakugans.Count == 0 && User.OnField() && Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) },
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Position == User.Position && x.IsOpponentOf(User), Condition = () => Owner.Bakugans.Count == 0 && User.OnField() && Game.BakuganIndex.Any(x => x.Position == User.Position && User.IsOpponentOf(x)) }
         ];
     }
 
@@ -22,8 +22,7 @@ internal class OreganoMurder : AbilityCard
 
     public override void TriggerEffect()
     {
-        if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
-            (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.Boost(-100, this);
+        (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>

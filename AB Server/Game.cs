@@ -537,7 +537,7 @@ internal class Game
                 ["Type"] = "GateAddedToHand",
                 ["Owner"] = player.Id,
                 ["Kind"] = 4,
-                ["CardType"] = -1,
+                ["CardType"] = 0,
                 ["CID"] = gate.CardId
             });
         }

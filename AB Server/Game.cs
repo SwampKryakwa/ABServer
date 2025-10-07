@@ -536,6 +536,7 @@ internal class Game
             {
                 ["Type"] = "GateAddedToHand",
                 ["Owner"] = player.Id,
+                ["Kind"] = 4,
                 ["CardType"] = -1,
                 ["CID"] = gate.CardId
             });

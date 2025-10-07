@@ -355,7 +355,7 @@ internal static class EventBuilder
     {
         return new()
         {
-            ["SelectionType"] = "MBF",
+            ["SelectionType"] = "MGF",
             ["Message"] = prompt,
             ["Card"] = card,
             ["CardKind"] = cardKind,

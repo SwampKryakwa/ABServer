@@ -8,7 +8,7 @@ internal class Earthmover : AbilityCard
     {
         CondTargetSelectors =
         [
-            new MultiGateSelector() { ClientType = "MGF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => !x.Bakugans.Any(x=>x.Owner.TeamId != Owner.TeamId) }
+            new MultiGateSelector() { ClientType = "MGF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => !x.Bakugans.Any(x=>x.Owner.TeamId != Owner.TeamId) }
         ];
     }
 

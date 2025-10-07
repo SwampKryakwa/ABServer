@@ -431,9 +431,11 @@ internal class Game
         if (!BakuganIndex.Any(x => x.InHand()))
             CloseField();
 
-        Console.WriteLine("Number of players with gates in hands: " + Players.Count(x => x.GateHand.Count == 0));
+        Console.WriteLine("Number of players with no gates in hands: " + Players.Count(x => x.GateHand.Count == 0));
         Console.WriteLine("Number of Gate Cards on field: " + Field.Cast<GateCard?>().Count(x => x is not null));
-        if (Field.Cast<GateCard?>().All(x => x is null) && Players.All(x => x.GateHand.Count == 0))
+        Console.WriteLine("All players set all their gates: " + Players.All(x => x.GateHand.Count == 0));
+        Console.WriteLine("No gates on the field: " + !Field.Cast<GateCard?>().Any(x => x is not null));
+        if (!Field.Cast<GateCard?>().Any(x => x is not null) && Players.All(x => x.GateHand.Count == 0))
             ProvideNormalGates();
 
         turnNumber++;

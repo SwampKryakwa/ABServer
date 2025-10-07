@@ -836,7 +836,7 @@ internal class Game
                 break;
             case "pass":
                 Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
-                if (CurrentWindow == ActivationWindow.Normal && !isBattleGoing && !LongRangeBattleGoing)
+                if (!(!Players[movePlayer].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (isBattleGoing && CurrentWindow == ActivationWindow.Normal))
                 {
                     NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                     break;

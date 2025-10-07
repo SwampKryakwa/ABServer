@@ -110,6 +110,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
 
     public Attribute BaseAttribute = attribute;
     public List<AttributeState> attributeChanges = [];
+    public IEnumerable<Attribute> CurrentAttributes { get => attributeChanges.Count == 0 ? [BaseAttribute] : attributeChanges[^1].Attributes; }
 
     public Treatment Treatment = treatment;
 

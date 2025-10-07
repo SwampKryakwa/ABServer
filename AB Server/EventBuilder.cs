@@ -51,8 +51,28 @@ internal static class EventBuilder
         return new JObject
         {
             ["SelectionType"] = "O",
-            ["Prompt"] = prompt,
+            ["Message"] = prompt,
             ["Options"] = options
+        };
+    }
+
+    public static JObject PlayerSelectionEvent(string prompt, Player[] players)
+    {
+        return new JObject
+        {
+            ["SelectionType"] = "P",
+            ["Message"] = prompt,
+            ["AllowedPlayers"] = new JArray(players.Select(x => x.Id))
+        };
+    }
+
+    public static JObject AttributeSelectionEvent(string prompt, Attribute[] attributes)
+    {
+        return new JObject
+        {
+            ["SelectionType"] = "Z", //for Zokusei - attribute
+            ["Message"] = prompt,
+            ["AllowedAttributes"] = new JArray(attributes.Select(x => (int)x))
         };
     }
 

@@ -65,6 +65,22 @@ class OptionSelector : Selector
     public override bool HasValidTargets(Game game) { return true; }
 }
 
+class AttributeSelector : Selector
+{
+    public Func<Attribute, bool> TargetValidator = (x) => true;
+    public Attribute SelectedAttribute = Attribute.Clear;
+
+    public override bool HasValidTargets(Game game) { return Enum.GetValues(typeof(Attribute)).Cast<Attribute>().Any(TargetValidator); }
+}
+
+class PlayerSelector : Selector
+{
+    public Func<Player, bool> TargetValidator = (x) => true;
+    public Player SelectedPlayer;
+
+    public override bool HasValidTargets(Game game) { return game.Players.Any(TargetValidator); }
+}
+
 class GateSelector : Selector
 {
     public Func<GateCard, bool> TargetValidator = (x) => true;

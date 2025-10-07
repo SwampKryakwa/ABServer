@@ -8,7 +8,7 @@ internal class CommandConvergence : AbilityCard
     {
         ResTargetSelectors =
         [
-            new OptionSelector() { Message = "INFO_PICKER_ATTRIBUTE", ForPlayer = (p) => p == Owner, OptionCount = 6 }
+            new AttributeSelector() { Message = "INFO_PICKATTRIBUTE", ForPlayer = (p) => p == Owner, TargetValidator = (x) => true }
         ];
     }
 

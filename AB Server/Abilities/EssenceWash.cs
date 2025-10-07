@@ -2,14 +2,14 @@
 
 namespace AB_Server.Abilities;
 
-internal class EssenceShift : AbilityCard
+internal class EssenceWash : AbilityCard
 {
-    public EssenceShift(int cId, Player owner, int typeId) : base(cId, owner, typeId)
+    public EssenceWash(int cId, Player owner, int typeId) : base(cId, owner, typeId)
     {
         ResTargetSelectors =
         [
             new BakuganSelector() { ClientType = "BF", Message = "INFO_ABILITY_TARGET", ForPlayer = p => p == Owner, TargetValidator = x => x.OnField() },
-            new OptionSelector() { Message = "INFO_PICKER_ATTRIBUTE", ForPlayer = (p) => p == Owner, OptionCount = 6 }
+            new AttributeSelector() { Message = "INFO_PICKATTRIBUTE", ForPlayer = (p) => p == Owner, TargetValidator = (x) => ResTargetSelectors[0] is BakuganSelector bakuganSelector && (bakuganSelector.SelectedBakugan.CurrentAttributes.Count() != 1 || bakuganSelector.SelectedBakugan.CurrentAttributes.First() != x) }
         ];
     }
 
@@ -22,5 +22,5 @@ internal class EssenceShift : AbilityCard
         Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Aqua) && user.OnField();
 
     [ModuleInitializer]
-    internal static void Init() => Register(31, CardKind.NormalAbility, (cID, owner) => new EssenceShift(cID, owner, 31));
+    internal static void Init() => Register(31, CardKind.NormalAbility, (cID, owner) => new EssenceWash(cID, owner, 31));
 }

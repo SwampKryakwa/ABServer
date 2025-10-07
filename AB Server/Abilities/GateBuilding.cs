@@ -24,7 +24,7 @@ internal class GateBuilding : AbilityCard
     {
         Game.OnAnswer[Owner.Id] = () =>
         {
-            int attribute = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+            int attribute = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
             int newCid = Game.GateIndex.Count;
             GateCard newCard = attribute switch
             {
@@ -48,7 +48,7 @@ internal class GateBuilding : AbilityCard
             });
             base.Resolve();
         };
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.OptionSelectionEvent("INFO_PICKER_ATTRIBUTE", 6)));
+        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.AttributeSelectionEvent("INFO_PICKATTRIBUTE", [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>()])));
     }
 
     public override void TriggerEffect()

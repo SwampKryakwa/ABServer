@@ -147,6 +147,18 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                         ));
                     break;
 
+                case AttributeSelector attributeSelector:
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>().Where(attributeSelector.TargetValidator)])
+                        ));
+                    break;
+
+                case PlayerSelector playerSelector:
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.PlayerSelectionEvent(currentSelector.Message, [.. Game.Players.Where(playerSelector.TargetValidator)])
+                        ));
+                    break;
+
                 case YesNoSelector yesNoSelector:
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.BoolSelectionEvent(yesNoSelector.Message)
@@ -364,6 +376,18 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                 case OptionSelector optionSelector:
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
+                        ));
+                    break;
+
+                case AttributeSelector attributeSelector:
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>().Where(attributeSelector.TargetValidator)])
+                        ));
+                    break;
+
+                case PlayerSelector playerSelector:
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                        EventBuilder.PlayerSelectionEvent(currentSelector.Message, [.. Game.Players.Where(playerSelector.TargetValidator)])
                         ));
                     break;
 

@@ -23,7 +23,7 @@ internal class GrandDevourer : FusionAbility
     {
         if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
         {
-            (ResTargetSelectors[1] as GateSelector)!.SelectedGate.Discard();
+            (ResTargetSelectors[1] as GateSelector)!.SelectedGate.RemoveFromHand();
         }
         else
         {

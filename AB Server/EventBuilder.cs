@@ -351,6 +351,26 @@ internal static class EventBuilder
         };
     }
 
+    public static JObject FieldMultiGateSelection(string prompt, int card, int cardKind, int min, int max, params IEnumerable<GateCard> gates)
+    {
+        return new()
+        {
+            ["SelectionType"] = "MBF",
+            ["Message"] = prompt,
+            ["Card"] = card,
+            ["CardKind"] = cardKind,
+            ["SelectionGates"] = new JArray(gates.Select(x => new JObject
+            {
+                ["CardType"] = x.TypeId,
+                ["CardKind"] = (int)x.Kind,
+                ["Owner"] = x.Owner.Id,
+                ["CID"] = x.CardId
+            })),
+            ["Min"] = min,
+            ["Max"] = max
+        };
+    }
+
     public static JObject HandGateSelection(string prompt, int ability, int cardKind, params IEnumerable<GateCard> gates)
     {
         return new()

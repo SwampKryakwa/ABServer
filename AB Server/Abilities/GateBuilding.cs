@@ -11,7 +11,7 @@ internal class GateBuilding : AbilityCard
     {
         ResTargetSelectors =
         [
-            new YesNoSelector { Message = "INFO_WANTSETGATE", ForPlayer = (p) => p == Owner, Condition = () => Owner.Bakugans.Count != 0 },
+            new YesNoSelector { Message = "INFO_WANTSETGATE", ForPlayer = (p) => p == Owner, Condition = () => Owner.GateHand.Count != 0 },
             new GateSelector { ClientType = "GH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = g => Owner.GateHand.Contains(g) && !pickedGates.Contains(g), Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes },
             new GateSlotSelector { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", Condition = () => (ResTargetSelectors[0] as YesNoSelector)!.IsYes }
         ];
@@ -57,13 +57,6 @@ internal class GateBuilding : AbilityCard
         {
             for (int i = 0; i < pickedGates.Count; i++)
             {
-                Game.ThrowEvent(new()
-                {
-                    ["Type"] = "GateRemovedFromHand",
-                    ["CardType"] = pickedGates[i].TypeId,
-                    ["CID"] = pickedGates[i].CardId,
-                    ["Owner"] = pickedGates[i].Owner.Id
-                });
                 pickedGates[i].Set((byte)pickedPositions[i].X, (byte)pickedPositions[i].Y);
             }
         }
@@ -71,6 +64,7 @@ internal class GateBuilding : AbilityCard
         {
             pickedGates.Add((ResTargetSelectors[1] as GateSelector)!.SelectedGate);
             pickedPositions.Add((ResTargetSelectors[2] as GateSlotSelector)!.SelectedSlot);
+            (ResTargetSelectors[1] as GateSelector)!.SelectedGate.RemoveFromHand();
             (ResTargetSelectors[0] as YesNoSelector)!.IsYes = false;
             base.Resolve();
         }

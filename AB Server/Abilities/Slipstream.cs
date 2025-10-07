@@ -6,7 +6,7 @@ internal class Slipstream(int cID, Player owner, int typeId) : AbilityCard(cID, 
 {
     public override void TriggerEffect()
     {
-        Owner.RemainingThrows++;
+        Owner.AllowedThrows = 2;
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>

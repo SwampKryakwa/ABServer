@@ -403,13 +403,7 @@ internal class Game
                     dynamic selection = PlayerAnswers[j]!;
                     int id = (int)selection["gate"];
 
-                    ThrowEvent(new()
-                    {
-                        ["Type"] = "GateRemovedFromHand",
-                        ["CardType"] = GateIndex[id].TypeId,
-                        ["CID"] = GateIndex[id].CardId,
-                        ["Owner"] = j
-                    });
+                    GateIndex[id].RemoveFromHand();
                     cards[j] = GateIndex[id];
                     positions[j] = (FirstCardPositions[j].X, FirstCardPositions[j].Y);
                     players[j] = j;
@@ -429,7 +423,8 @@ internal class Game
 
         //Reset flags
         Players[TurnPlayer].HadSetGate = false;
-        Players[TurnPlayer].RemainingThrows = 1;
+        Players[TurnPlayer].UsedThrows = 0;
+        Players[TurnPlayer].AllowedThrows = 1;
         foreach (Player player in Players)
             player.HadUsedCounter = false;
 
@@ -713,12 +708,12 @@ internal class Game
         {
             ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !isBattleGoing,
             ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
-            ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && Players[player].RemainingThrows > 0 && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
+            ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
             ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
             ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
             ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (isBattleGoing && CurrentWindow == ActivationWindow.Normal),
 
-            ["IsASkip"] = Players[player].RemainingThrows > 0,
+            ["IsASkip"] = Players[player].UsedThrows == 0,
             ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
             ["SettableGates"] = gateArray,
@@ -767,7 +762,7 @@ internal class Game
             case "throw":
                 if (Field[(int)selection["posX"]!, (int)selection["posY"]!] is GateCard gateSelection)
                 {
-                    Players[TurnPlayer].RemainingThrows--;
+                    Players[TurnPlayer].UsedThrows++;
                     BakuganIndex[(int)selection["bakugan"]!].Throw(gateSelection);
                 }
                 else
@@ -793,13 +788,7 @@ internal class Game
                     Players[TurnPlayer].HadSetGate = true;
 
                     var id = (byte)selection["gate"]!;
-                    ThrowEvent(new()
-                    {
-                        ["Type"] = "GateRemovedFromHand",
-                        ["CardType"] = GateIndex[id].TypeId,
-                        ["CID"] = id,
-                        ["Owner"] = GateIndex[id].Owner.Id
-                    });
+                    GateIndex[id].RemoveFromHand();
 
                     GateIndex[id].Set(X, Y);
                 }

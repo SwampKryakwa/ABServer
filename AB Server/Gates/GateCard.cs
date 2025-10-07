@@ -204,7 +204,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
         Game.OnGateAdded(this, Owner.Id, posX, posY);
     }
 
-    public void Discard()
+    public void RemoveFromHand()
     {
         if (Owner.GateHand.Contains(this))
             Owner.GateHand.Remove(this);
@@ -651,5 +651,35 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
                     ["ToOwner"] = Owner.Id
                 });
         }
+        source.OnField = false;
+    }
+
+    public bool IsBetween(GateCard card1, GateCard card2)
+    {
+        if (!OnField || !card1.OnField || !card2.OnField)
+            return false;
+
+        var mx = Position.X;
+        var my = Position.Y;
+        var x1 = card1.Position.X;
+        var y1 = card1.Position.Y;
+        var x2 = card2.Position.X;
+        var y2 = card2.Position.Y;
+
+        // Horizontal alignment
+        if (y1 == y2 && my == y1)
+        {
+            int minX = Math.Min(x1, x2);
+            int maxX = Math.Max(x1, x2);
+            return mx > minX && mx < maxX;
+        }
+        // Vertical alignment
+        if (x1 == x2 && mx == x1)
+        {
+            int minY = Math.Min(y1, y2);
+            int maxY = Math.Max(y1, y2);
+            return my > minY && my < maxY;
+        }
+        return false;
     }
 }

@@ -8,7 +8,7 @@ internal class AttributeGate(int power, Attribute attribute, int cID, Player own
 
     public override void TriggerEffect()
     {
-        foreach (var bakugan in Bakugans.Where(x => x.IsAttribute(attribute)))
+        foreach (var bakugan in Game.BakuganIndex.Where(x => x.OnField() && x.IsAttribute(attribute)))
             bakugan.Boost(power, this);
     }
 }

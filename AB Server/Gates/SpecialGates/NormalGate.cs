@@ -2,9 +2,9 @@ using AB_Server.Abilities;
 
 namespace AB_Server.Gates.SpecialGates;
 
-internal class NormalGate : GateCard
+internal class NormalGate(int cID, Player owner) : GateCard(cID, owner)
 {
-    
+
     public override int TypeId { get; } = 0;
     public override CardKind Kind { get; } = CardKind.SpecialGate;
 

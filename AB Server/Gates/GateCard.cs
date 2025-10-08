@@ -407,33 +407,68 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
     void AcceptCondTarget()
     {
         var currentSelector = CondTargetSelectors[currentTarget];
-        if (currentSelector is BakuganSelector bakuganSelector)
-            bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
-        else if (currentSelector is GateSelector gateSelector)
-            gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
-        else if (currentSelector is AbilitySelector abilitySelector)
-            abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["ability"]];
-        else if (currentSelector is ActiveSelector activeSelector)
-            activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
-        else if (currentSelector is YesNoSelector yesNoSelector)
-            yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
-        else if (currentSelector is OptionSelector optionSelector)
-            optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
-        else if (currentSelector is GateSlotSelector slotSelector)
-            slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
-        else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
+        switch (currentSelector)
         {
-            JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
-            multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
-        }
-        else if (currentSelector is MultiGateSlotSelector multiSlotSelector)
-        {
-            JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
-            multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
-        }
-        else
-        {
-            throw new NotImplementedException();
+            case BakuganSelector bakuganSelector:
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
+                break;
+
+            case GateSelector gateSelector:
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
+                break;
+
+            case AbilitySelector abilitySelector:
+                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["ability"]];
+                break;
+
+            case ActiveSelector activeSelector:
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
+                break;
+
+            case YesNoSelector yesNoSelector:
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
+                break;
+
+            case OptionSelector optionSelector:
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+                break;
+
+            case AttributeSelector attributeSelector:
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                break;
+
+            case PlayerSelector playerSelector:
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
+                break;
+
+            case GateSlotSelector slotSelector:
+                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
+                break;
+
+            case MultiBakuganSelector multiBakuganSelector:
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
+                multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
+                break;
+
+            case MultiGateSelector multiGateSelector:
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
+                break;
+
+            case MultiGateSlotSelector multiSlotSelector:
+                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
+                multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
+                break;
+
+            case TypeSelector typeSelector:
+                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["type"];
+                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["kind"];
+                typeSelector.SelectedKind = cardKind;
+                typeSelector.SelectedType = cardId;
+                break;
+
+            default:
+                throw new NotImplementedException();
         }
         currentTarget++;
         SendCondTargetForSelection();
@@ -582,30 +617,68 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
     void AcceptResTarget()
     {
         var currentSelector = ResTargetSelectors[currentTarget];
-        if (currentSelector is BakuganSelector bakuganSelector)
-            bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
-        else if (currentSelector is GateSelector gateSelector)
-            gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
-        else if (currentSelector is AbilitySelector abilitySelector)
+        switch (currentSelector)
         {
-            //currently unused
-            throw new NotImplementedException();
-        }
-        else if (currentSelector is ActiveSelector activeSelector)
-            activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
-        else if (currentSelector is YesNoSelector yesNoSelector)
-            yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
-        else if (currentSelector is OptionSelector optionSelector)
-            optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
-        else if (currentSelector is MultiBakuganSelector multiBakuganSelector)
-        {
-            JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
-            multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
-            Console.WriteLine($"Bakugans selected: {multiBakuganSelector.SelectedBakugans.Length}");
-        }
-        else
-        {
-            throw new NotImplementedException();
+            case BakuganSelector bakuganSelector:
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
+                break;
+
+            case GateSelector gateSelector:
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
+                break;
+
+            case AbilitySelector abilitySelector:
+                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["ability"]];
+                break;
+
+            case ActiveSelector activeSelector:
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
+                break;
+
+            case YesNoSelector yesNoSelector:
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
+                break;
+
+            case OptionSelector optionSelector:
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+                break;
+
+            case AttributeSelector attributeSelector:
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                break;
+
+            case PlayerSelector playerSelector:
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
+                break;
+
+            case GateSlotSelector slotSelector:
+                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
+                break;
+
+            case MultiBakuganSelector multiBakuganSelector:
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
+                multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
+                break;
+
+            case MultiGateSelector multiGateSelector:
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
+                break;
+
+            case MultiGateSlotSelector multiSlotSelector:
+                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
+                multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
+                break;
+
+            case TypeSelector typeSelector:
+                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["type"];
+                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["kind"];
+                typeSelector.SelectedKind = cardKind;
+                typeSelector.SelectedType = cardId;
+                break;
+
+            default:
+                throw new NotImplementedException();
         }
         currentTarget++;
         SendResTargetForSelection();

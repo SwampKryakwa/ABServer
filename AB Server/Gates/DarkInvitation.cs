@@ -11,8 +11,9 @@ internal class DarkInvitation : GateCard
 
         CondTargetSelectors =
         [
-            new YesNoSelector { ForPlayer = p => p.TeamId != Owner.TeamId, Message = "INFO_WANTTARGET" },
-            new BakuganSelector { ClientType = "BH", ForPlayer = p => p.TeamId != Owner.TeamId, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Owner == Game.Players.First(p => p.TeamId != Owner.TeamId) && x.InHand(), Condition = () => (CondTargetSelectors[0] as YesNoSelector)!.IsYes }
+            new PlayerSelector { ForPlayer = p => p == Owner, Message = "INFO_PICK_PLAYER", TargetValidator = (p) => p.TeamId != Owner.TeamId },
+            new YesNoSelector { ForPlayer = p => p == (CondTargetSelectors[0] as PlayerSelector)!.SelectedPlayer, Message = "INFO_WANTTARGET", IsYes = false },
+            new BakuganSelector { ClientType = "BH", ForPlayer = p => p.TeamId != Owner.TeamId, Message = "INFO_GATE_TARGET", TargetValidator = x => x.Owner == Game.Players.First(p => p.TeamId != Owner.TeamId) && x.InHand(), Condition = () => (CondTargetSelectors[1] as YesNoSelector)!.IsYes }
         ];
     }
 
@@ -20,10 +21,10 @@ internal class DarkInvitation : GateCard
 
     public override void TriggerEffect()
     {
-        if (!(CondTargetSelectors[0] as YesNoSelector)!.IsYes)
+        if (!(CondTargetSelectors[1] as YesNoSelector)!.IsYes)
             return;
 
-        Bakugan target = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
+        Bakugan target = (CondTargetSelectors[2] as BakuganSelector)!.SelectedBakugan;
 
         target.AddFromHandToField(this);
     }

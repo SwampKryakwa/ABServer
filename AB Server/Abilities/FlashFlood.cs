@@ -9,8 +9,8 @@ internal class FlashFlood : AbilityCard
     {
         CondTargetSelectors =
         [
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User },
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User },
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
         ];
     }
 

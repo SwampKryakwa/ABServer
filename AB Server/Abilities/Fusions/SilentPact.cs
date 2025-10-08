@@ -25,7 +25,7 @@ internal class SilentPact : FusionAbility
 
     public override void TriggerEffect()
     {
-        new SilentPactMarker(User, (Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption, Owner, IsCopy).Activate();
+        new SilentPactMarker(User, (CondTargetSelectors[0] as AttributeSelector)!.SelectedAttribute, Owner, IsCopy).Activate();
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>

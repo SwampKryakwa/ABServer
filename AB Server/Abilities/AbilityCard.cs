@@ -247,6 +247,14 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
                 break;
 
+            case AttributeSelector attributeSelector:
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                break;
+
+            case PlayerSelector playerSelector:
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
+                break;
+
             case GateSlotSelector slotSelector:
                 slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
                 break;
@@ -467,6 +475,14 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
 
             case OptionSelector optionSelector:
                 optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+                break;
+
+            case AttributeSelector attributeSelector:
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                break;
+
+            case PlayerSelector playerSelector:
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
                 break;
 
             case GateSlotSelector slotSelector:

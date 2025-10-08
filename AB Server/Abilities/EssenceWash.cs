@@ -15,7 +15,7 @@ internal class EssenceWash : AbilityCard
 
     public override void TriggerEffect()
     {
-        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.ChangeAttribute((Attribute)(ResTargetSelectors[1] as OptionSelector)!.SelectedOption, this);
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.ChangeAttribute((ResTargetSelectors[1] as AttributeSelector)!.SelectedAttribute, this);
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>

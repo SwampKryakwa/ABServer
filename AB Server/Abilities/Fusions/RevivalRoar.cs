@@ -24,8 +24,8 @@ internal class RevivalRoar : FusionAbility
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.InDrop() && user.Type == BakuganType.Griffon && Game.BakuganIndex.Any(x => x.OnField() && x.Owner == Owner);
+    public override bool UserValidator(Bakugan user) =>
+        user.InDrop() && user.Type == BakuganType.Griffon;
 
     [ModuleInitializer]
     internal static void Init() => Register(9, (cID, owner) => new RevivalRoar(cID, owner));

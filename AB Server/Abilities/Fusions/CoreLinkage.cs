@@ -7,8 +7,11 @@ internal class CoreLinkage(int cID, Player owner) : FusionAbility(cID, owner, 9,
     public override void TriggerEffect() =>
         new CoreLinkageMarker(User, IsCopy).Activate();
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.OnField() && user.Type == BakuganType.Garrison && Game.CurrentWindow == ActivationWindow.Normal;
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.Type == BakuganType.Garrison;
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Normal;
 
     [ModuleInitializer]
     internal static void Init() => Register(8, (cID, owner) => new CoreLinkage(cID, owner));

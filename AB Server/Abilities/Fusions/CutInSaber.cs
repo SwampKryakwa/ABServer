@@ -20,8 +20,11 @@ internal class CutInSaber : FusionAbility
             User.AddFromHandToField(posGate);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-    user.Type == BakuganType.Tigress && user.InHand() && Game.GateIndex.Any(gateCard => gateCard.BattleStarting && gateCard.Bakugans.Any(user.IsOpponentOf));
+    public override bool UserValidator(Bakugan user) =>
+    user.Type == BakuganType.Tigress && user.InHand();
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(7, (cID, owner) => new CutInSaber(cID, owner));

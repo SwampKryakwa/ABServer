@@ -18,7 +18,7 @@ internal class PowerAccord : FusionAbility
         User.Boost(new Boost((short)(80 * Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute((ResTargetSelectors[0] as AttributeSelector)!.SelectedAttribute)))), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.Type == BakuganType.Knight && user.OnField();
 
     [ModuleInitializer]

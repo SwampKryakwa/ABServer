@@ -35,7 +35,7 @@ internal class GrandDevourer : FusionAbility
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.Type == BakuganType.Worm && user.OnField();
 
     [ModuleInitializer]

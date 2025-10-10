@@ -17,7 +17,7 @@ internal class SilentPact : FusionAbility
         new SilentPactMarker(User, (CondTargetSelectors[0] as AttributeSelector)!.SelectedAttribute, Owner, IsCopy).Activate();
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.Type == BakuganType.Shredder && user.InHand();
 
     [ModuleInitializer]

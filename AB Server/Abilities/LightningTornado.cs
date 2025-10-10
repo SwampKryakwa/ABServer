@@ -22,7 +22,7 @@ internal class LightningTornado : AbilityCard
         (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(new Boost(-100), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.IsAttribute(Attribute.Lumina) && user.InBattle;
 
     [ModuleInitializer]

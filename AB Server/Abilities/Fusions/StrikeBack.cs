@@ -23,8 +23,11 @@ internal class StrikeBack : FusionAbility
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.InDrop() && user.Type == BakuganType.Raptor && user.IsPartner && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
+    public override bool UserValidator(Bakugan user) =>
+        user.InDrop() && user.Type == BakuganType.Raptor;
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(3, (cID, owner) => new StrikeBack(cID, owner));

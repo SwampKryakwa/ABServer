@@ -18,11 +18,8 @@ internal class JumpOver : AbilityCard
         GenericEffects.MoveBakuganEffect(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Position is GateCard positionGate && user.IsAttribute(Attribute.Zephyros) && Game.GateIndex.Any(positionGate.IsAdjacentVertically) && Game.CurrentWindow == ActivationWindow.Normal;
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.GateIndex.Any(x => x.IsAdjacentVertically((user.Position as GateCard)!));
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Zephyros);
 
     [ModuleInitializer]
     internal static void Init() => Register(33, CardKind.NormalAbility, (cID, owner) => new JumpOver(cID, owner, 33));

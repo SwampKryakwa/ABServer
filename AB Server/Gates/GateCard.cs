@@ -89,7 +89,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
 
         Console.WriteLine(GetType().ToString() + " frozen");
 
-        Console.WriteLine("Battles going: " + Game.isBattleGoing.ToString());
+        Console.WriteLine("Battles going: " + Game.IsBattleGoing.ToString());
         BattleStarted = false;
     }
 
@@ -202,7 +202,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
         Game.ThrowEvent(EventBuilder.GateSet(this, false), Owner.Id);
         Game.ThrowEvent(Owner.Id, EventBuilder.GateSet(this, true));
         Game.GateSetList.Add(this);
-        Game.OnGateAdded(this, Owner.Id, posX, posY);
+        Game.OnGateAdded?.Invoke(this);
     }
 
     public void RemoveFromHand()
@@ -236,7 +236,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
             game.ThrowEvent(i, EventBuilder.MultiGateSet(settables, i));
 
         for (int i = 0; i < gateCards.Length; i++)
-            game.OnGateAdded(gateCards[i], setBy[i], positions[i].posX, positions[i].posY);
+            game.OnGateAdded?.Invoke(gateCards[i]);
     }
 
     public virtual void Retract()
@@ -257,7 +257,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
         Owner.GateHand.Add(this);
         Position = (255, 255);
         Game.GateSetList.Remove(this);
-        Game.OnGateRemoved(this, Owner.Id, posX, posY);
+        Game.OnGateRemoved?.Invoke(this);
     }
 
     public virtual void Open()
@@ -269,7 +269,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
     {
         if (CondTargetSelectors.Length <= currentTarget)
         {
-            Game.OnGateOpen(this);
+            Game.OnGateOpen?.Invoke(this);
             IsOpen = true;
             Game.ActiveZone.Add(this);
             Game.CardChain.Push(this);
@@ -387,7 +387,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
                     break;
 
                 case TypeSelector typeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(true && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, typeSelector.SelectableKinds.Select(x => (int)x).ToArray())));
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(true && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
                     break;
 
                 default:
@@ -597,7 +597,7 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
                     break;
 
                 case TypeSelector typeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, typeSelector.SelectableKinds.Select(x => (int)x).ToArray())));
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
                     break;
 
                 default:

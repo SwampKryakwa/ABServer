@@ -9,8 +9,11 @@ internal class WaterRefrain : AbilityCard
     public override void TriggerEffect() =>
             new WaterRefrainMarker(User, TypeId, IsCopy).Activate();
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.TurnStart && Game.Players[Game.TurnPlayer].TeamId != Owner.TeamId && user.IsAttribute(Attribute.Aqua) && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        Game.Players[Game.TurnPlayer].TeamId != Owner.TeamId && user.IsAttribute(Attribute.Aqua) && user.OnField();
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.TurnStart;
 
     [ModuleInitializer]
     internal static void Init() => Register(4, CardKind.NormalAbility, (cID, owner) => new WaterRefrain(cID, owner, 4));
@@ -46,7 +49,7 @@ internal class WaterRefrainMarker : IActive
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
         game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.RedAbilityBlockers.Add(this));
 
-        game.TurnEnd += CheckEffectOver;
+        game.OnTurnEnd += CheckEffectOver;
 
         User.AffectingEffects.Add(this);
     }
@@ -64,7 +67,7 @@ internal class WaterRefrainMarker : IActive
     {
         game.ActiveZone.Remove(this);
         Array.ForEach(game.Players, x => { if (x.AbilityBlockers.Contains(this)) x.AbilityBlockers.Remove(this); });
-        game.TurnEnd -= CheckEffectOver;
+        game.OnTurnEnd -= CheckEffectOver;
 
         game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
     }

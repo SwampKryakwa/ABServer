@@ -17,7 +17,7 @@ internal class LightLine : AbilityCard
             bak.Boost(100 * numMyBakuganNotUserOnField, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.OnField() && user.IsAttribute(Attribute.Lumina);
 
     [System.Runtime.CompilerServices.ModuleInitializer]

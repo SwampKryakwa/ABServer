@@ -25,8 +25,8 @@ internal class FlashFlood : AbilityCard
             (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.MoveFromFieldToHand(otherPosGate.EnterOrder);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute(Attribute.Aqua)) >= 3;
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Aqua);
 
     [ModuleInitializer]
     internal static void Init() => Register(46, CardKind.NormalAbility, (cID, owner) => new FlashFlood(cID, owner, 46));

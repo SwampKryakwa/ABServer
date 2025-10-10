@@ -2,9 +2,9 @@
 
 namespace AB_Server.Abilities;
 
-internal class LightningShield : AbilityCard
+internal class ShieldOfLight : AbilityCard
 {
-    public LightningShield(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+    public ShieldOfLight(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
         CondTargetSelectors =
         [
@@ -23,12 +23,9 @@ internal class LightningShield : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.InBattle && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf) && Game.CurrentWindow == ActivationWindow.Normal;
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Position.Bakugans.Any(user.IsOpponentOf);
+    public override bool UserValidator(Bakugan user) =>
+        user.InBattle && user.IsAttribute(Attribute.Lumina);
 
     [ModuleInitializer]
-    internal static void Init() => Register(26, CardKind.NormalAbility, (cID, owner) => new LightningShield(cID, owner, 26));
+    internal static void Init() => Register(26, CardKind.NormalAbility, (cID, owner) => new ShieldOfLight(cID, owner, 26));
 }

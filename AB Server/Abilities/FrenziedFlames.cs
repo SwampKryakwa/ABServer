@@ -10,8 +10,11 @@ internal class FrenziedFlames(int cId, Player owner, int typeId) : AbilityCard(c
         foreach (var bak in Owner.BakuganOwned.Where(x => x.OnField()))
             bak.Boost(300, this);
     }
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.JustEndedBattle && !user.BattleEndedInDraw && user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova);
+    public override bool UserValidator(Bakugan user) =>
+        user.JustEndedBattle && !user.BattleEndedInDraw && user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova);
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(38, CardKind.NormalAbility, (cID, owner) => new FrenziedFlames(cID, owner, 38));

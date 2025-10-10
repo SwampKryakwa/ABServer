@@ -186,7 +186,7 @@ internal class Player : IBakuganContainer
 
     public bool CanEndTurn()
     {
-        return !Game.isBattleGoing && (!HasThrowableBakugan() || UsedThrows > 0 || AllowedThrows == 0 || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
+        return !Game.IsBattleGoing && (!HasThrowableBakugan() || UsedThrows > 0 || AllowedThrows == 0 || !Game.GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == TeamId) && x.ThrowBlocking.Count == 0));
     }
 
     public bool HasBattlingBakugan() =>

@@ -18,8 +18,8 @@ internal class CommandConvergence : AbilityCard
             target.Boost(120, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Knight && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(34, CardKind.NormalAbility, (cID, owner) => new CommandConvergence(cID, owner, 34));

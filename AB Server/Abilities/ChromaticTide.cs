@@ -37,8 +37,8 @@ internal class ChromaticTide : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && Owner.AbilityDrop.Any(x => x.Kind == CardKind.CorrelationAbility);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Aqua);
 
     [ModuleInitializer]
     internal static void Init() => Register(44, CardKind.NormalAbility, (cID, owner) => new ChromaticTide(cID, owner, 44));

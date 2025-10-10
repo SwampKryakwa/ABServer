@@ -27,8 +27,8 @@ internal class InsightSurge : AbilityCard
         User.Boost(100 * (opponent.AbilityHand.Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind))) + opponent.GateHand.Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind)))), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Aqua);
 
     [ModuleInitializer]
     internal static void Init() => Register(45, CardKind.NormalAbility, (cID, owner) => new InsightSurge(cID, owner, 45));

@@ -26,7 +26,7 @@ internal class PinDown : FusionAbility
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField();
+        user.Type == BakuganType.Laserman && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(1, (cID, owner) => new PinDown(cID, owner));

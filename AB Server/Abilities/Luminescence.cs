@@ -7,8 +7,8 @@ internal class Luminescence(int cID, Player owner, int typeId) : AbilityCard(cID
     public override void TriggerEffect() =>
         new LuminescenceEffect(User, IsCopy).Activate();
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Lumina);
 
     [ModuleInitializer]
     internal static void Init() => Register(51, CardKind.NormalAbility, (cID, owner) => new Luminescence(cID, owner, 51));
@@ -41,25 +41,28 @@ internal class LuminescenceEffect(Bakugan user, bool isCopy) : IActive
             bak.ContinuousBoost(boost, this);
         }
 
-        game.BakuganAttributeChanged += OnAttributeChange;
+        game.OnBakugansAttributeChange += OnAttributeChange;
     }
 
-    public void OnAttributeChange(Bakugan target)
+    public void OnAttributeChange((Bakugan, AttributeState)[] changedBakugan)
     {
-        if (User.IsAttribute(Attribute.Lumina) && !targets.Contains(target))
+        foreach ((Bakugan target, AttributeState _) in changedBakugan)
         {
-            Boost boost = new(30);
-            currentBoosts.Add(target, boost);
-            targets.Add(target);
-            target.ContinuousBoost(boost, this);
-        }
-        else if (!User.IsAttribute(Attribute.Lumina) && targets.Contains(target))
-        {
-            Boost boost = currentBoosts[target];
-            boost.Active = false;
-            currentBoosts.Remove(target);
-            targets.Remove(target);
-            target.RemoveContinuousBoost(boost, this);
+            if (User.IsAttribute(Attribute.Lumina) && !targets.Contains(target))
+            {
+                Boost boost = new(30);
+                currentBoosts.Add(target, boost);
+                targets.Add(target);
+                target.ContinuousBoost(boost, this);
+            }
+            else if (!User.IsAttribute(Attribute.Lumina) && targets.Contains(target))
+            {
+                Boost boost = currentBoosts[target];
+                boost.Active = false;
+                currentBoosts.Remove(target);
+                targets.Remove(target);
+                target.RemoveContinuousBoost(boost, this);
+            }
         }
     }
 
@@ -79,7 +82,7 @@ internal class LuminescenceEffect(Bakugan user, bool isCopy) : IActive
             target.RemoveContinuousBoost(boost, this);
         }
 
-        game.BakuganAttributeChanged -= OnAttributeChange;
+        game.OnBakugansAttributeChange -= OnAttributeChange;
     }
 }
 

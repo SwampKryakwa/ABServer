@@ -21,8 +21,8 @@ internal class DiveMirage : AbilityCard
             new DiveMirageMarker(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, Owner, Game, TypeId, Kind, IsCopy).Activate();
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Aqua) && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Aqua) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(30, CardKind.NormalAbility, (cID, owner) => new DiveMirage(cID, owner, 30));
@@ -46,7 +46,7 @@ internal class DiveMirageMarker(Bakugan user, GateCard target, Player owner, Gam
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
         target.OpenBlocking.Add(this);
 
-        game.TurnEnd += StopEffect;
+        game.OnTurnEnd += StopEffect;
     }
 
     public void Negate(bool asCounter = false)
@@ -61,6 +61,6 @@ internal class DiveMirageMarker(Bakugan user, GateCard target, Player owner, Gam
         game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         target.OpenBlocking.Remove(this);
 
-        game.TurnEnd -= StopEffect;
+        game.OnTurnEnd -= StopEffect;
     }
 }

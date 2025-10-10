@@ -9,7 +9,7 @@ internal class MercilessTriumph : AbilityCard
     {
         ResTargetSelectors =
         [
-            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => IsTargetValid(target, User)}
+            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = target => target.OnField() && target != User }
         ];
     }
 
@@ -19,14 +19,8 @@ internal class MercilessTriumph : AbilityCard
         target?.Boost(new Boost((short)-target.Power), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleOver && user.JustEndedBattle && !user.BattleEndedInDraw && Game.BakuganIndex.Any(target => IsTargetValid(target, user));
-
-    static bool IsTargetValid(Bakugan target, Bakugan user) =>
-        target.OnField() && target != user;
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.BakuganIndex.Any(target => IsTargetValid(target, user));
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleOver && user.JustEndedBattle && !user.BattleEndedInDraw;
 
     [ModuleInitializer]
     internal static void Init() => Register(8, CardKind.NormalAbility, (cID, owner) => new MercilessTriumph(cID, owner, 8));

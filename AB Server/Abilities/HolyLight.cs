@@ -19,8 +19,8 @@ internal class HolyLight : AbilityCard
             target.MoveFromDropToHand();
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Lumina) && user.OnField() && Owner.BakuganDrop.Bakugans.Any(x => x.Power < user.Power);
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Lumina) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(2, CardKind.NormalAbility, (cID, owner) => new HolyLight(cID, owner, 2));

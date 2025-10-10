@@ -19,7 +19,7 @@ internal class PowerAccord : FusionAbility
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
+        user.Type == BakuganType.Knight && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(10, (cID, owner) => new PowerAccord(cID, owner));

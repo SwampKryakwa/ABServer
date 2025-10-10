@@ -19,8 +19,8 @@ internal class Dimension4 : AbilityCard
         target?.Boost(new Boost((short)-target.AdditionalPower), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Lucifer && user.InBattle && user.Position.Bakugans.Count >= 2;
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Lucifer && user.InBattle;
 
     [ModuleInitializer]
     internal static void Init() => Register(19, CardKind.NormalAbility, (cID, owner) => new Dimension4(cID, owner, 19));

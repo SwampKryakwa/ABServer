@@ -26,11 +26,8 @@ internal class LeapSting : AbilityCard
         Game.StartLongRangeBattle(User, target);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Laserman && user.OnField() && Game.BakuganIndex.Any(x => x.Owner.TeamId != Owner.TeamId && x.OnField() && x.Position != user.Position);
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.BakuganIndex.Any(x => x.OnField() && x.Position != user.Position && user.IsOpponentOf(x));
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Laserman && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(7, CardKind.NormalAbility, (cID, owner) => new LeapSting(cID, owner, 7));

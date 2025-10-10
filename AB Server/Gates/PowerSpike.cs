@@ -18,7 +18,7 @@ internal class PowerSpike : GateCard
     public override int TypeId { get; } = 17;
 
     // Precompute the steps from -300 to +300 in increments of 50
-    int[] steps = Enumerable.Range(-6, 7).Select(i => i * 50).ToArray();
+    int[] steps = [.. Enumerable.Range(-6, 7).Select(i => i * 50)];
     public override void TriggerEffect()
     {
         Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;

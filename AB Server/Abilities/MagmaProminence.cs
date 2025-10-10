@@ -21,8 +21,8 @@ internal class MagmaProminence : AbilityCard
         Game.Field[transformedGate.Position.X, transformedGate.Position.Y] = transformedGate;
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Subterra) && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Subterra) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(24, CardKind.NormalAbility, (cID, owner) => new MagmaProminence(cID, owner, 24));

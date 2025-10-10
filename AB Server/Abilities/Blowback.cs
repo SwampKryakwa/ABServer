@@ -11,8 +11,11 @@ internal class Blowback(int cID, Player owner, int typeId) : AbilityCard(cID, ow
             User.MoveFromFieldToHand(positionGate.EnterOrder);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Owner.BakuganOwned.Any(b => b.IsAttribute(Attribute.Zephyros)) && user.OnField() && Game.CurrentWindow == ActivationWindow.Normal;
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField();
+
+    public override bool ActivationCondition() =>
+        Owner.BakuganOwned.Any(b => b.IsAttribute(Attribute.Zephyros)) && Game.CurrentWindow == ActivationWindow.Normal;
 
     [ModuleInitializer]
     internal static void Init() => Register(5, CardKind.NormalAbility, (cID, owner) => new Blowback(cID, owner, 5));

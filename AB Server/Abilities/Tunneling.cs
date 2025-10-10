@@ -35,8 +35,8 @@ internal class Tunneling : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Subterra) && Game.BakuganIndex.Any(b => b.Position is GateCard targetPosGate && user.Position is GateCard userPosGate && targetPosGate != userPosGate && Game.GateIndex.Any(x => x.IsBetween(userPosGate, targetPosGate)));
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Subterra);
 
     [ModuleInitializer]
     internal static void Init() => Register(10, CardKind.NormalAbility, (cID, owner) => new Tunneling(cID, owner, 10));

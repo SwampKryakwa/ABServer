@@ -28,8 +28,8 @@ internal class ScarletWaltz : AbilityCard
         User.Boost(boost, this);
         target.Boost(boost, this);
     }
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Fairy && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Fairy && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(37, CardKind.NormalAbility, (cID, owner) => new ScarletWaltz(cID, owner, 37));

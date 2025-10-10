@@ -13,16 +13,6 @@ internal class LuminousEntrust : AbilityCard
         ];
     }
 
-    public override void Setup(bool asCounter)
-    {
-        this.asCounter = asCounter;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
-    }
-
     public override void TriggerEffect()
     {
         var bakTarget = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
@@ -30,8 +20,11 @@ internal class LuminousEntrust : AbilityCard
         bakTarget.Boost(50, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.IsAttribute(Attribute.Lumina) && user.InDrop() && Game.GateIndex.Any(x => x.OnField) && user.Owner.Bakugans.Count != 0;
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Lumina) && user.InDrop();
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(52, CardKind.NormalAbility, (cID, owner) => new LuminousEntrust(cID, owner, 52));

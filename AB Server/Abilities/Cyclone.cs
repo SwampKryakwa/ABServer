@@ -8,18 +8,8 @@ internal class Cyclone : AbilityCard
     {
         CondTargetSelectors =
         [
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.Owner.TeamId != Owner.TeamId }
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsOpponentOf(User) }
         ];
-    }
-
-    public override void Setup(bool asCounter)
-    {
-        this.asCounter = asCounter;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
     }
 
     public override void TriggerEffect()
@@ -31,8 +21,8 @@ internal class Cyclone : AbilityCard
             target.Boost(Game.BakuganIndex.Count(x => x.OnField() && x.Owner == Owner && x.IsAttribute(Attribute.Zephyros)) * -80, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && (user.OnField() || user.InHand()) && user.IsAttribute(Attribute.Zephyros) && Game.BakuganIndex.Any(x => x.OnField() && x.IsOpponentOf(user));
+    public override bool UserValidator(Bakugan user) =>
+        (user.OnField() || user.InHand()) && user.IsAttribute(Attribute.Zephyros);
 
     [ModuleInitializer]
     internal static void Init() => Register(43, CardKind.NormalAbility, (cID, owner) => new Cyclone(cID, owner, 43));

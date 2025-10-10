@@ -17,8 +17,8 @@ internal class MergeShield : AbilityCard
         User.Boost(Math.Abs(User.Power - (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Power), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.BakuganIndex.Any(x => x != user && x.OnField());
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     [ModuleInitializer]
     internal static void Init() => Register(29, CardKind.NormalAbility, (cID, owner) => new MergeShield(cID, owner, 29));

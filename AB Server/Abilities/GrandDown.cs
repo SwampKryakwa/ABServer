@@ -22,7 +22,8 @@ internal class GrandDown : AbilityCard
             }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     [ModuleInitializer]
     internal static void Init() => Register(3, CardKind.NormalAbility, (cID, owner) => new GrandDown(cID, owner, 3));

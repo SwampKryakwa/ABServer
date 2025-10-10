@@ -28,8 +28,8 @@ internal class GazeOfExedra : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(50, CardKind.NormalAbility, (cID, owner) => new GazeOfExedra(cID, owner, 50));

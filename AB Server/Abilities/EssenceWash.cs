@@ -18,8 +18,8 @@ internal class EssenceWash : AbilityCard
         (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.ChangeAttribute((ResTargetSelectors[1] as AttributeSelector)!.SelectedAttribute, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Aqua) && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Aqua) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(31, CardKind.NormalAbility, (cID, owner) => new EssenceWash(cID, owner, 31));

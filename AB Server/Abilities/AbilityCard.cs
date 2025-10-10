@@ -149,7 +149,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
 
                 case AttributeSelector attributeSelector:
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>().Where(attributeSelector.TargetValidator)])
+                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, Enum.GetValues<Attribute>())
                         ));
                     break;
 
@@ -381,7 +381,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
 
                 case AttributeSelector attributeSelector:
                     Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
-                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>().Where(attributeSelector.TargetValidator)])
+                        EventBuilder.AttributeSelectionEvent(currentSelector.Message, Enum.GetValues<Attribute>())
                         ));
                     break;
 

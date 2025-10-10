@@ -13,17 +13,6 @@ internal class StrikeBack : FusionAbility
         ];
     }
 
-    public override void PickUser()
-    {
-        FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
-
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
-    }
-
     public override void TriggerEffect()
     {
         var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;

@@ -9,8 +9,8 @@ internal class FlashFlood : AbilityCard
     {
         CondTargetSelectors =
         [
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User },
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User },
+            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
         ];
     }
 
@@ -25,8 +25,8 @@ internal class FlashFlood : AbilityCard
             (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.MoveFromFieldToHand(otherPosGate.EnterOrder);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute(Attribute.Aqua)) >= 3;
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Aqua);
 
     [ModuleInitializer]
     internal static void Init() => Register(46, CardKind.NormalAbility, (cID, owner) => new FlashFlood(cID, owner, 46));

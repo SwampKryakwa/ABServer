@@ -36,7 +36,7 @@ internal class GrandDevourer : FusionAbility
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Worm && user.OnField();
+        user.Type == BakuganType.Worm && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(11, (cID, owner) => new GrandDevourer(cID, owner));

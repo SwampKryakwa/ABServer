@@ -22,11 +22,8 @@ internal class FireTornado : AbilityCard
             targetSelector?.SelectedBakugan.Boost(-100, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.InBattle && user.IsAttribute(Attribute.Nova);
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Position.Bakugans.Any(x => user.IsOpponentOf(x) && x.Power > user.Power);
+    public override bool UserValidator(Bakugan user) =>
+        user.InBattle && user.IsAttribute(Attribute.Nova);
 
     [ModuleInitializer]
     internal static void Init() => Register(22, CardKind.NormalAbility, (cID, owner) => new FireTornado(cID, owner, 22));

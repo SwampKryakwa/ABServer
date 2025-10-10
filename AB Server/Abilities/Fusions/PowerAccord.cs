@@ -14,12 +14,12 @@ internal class PowerAccord : FusionAbility
 
     public override void TriggerEffect()
     {
-        User.ChangeAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption, this);
-        User.Boost(new Boost((short)(80 * Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute((Attribute)(ResTargetSelectors[0] as OptionSelector)!.SelectedOption)))), this);
+        User.ChangeAttribute((ResTargetSelectors[0] as AttributeSelector)!.SelectedAttribute, this);
+        User.Boost(new Boost((short)(80 * Game.BakuganIndex.Count(x => x.OnField() && x.IsAttribute((ResTargetSelectors[0] as AttributeSelector)!.SelectedAttribute)))), this);
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Knight && user.OnField();
+        user.Type == BakuganType.Knight && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(10, (cID, owner) => new PowerAccord(cID, owner));

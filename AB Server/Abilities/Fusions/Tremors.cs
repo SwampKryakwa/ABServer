@@ -13,7 +13,7 @@ internal class Tremors(int cID, Player owner) : FusionAbility(cID, owner, 5, typ
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.Position is GateCard userPos && Game.GateIndex.Any(userPos.IsDiagonal);
+        user.Type == BakuganType.Elephant && user.Position is GateCard userPos && Game.GateIndex.Any(userPos.IsDiagonal);
 
     [ModuleInitializer]
     internal static void Init() => Register(6, (cID, owner) => new Tremors(cID, owner));

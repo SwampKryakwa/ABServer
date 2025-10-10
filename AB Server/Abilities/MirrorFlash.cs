@@ -22,8 +22,11 @@ internal class MirrorFlash : AbilityCard
         target.Boost(difference, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Lumina) && user.Position.Bakugans.Any(user.IsOpponentOf);
+    public override bool UserValidator(Bakugan user) =>
+        user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Lumina);
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(27, CardKind.NormalAbility, (cID, owner) => new MirrorFlash(cID, owner, 27));

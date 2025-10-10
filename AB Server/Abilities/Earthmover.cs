@@ -28,8 +28,8 @@ internal class Earthmover : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Worm && user.OnField() && Game.GateIndex.Any(x => !x.Bakugans.Any(x => x.Owner != Owner));
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Worm && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(35, CardKind.NormalAbility, (cID, owner) => new Earthmover(cID, owner, 35));

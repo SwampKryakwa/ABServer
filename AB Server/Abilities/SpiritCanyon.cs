@@ -12,8 +12,8 @@ internal class SpiritCanyon(int cID, Player owner, int typeId) : AbilityCard(cID
             User.Boost(Game.GateIndex.Count(x => x.OnField && x.Owner.TeamId != Owner.TeamId) * 50, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Subterra);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Subterra);
 
     [ModuleInitializer]
     internal static void Init() => Register(1, CardKind.NormalAbility, (cID, owner) => new SpiritCanyon(cID, owner, 1));

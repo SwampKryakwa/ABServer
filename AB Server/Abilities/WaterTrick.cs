@@ -22,8 +22,8 @@ internal class WaterTrick : AbilityCard
         Game.Field[gateCopy.Position.X, gateCopy.Position.Y] = gateCopy;
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Aqua) && user.Owner.GateHand.Count != 0 && Game.GateIndex.Any(x => x.OnField && x.Owner.TeamId != user.Owner.TeamId && !x.IsOpen);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Aqua);
 
     [ModuleInitializer]
     internal static void Init() => Register(47, CardKind.NormalAbility, (cID, owner) => new WaterTrick(cID, owner, 47));

@@ -12,23 +12,13 @@ internal class CrystalFang : AbilityCard
         ];
     }
 
-    public override void Setup(bool asCounter)
-    {
-        this.asCounter = asCounter;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
-    }
-
     public override void TriggerEffect()
     {
         (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Boost(-100, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress && Game.CurrentWindow == ActivationWindow.Normal;
+    public override bool UserValidator(Bakugan user) =>
+        (user.OnField() || user.InHand()) && user.Type == BakuganType.Tigress;
 
     [ModuleInitializer]
     internal static void Init() => Register(16, CardKind.NormalAbility, (cID, owner) => new CrystalFang(cID, owner, 16));

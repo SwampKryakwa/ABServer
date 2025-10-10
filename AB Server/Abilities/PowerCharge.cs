@@ -10,8 +10,8 @@ internal class PowerCharge(int cId, Player owner, int typeId) : AbilityCard(cId,
         new PowerChargeMarker(User, IsCopy).Activate();
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Nova) && user.OnField() && (!user.InBattle);
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Nova) && user.OnField() && !user.InBattle;
 
     [ModuleInitializer]
     internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new PowerCharge(cID, owner, 39));
@@ -34,7 +34,7 @@ internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
 
         User.Game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
-        User.Game.BattleAboutToStart += OnBattleStart;
+        User.Game.OnBattleAboutToStart += OnBattleStart;
         User.OnRemovedFromField += CeaseMarker;
     }
 
@@ -53,7 +53,7 @@ internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
     {
         User.Game.ActiveZone.Remove(this);
 
-        User.Game.BattleAboutToStart -= OnBattleStart;
+        User.Game.OnBattleAboutToStart -= OnBattleStart;
         User.OnRemovedFromField -= CeaseMarker;
 
         User.Game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));

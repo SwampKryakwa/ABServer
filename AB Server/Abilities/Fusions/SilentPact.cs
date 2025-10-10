@@ -12,24 +12,13 @@ internal class SilentPact : FusionAbility
         ];
     }
 
-    public override void PickUser()
-    {
-        FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
-
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.HandBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
-    }
-
     public override void TriggerEffect()
     {
-        new SilentPactMarker(User, (Attribute)(CondTargetSelectors[0] as OptionSelector)!.SelectedOption, Owner, IsCopy).Activate();
+        new SilentPactMarker(User, (CondTargetSelectors[0] as AttributeSelector)!.SelectedAttribute, Owner, IsCopy).Activate();
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Shredder && user.InHand();
+        user.Type == BakuganType.Shredder && user.InHand();
 
     [ModuleInitializer]
     internal static void Init() => Register(12, (cID, owner) => new SilentPact(cID, owner));
@@ -71,6 +60,8 @@ internal class SilentPactMarker(Bakugan user, Attribute newAttribute, Player own
         User.RemoveContinuousBoost(boost, this);
 
         User.OnRemovedFromField -= Stop;
+        User.OnFromHandToField -= Refresh;
+        User.OnFromDropToField -= Refresh;
         User.OnFromHandToDrop -= Refresh;
         User.OnFromDropToHand -= Refresh;
 

@@ -27,11 +27,12 @@ internal class FireWall : AbilityCard
             target.Boost(new Boost(-50), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.Position is GateCard posGate && posGate.BattleOver && Owner.BakuganOwned.Any(x => x.IsAttribute(Attribute.Nova));
+    public override bool UserValidator(Bakugan user) =>
+        Game.CurrentWindow == ActivationWindow.Intermediate && user.Position is GateCard posGate && posGate.BattleOver;
 
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Position.Bakugans.Any(x => x.Owner != user.Owner);
+
+    public override bool ActivationCondition() =>
+        Owner.BakuganOwned.Any(x => x.IsAttribute(Attribute.Nova));
 
     [ModuleInitializer]
     internal static void Init() => Register(9, CardKind.NormalAbility, (cID, owner) => new FireWall(cID, owner, 9));

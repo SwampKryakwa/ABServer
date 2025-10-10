@@ -35,7 +35,7 @@ internal class VicariousVictim : AbilityCard
             }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) => Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Owner.BakuganDrop.Bakugans.Count != 0 && user.Type == BakuganType.Griffon;
+    public override bool UserValidator(Bakugan user) => user.OnField() && user.Type == BakuganType.Griffon;
 
     [ModuleInitializer]
     internal static void Init() => Register(21, CardKind.NormalAbility, (cID, owner) => new VicariousVictim(cID, owner, 21));

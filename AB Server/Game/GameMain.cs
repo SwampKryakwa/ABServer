@@ -12,7 +12,7 @@ enum ActivationWindow : byte
     TurnEnd,
     Intermediate
 }
-internal class Game
+internal partial class Game
 {
     //Static data
     static readonly (byte X, byte Y)[] FirstCardPositions =
@@ -23,141 +23,11 @@ internal class Game
         (2, 3)
     ];
 
-    //Player data
-    public Dictionary<long, int> UidToPid = [];
-    public byte PlayerCount;
-    public byte TeamCount;
-    public Player[] Players;
-    public List<long> Spectators = [];
-
-    //Indexes
-    public List<Bakugan> BakuganIndex = [];
-    public List<GateCard> GateIndex = [];
-    public List<AbilityCard> AbilityIndex = [];
-
-    //Event containers
-    public List<JObject>[] NewEvents;
-    public Dictionary<long, List<JObject>> SpectatorEvents = [];
-
-    //Game field
-    public GateCard?[,] Field = new GateCard[4, 5];
-    public List<GateCard> GateSetList = [];
-    public List<IActive> ActiveZone = [];
-    public Stack<IChainable> CardChain = [];
-
     public GateCard? GetGateByCoord(int X, int Y)
     {
         if (X < 0 || Y < 0 || X >= Field.GetLength(0) || Y >= Field.GetLength(1)) return null;
         return Field[X, Y];
     }
-
-    //Game state
-    bool Over = false;
-    public int turnNumber = 0;
-    public byte TurnPlayer;
-    public byte ActivePlayer;
-    public bool isBattleGoing { get => GateIndex.Any(x => x.OnField && x.IsBattleGoing); }
-    public ActivationWindow CurrentWindow = ActivationWindow.Normal;
-    public readonly List<GateCard> BattlesToEnd = [];
-    public readonly List<GateCard> AutoGatesToOpen = [];
-    readonly List<Player> playersPassed = [];
-    public byte PlayersLeft = 0;
-
-    //Communication with the players
-    public dynamic?[] PlayerAnswers;
-    public Action[] OnAnswer;
-    public Action[] OnCancel;
-
-    //Long-range battles stuff
-    public bool LongRangeBattleGoing;
-    public Bakugan? Attacker;
-    public Bakugan[]? Targets;
-    public Action? OnLongRangeBattleOver;
-
-    //Game flow
-    public Action NextStep;
-
-    //Other data
-    byte[] playersCreatedInTeam;
-    byte playersRegistered = 0;
-    public int NextEffectId = 0;
-    public bool DoNotMakeStep = false;
-
-    //All the event types in the game
-    public delegate void BakuganBoostedEffect(Bakugan target, Boost boost, object source);
-    public delegate void BakuganPowerResetEffect(Bakugan bakugan);
-    public delegate void BakuganMovedEffect(Bakugan target, IBakuganContainer pos);
-    public delegate void BakuganReturnedEffect(Bakugan target, byte owner);
-    public delegate void BakuganDestroyedEffect(Bakugan target, byte owner);
-    public delegate void BakuganRevivedEffect(Bakugan target, byte owner);
-    public delegate void BakuganThrownEffect(Bakugan target, byte owner, IBakuganContainer pos);
-    public delegate void BakuganAddedEffect(Bakugan target, byte owner, IBakuganContainer pos);
-    public delegate void BakuganPlacedFromDropEffect(Bakugan target, byte owner, IBakuganContainer pos);
-    public delegate void BakuganAttributeChangeEffect(Bakugan bakugan);
-    public delegate void GateAddedEffect(GateCard target, byte owner, params byte[] pos);
-    public delegate void GateRemovedEffect(GateCard target, byte owner, params byte[] pos);
-    public delegate void GateOpenEffect(GateCard target);
-    public delegate void BattleAboutToStartEffect(GateCard position);
-    public delegate void BattlesStartedEffect();
-    public delegate void BattlesOverEffect();
-    public delegate void TurnStartedEffect();
-    public delegate void TurnAboutToEndEffect();
-    public delegate void TurnEndEffect();
-
-    //All the events in the game
-    public event BakuganBoostedEffect BakuganBoosted;
-    public event BakuganPowerResetEffect BakuganPowerReset;
-    public event BakuganMovedEffect BakuganMoved;
-    public event BakuganReturnedEffect BakuganReturned;
-    public event BakuganDestroyedEffect BakuganDestroyed;
-    public event BakuganRevivedEffect BakuganRevived;
-    public event BakuganThrownEffect BakuganThrown;
-    public event BakuganAddedEffect BakuganAdded;
-    public event BakuganPlacedFromDropEffect BakuganPlacedFromDrop;
-    public event BakuganAttributeChangeEffect BakuganAttributeChanged;
-    public event GateAddedEffect GateAdded;
-    public event GateRemovedEffect GateRemoved;
-    public event GateOpenEffect GateOpen;
-    public event BattleAboutToStartEffect BattleAboutToStart;
-    public event BattlesStartedEffect BattlesStarted;
-    public event BattlesOverEffect BattlesOver;
-    public event TurnStartedEffect TurnStarted;
-    public event TurnAboutToEndEffect TurnAboutToEnd;
-    public event TurnEndEffect TurnEnd;
-
-    //Access to the game's events
-    public void OnBakuganBoosted(Bakugan target, Boost boost, object source) =>
-        BakuganBoosted?.Invoke(target, boost, source);
-    public void OnBakuganMoved(Bakugan target, IBakuganContainer pos) =>
-        BakuganMoved?.Invoke(target, pos);
-    public void OnBattleAboutToStart(GateCard target) =>
-        BattleAboutToStart?.Invoke(target);
-    public void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos) =>
-        BakuganAdded?.Invoke(target, owner, pos);
-    public void OnBakuganThrown(Bakugan target, byte owner, IBakuganContainer pos)
-    {
-        BakuganAdded?.Invoke(target, owner, pos);
-        BakuganThrown?.Invoke(target, owner, pos);
-    }
-    public void OnBakuganPlacedFromDrop(Bakugan target, byte owner, IBakuganContainer pos)
-    {
-        BakuganPlacedFromDrop?.Invoke(target, owner, pos);
-        BakuganAdded?.Invoke(target, owner, pos);
-    }
-    public void OnBakuganReturned(Bakugan target, byte owner) =>
-        BakuganReturned?.Invoke(target, owner);
-    public void OnBakuganDestroyed(Bakugan target, byte owner) =>
-        BakuganDestroyed?.Invoke(target, owner);
-    public void OnBakuganRevived(Bakugan target, byte owner) =>
-        BakuganRevived?.Invoke(target, owner);
-    public void OnBakuganAtributeChange(Bakugan target) =>
-        BakuganAttributeChanged?.Invoke(target);
-    public void OnGateAdded(GateCard target, byte owner, params byte[] pos) =>
-        GateAdded?.Invoke(target, owner, pos);
-    public void OnGateRemoved(GateCard target, byte owner, params byte[] pos) =>
-        GateRemoved?.Invoke(target, owner, pos);
-    public void OnGateOpen(GateCard target) =>
-        GateOpen?.Invoke(target);
 
     public Game(byte playerCount, byte teamCount)
     {
@@ -261,39 +131,6 @@ internal class Game
                 ["CardType"] = x.TypeId
             }))
         });
-    }
-
-    public void ThrowEvent(JObject @event, params int[] exclude)
-    {
-        Console.WriteLine(@event);
-        for (int i = 0; i < PlayerCount; i++)
-            if (!exclude.Contains(i))
-                NewEvents[i].Add(@event);
-        foreach (var spectator in Spectators)
-            SpectatorEvents[spectator].Add(@event);
-    }
-    public void ThrowEvent(int reciever, JObject @event)
-    {
-        Console.WriteLine(@event);
-        NewEvents[reciever].Add(@event);
-    }
-
-    public JArray GetEvents(int player)
-    {
-        JArray toReturn;
-        toReturn = [.. NewEvents[player]];
-        NewEvents[player].Clear();
-
-        return toReturn;
-    }
-
-    public JArray GetSpectatorEvents(long uuid)
-    {
-        JArray toReturn;
-        toReturn = [.. SpectatorEvents[uuid]];
-        SpectatorEvents[uuid].Clear();
-
-        return toReturn;
     }
 
     public void StartGame()
@@ -451,7 +288,7 @@ internal class Game
             ["Type"] = "PhaseChange",
             ["Phase"] = "TurnStart"
         });
-        TurnStarted?.Invoke();
+        OnTurnStarted?.Invoke();
 
         NextStep = () =>
         {
@@ -519,7 +356,7 @@ internal class Game
         {
             ["Type"] = "GateClosing"
         });
-        Bakugan.MultiToHand(this, BakuganIndex.Where(x => x.OnField()), MoveSource.Game);
+        Bakugan.MultiToHand(this, [.. BakuganIndex.Where(x => x.OnField())], MoveSource.Game);
         GateSetList[^1].Dispose();
         foreach (var gate in GateIndex.Where(x => x.OnField))
             gate.Retract();
@@ -591,7 +428,7 @@ internal class Game
             g!.Dispose();
 
         CurrentWindow = ActivationWindow.Normal;
-        if (!isBattleGoing) ActivePlayer = TurnPlayer;
+        if (!IsBattleGoing) ActivePlayer = TurnPlayer;
         if (shouldTurnEnd)
             EndTurn();
         else
@@ -711,15 +548,15 @@ internal class Game
 
         JObject moves = new()
         {
-            ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !isBattleGoing,
+            ["CanSetGate"] = CurrentWindow == ActivationWindow.Normal && Players[player].HasSettableGates() && !IsBattleGoing,
             ["CanOpenGate"] = Players[player].HasOpenableGates() && Players[player].GateBlockers.Count == 0,
-            ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !isBattleGoing && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
+            ["CanThrowBakugan"] = CurrentWindow == ActivationWindow.Normal && !IsBattleGoing && Players[player].HasThrowableBakugan() && GateIndex.Any(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0),
             ["CanActivateAbility"] = Players[player].HasActivateableAbilities() && Players[player].AbilityBlockers.Count == 0,
             ["CanEndTurn"] = CurrentWindow == ActivationWindow.Normal && Players[player].CanEndTurn(),
-            ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (isBattleGoing && CurrentWindow == ActivationWindow.Normal),
+            ["CanEndBattle"] = (!Players[player].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || (IsBattleGoing && CurrentWindow == ActivationWindow.Normal),
 
             ["IsASkip"] = Players[player].UsedThrows == 0,
-            ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (isBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
+            ["IsAPass"] = CurrentWindow == ActivationWindow.Intermediate || (IsBattleGoing && playersPassed.Count < (Players.Count(x => x.HasBattlingBakugan()) - 1)) || LongRangeBattleGoing,
 
             ["SettableGates"] = gateArray,
             ["OpenableGates"] = new JArray(Players[player].OpenableGates().Select(x => new JObject
@@ -744,7 +581,7 @@ internal class Game
                 ["Type"] = ability.TypeId,
                 ["Kind"] = (int)ability.Kind,
                 ["CanActivate"] = ability.IsActivateable(),
-                ["PossibleUsers"] = new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.BakuganIsValid(possibleUser)).Select(x => x.BID))
+                ["PossibleUsers"] = new JArray(Players[player].BakuganOwned.Where(possibleUser => ability.UserValidator(possibleUser)).Select(x => x.BID))
             }))
         };
         return moves;
@@ -841,7 +678,7 @@ internal class Game
                 break;
             case "pass":
                 Console.WriteLine("Is long range battle going: " + LongRangeBattleGoing);
-                if (!(!(Players[movePlayer].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || !(isBattleGoing && CurrentWindow == ActivationWindow.Normal)))
+                if (!(!(Players[movePlayer].HasOpenableGates() && CurrentWindow == ActivationWindow.Intermediate) || !(IsBattleGoing && CurrentWindow == ActivationWindow.Normal)))
                 {
                     NewEvents[ActivePlayer].Add(new JObject { ["Type"] = "InvalidAction" });
                     break;
@@ -945,7 +782,7 @@ internal class Game
             //    if (ActivePlayer >= PlayerCount) ActivePlayer = 0;
             //}
         }
-        else if (isBattleGoing)
+        else if (IsBattleGoing)
         {
             var startPlayer = ActivePlayer;
             while (true)
@@ -1004,7 +841,7 @@ internal class Game
             gate.BattleOver = false;
             gate.Dispose();
         }
-        BattlesOver?.Invoke();
+        OnBattlesOver?.Invoke();
         CheckAnyBattlesToUpdateState();
     }
 
@@ -1028,7 +865,7 @@ internal class Game
     {
         playersPassed.Clear();
 
-        TurnAboutToEnd?.Invoke();
+        OnTurnAboutToEnd?.Invoke();
 
         if (GateIndex.Any(x => x.OnField && x.IsBattleGoing && !x.BattleStarted))
         {
@@ -1049,7 +886,7 @@ internal class Game
             StartTurn();
         };
         SuggestWindow(ActivationWindow.TurnEnd, ActivePlayer, ActivePlayer);
-        TurnEnd?.Invoke();
+        OnTurnEnd?.Invoke();
     }
 
     public void CheckChain(Player player, AbilityCard ability, Bakugan user)

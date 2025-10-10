@@ -27,7 +27,7 @@ internal class Marionette : FusionAbility
     }
 
     public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Mantis && user.IsPartner && user.Position is GateCard userGate && Game.GateIndex.Any(userGate.IsAdjacent);
+        user.Type == BakuganType.Mantis && user.IsPartner && user.Position is GateCard userGate && Game.GateIndex.Any(userGate.IsAdjacent);
 
     [ModuleInitializer]
     internal static void Init() => Register(2, (cID, owner) => new Marionette(cID, owner));

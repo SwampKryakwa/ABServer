@@ -14,8 +14,8 @@ internal abstract partial class FusionAbility(int cID, Player owner, int typeId,
     public override CardKind Kind { get; } = CardKind.FusionAbility;
     public AbilityCard FusedTo;
 
-    public override bool BakuganIsValid(Bakugan user) =>
-        Owner.AbilityBlockers.Count == 0 && Owner.GreenAbilityBlockers.Count == 0 && !user.Frenzied && user.IsPartner && IsActivateableByBakugan(user) && user.Owner == Owner;
+    public override bool IsActivateable() =>
+        Owner.AbilityBlockers.Count == 0 && Owner.GreenAbilityBlockers.Count == 0 && Owner.BakuganOwned.Any(x => IsActivateableByBakugan(x) && x.IsPartner) && Owner.AbilityHand.Any(baseAbilityType.IsInstanceOfType);
 
     public override void Setup(bool asCounter)
     {
@@ -31,7 +31,7 @@ internal abstract partial class FusionAbility(int cID, Player owner, int typeId,
         FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
 
         Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.FieldBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
+            EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(UserValidator))
             ));
 
         Game.OnAnswer[Owner.Id] = RecieveUser;
@@ -59,7 +59,4 @@ internal abstract partial class FusionAbility(int cID, Player owner, int typeId,
         Game.CardChain.Push(this);
         Game.CheckChain(Owner, this, User);
     }
-
-    public override bool IsActivateable() =>
-        Owner.BakuganOwned.Any(BakuganIsValid) && Owner.AbilityHand.Any(baseAbilityType.IsInstanceOfType);
 }

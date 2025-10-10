@@ -24,14 +24,11 @@ internal class TripleNode : AbilityCard
             targetSelector2.SelectedBakugan.Boost(200, this);
         }
     }
-    public override bool BakuganIsValid(Bakugan user) =>
-        Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField();
+    public override bool IsActivateable() =>
+        Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && Owner.BakuganOwned.Any(IsActivateableByBakugan);
 
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.OnField() && user.Game.BakuganIndex.Any(x => x.Owner == user.Owner && x.OnField());
+    public override bool UserValidator(Bakugan user) => user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(2, CardKind.CorrelationAbility, (cID, owner) => new TripleNode(cID, owner));

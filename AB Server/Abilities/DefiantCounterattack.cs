@@ -13,27 +13,17 @@ internal class DefiantCounterattack : AbilityCard
         ];
     }
 
-    public override void Setup(bool asCounter)
-    {
-        this.asCounter = asCounter;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
-            EventBuilder.DropBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(BakuganIsValid))
-            ));
-
-        Game.OnAnswer[Owner.Id] = RecieveUser;
-    }
-
     public override void TriggerEffect()
     {
         if (User.InDrop() && (ResTargetSelectors[0] as GateSelector)!.SelectedGate is GateCard targetGate && targetGate.OnField)
             User.MoveFromDropToField(targetGate);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.Type == BakuganType.Raptor && user.InDrop();
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Raptor && user.InDrop();
 
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.GateIndex.Any(gate => gate.BattleOver);
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(15, CardKind.NormalAbility, (cID, owner) => new DefiantCounterattack(cID, owner, 15));

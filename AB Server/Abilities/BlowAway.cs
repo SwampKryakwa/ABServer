@@ -17,7 +17,7 @@ internal class BlowAway : AbilityCard
     {
         var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
         if (Game.GateIndex.Where(x => x.OnField).Count() == 1)
-            target.MoveFromFieldToHand((target.Position as GateCard).EnterOrder);
+            target.MoveFromFieldToHand((target.Position as GateCard)!.EnterOrder);
         else
         {
             GateCard[] possibleDestinations = [.. Game.GateIndex.Where(x => x != User.Position && x.OnField)];
@@ -25,11 +25,7 @@ internal class BlowAway : AbilityCard
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.OnField() && user.IsAttribute(Attribute.Zephyros) && Game.CurrentWindow == ActivationWindow.Normal;
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Position.Bakugans.Any(x => x.Owner != user.Owner);
+    public override bool UserValidator(Bakugan user) => user.OnField() && user.IsAttribute(Attribute.Zephyros);
 
     [ModuleInitializer]
     internal static void Init() => Register(32, CardKind.NormalAbility, (cID, owner) => new BlowAway(cID, owner, 32));

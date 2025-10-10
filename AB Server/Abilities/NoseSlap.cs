@@ -24,11 +24,8 @@ internal class NoseSlap : AbilityCard
         Game.StartLongRangeBattle(User, target);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Elephant && user.OnField() && HasValidTargets(user);
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.BakuganIndex.Any(x => x.Position is GateCard posGate && x.Owner != user.Owner && posGate != (user.Position as GateCard)!);
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Elephant && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() =>

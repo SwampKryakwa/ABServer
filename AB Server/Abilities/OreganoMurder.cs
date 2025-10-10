@@ -25,8 +25,8 @@ internal class OreganoMurder : AbilityCard
         (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.BakuganIndex.Any(x => x.OnField() && x.Owner.TeamId != user.Owner.TeamId);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     [ModuleInitializer]
     internal static void Init() => Register(49, CardKind.NormalAbility, (cID, owner) => new OreganoMurder(cID, owner, 49));

@@ -21,11 +21,11 @@ internal class RapidFire : AbilityCard
         bakTarget.AddFromHandToField(gateTarget);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova) && Game.GateIndex.Any(x => x.OnField && x.Owner.TeamId != Owner.TeamId) && Owner.Bakugans.Count != 0;
+    public override bool UserValidator(Bakugan user) =>
+        user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova);
 
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Position.Bakugans.Any(x => x.Owner != user.Owner);
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(40, CardKind.NormalAbility, (cID, owner) => new RapidFire(cID, owner, 40));

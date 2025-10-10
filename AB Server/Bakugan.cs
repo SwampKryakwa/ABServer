@@ -166,7 +166,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             }
         });
 
-        Game.OnBakuganBoosted(this, boost, source);
+        Game.OnSingleBakuganBoosted(this, boost);
     }
 
     public void ContinuousBoost(Boost boost, object source)
@@ -194,7 +194,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             }
         });
 
-        Game.OnBakuganBoosted(this, boost, source);
+        Game.OnSingleBakuganBoosted(this, boost);
     }
 
     public void RemoveBoost(Boost boost, object source)
@@ -288,11 +288,11 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                 ["BID"] = BID
             }
         });
-        Game.OnBakuganAdded(this, Owner.Id, destination);
+        Game.OnSingleBakuganFromHandsToField(this, destination);
         OnFromHandToField?.Invoke();
         if (!wasBattleGoing && destination.IsBattleGoing)
         {
-            Game.OnBattleAboutToStart(destination);
+            Game.OnBattleAboutToStart?.Invoke(destination);
         }
 
         // Reset flags
@@ -341,12 +341,10 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                     ["BID"] = BID
                 }
             });
-            Game.OnBakuganThrown(this, Owner.Id, destination);
+            Game.OnSingleBakuganFromHandsToField(this, destination);
             OnFromHandToField?.Invoke();
             if (!wasBattleGoing && destination.IsBattleGoing)
-            {
-                Game.OnBattleAboutToStart(destination);
-            }
+                Game.OnBattleAboutToStart?.Invoke(destination);
 
             // Reset flags
             BattleEndedInDraw = false;
@@ -382,7 +380,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             }
         });
 
-        Game.OnBakuganAtributeChange(this);
+        Game.OnSingleBakuganAttributeChanged(this, change);
 
         return change;
     }
@@ -395,8 +393,8 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         {
             ["Type"] = "BakuganAttributeChangeEvent",
             ["Owner"] = Owner.Id,
-            ["OldAttribute"] = (int)change.Attributes[^1],
-            ["Attribute"] = (int)(attributeChanges.Count == 0 ? BaseAttribute : attributeChanges[^1].Attributes[^1]),
+            ["OldAttribute"] = (int)change.Attributes[0],
+            ["Attribute"] = (int)(attributeChanges.Count == 0 ? BaseAttribute : attributeChanges[^1].Attributes[0]),
             ["Bakugan"] = new JObject
             {
                 ["Type"] = (int)Type,
@@ -492,10 +490,10 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
 
             destination.Bakugans.Add(this);
             Position = destination;
-            Game.OnBakuganMoved(this, destination);
+            Game.OnSingleBakuganMoved(this, destination);
             if (!wasBattleGoing && destination.IsBattleGoing)
             {
-                Game.OnBattleAboutToStart(destination);
+                Game.OnBattleAboutToStart?.Invoke(destination);
             }
 
             // Reset flags
@@ -557,12 +555,14 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         {
             destination.Bakugans.Add(bakugan);
             bakugan.Position = destination;
-            game.OnBakuganMoved(bakugan, destination);
             bakugan.BattleEndedInDraw = false; // Reset flag
         }
+
+        game.OnBakugansMoved?.Invoke([.. bakugans.Select(b => (b, destination))]);
+
         if (!wasBattleGoing && destination.IsBattleGoing)
         {
-            bakugans[0].Game.OnBattleAboutToStart(destination);
+            game.OnBattleAboutToStart?.Invoke(destination);
         }
 
     }
@@ -616,16 +616,14 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         {
             destination.Bakugans.Add(bakugan);
             bakugan.Position = destination;
-            game.OnBakuganMoved(bakugan, destination);
             // Reset flags
             bakugan.BattleEndedInDraw = false;
             destination.BattleDeclaredOver = false;
             destination.BattleOver = false;
         }
+        game.OnBakugansFromHandsToField?.Invoke([.. bakugans.Select(b => (b, destination))]);
         if (!wasBattleGoing && destination.IsBattleGoing)
-        {
-            bakugans[0].Game.OnBattleAboutToStart(destination);
-        }
+            game.OnBattleAboutToStart?.Invoke(destination);
     }
 
     public void MoveFromDropToField(GateCard destination, MoveSource mover = MoveSource.Effect)
@@ -643,12 +641,10 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         destination.BattleOver = false;
         destination.Bakugans.Add(this);
         destination.EnterOrder.Add([this]);
-        Game.OnBakuganPlacedFromDrop(this, Owner.Id, destination);
+        Game.OnSingleBakuganFromDropToField(this, destination);
         OnFromDropToField?.Invoke();
         if (!wasBattleGoing && destination.IsBattleGoing)
-        {
-            Game.OnBattleAboutToStart(destination);
-        }
+            Game.OnBattleAboutToStart?.Invoke(destination);
 
         Game.ThrowEvent(new JObject
         {
@@ -702,7 +698,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Position = Owner;
         Owner.Bakugans.Add(this);
         OnFromDropToHand?.Invoke();
-        Game.OnBakuganRevived(this, Owner.Id);
+        Game.OnSingleBakuganFromDropToHand(this);
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "HpRestored",
@@ -775,7 +771,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Boosts.ForEach(x => x.Active = false);
             Boosts.Clear();
             OnRemovedFromField?.Invoke();
-            Game.OnBakuganReturned(this, Owner.Id);
+            Game.OnSingleBakuganFromFieldToHand(this);
 
             Game.ThrowEvent(new JObject
             {
@@ -793,7 +789,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         }
     }
 
-    public static void MultiToHand(Game game, IEnumerable<Bakugan> providedBakugans, MoveSource mover = MoveSource.Effect)
+    public static void MultiToHand(Game game, Bakugan[] providedBakugans, MoveSource mover = MoveSource.Effect)
     {
         Console.WriteLine($"Provided Bakugan: " + providedBakugans.Count());
         var removableBakugans = providedBakugans.Where(x => !x.IsDummy && x.OnField()).ToArray();
@@ -807,7 +803,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             bakugan.Boosts.ForEach(x => x.Active = false);
             bakugan.Boosts.Clear();
             bakugan.OnRemovedFromField?.Invoke();
-            game.OnBakuganReturned(bakugan, bakugan.Owner.Id);
+            game.OnBakugansFromFieldToHands?.Invoke(providedBakugans);
 
             var entryOrder = (bakugan.Position as GateCard)!.EnterOrder;
             int f = entryOrder.IndexOf(entryOrder.First(x => x.Contains(bakugan)));
@@ -894,7 +890,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
 
             OnRemovedFromField?.Invoke();
             OnDestroyed?.Invoke();
-            Game.OnBakuganDestroyed(this, Owner.Id);
+            Game.OnSingleBakuganDestroyed(this);
 
             Game.ThrowEvent(new JObject
             {
@@ -947,7 +943,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
 
             OnFromHandToDrop?.Invoke();
             OnDestroyed?.Invoke();
-            Game.OnBakuganDestroyed(this, Owner.Id);
+            Game.OnSingleBakuganDestroyed(this);
 
             Game.ThrowEvent(new JObject
             {

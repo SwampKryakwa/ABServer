@@ -18,8 +18,8 @@ internal class DarkBargain : AbilityCard
         (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Boost(300, this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && user.IsAttribute(Attribute.Darkon) && Game.BakuganIndex.Any(x => x.OnField() && x.Owner.TeamId != user.Owner.TeamId);
+    public override bool UserValidator(Bakugan user) =>
+        user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     [ModuleInitializer]
     internal static void Init() => Register(48, CardKind.NormalAbility, (cID, owner) => new DarkBargain(cID, owner, 48));

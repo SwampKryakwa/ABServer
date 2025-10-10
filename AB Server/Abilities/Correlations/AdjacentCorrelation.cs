@@ -24,11 +24,11 @@ internal class AdjacentCorrelation : AbilityCard
                 User.Boost(100, this);
         }
     }
-    public override bool BakuganIsValid(Bakugan user) =>
-        Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && !user.Frenzied && IsActivateableByBakugan(user) && user.Owner == Owner;
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.OnField() && Game.BakuganIndex.Count(x => x.OnField()) >= 2;
+    public override bool IsActivateable() =>
+        Owner.AbilityBlockers.Count == 0 && Owner.BlueAbilityBlockers.Count == 0 && Owner.BakuganOwned.Any(IsActivateableByBakugan);
+
+    public override bool UserValidator(Bakugan user) => user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(0, CardKind.CorrelationAbility, (cID, owner) => new AdjacentCorrelation(cID, owner));

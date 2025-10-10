@@ -25,11 +25,8 @@ internal class AirBattle : AbilityCard
         Game.StartLongRangeBattle(User, target);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.IsAttribute(Attribute.Zephyros) && user.OnField() && HasValidTargets(user);
-
-    public static new bool HasValidTargets(Bakugan user) =>
-        user.Game.BakuganIndex.Any(x => x.OnField() && IBakuganContainer.IsAdjacent(x.Position, user.Position) && user.IsOpponentOf(x));
+    public override bool UserValidator(Bakugan user) =>
+        user.IsAttribute(Attribute.Zephyros) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(14, CardKind.NormalAbility, (cID, owner) => new AirBattle(cID, owner, 14));

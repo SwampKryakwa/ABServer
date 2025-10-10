@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using AB_Server.Gates;
 namespace AB_Server.Abilities;
 
 internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
@@ -6,8 +7,8 @@ internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, 
     public override void TriggerEffect() =>
         new SaurusGlowMarker(User, TypeId, IsCopy).Activate();
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Normal && user.Type == BakuganType.Saurus && user.OnField();
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Saurus && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(18, CardKind.NormalAbility, (cID, owner) => new SaurusGlow(cID, owner, 18));
@@ -38,16 +39,15 @@ internal class SaurusGlowMarker : IActive
 
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
 
-        game.BakuganAdded += OnBakuganAdded;
+        game.OnBakugansFromHandsToField += OnBakuganAdded;
         User.OnDestroyed += OnUserDestroyed;
     }
 
-    private void OnBakuganAdded(Bakugan target, byte owner, IBakuganContainer pos)
+    private void OnBakuganAdded((Bakugan bakugan, GateCard destination)[] additions)
     {
-        if (User.OnField() && target.BasePower > User.BasePower)
-        {
-            User.Boost(new Boost(50), this);
-        }
+        foreach ((Bakugan bakugan, GateCard _) in additions)
+            if (bakugan.BasePower > User.BasePower)
+                User.Boost(new Boost(50), this);
     }
 
     public void Negate(bool asCounter) => StopEffect();
@@ -61,7 +61,7 @@ internal class SaurusGlowMarker : IActive
     {
         game.ActiveZone.Remove(this);
 
-        game.BakuganAdded -= OnBakuganAdded;
+        game.OnBakugansFromHandsToField -= OnBakuganAdded;
         User.OnDestroyed -= OnUserDestroyed;
 
         game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));

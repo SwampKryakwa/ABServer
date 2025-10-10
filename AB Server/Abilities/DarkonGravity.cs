@@ -24,7 +24,7 @@ internal class DarkonGravity : AbilityCard
         user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     public override bool ActivationCondition() =>
-        Owner.Bakugans.Count == 0;
+        Game.CurrentWindow == ActivationWindow.Normal && Owner.Bakugans.Count == 0;
 
     [ModuleInitializer]
     internal static void Init() => Register(28, CardKind.NormalAbility, (cID, owner) => new DarkonGravity(cID, owner, 28));

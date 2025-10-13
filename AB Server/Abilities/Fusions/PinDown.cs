@@ -25,7 +25,7 @@ internal class PinDown : FusionAbility
         target.Boost(new Boost((short)(newPower - target.Power)), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.Type == BakuganType.Laserman && user.OnField();
 
     [ModuleInitializer]

@@ -48,7 +48,7 @@ internal class GateBuilding : AbilityCard
             });
             base.Resolve();
         };
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.AttributeSelectionEvent("INFO_PICKATTRIBUTE", [.. Enum.GetValues(typeof(Attribute)).Cast<Attribute>()])));
+        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.AttributeSelectionEvent("INFO_PICKATTRIBUTE", Enum.GetValues<Attribute>())));
     }
 
     public override void TriggerEffect()

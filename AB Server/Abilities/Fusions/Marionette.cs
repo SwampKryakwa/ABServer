@@ -26,8 +26,8 @@ internal class Marionette : FusionAbility
             GenericEffects.MoveBakuganEffect(target, destination, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Mantis && user.IsPartner && user.Position is GateCard userGate && Game.GateIndex.Any(userGate.IsAdjacent);
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Mantis && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(2, (cID, owner) => new Marionette(cID, owner));

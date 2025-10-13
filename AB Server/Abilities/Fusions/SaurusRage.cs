@@ -15,8 +15,8 @@ internal class SaurusRage : FusionAbility
     public override void TriggerEffect() =>
         User.Boost(new Boost((short)Math.Abs((User.Power - (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Power) * 2)), this);
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Saurus && user.IsPartner && user.OnField() && Game.BakuganIndex.Any(x => x.OnField() && x.Power > user.Power);
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Saurus && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(5, (cID, owner) => new SaurusRage(cID, owner));

@@ -19,8 +19,8 @@ internal class DoubleDimension : FusionAbility
             target.Boost(new Boost((short)-target.Power), this);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Lucifer && user.InBattle && Game.ActiveZone.Any(x => x is AbilityCard && x.User.OnField() && x.User.IsOpponentOf(user));
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Lucifer && user.InBattle;
 
     [ModuleInitializer]
     internal static void Init() => Register(4, (cID, owner) => new DoubleDimension(cID, owner));

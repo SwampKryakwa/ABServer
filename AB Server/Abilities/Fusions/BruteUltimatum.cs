@@ -24,8 +24,11 @@ internal class BruteUltimatum : FusionAbility
             target?.AddFromHandToField(positionGate);
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleOver && user.JustEndedBattle && !user.BattleEndedInDraw && Game.Players.Any(p => p.TeamId != Owner.TeamId && p.Bakugans.Count != 0);
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Glorius && user.Position is GateCard posGate && posGate.BattleOver && user.JustEndedBattle && !user.BattleEndedInDraw;
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Intermediate;
 
     [ModuleInitializer]
     internal static void Init() => Register(0, (cID, owner) => new BruteUltimatum(cID, owner));

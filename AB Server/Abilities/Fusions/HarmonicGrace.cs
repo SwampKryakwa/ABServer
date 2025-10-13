@@ -25,8 +25,8 @@ internal class HarmonicGrace : FusionAbility
         }
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
-        user.Type == BakuganType.Fairy && !user.InBattle && Game.BakuganIndex.Any(x => x.OnField() && x != user && x.Owner == Owner);
+    public override bool UserValidator(Bakugan user) =>
+        user.Type == BakuganType.Fairy && !user.InBattle;
 
     [ModuleInitializer]
     internal static void Init() => Register(13, (cID, owner) => new HarmonicGrace(cID, owner));

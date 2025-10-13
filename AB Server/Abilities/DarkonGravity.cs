@@ -20,11 +20,11 @@ internal class DarkonGravity : AbilityCard
             (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Move(posGate, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
     }
 
-    public override bool IsActivateableByBakugan(Bakugan user) =>
+    public override bool UserValidator(Bakugan user) =>
         user.OnField() && user.IsAttribute(Attribute.Darkon);
 
     public override bool ActivationCondition() =>
-        Owner.Bakugans.Count == 0;
+        Game.CurrentWindow == ActivationWindow.Normal && Owner.Bakugans.Count == 0;
 
     [ModuleInitializer]
     internal static void Init() => Register(28, CardKind.NormalAbility, (cID, owner) => new DarkonGravity(cID, owner, 28));

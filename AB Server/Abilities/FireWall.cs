@@ -3,38 +3,69 @@ using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 
-internal class FireWall : AbilityCard
+internal class FireWall(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public FireWall(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-    {
-        CondTargetSelectors =
-        [
-            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField() }
-        ];
-
-        ResTargetSelectors =
-        [
-            new OptionSelector() { Message = "INFO_PICKER_FIREWALL", ForPlayer = (p) => p == Owner, OptionCount = 2}
-        ];
-    }
-
     public override void TriggerEffect()
     {
-        var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-        if ((ResTargetSelectors[0] as OptionSelector)!.SelectedOption == 0)
-            target.Boost(new Boost((short)-target.AdditionalPower), this);
-        else
-            target.Boost(new Boost(-50), this);
+        new FireWallMarker(User, IsCopy).Activate();
     }
 
     public override bool UserValidator(Bakugan user) =>
-        Game.CurrentWindow == ActivationWindow.Intermediate && user.Position is GateCard posGate && posGate.BattleOver;
-
-
-    public override bool ActivationCondition() =>
-        Owner.BakuganOwned.Any(x => x.IsAttribute(Attribute.Nova));
+        user.OnField() && user.IsAttribute(Attribute.Nova);
 
     [ModuleInitializer]
     internal static void Init() => Register(9, CardKind.NormalAbility, (cID, owner) => new FireWall(cID, owner, 9));
 }
 
+/// <summary>
+/// Effect marker for FireWall: Whenever a bakugan is placed on the field – all opponent's bakugan on the field that aren't standing on one of your gate cards get -50G. 
+/// Remove this marker when user is put into the Drop Zone.
+/// </summary>
+internal class FireWallMarker(Bakugan user, bool isCopy) : IActive
+{
+
+    public int EffectId { get; set; } = user.Game.NextEffectId++;
+
+    public int TypeId { get => 9; }
+
+    public CardKind Kind { get => CardKind.NormalAbility; }
+
+    public Bakugan User { get; set; } = user;
+    public Player Owner { get; set; } = user.Owner;
+    Game game = user.Game;
+
+    public void Activate()
+    {
+        game.ActiveZone.Add(this);
+
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
+
+        game.OnBakugansFromHandsToField += OnBakuganToField;
+        game.OnBakugansFromDropToField += OnBakuganToField;
+        User.OnDestroyed += OnUserDestroyed;
+    }
+
+    private void OnBakuganToField((Bakugan, GateCard)[] additions)
+    {
+        for (int i = 0; i < additions.Length; i++)
+            foreach (var oppBakugan in game.BakuganIndex.Where(User.IsOpponentOf))
+                oppBakugan.Boost(new Boost(-50), this);
+    }
+
+    public void Negate(bool asCounter) =>
+        CeaseMarker();
+
+    private void OnUserDestroyed() =>
+        CeaseMarker();
+
+    private void CeaseMarker()
+    {
+        game.ActiveZone.Remove(this);
+
+        game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
+
+        game.OnBakugansFromHandsToField -= OnBakuganToField;
+        game.OnBakugansFromDropToField -= OnBakuganToField;
+        User.OnDestroyed -= OnUserDestroyed;
+    }
+}

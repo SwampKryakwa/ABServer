@@ -1,9 +1,7 @@
 namespace AB_Server.Abilities;
 
-internal class LightLine : AbilityCard
+internal class LightLine(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public LightLine(int cID, Player owner, int typeId) : base(cID, owner, typeId) { }
-
     public override void TriggerEffect()
     {
         // Get all Haos Bakugan on the field owned by this card's owner

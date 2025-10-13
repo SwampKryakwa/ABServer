@@ -2,10 +2,8 @@
 
 namespace AB_Server.Abilities;
 
-internal class WaterRefrain : AbilityCard
+internal class WaterRefrain(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public WaterRefrain(int cID, Player owner, int typeId) : base(cID, owner, typeId) { }
-
     public override void TriggerEffect() =>
             new WaterRefrainMarker(User, TypeId, IsCopy).Activate();
 

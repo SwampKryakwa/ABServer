@@ -11,7 +11,7 @@ internal class PowerCharge(int cId, Player owner, int typeId) : AbilityCard(cId,
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.IsAttribute(Attribute.Nova) && user.OnField() && !user.InBattle;
+        user.IsAttribute(Attribute.Nova) && user.OnField();
 
     [ModuleInitializer]
     internal static void Init() => Register(39, CardKind.NormalAbility, (cID, owner) => new PowerCharge(cID, owner, 39));
@@ -38,16 +38,11 @@ internal class PowerChargeMarker(Bakugan user, bool isCopy) : IActive
         User.OnRemovedFromField += CeaseMarker;
     }
 
-    public void OnBattleStart(GateCard position)
-    {
-        if (User.Position == position)
-            User.Boost(200, this);
-    }
+    public void OnBattleStart(GateCard position) =>
+        User.Boost(100, this);
 
-    public void Negate(bool asCounter = false)
-    {
+    public void Negate(bool asCounter = false) =>
         CeaseMarker();
-    }
 
     public void CeaseMarker()
     {

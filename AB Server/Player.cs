@@ -4,16 +4,11 @@ using AB_Server.Gates;
 
 namespace AB_Server;
 
-internal class BakuganDrop : IBakuganContainer
+internal class BakuganDrop(Player player) : IBakuganContainer
 {
-    public Player Player;
+    public Player Player = player;
 
     public List<Bakugan> Bakugans { get; } = new();
-
-    public BakuganDrop(Player player)
-    {
-        Player = player;
-    }
 }
 
 internal class Player : IBakuganContainer

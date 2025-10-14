@@ -43,22 +43,17 @@ internal class CoreLinkageMarker(Bakugan user, bool asCopy) : IActive
             currentBoosts.Add(bakugan, boost);
         }
 
-        User.OnDestroyed += OnUserDestroyed;
+        User.OnDestroyed += CeaseMarker;
     }
 
-    private void OnUserDestroyed()
+    private void CeaseMarker()
     {
-        User.OnDestroyed -= OnUserDestroyed;
+        User.OnDestroyed -= CeaseMarker;
         game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
         foreach ((var bakugan, var boost) in currentBoosts)
             bakugan.RemoveContinuousBoost(boost, this);
     }
 
-    public void Negate(bool asCounter = false)
-    {
-        User.OnDestroyed -= OnUserDestroyed;
-        game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
-        foreach ((var bakugan, var boost) in currentBoosts)
-            bakugan.RemoveContinuousBoost(boost, this);
-    }
+    public void Negate(bool asCounter = false) =>
+        CeaseMarker();
 }

@@ -250,7 +250,7 @@ internal class Room
                     ["PartnerAttribute"] = (int)x.BakuganOwned[0].BaseAttribute,
                     ["PartnerTreatment"] = (int)x.BakuganOwned[0].Treatment,
                     ["Ava"] = x.Avatar,
-                    ["Id"] = x.Id,
+                    ["Id"] = x.PlayerId,
                     ["Team"] = x.TeamId
                 }))
             });

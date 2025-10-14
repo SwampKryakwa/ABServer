@@ -5,10 +5,8 @@ namespace AB_Server.Abilities;
 
 internal class FireWall(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public override void TriggerEffect()
-    {
+    public override void TriggerEffect() =>
         new FireWallMarker(User, IsCopy).Activate();
-    }
 
     public override bool UserValidator(Bakugan user) =>
         user.OnField() && user.IsAttribute(Attribute.Nova);
@@ -17,10 +15,6 @@ internal class FireWall(int cID, Player owner, int typeId) : AbilityCard(cID, ow
     internal static void Init() => Register(9, CardKind.NormalAbility, (cID, owner) => new FireWall(cID, owner, 9));
 }
 
-/// <summary>
-/// Effect marker for FireWall: Whenever a bakugan is placed on the field – all opponent's bakugan on the field that aren't standing on one of your gate cards get -50G. 
-/// Remove this marker when user is put into the Drop Zone.
-/// </summary>
 internal class FireWallMarker(Bakugan user, bool isCopy) : IActive
 {
 
@@ -37,35 +31,30 @@ internal class FireWallMarker(Bakugan user, bool isCopy) : IActive
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         game.OnBakugansFromHandsToField += OnBakuganToField;
         game.OnBakugansFromDropToField += OnBakuganToField;
-        User.OnDestroyed += OnUserDestroyed;
+        User.OnDestroyed += CeaseMarker;
     }
 
     private void OnBakuganToField((Bakugan, GateCard)[] additions)
     {
         for (int i = 0; i < additions.Length; i++)
-            foreach (var oppBakugan in game.BakuganIndex.Where(User.IsOpponentOf))
+            foreach (var oppBakugan in game.BakuganIndex.Where(x => User.IsOpponentOf(x) && x.Position is GateCard posGate && posGate.Owner != Owner))
                 oppBakugan.Boost(new Boost(-50), this);
     }
 
     public void Negate(bool asCounter) =>
         CeaseMarker();
 
-    private void OnUserDestroyed() =>
-        CeaseMarker();
-
     private void CeaseMarker()
     {
         game.ActiveZone.Remove(this);
-
         game.ThrowEvent(EventBuilder.RemoveMarkerFromActiveZone(this));
 
         game.OnBakugansFromHandsToField -= OnBakuganToField;
         game.OnBakugansFromDropToField -= OnBakuganToField;
-        User.OnDestroyed -= OnUserDestroyed;
+        User.OnDestroyed -= CeaseMarker;
     }
 }

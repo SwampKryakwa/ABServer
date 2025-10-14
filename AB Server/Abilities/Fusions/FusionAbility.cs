@@ -20,21 +20,21 @@ internal abstract partial class FusionAbility(int cID, Player owner, int typeId,
     public override void Setup(bool asCounter)
     {
         this.asCounter = asCounter;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+        Game.ThrowEvent(Owner.PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
             EventBuilder.AbilitySelection("INFO_FUSIONBASE", Owner.AbilityHand.Where(baseAbilityType.IsInstanceOfType))
             ));
-        Game.OnAnswer[Owner.Id] = PickUser;
+        Game.OnAnswer[Owner.PlayerId] = PickUser;
     }
 
     public virtual void PickUser()
     {
-        FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["ability"]];
+        FusedTo = Game.AbilityIndex[(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["ability"]];
 
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+        Game.ThrowEvent(Owner.PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
             EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(UserValidator))
             ));
 
-        Game.OnAnswer[Owner.Id] = RecieveUser;
+        Game.OnAnswer[Owner.PlayerId] = RecieveUser;
     }
 
     public override void Activate()
@@ -52,7 +52,7 @@ internal abstract partial class FusionAbility(int cID, Player owner, int typeId,
             ["Kind"] = (int)Kind,
             ["User"] = User.BID,
             ["IsCounter"] = asCounter,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
 
         Game.ActiveZone.Add(this);

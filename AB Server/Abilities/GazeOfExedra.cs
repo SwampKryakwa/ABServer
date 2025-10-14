@@ -15,21 +15,14 @@ internal class GazeOfExedra : AbilityCard
 
     public override void TriggerEffect()
     {
-        var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-        if (target.InHand())
-        {
-            target.MoveFromHandToDrop();
-            User.Boost(200, this);
-        }
-        else if (target.OnField())
-        {
-            target.MoveFromFieldToDrop((target.Position as GateCard)!.EnterOrder);
-            User.Boost(200, this);
-        }
+        if (User.InHand())
+            User.MoveFromHandToDrop();
+        else if (User.OnField())
+            User.MoveFromFieldToDrop((User.Position as GateCard)!.EnterOrder);
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.OnField();
+        user.OnField() || user.InHand();
 
     [ModuleInitializer]
     internal static void Init() => Register(50, CardKind.NormalAbility, (cID, owner) => new GazeOfExedra(cID, owner, 50));

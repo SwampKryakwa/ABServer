@@ -104,13 +104,13 @@ internal partial class Game
                 ["Kind"] = (int)x.Kind,
                 ["Type"] = x.TypeId,
                 ["User"] = x.User.BID,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsCopy"] = false
             })),
             ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InDrop()).Select(x => new JObject
             {
                 ["BID"] = x.BID,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["BakuganType"] = (int)x.Type,
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
@@ -120,14 +120,14 @@ internal partial class Game
             ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityDrop).Select(x => new JObject
             {
                 ["CID"] = x.CardId,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["Kind"] = (int)x.Kind,
                 ["CardType"] = x.TypeId
             })),
             ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateDrop).Select(x => new JObject
             {
                 ["CID"] = x.CardId,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["CardType"] = x.TypeId
             }))
         });
@@ -170,13 +170,13 @@ internal partial class Game
                     ["Kind"] = (int)x.Kind,
                     ["Type"] = x.TypeId,
                     ["User"] = x.User.BID,
-                    ["Owner"] = x.Owner.Id,
+                    ["Owner"] = x.Owner.PlayerId,
                     ["IsCopy"] = false
                 })),
                 ["GraveBakugan"] = new JArray(BakuganIndex.Where(x => x.InDrop()).Select(x => new JObject
                 {
                     ["BID"] = x.BID,
-                    ["Owner"] = x.Owner.Id,
+                    ["Owner"] = x.Owner.PlayerId,
                     ["BakuganType"] = (int)x.Type,
                     ["Attribute"] = (int)x.BaseAttribute,
                     ["Treatment"] = (int)x.Treatment,
@@ -186,14 +186,14 @@ internal partial class Game
                 ["GraveAbilities"] = new JArray(Players.SelectMany(x => x.AbilityDrop).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
-                    ["Owner"] = x.Owner.Id,
+                    ["Owner"] = x.Owner.PlayerId,
                     ["Kind"] = (int)x.Kind,
                     ["CardType"] = x.TypeId
                 })),
                 ["GraveGates"] = new JArray(Players.SelectMany(x => x.GateDrop).Select(x => new JObject
                 {
                     ["CID"] = x.CardId,
-                    ["Owner"] = x.Owner.Id,
+                    ["Owner"] = x.Owner.PlayerId,
                     ["CardType"] = x.TypeId
                 }))
             });
@@ -343,7 +343,7 @@ internal partial class Game
 
     public void ResolveWindow(Player player)
     {
-        int id = (int)PlayerAnswers[player.Id]!["array"][0]["ability"];
+        int id = (int)PlayerAnswers[player.PlayerId]!["array"][0]["ability"];
         if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateable())
         {
             AbilityIndex[id].Setup(false);
@@ -372,7 +372,7 @@ internal partial class Game
             ThrowEvent(new JObject
             {
                 ["Type"] = "GateAddedToHand",
-                ["Owner"] = player.Id,
+                ["Owner"] = player.PlayerId,
                 ["Kind"] = 4,
                 ["CardType"] = 0,
                 ["CID"] = gate.CardId
@@ -387,7 +387,7 @@ internal partial class Game
             ThrowEvent(new JObject
             {
                 ["Type"] = "GameOver",
-                ["Victor"] = Players.Where(x => x.Alive).First().Id,
+                ["Victor"] = Players.Where(x => x.Alive).First().PlayerId,
                 ["VictorTeam"] = Players.Where(x => x.Alive).First().TeamId
             });
         }
@@ -400,13 +400,13 @@ internal partial class Game
                 if (GateIndex.Any(x => x.IsOpenable()))
                 {
                     var playersWithOpenableGates = Players.Where(x => GateIndex.Any(g => g.Owner == x && g.IsOpenable()));
-                    ActivePlayer = playersWithOpenableGates.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithOpenableGates.First().Id;
+                    ActivePlayer = playersWithOpenableGates.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithOpenableGates.First().PlayerId;
                     ThrowMoveStart();
                 }
                 else if (AbilityIndex.Any(x => x.IsActivateable()))
                 {
                     var playersWithActivateableAbilities = Players.Where(x => AbilityIndex.Any(a => a.Owner == x && a.IsActivateable()));
-                    ActivePlayer = playersWithActivateableAbilities.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithActivateableAbilities.First().Id;
+                    ActivePlayer = playersWithActivateableAbilities.Contains(Players[TurnPlayer]) ? TurnPlayer : playersWithActivateableAbilities.First().PlayerId;
                     ThrowMoveStart();
                 }
                 else
@@ -513,7 +513,7 @@ internal partial class Game
         ThrowEvent(new JObject
         {
             ["Type"] = "PlayerTurnStart",
-            ["PID"] = LongRangeBattleGoing ? Targets!.First().Owner.Id : ActivePlayer,
+            ["PID"] = LongRangeBattleGoing ? Targets!.First().Owner.PlayerId : ActivePlayer,
 
             ["BattlesGoing"] = new JArray(GateIndex.Where(x => x.IsBattleGoing).Select(x => new JObject
             {
@@ -571,7 +571,7 @@ internal partial class Game
             ["ValidThrowPositions"] = new JArray(GateIndex.Where(x => x.OnField && !x.Bakugans.Any(x => x.Owner.TeamId == Players[player].TeamId) && x.ThrowBlocking.Count == 0).Select(x => new JObject
             {
                 ["CID"] = x.CardId,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["PosX"] = x.Position.X,
                 ["PosY"] = x.Position.Y
             })),
@@ -750,7 +750,7 @@ internal partial class Game
                 }
                 break;
             case "draw":
-                var toSuggestDraw = Players.First(x => x.Id != ActivePlayer).Id;
+                var toSuggestDraw = Players.First(x => x.PlayerId != ActivePlayer).PlayerId;
                 NewEvents[toSuggestDraw].Add(EventBuilder.SelectionBundler(false, EventBuilder.BoolSelectionEvent("INFO_SUGGESTDRAW")));
                 OnAnswer[toSuggestDraw] = () =>
                 {
@@ -814,7 +814,7 @@ internal partial class Game
         }
         else
         {
-            while (!AutoGatesToOpen.Any(x => x.Owner.Id == ActivePlayer))
+            while (!AutoGatesToOpen.Any(x => x.Owner.PlayerId == ActivePlayer))
             {
                 ActivePlayer++;
                 if (ActivePlayer > PlayerCount) ActivePlayer = 0;
@@ -822,7 +822,7 @@ internal partial class Game
             if (ActivePlayer > PlayerCount) ActivePlayer = 0;
 
             NewEvents[ActivePlayer].Add(EventBuilder.SelectionBundler(false,
-                EventBuilder.FieldGateSelection("INFO_OPENENDBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.Id == ActivePlayer))
+                EventBuilder.FieldGateSelection("INFO_OPENENDBATTLE", 0, 0, AutoGatesToOpen.Where(x => x.Owner.PlayerId == ActivePlayer))
             ));
             OnAnswer[ActivePlayer] = () =>
             {
@@ -893,7 +893,7 @@ internal partial class Game
     {
         if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
         {
-            int next = player.Id + 1;
+            int next = player.PlayerId + 1;
             if (next == PlayerCount) next = 0;
             int initial = next;
             while (Players[next].HadUsedCounter || !Players[next].HasActivateableAbilities())
@@ -902,7 +902,7 @@ internal partial class Game
                 if (next == PlayerCount) next = 0;
                 if (initial == next) break;
             }
-            if (next == player.Id)
+            if (next == player.PlayerId)
             {
                 ResolveChain();
                 return;
@@ -916,7 +916,7 @@ internal partial class Game
     {
         if (Players.Any(x => !x.HadUsedCounter && x.HasActivateableAbilities()))
         {
-            int next = player.Id + 1;
+            int next = player.PlayerId + 1;
             if (next == PlayerCount) next = 0;
             int initial = next;
             while (Players[next].HadUsedCounter || !Players[next].HasActivateableAbilities())
@@ -925,7 +925,7 @@ internal partial class Game
                 if (next == PlayerCount) next = 0;
                 if (initial == next) break;
             }
-            if (next == player.Id)
+            if (next == player.PlayerId)
             {
                 ResolveChain();
                 return;
@@ -937,31 +937,31 @@ internal partial class Game
 
     public void SuggestCounter(Player player, IActive card, Player user)
     {
-        OnAnswer[player.Id] = () => CheckCounter(player, card, user);
-        ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.Id, card.TypeId, (int)card.Kind)));
+        OnAnswer[player.PlayerId] = () => CheckCounter(player, card, user);
+        ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.PlayerId, card.TypeId, (int)card.Kind)));
     }
 
     public void CheckCounter(Player player, IActive card, Player user)
     {
-        if (!(bool)PlayerAnswers[player.Id]!["array"][0]["answer"])
+        if (!(bool)PlayerAnswers[player.PlayerId]!["array"][0]["answer"])
         {
-            int next = player.Id + 1;
+            int next = player.PlayerId + 1;
             if (next == PlayerCount) next = 0;
-            if (next == user.Id) ResolveChain();
+            if (next == user.PlayerId) ResolveChain();
             else SuggestCounter(Players[next], card, user);
         }
         else
         {
             player.HadUsedCounter = true;
-            OnAnswer[player.Id] = () => ResolveCounter(player);
+            OnAnswer[player.PlayerId] = () => ResolveCounter(player);
 
-            ThrowEvent(player.Id, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_COUNTERSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+            ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_COUNTERSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
         }
     }
 
     public void ResolveCounter(Player player)
     {
-        int id = (int)PlayerAnswers[player.Id]!["array"][0]["ability"];
+        int id = (int)PlayerAnswers[player.PlayerId]!["array"][0]["ability"];
         if (player.AbilityHand.Contains(AbilityIndex[id]) && AbilityIndex[id].IsActivateableCounter())
         {
             AbilityIndex[id].Setup(true);

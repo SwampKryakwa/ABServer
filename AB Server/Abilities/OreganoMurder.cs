@@ -20,10 +20,8 @@ internal class OreganoMurder : AbilityCard
         base.Resolve();
     }
 
-    public override void TriggerEffect()
-    {
+    public override void TriggerEffect() =>
         (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan?.Boost(-100, this);
-    }
 
     public override bool UserValidator(Bakugan user) =>
         user.OnField() && user.IsAttribute(Attribute.Darkon);

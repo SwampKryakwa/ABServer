@@ -62,7 +62,7 @@ internal static class EventBuilder
         {
             ["SelectionType"] = "P",
             ["Message"] = prompt,
-            ["AllowedPlayers"] = new JArray(players.Select(x => x.Id))
+            ["AllowedPlayers"] = new JArray(players.Select(x => x.PlayerId))
         };
     }
 
@@ -105,7 +105,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -115,7 +115,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -125,7 +125,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             }))
@@ -146,7 +146,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -167,7 +167,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -188,7 +188,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -209,7 +209,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -219,7 +219,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -229,7 +229,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -252,7 +252,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -275,7 +275,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -298,7 +298,7 @@ internal static class EventBuilder
                 ["Attribute"] = (int)x.BaseAttribute,
                 ["Treatment"] = (int)x.Treatment,
                 ["Power"] = x.Power,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID
             })),
@@ -383,7 +383,7 @@ internal static class EventBuilder
             {
                 ["CardType"] = x.TypeId,
                 ["CardKind"] = (int)x.Kind,
-                ["Owner"] = x.Owner.Id,
+                ["Owner"] = x.Owner.PlayerId,
                 ["CID"] = x.CardId
             })),
             ["Min"] = min,
@@ -417,7 +417,7 @@ internal static class EventBuilder
                 jsonActives.Add(new JObject
                 {
                     ["Type"] = "C",
-                    ["ActiveOwner"] = active.Owner.Id,
+                    ["ActiveOwner"] = active.Owner.PlayerId,
                     ["CardType"] = active.TypeId,
                     ["CardKind"] = (int)active.Kind,
                     ["CID"] = activeAbility.CardId,
@@ -427,7 +427,7 @@ internal static class EventBuilder
                 jsonActives.Add(new JObject
                 {
                     ["Type"] = "E",
-                    ["ActiveOwner"] = active.Owner.Id,
+                    ["ActiveOwner"] = active.Owner.PlayerId,
                     ["CardType"] = active.TypeId,
                     ["CardKind"] = (int)active.Kind,
                     ["EID"] = active.EffectId
@@ -456,7 +456,7 @@ internal static class EventBuilder
                 ["Kind"] = (int)card.Kind,
                 ["Type"] = RevealInfo ? card.TypeId : -2
             },
-            ["Owner"] = card.Owner.Id,
+            ["Owner"] = card.Owner.PlayerId,
             ["CID"] = card.CardId
         };
     }
@@ -475,7 +475,7 @@ internal static class EventBuilder
                     ["Kind"] = (int)cardInfo.card.Kind,
                     ["Type"] = cardInfo.setBy == forPlayer ? cardInfo.card.TypeId : -2
                 },
-                ["Owner"] = cardInfo.card.Owner.Id,
+                ["Owner"] = cardInfo.card.Owner.PlayerId,
                 ["CID"] = cardInfo.card.CardId
             }))
         };
@@ -493,7 +493,7 @@ internal static class EventBuilder
                 ["Kind"] = (int)card.Kind,
                 ["Type"] = RevealInfo ? card.TypeId : -2
             },
-            ["Owner"] = card.Owner.Id,
+            ["Owner"] = card.Owner.PlayerId,
             ["CID"] = card.CardId
         };
     }
@@ -515,7 +515,7 @@ internal static class EventBuilder
             ["Kind"] = (int)card.Kind,
             ["CardType"] = card.TypeId,
             ["CID"] = card.CardId,
-            ["Owner"] = card.Owner.Id
+            ["Owner"] = card.Owner.PlayerId
         };
 
     public static JObject SendAbilityToDrop(AbilityCard card) =>
@@ -525,7 +525,7 @@ internal static class EventBuilder
             ["Kind"] = (int)card.Kind,
             ["CardType"] = card.TypeId,
             ["CID"] = card.CardId,
-            ["Owner"] = card.Owner.Id
+            ["Owner"] = card.Owner.PlayerId
         };
 
     public static JObject AddMarkerToActiveZone(IActive active, bool isCopy) =>
@@ -537,7 +537,7 @@ internal static class EventBuilder
             ["Kind"] = (int)active.Kind,
             ["Id"] = active.EffectId,
             ["User"] = active.User.BID,
-            ["Owner"] = active.Owner.Id
+            ["Owner"] = active.Owner.PlayerId
         };
 
     public static JObject RemoveMarkerFromActiveZone(IActive active) =>
@@ -559,7 +559,7 @@ internal static class EventBuilder
                 ["Kind"] = (int)card.Kind,
                 ["Type"] = card.TypeId
             },
-            ["Owner"] = card.Owner.Id,
+            ["Owner"] = card.Owner.PlayerId,
             ["CID"] = card.CardId
         };
     }
@@ -576,7 +576,7 @@ internal static class EventBuilder
                 ["Kind"] = (int)card.Kind,
                 ["Type"] = card.TypeId
             },
-            ["Owner"] = card.Owner.Id,
+            ["Owner"] = card.Owner.PlayerId,
             ["CID"] = card.CardId
         };
     }
@@ -588,7 +588,7 @@ internal static class EventBuilder
             ["Type"] = "GateNegateEvent",
             ["PosX"] = card.Position.X,
             ["PosY"] = card.Position.Y,
-            ["Owner"] = card.Owner.Id,
+            ["Owner"] = card.Owner.PlayerId,
             ["CID"] = card.CardId
         };
     }

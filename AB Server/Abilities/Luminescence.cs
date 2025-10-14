@@ -29,7 +29,6 @@ internal class LuminescenceEffect(Bakugan user, bool isCopy) : IActive
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoosts = [];

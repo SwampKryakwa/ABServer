@@ -98,8 +98,7 @@ class ContinuousBoostUntilDestroyedEffect(Bakugan user, Bakugan target, short bo
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
-        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoost = new Boost(boostAmount);
         target.ContinuousBoost(currentBoost, this);

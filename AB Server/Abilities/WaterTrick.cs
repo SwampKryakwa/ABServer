@@ -18,7 +18,7 @@ internal class WaterTrick : AbilityCard
     {
         var gateCopy = GateCard.CreateCard((CondTargetSelectors[1] as GateSelector)!.SelectedGate.Owner, Game.GateIndex.Count, (CondTargetSelectors[0] as GateSelector)!.SelectedGate.TypeId);
         Game.GateIndex.Add(gateCopy);
-        gateCopy.TransformFrom((CondTargetSelectors[1] as GateSelector)!.SelectedGate, true, Owner.Id);
+        gateCopy.TransformFrom((CondTargetSelectors[1] as GateSelector)!.SelectedGate, true, Owner.PlayerId);
         Game.Field[gateCopy.Position.X, gateCopy.Position.Y] = gateCopy;
     }
 

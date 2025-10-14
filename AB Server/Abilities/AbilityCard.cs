@@ -69,25 +69,25 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
     {
         this.asCounter = asCounter;
         if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
-            Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+            Game.OnCancel[Owner.PlayerId] = Game.ThrowMoveStart;
+        Game.ThrowEvent(Owner.PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
             EventBuilder.AnyBakuganSelection("INFO_ABILITY_USER", TypeId, (int)Kind, Owner.BakuganOwned.Where(UserValidator))
             ));
 
-        Game.OnAnswer[Owner.Id] = RecieveUser;
+        Game.OnAnswer[Owner.PlayerId] = RecieveUser;
     }
 
     protected void RecieveUser()
     {
         currentTarget = 0;
-        User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+        User = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["bakugan"]];
         SendCondTargetForSelection();
     }
 
     protected void SendCondTargetForSelection()
     {
         if (!asCounter && Game.CurrentWindow == ActivationWindow.Normal)
-            Game.OnCancel[Owner.Id] = Game.ThrowMoveStart;
+            Game.OnCancel[Owner.PlayerId] = Game.ThrowMoveStart;
         if (CondTargetSelectors.Length <= currentTarget) Activate();
         else if (CondTargetSelectors[currentTarget].Condition())
         {
@@ -95,7 +95,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             switch (currentSelector)
             {
                 case BakuganSelector bakuganSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
@@ -108,7 +108,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case GateSelector gateSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "G" => throw new NotImplementedException(),
@@ -121,7 +121,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case AbilitySelector abilitySelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
@@ -134,43 +134,43 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case ActiveSelector activeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                     break;
 
                 case OptionSelector optionSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
                         ));
                     break;
 
                 case AttributeSelector attributeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.AttributeSelectionEvent(currentSelector.Message, Enum.GetValues<Attribute>())
                         ));
                     break;
 
                 case PlayerSelector playerSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.PlayerSelectionEvent(currentSelector.Message, [.. Game.Players.Where(playerSelector.TargetValidator)])
                         ));
                     break;
 
                 case YesNoSelector yesNoSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.BoolSelectionEvent(yesNoSelector.Message)
                         ));
                     break;
 
                 case GateSlotSelector slotSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.FieldSlotSelection(currentSelector.Message, TypeId, (int)Kind)
                         ));
                     break;
 
                 case MultiBakuganSelector multiBakuganSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
@@ -183,7 +183,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case MultiGateSelector multiGateSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "MGF" => EventBuilder.FieldMultiGateSelection(currentSelector.Message, TypeId, (int)Kind, multiGateSelector.MinNumber, multiGateSelector.MaxNumber, Game.GateIndex.Where(multiGateSelector.TargetValidator)),
@@ -193,13 +193,13 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case MultiGateSlotSelector multiSlotSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.MultiFieldSlotSelection(currentSelector.Message, TypeId, (int)Kind, multiSlotSelector.MinNumber, multiSlotSelector.MaxNumber)
                         ));
                     break;
 
                 case TypeSelector typeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(!asCounter && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
                     break;
 
                 default:
@@ -207,7 +207,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     Console.WriteLine(currentSelector.GetType());
                     throw new NotImplementedException();
             }
-            Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).Id] = AcceptCondTarget;
+            Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).PlayerId] = AcceptCondTarget;
         }
         else
         {
@@ -222,59 +222,59 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
         switch (currentSelector)
         {
             case BakuganSelector bakuganSelector:
-                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["bakugan"]];
                 break;
 
             case GateSelector gateSelector:
-                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["gate"]];
                 break;
 
             case AbilitySelector abilitySelector:
-                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["ability"]];
+                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["ability"]];
                 break;
 
             case ActiveSelector activeSelector:
-                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["active"]);
                 break;
 
             case YesNoSelector yesNoSelector:
-                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["answer"];
                 break;
 
             case OptionSelector optionSelector:
-                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["option"];
                 break;
 
             case AttributeSelector attributeSelector:
-                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["attribute"];
                 break;
 
             case PlayerSelector playerSelector:
-                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["player"]];
                 break;
 
             case GateSlotSelector slotSelector:
-                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
+                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["posY"]);
                 break;
 
             case MultiBakuganSelector multiBakuganSelector:
-                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
                 break;
 
             case MultiGateSelector multiGateSelector:
-                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["gates"];
                 multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
                 break;
 
             case MultiGateSlotSelector multiSlotSelector:
-                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
+                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["slots"];
                 multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
                 break;
 
             case TypeSelector typeSelector:
-                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["type"];
-                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["kind"];
+                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["type"];
+                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["kind"];
                 typeSelector.SelectedKind = cardKind;
                 typeSelector.SelectedType = cardId;
                 break;
@@ -298,7 +298,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             ["Kind"] = (int)Kind,
             ["User"] = User.BID,
             ["IsCounter"] = asCounter,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
 
         Game.ActiveZone.Add(this);
@@ -335,7 +335,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             switch (currentSelector)
             {
                 case BakuganSelector bakuganSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "B" => EventBuilder.AnyBakuganSelection(currentSelector.Message, TypeId, (int)Kind, Game.BakuganIndex.Where(bakuganSelector.TargetValidator)),
@@ -348,7 +348,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case GateSelector gateSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "G" => throw new NotImplementedException(),
@@ -361,7 +361,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case AbilitySelector abilitySelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "A" => EventBuilder.AbilitySelection(currentSelector.Message, Game.AbilityIndex.Where(abilitySelector.TargetValidator)),
@@ -374,43 +374,43 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case ActiveSelector activeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.ActiveSelection(currentSelector.Message, TypeId, (int)Kind, Game.ActiveZone.Where(activeSelector.TargetValidator))
                         ));
                     break;
 
                 case OptionSelector optionSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.OptionSelectionEvent(currentSelector.Message, optionSelector.OptionCount)
                         ));
                     break;
 
                 case AttributeSelector attributeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.AttributeSelectionEvent(currentSelector.Message, Enum.GetValues<Attribute>())
                         ));
                     break;
 
                 case PlayerSelector playerSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.PlayerSelectionEvent(currentSelector.Message, [.. Game.Players.Where(playerSelector.TargetValidator)])
                         ));
                     break;
 
                 case YesNoSelector yesNoSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.BoolSelectionEvent(yesNoSelector.Message)
                         ));
                     break;
 
                 case GateSlotSelector slotSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.FieldSlotSelection(currentSelector.Message, TypeId, (int)Kind)
                         ));
                     break;
 
                 case MultiBakuganSelector multiBakuganSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         currentSelector.ClientType switch
                         {
                             "MB" => EventBuilder.AnyMultiBakuganSelection(currentSelector.Message, TypeId, (int)Kind, multiBakuganSelector.MinNumber, multiBakuganSelector.MaxNumber, Game.BakuganIndex.Where(multiBakuganSelector.TargetValidator)),
@@ -423,13 +423,13 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     break;
 
                 case MultiGateSlotSelector multiSlotSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal,
                         EventBuilder.MultiFieldSlotSelection(currentSelector.Message, TypeId, (int)Kind, multiSlotSelector.MinNumber, multiSlotSelector.MaxNumber)
                         ));
                     break;
 
                 case TypeSelector typeSelector:
-                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
+                    Game.ThrowEvent(Game.Players.First(currentSelector.ForPlayer).PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.CardTypeSelection(typeSelector.Message, [.. typeSelector.SelectableKinds.Select(x => (int)x)])));
                     break;
 
                 default:
@@ -437,7 +437,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                     Console.WriteLine(currentSelector.GetType());
                     throw new NotImplementedException();
             }
-            Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).Id] = AcceptResTarget;
+            Game.OnAnswer[Game.Players.First(currentSelector.ForPlayer).PlayerId] = AcceptResTarget;
         }
         else
         {
@@ -452,59 +452,59 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
         switch (currentSelector)
         {
             case BakuganSelector bakuganSelector:
-                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugan"]];
+                bakuganSelector.SelectedBakugan = Game.BakuganIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["bakugan"]];
                 break;
 
             case GateSelector gateSelector:
-                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gate"]];
+                gateSelector.SelectedGate = Game.GateIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["gate"]];
                 break;
 
             case AbilitySelector abilitySelector:
-                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["ability"]];
+                abilitySelector.SelectedAbility = Game.AbilityIndex[(int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["ability"]];
                 break;
 
             case ActiveSelector activeSelector:
-                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["active"]);
+                activeSelector.SelectedActive = Game.ActiveZone.First(x => x.EffectId == (int)Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["active"]);
                 break;
 
             case YesNoSelector yesNoSelector:
-                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.Id]!["array"][0]["answer"];
+                yesNoSelector.IsYes = (bool)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["answer"];
                 break;
 
             case OptionSelector optionSelector:
-                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["option"];
+                optionSelector.SelectedOption = (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["option"];
                 break;
 
             case AttributeSelector attributeSelector:
-                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+                attributeSelector.SelectedAttribute = (Attribute)(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["attribute"];
                 break;
 
             case PlayerSelector playerSelector:
-                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["player"]];
+                playerSelector.SelectedPlayer = Game.Players[(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["player"]];
                 break;
 
             case GateSlotSelector slotSelector:
-                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["posY"]);
+                slotSelector.SelectedSlot = ((int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["posX"], (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["posY"]);
                 break;
 
             case MultiBakuganSelector multiBakuganSelector:
-                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["bakugans"];
+                JArray bakuganIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["bakugans"];
                 multiBakuganSelector.SelectedBakugans = [.. bakuganIds.Select(x => Game.BakuganIndex[(int)x])];
                 break;
 
             case MultiGateSelector multiGateSelector:
-                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["gates"];
+                JArray gateIds = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["gates"];
                 multiGateSelector.SelectedGates = [.. gateIds.Select(x => Game.GateIndex[(int)x])];
                 break;
 
             case MultiGateSlotSelector multiSlotSelector:
-                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["slots"];
+                JArray slots = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["slots"];
                 multiSlotSelector.SelectedSlots = [.. slots.Select(x => ((int)(x as JArray)![0], (int)(x as JArray)![1]))];
                 break;
 
             case TypeSelector typeSelector:
-                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["type"];
-                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).Id]!["array"][0]["kind"];
+                int cardId = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["type"];
+                int cardKind = Game.PlayerAnswers[Game.Players.First(currentSelector.ForPlayer).PlayerId]!["array"][0]["kind"];
                 typeSelector.SelectedKind = cardKind;
                 typeSelector.SelectedType = cardId;
                 break;
@@ -545,7 +545,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
                 ["Type"] = "AbilityRemovedActiveZone",
                 ["Id"] = EffectId,
                 ["Card"] = TypeId,
-                ["Owner"] = Owner.Id
+                ["Owner"] = Owner.PlayerId
             });
         }
         Game.ThrowEvent(EventBuilder.SendAbilityToDrop(this));
@@ -562,7 +562,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
         {
             ["Type"] = "AbilityRemovedFromHand",
             ["CID"] = CardId,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
     }
 
@@ -580,14 +580,14 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             ["Kind"] = (int)Kind,
             ["CardType"] = TypeId,
             ["CID"] = CardId,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
 
         Game.ThrowEvent(new()
         {
             ["Type"] = "AbilityRemovedFromDrop",
             ["Id"] = EffectId,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
     }
 
@@ -604,7 +604,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             ["Card"] = TypeId,
             ["Kind"] = (int)Kind,
             ["CardType"] = TypeId,
-            ["Owner"] = Owner.Id
+            ["Owner"] = Owner.PlayerId
         });
     }
 

@@ -36,8 +36,7 @@ internal class SaurusGlowMarker : IActive
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
-        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         game.OnBakugansFromHandsToField += OnBakuganAdded;
         User.OnDestroyed += OnUserDestroyed;

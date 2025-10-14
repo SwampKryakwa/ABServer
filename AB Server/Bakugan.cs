@@ -150,7 +150,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganBoostedEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Boost"] = boost.Value,
             ["Bakugan"] = new JObject
             {
@@ -178,7 +178,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganBoostedEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Boost"] = boost.Value,
             ["Bakugan"] = new JObject
             {
@@ -205,7 +205,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganBoostedEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Boost"] = -boost.Value,
             ["Bakugan"] = new JObject
             {
@@ -230,7 +230,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganBoostedEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Boost"] = -boost.Value,
             ["Bakugan"] = new JObject
             {
@@ -262,7 +262,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganRemovedFromHand",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["BakuganType"] = (int)Type,
             ["Attribute"] = (int)BaseAttribute,
             ["Treatment"] = (int)Treatment,
@@ -276,7 +276,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             ["Type"] = "BakuganAddedEvent",
             ["PosX"] = destination.Position.X,
             ["PosY"] = destination.Position.Y,
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Bakugan"] = new JObject
             {
                 ["Type"] = (int)Type,
@@ -315,7 +315,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemovedFromHand",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["BakuganType"] = (int)Type,
                 ["Attribute"] = (int)BaseAttribute,
                 ["Treatment"] = (int)Treatment,
@@ -329,7 +329,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                 ["Type"] = "BakuganThrownEvent",
                 ["PosX"] = destination.Position.X,
                 ["PosY"] = destination.Position.Y,
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["Bakugan"] = new JObject
                 {
                     ["Type"] = (int)Type,
@@ -366,7 +366,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganAttributeChangeEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["OldAttribute"] = (int)oldAttribute,
             ["Attribute"] = (int)newAttribute,
             ["Bakugan"] = new JObject
@@ -392,7 +392,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganAttributeChangeEvent",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["OldAttribute"] = (int)change.Attributes[0],
             ["Attribute"] = (int)(attributeChanges.Count == 0 ? BaseAttribute : attributeChanges[^1].Attributes[0]),
             ["Bakugan"] = new JObject
@@ -414,7 +414,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganFrenzy",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Bakugan"] = new JObject
             {
                 ["Type"] = (int)Type,
@@ -434,7 +434,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganUnfrenzied",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Bakugan"] = new JObject
             {
                 ["Type"] = (int)Type,
@@ -474,7 +474,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                 ["Type"] = "BakuganMovedEvent",
                 ["PosX"] = destination.Position.X,
                 ["PosY"] = destination.Position.Y,
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["Bakugan"] = new JObject
                 {
                     ["Type"] = (int)Type,
@@ -532,7 +532,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                     ["Type"] = "BakuganMovedEvent",
                     ["PosX"] = destination.Position.X,
                     ["PosY"] = destination.Position.Y,
-                    ["Owner"] = bakugan.Owner.Id,
+                    ["Owner"] = bakugan.Owner.PlayerId,
                     ["Bakugan"] = new JObject
                     {
                         ["Type"] = (int)bakugan.Type,
@@ -582,7 +582,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemovedFromHand",
-                ["Owner"] = bakugan.Owner.Id,
+                ["Owner"] = bakugan.Owner.PlayerId,
                 ["BakuganType"] = (int)bakugan.Type,
                 ["Attribute"] = (int)bakugan.BaseAttribute,
                 ["Treatment"] = (int)bakugan.Treatment,
@@ -596,7 +596,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                 ["Type"] = "BakuganAddedEvent",
                 ["PosX"] = destination.Position.X,
                 ["PosY"] = destination.Position.Y,
-                ["Owner"] = bakugan.Owner.Id,
+                ["Owner"] = bakugan.Owner.PlayerId,
                 ["Bakugan"] = new JObject
                 {
                     ["Type"] = (int)bakugan.Type,
@@ -649,7 +649,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "HpRestored",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["HpLeft"] = Owner.BakuganOwned.Count(x => !x.Defeated)
         });
         Game.ThrowEvent(new JObject
@@ -657,7 +657,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             ["Type"] = "BakuganAddedEvent",
             ["PosX"] = destination.Position.X,
             ["PosY"] = destination.Position.Y,
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["Bakugan"] = new JObject
             {
                 ["Type"] = (int)Type,
@@ -672,7 +672,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganRemovedFromGrave",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["BakuganType"] = (int)Type,
             ["Attribute"] = (int)BaseAttribute,
             ["Treatment"] = (int)Treatment,
@@ -702,13 +702,13 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "HpRestored",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["HpLeft"] = Owner.BakuganOwned.Count(x => !x.Defeated)
         });
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganAddedToHand",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["BakuganType"] = (int)Type,
             ["Attribute"] = (int)BaseAttribute,
             ["Treatment"] = (int)Treatment,
@@ -719,7 +719,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         Game.ThrowEvent(new JObject
         {
             ["Type"] = "BakuganRemovedFromGrave",
-            ["Owner"] = Owner.Id,
+            ["Owner"] = Owner.PlayerId,
             ["BakuganType"] = (int)Type,
             ["Attribute"] = (int)BaseAttribute,
             ["Treatment"] = (int)Treatment,
@@ -754,7 +754,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemoved",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["IsDestroy"] = false,
                 ["Bakugan"] = new JObject
                 {
@@ -776,7 +776,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganAddedToHand",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["BakuganType"] = (int)Type,
                 ["Attribute"] = (int)BaseAttribute,
                 ["Treatment"] = (int)Treatment,
@@ -828,7 +828,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
                 ["Power"] = x.Power,
                 ["IsPartner"] = x.IsPartner,
                 ["BID"] = x.BID,
-                ["Owner"] = x.Owner.Id
+                ["Owner"] = x.Owner.PlayerId
             }))
         });
 
@@ -836,7 +836,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganAddedToHand",
-                ["Owner"] = bakugan.Owner.Id,
+                ["Owner"] = bakugan.Owner.PlayerId,
                 ["BakuganType"] = (int)bakugan.Type,
                 ["Attribute"] = (int)bakugan.BaseAttribute,
                 ["Treatment"] = (int)bakugan.Treatment,
@@ -865,7 +865,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemoved",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["IsDestroy"] = true,
                 ["Bakugan"] = new JObject
                 {
@@ -881,7 +881,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "HpLost",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["HpLeft"] = Owner.BakuganOwned.Count(x => !x.Defeated)
             });
 
@@ -895,7 +895,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganAddedToGrave",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["BakuganType"] = (int)Type,
                 ["Attribute"] = (int)BaseAttribute,
                 ["Treatment"] = (int)Treatment,
@@ -922,7 +922,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganRemovedFromHand",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["BakuganType"] = (int)Type,
                 ["Attribute"] = (int)BaseAttribute,
                 ["Treatment"] = (int)Treatment,
@@ -934,7 +934,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "HpLost",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["HpLeft"] = Owner.BakuganOwned.Count(x => !x.Defeated)
             });
 
@@ -948,7 +948,7 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "BakuganAddedToGrave",
-                ["Owner"] = Owner.Id,
+                ["Owner"] = Owner.PlayerId,
                 ["BakuganType"] = (int)Type,
                 ["Attribute"] = (int)BaseAttribute,
                 ["Treatment"] = (int)Treatment,

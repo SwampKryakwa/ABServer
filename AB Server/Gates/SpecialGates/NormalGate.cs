@@ -21,16 +21,16 @@ internal class NormalGate(int cID, Player owner) : GateCard(cID, owner)
 
     public override void Resolve()
     {
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false,
+        Game.ThrowEvent(Owner.PlayerId, EventBuilder.SelectionBundler(false,
             EventBuilder.FieldBakuganSelection("INFO_GATE_TARGET", TypeId, 4, Bakugans.Where(x => x.Owner == Owner))
         ));
 
-        Game.OnAnswer[Owner.Id] = Activate;
+        Game.OnAnswer[Owner.PlayerId] = Activate;
     }
 
     public void Activate()
     {
-        Bakugan target = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.Id]!["array"][0]["bakugan"]];
+        Bakugan target = Game.BakuganIndex[(int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["bakugan"]];
 
         if (!Negated && target.Position == this)
             target.Boost(new Boost((short)(new Random().Next(1, 10) * 10)), this);

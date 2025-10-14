@@ -98,8 +98,7 @@ class ContinuousBoostUntilDestroyedEffect(Bakugan user, Bakugan target, short bo
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
-        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoost = new Boost(boostAmount);
         target.ContinuousBoost(currentBoost, this);
@@ -168,8 +167,7 @@ class ContinuousBoostMultipleSameEffect(Bakugan user, Bakugan[] boostTargets, sh
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
-        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoosts = new Boost[Targets.Length];
         for (int i = 0; i < Targets.Length; i++)
@@ -338,8 +336,7 @@ class ContinuousBoostMultipleSameUntilDestroyedEffect(Bakugan user, Bakugan[] bo
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
-        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, IsCopy));
+        game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoosts = new Boost[Targets.Length];
         for (int i = 0; i < Targets.Length; i++)

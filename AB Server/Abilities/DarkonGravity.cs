@@ -8,7 +8,7 @@ internal class DarkonGravity : AbilityCard
 {
     public DarkonGravity(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
             new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = x => x.Position != User.Position && x.OnField() }
         ];
@@ -17,7 +17,7 @@ internal class DarkonGravity : AbilityCard
     public override void TriggerEffect()
     {
         if (User.Position is GateCard posGate)
-            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Move(posGate, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
+            (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan?.Move(posGate, new JObject { ["MoveEffect"] = "LightningChain", ["Attribute"] = (int)User.BaseAttribute, ["EffectSource"] = User.BID });
     }
 
     public override bool UserValidator(Bakugan user) =>

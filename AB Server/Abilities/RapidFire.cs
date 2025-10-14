@@ -7,22 +7,22 @@ internal class RapidFire : AbilityCard
 {
     public RapidFire(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
-            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.OnField && x.Owner.TeamId != Owner.TeamId },
+            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.OnField && x.Owner.TeamId != Owner.TeamId && x != User.Position },
             new BakuganSelector { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.InHand() }
         ];
     }
 
     public override void TriggerEffect()
     {
-        var gateTarget = (CondTargetSelectors[0] as GateSelector)!.SelectedGate;
-        var bakTarget = (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
+        var gateTarget = (ResTargetSelectors[0] as GateSelector)!.SelectedGate;
+        var bakTarget = (ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan;
         bakTarget.AddFromHandToField(gateTarget);
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.Position is GateCard posGate && posGate.BattleOver && user.IsAttribute(Attribute.Nova);
+        user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Nova);
 
     public override bool ActivationCondition() =>
         Game.CurrentWindow == ActivationWindow.Intermediate;

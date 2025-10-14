@@ -21,7 +21,7 @@ internal class CutInSaber : FusionAbility
     }
 
     public override bool UserValidator(Bakugan user) =>
-    user.Type == BakuganType.Tigress && user.InHand();
+        user.Type == BakuganType.Tigress && user.InHand();
 
     public override bool ActivationCondition() =>
         Game.CurrentWindow == ActivationWindow.Intermediate;

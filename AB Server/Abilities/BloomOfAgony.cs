@@ -8,7 +8,7 @@ internal class BloomOfAgony(int cID, Player owner, int typeId) : AbilityCard(cID
     public override void TriggerEffect()
     {
         foreach (Bakugan target in Game.BakuganIndex.Where(x => x.OnField()))
-            target.Boost(-300, this);
+            target.Boost(-200, this);
     }
 
     public override bool UserValidator(Bakugan user) => user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Darkon);

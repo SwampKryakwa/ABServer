@@ -13,7 +13,7 @@ internal class BakuganDrop(Player player) : IBakuganContainer
 
 internal class Player : IBakuganContainer
 {
-    public byte Id;
+    public byte PlayerId;
     public byte TeamId = new();
     public string DisplayName;
     public byte Avatar;
@@ -47,7 +47,7 @@ internal class Player : IBakuganContainer
     public Player(Game game, byte id, byte sideID, string displayName)
     {
         Game = game;
-        Id = id;
+        PlayerId = id;
         TeamId = sideID;
         DisplayName = displayName;
         BakuganDrop = new(this);

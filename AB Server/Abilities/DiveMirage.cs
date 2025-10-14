@@ -42,7 +42,6 @@ internal class DiveMirageMarker(Bakugan user, GateCard target, Player owner, Gam
     public void Activate()
     {
         game.ActiveZone.Add(this);
-
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
         target.OpenBlocking.Add(this);
 

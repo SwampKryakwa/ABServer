@@ -22,9 +22,9 @@ internal class GateBuilding : AbilityCard
 
     public override void Resolve()
     {
-        Game.OnAnswer[Owner.Id] = () =>
+        Game.OnAnswer[Owner.PlayerId] = () =>
         {
-            int attribute = (int)Game.PlayerAnswers[Owner.Id]!["array"][0]["attribute"];
+            int attribute = (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["attribute"];
             int newCid = Game.GateIndex.Count;
             GateCard newCard = attribute switch
             {
@@ -41,14 +41,14 @@ internal class GateBuilding : AbilityCard
             Game.ThrowEvent(new JObject
             {
                 ["Type"] = "GateAddedToHand",
-                ["Owner"] = newCard.Owner.Id,
+                ["Owner"] = newCard.Owner.PlayerId,
                 ["Kind"] = (int)newCard.Kind,
                 ["CardType"] = newCard.TypeId,
                 ["CID"] = newCard.CardId
             });
             base.Resolve();
         };
-        Game.ThrowEvent(Owner.Id, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.AttributeSelectionEvent("INFO_PICKATTRIBUTE", Enum.GetValues<Attribute>())));
+        Game.ThrowEvent(Owner.PlayerId, EventBuilder.SelectionBundler(false && Game.CurrentWindow == ActivationWindow.Normal, EventBuilder.AttributeSelectionEvent("INFO_PICKATTRIBUTE", Enum.GetValues<Attribute>())));
     }
 
     public override void TriggerEffect()

@@ -35,7 +35,7 @@ internal static class EventBuilder
         };
     }
 
-    public static JObject CounterSelectionEvent(int userId, int cardId, int cardKind)
+    public static JObject CounterQuestionEvent(int userId, int cardId, int cardKind)
     {
         return new()
         {

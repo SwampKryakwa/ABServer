@@ -5,13 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AB_Server;
 
-enum ActivationWindow : byte
-{
-    Normal,
-    TurnStart,
-    TurnEnd,
-    Intermediate
-}
+
 internal partial class Game
 {
     //Static data
@@ -268,10 +262,6 @@ internal partial class Game
         if (!BakuganIndex.Any(x => x.InHand()))
             CloseField();
 
-        Console.WriteLine("Number of players with no gates in hands: " + Players.Count(x => x.GateHand.Count == 0));
-        Console.WriteLine("Number of Gate Cards on field: " + Field.Cast<GateCard?>().Count(x => x is not null));
-        Console.WriteLine("All players set all their gates: " + Players.All(x => x.GateHand.Count == 0));
-        Console.WriteLine("No gates on the field: " + !Field.Cast<GateCard?>().Any(x => x is not null));
         if (!Field.Cast<GateCard?>().Any(x => x is not null) && Players.All(x => x.GateHand.Count == 0))
             ProvideNormalGates();
 
@@ -330,7 +320,8 @@ internal partial class Game
         if ((bool)PlayerAnswers[player]!["array"][0]["answer"])
         {
             OnAnswer[player] = () => ResolveWindow(Players[player]);
-            NewEvents[player].Add(EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+            OnCancel[player] = () => SuggestWindow(ActivationWindow.TurnStart, startingPlayer, player);
+            NewEvents[player].Add(EventBuilder.SelectionBundler(true, EventBuilder.AbilitySelection("INFO_" + CurrentWindow.ToString().ToUpper() + "WINDOWSELECTION", Players[player].AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
         }
         else
         {
@@ -539,12 +530,24 @@ internal partial class Game
         JArray gateArray = new JArray();
 
         foreach (var gate in Players[player].SettableGates())
-            gateArray.Add(new JObject { ["CID"] = gate.CardId, ["Type"] = gate.TypeId });
+            gateArray.Add(new JObject
+            {
+                ["CID"] = gate.CardId,
+                ["Type"] = gate.TypeId
+            });
 
-        JArray bakuganArray = new JArray();
+        JArray bakuganArray = [];
 
         foreach (var bakugan in Players[player].ThrowableBakugan())
-            bakuganArray.Add(new JObject { ["BID"] = bakugan.BID, ["Type"] = (int)bakugan.Type, ["Attribute"] = (int)bakugan.BaseAttribute, ["Treatment"] = (int)bakugan.Treatment, ["IsPartner"] = bakugan.IsPartner, ["Power"] = bakugan.Power });
+            bakuganArray.Add(new JObject
+            {
+                ["BID"] = bakugan.BID,
+                ["Type"] = (int)bakugan.Type,
+                ["Attribute"] = (int)bakugan.BaseAttribute,
+                ["Treatment"] = (int)bakugan.Treatment,
+                ["IsPartner"] = bakugan.IsPartner,
+                ["Power"] = bakugan.Power
+            });
 
         JObject moves = new()
         {
@@ -938,7 +941,7 @@ internal partial class Game
     public void SuggestCounter(Player player, IActive card, Player user)
     {
         OnAnswer[player.PlayerId] = () => CheckCounter(player, card, user);
-        ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(false, EventBuilder.CounterSelectionEvent(user.PlayerId, card.TypeId, (int)card.Kind)));
+        ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(false, EventBuilder.CounterQuestionEvent(user.PlayerId, card.TypeId, (int)card.Kind)));
     }
 
     public void CheckCounter(Player player, IActive card, Player user)
@@ -954,8 +957,8 @@ internal partial class Game
         {
             player.HadUsedCounter = true;
             OnAnswer[player.PlayerId] = () => ResolveCounter(player);
-
-            ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(false, EventBuilder.AbilitySelection("INFO_COUNTERSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
+            OnCancel[player.PlayerId] = () => SuggestCounter(player, card, user);
+            ThrowEvent(player.PlayerId, EventBuilder.SelectionBundler(true, EventBuilder.AbilitySelection("INFO_COUNTERSELECTION", player.AbilityHand.Where(x => x.IsActivateableCounter()).ToArray())));
         }
     }
 

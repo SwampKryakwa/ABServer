@@ -15,6 +15,14 @@ internal interface IActive
     public void Negate(bool asCounter = false);
 }
 
+enum ActivationWindow : byte
+{
+    Normal,
+    TurnStart,
+    TurnEnd,
+    Intermediate
+}
+
 internal interface IChainable
 {
     public void Resolve();

@@ -14,24 +14,15 @@ internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, 
     internal static void Init() => Register(18, CardKind.NormalAbility, (cID, owner) => new SaurusGlow(cID, owner, 18));
 }
 
-internal class SaurusGlowMarker : IActive
+internal class SaurusGlowMarker(Bakugan user, int typeID, bool isCopy) : IActive
 {
-    public int TypeId { get; }
-    public int EffectId { get; set; }
+    public int TypeId { get; } = typeID;
+    public int EffectId { get; set; } = user.Game.NextEffectId++;
     public CardKind Kind { get; } = CardKind.NormalAbility;
-    public Bakugan User { get; set; }
-    Game game { get => User.Game; }
+    public Bakugan User { get; set; } = user;
+    Game game = user.Game;
 
-    public Player Owner { get; set; }
-    bool IsCopy;
-
-    public SaurusGlowMarker(Bakugan user, int typeID, bool IsCopy)
-    {
-        User = user;
-        this.IsCopy = IsCopy; Owner = user.Owner;
-        TypeId = typeID;
-        EffectId = game.NextEffectId++;
-    }
+    public Player Owner { get; set; } = user.Owner;
 
     public void Activate()
     {

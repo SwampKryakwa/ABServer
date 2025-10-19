@@ -17,6 +17,12 @@ internal class VanguardAdvance : AbilityCard
 
     public override void Resolve()
     {
+        if (counterNegated)
+        {
+            Dispose();
+            Game.ChainStep();
+            return;
+        }
         User.Boost(50, this);
         base.Resolve();
     }

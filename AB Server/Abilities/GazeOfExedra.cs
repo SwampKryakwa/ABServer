@@ -3,16 +3,8 @@ using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 
-internal class GazeOfExedra : AbilityCard
+internal class GazeOfExedra(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public GazeOfExedra(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-    {
-        CondTargetSelectors =
-        [
-            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.IsAttribute(Attribute.Darkon) && x.InHand() && x.Owner == Owner }
-        ];
-    }
-
     public override void TriggerEffect()
     {
         if (User.InHand())

@@ -3,26 +3,15 @@ using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 
-internal class FlashFlood : AbilityCard
+internal class FlashFlood(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public FlashFlood(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-    {
-        CondTargetSelectors =
-        [
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User },
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_RETURNTARGET", TargetValidator = x => x.OnField() && x.IsAttribute(Attribute.Aqua) && x != User && x != (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan }
-        ];
-    }
-
     public override void TriggerEffect()
     {
         foreach (var bak in Game.BakuganIndex.Where(x => x.OnField() && x.Owner.TeamId != Owner.TeamId))
-            bak.Boost(-bak.Power, this);
+            bak.Boost(-300, this);
 
-        if ((CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Position is GateCard posGate)
-            (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.MoveFromFieldToHand(posGate.EnterOrder);
-        if ((CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.Position is GateCard otherPosGate)
-            (CondTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.MoveFromFieldToHand(otherPosGate.EnterOrder);
+        if (Owner.Bakugans.Count == 0 && User.Position is GateCard posGate)
+            User.MoveFromFieldToHand(posGate.EnterOrder);
     }
 
     public override bool UserValidator(Bakugan user) =>

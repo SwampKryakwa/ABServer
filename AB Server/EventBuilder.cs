@@ -528,6 +528,16 @@ internal static class EventBuilder
             ["Owner"] = card.Owner.PlayerId
         };
 
+    public static JObject AbilityAddedToHand(AbilityCard ability) =>
+        new()
+        {
+            ["Type"] = "AbilityAddedToHand",
+            ["Kind"] = (int)ability.Kind,
+            ["CardType"] = ability.TypeId,
+            ["CID"] = ability.CardId,
+            ["Owner"] = ability.Owner.PlayerId
+        };
+        
     public static JObject AddMarkerToActiveZone(IActive active, bool isCopy) =>
         new()
         {

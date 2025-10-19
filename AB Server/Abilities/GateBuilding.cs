@@ -22,6 +22,12 @@ internal class GateBuilding : AbilityCard
 
     public override void Resolve()
     {
+        if (counterNegated)
+        {
+            Dispose();
+            Game.ChainStep();
+            return;
+        }
         Game.OnAnswer[Owner.PlayerId] = () =>
         {
             int attribute = (int)Game.PlayerAnswers[Owner.PlayerId]!["array"][0]["attribute"];

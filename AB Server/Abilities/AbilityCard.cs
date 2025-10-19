@@ -300,6 +300,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             ["IsCounter"] = asCounter,
             ["Owner"] = Owner.PlayerId
         });
+        Dispose();
 
         Game.ActiveZone.Add(this);
         Game.CardChain.Push(this);
@@ -309,7 +310,11 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
     public virtual void Resolve()
     {
         currentTarget = 0;
-        SendResTargetForSelection();
+
+        if (!counterNegated)
+            SendResTargetForSelection();
+        else
+            Game.ChainStep();
     }
 
     protected void SendResTargetForSelection()
@@ -518,9 +523,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
 
     protected void Resolution()
     {
-        if (!counterNegated)
-            TriggerEffect();
-        Dispose();
+        TriggerEffect();
         Game.ChainStep();
     }
 
@@ -574,14 +577,7 @@ abstract class AbilityCard(int cID, Player owner, int typeId) : IActive, IChaina
             Owner.AbilityHand.Add(this);
         }
 
-        Game.ThrowEvent(new()
-        {
-            ["Type"] = "AbilityAddedToHand",
-            ["Kind"] = (int)Kind,
-            ["CardType"] = TypeId,
-            ["CID"] = CardId,
-            ["Owner"] = Owner.PlayerId
-        });
+        Game.ThrowEvent(EventBuilder.AbilityAddedToHand(this));
 
         Game.ThrowEvent(new()
         {

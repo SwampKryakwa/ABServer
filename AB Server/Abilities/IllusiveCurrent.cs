@@ -9,11 +9,11 @@ internal class IllusiveCurrent : AbilityCard
     {
         ResTargetSelectors =
         [
-            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InHand() }
+            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.Owner == Owner && x.InHand() },
+            new GateSelector() { ClientType = "GF", ForPlayer = p => p == Owner, Message = "INFO_ABILITY_DESTINATIONTARGET", TargetValidator = x => x.OnField }
         ];
     }
 
-    GateCard oldUserPos;
     public override void Resolve()
     {
         if (counterNegated)
@@ -23,30 +23,18 @@ internal class IllusiveCurrent : AbilityCard
             return;
         }
         if (User.OnField())
-        {
-            oldUserPos = (User.Position as GateCard)!;
-            User.MoveFromFieldToHand(oldUserPos.EnterOrder);
-            base.Resolve();
-        }
+            User.MoveFromFieldToHand((User.Position as GateCard)!.EnterOrder);
         else if (User.InDrop())
-        {
             User.MoveFromDropToHand();
-            Dispose();
-            Game.ChainStep();
-        }
-        else
-        {
-            Dispose();
-            Game.ChainStep();
-        }
+        base.Resolve();
     }
 
     public override void TriggerEffect() =>
-        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AddFromHandToField(oldUserPos);
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.AddFromHandToField((ResTargetSelectors[1] as GateSelector)!.SelectedGate);
 
     public override bool UserValidator(Bakugan user) =>
         user.OnField();
-    
+
     public override bool ActivationCondition() =>
         Owner.Bakugans.Any(x => x.IsAttribute(Attribute.Aqua));
 

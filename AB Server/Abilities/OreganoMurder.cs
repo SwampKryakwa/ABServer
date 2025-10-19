@@ -16,6 +16,12 @@ internal class OreganoMurder : AbilityCard
 
     public override void Resolve()
     {
+        if (counterNegated)
+        {
+            Dispose();
+            Game.ChainStep();
+            return;
+        }
         User.Boost(100, this);
         base.Resolve();
     }

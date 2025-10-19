@@ -19,7 +19,10 @@ internal class EssenceWash : AbilityCard
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.IsAttribute(Attribute.Aqua) && user.OnField();
+        user.OnField();
+
+    public override bool ActivationCondition() =>
+        Game.CurrentWindow == ActivationWindow.Normal && Owner.Bakugans.Count(x => x.IsAttribute(Attribute.Aqua)) >= 2;
 
     [ModuleInitializer]
     internal static void Init() => Register(31, CardKind.NormalAbility, (cID, owner) => new EssenceWash(cID, owner, 31));

@@ -1,40 +1,24 @@
 using System.Runtime.CompilerServices;
+using AB_Server.Abilities.Correlations;
 
 namespace AB_Server.Abilities;
 
-internal class ChromaticTide : AbilityCard
+internal class ChromaticTide(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public ChromaticTide(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-    {
-        CondTargetSelectors =
-        [
-            new AbilitySelector() { ClientType = "A", ForPlayer = x => x == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Owner == Owner && x.Kind == CardKind.CorrelationAbility }
-        ];
-    }
-
     public override void TriggerEffect()
     {
-        var target = (CondTargetSelectors[0] as AbilitySelector)!.SelectedAbility;
-
-        target.FromDropToHand();
-
-        var currentState = User.attributeChanges.Count != 0 ? User.attributeChanges[0].Attributes : [User.BaseAttribute];
-        int sharedCount = 0;
-        foreach (Bakugan bak in Owner.BakuganOwned)
-        {
-            var bakState = bak.attributeChanges.Count != 0 ? bak.attributeChanges[0].Attributes : [bak.BaseAttribute];
-            foreach (var attr in currentState)
-                if (bakState.Contains(attr))
-                {
-                    sharedCount++;
-                    break;
-                }
-        }
-
-        if (sharedCount == Owner.BakuganOwned.Count)
-        {
-            User.Boost(100, this);
-        }
+        AbilityCard ability = new AdjacentCorrelation(Game.AbilityIndex.Count, Owner);
+        Owner.AbilityHand.Add(ability);
+        Game.AbilityIndex.Add(ability);
+        Game.ThrowEvent(EventBuilder.AbilityAddedToHand(ability));
+        ability = new DiagonalCorrelation(Game.AbilityIndex.Count, Owner);
+        Owner.AbilityHand.Add(ability);
+        Game.AbilityIndex.Add(ability);
+        Game.ThrowEvent(EventBuilder.AbilityAddedToHand(ability));
+        ability = new TripleNode(Game.AbilityIndex.Count, Owner);
+        Owner.AbilityHand.Add(ability);
+        Game.AbilityIndex.Add(ability);
+        Game.ThrowEvent(EventBuilder.AbilityAddedToHand(ability));
     }
 
     public override bool UserValidator(Bakugan user) =>

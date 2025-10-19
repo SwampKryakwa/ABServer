@@ -24,7 +24,6 @@ internal class WaterRefrainMarker(Bakugan user, bool isCopy) : IActive
     public int EffectId { get; set; } = user.Game.NextEffectId++;
     public Bakugan User { get; set; } = user;
     Game game = user.Game;
-    int turnsPassed = 0;
 
     public Player Owner { get; set; } = user.Owner;
     public CardKind Kind { get; } = CardKind.NormalAbility;
@@ -45,7 +44,7 @@ internal class WaterRefrainMarker(Bakugan user, bool isCopy) : IActive
 
     public void CheckEffectOver()
     {
-        if (turnsPassed++ == 1)
+        if (game.TurnPlayer == Owner.PlayerId)
             CeaseMarker();
     }
 

@@ -19,7 +19,7 @@ internal class HarmonicGrace : FusionAbility
         var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
         if (User.Position is GateCard posGate && target.OnField())
         {
-            target.Move(posGate, new JObject { ["MoveEffect"] = "Slide" });
+            target.Move(posGate, new() { ["MoveEffect"] = "Slide" });
             target.Boost(new Boost((short)User.Power), this);
             User.MoveFromFieldToHand(posGate.EnterOrder);
         }

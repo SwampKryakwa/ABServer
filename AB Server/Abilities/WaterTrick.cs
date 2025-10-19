@@ -7,19 +7,19 @@ internal class WaterTrick : AbilityCard
 {
     public WaterTrick(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
-            new GateSelector() { ClientType = "GH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.Owner.GateHand.Contains(x) },
-            new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.Owner != Owner && x.OnField && !x.IsOpen }
+            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = b => b.OnField() },
+            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = b => b.OnField() && ResTargetSelectors[0] is BakuganSelector bakSelector && bakSelector.SelectedBakugan != b && bakSelector.SelectedBakugan.Position != b.Position }
         ];
     }
 
     public override void TriggerEffect()
     {
-        var gateCopy = GateCard.CreateCard((CondTargetSelectors[1] as GateSelector)!.SelectedGate.Owner, Game.GateIndex.Count, (CondTargetSelectors[0] as GateSelector)!.SelectedGate.TypeId);
-        Game.GateIndex.Add(gateCopy);
-        gateCopy.TransformFrom((CondTargetSelectors[1] as GateSelector)!.SelectedGate, true, Owner.PlayerId);
-        Game.Field[gateCopy.Position.X, gateCopy.Position.Y] = gateCopy;
+        var posGate1 = ((ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Position as GateCard)!;
+        var posGate2 = ((ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.Position as GateCard)!;
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Move(posGate2, new() { ["MoveEffect"] = "Slide" });
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Move(posGate1, new() { ["MoveEffect"] = "Slide" });
     }
 
     public override bool UserValidator(Bakugan user) =>

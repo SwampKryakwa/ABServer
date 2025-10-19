@@ -8,7 +8,6 @@ internal class InsightSurge : AbilityCard
     {
         ResTargetSelectors =
         [
-            new PlayerSelector { ForPlayer = (p) => p == Owner, Message = "INFO_PICK_PLAYER", TargetValidator = (p) => p.TeamId != Owner.TeamId },
             new TypeSelector { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", SelectableKinds = [CardKind.NormalAbility, CardKind.CommandGate, CardKind.SpecialGate] },
             new TypeSelector { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", SelectableKinds = [CardKind.NormalAbility, CardKind.CommandGate, CardKind.SpecialGate] },
             new TypeSelector { ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", SelectableKinds = [CardKind.NormalAbility, CardKind.CommandGate, CardKind.SpecialGate] }
@@ -17,14 +16,12 @@ internal class InsightSurge : AbilityCard
 
     public override void TriggerEffect()
     {
-        var selector1 = (ResTargetSelectors[1] as TypeSelector)!;
-        var selector2 = (ResTargetSelectors[2] as TypeSelector)!;
-        var selector3 = (ResTargetSelectors[3] as TypeSelector)!;
+        var selector1 = (ResTargetSelectors[0] as TypeSelector)!;
+        var selector2 = (ResTargetSelectors[1] as TypeSelector)!;
+        var selector3 = (ResTargetSelectors[2] as TypeSelector)!;
         (int type, int kind)[] selectedTypes = [(selector1.SelectedType, selector1.SelectedKind), (selector2.SelectedType, selector2.SelectedKind), (selector3.SelectedType, selector3.SelectedKind)];
 
-        var opponent = (ResTargetSelectors[0] as PlayerSelector)!.SelectedPlayer;
-
-        User.Boost(100 * (opponent.AbilityHand.Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind))) + opponent.GateHand.Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind)))), this);
+        User.Boost(100 * (Game.Players.Where(x => x.TeamId != Owner.TeamId).SelectMany(x => x.AbilityHand).Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind))) + Game.Players.Where(x => x.TeamId != Owner.TeamId).SelectMany(x => x.GateHand).Count(x => selectedTypes.Contains((x.TypeId, (int)x.Kind)))), this);
     }
 
     public override bool UserValidator(Bakugan user) =>

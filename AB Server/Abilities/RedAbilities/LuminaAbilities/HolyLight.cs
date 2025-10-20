@@ -6,17 +6,18 @@ internal class HolyLight : AbilityCard
 {
     public HolyLight(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
-            new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Power < User.Power && x.InDrop() }
+            new BakuganSelector() { ClientType = "BG", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_REVIVETARGET", TargetValidator = x => x.Power != User.Power && x.Type != User.Type && x.InDrop() }
         ];
     }
 
     public override void TriggerEffect()
     {
-        var target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
-        if (target.InDrop())
-            target.MoveFromDropToHand();
+        var target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+        target.MoveFromDropToHand();
+        if (target.IsOpponentOf(User))
+            User.Boost(300, this);
     }
 
     public override bool UserValidator(Bakugan user) =>

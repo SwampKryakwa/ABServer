@@ -2,16 +2,8 @@
 
 namespace AB_Server.Abilities;
 
-internal class ShieldOfLight : AbilityCard
+internal class ShieldOfLight(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)
 {
-    public ShieldOfLight(int cID, Player owner, int typeId) : base(cID, owner, typeId)
-    {
-        CondTargetSelectors =
-        [
-            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.InBattle && x.IsOpponentOf(User)}
-        ];
-    }
-
     public override void TriggerEffect()
     {
         if (CondTargetSelectors[0] is BakuganSelector targetSelector)

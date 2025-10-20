@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace AB_Server.Abilities.Fusions;
+namespace AB_Server.Abilities;
 
 internal class CoreLinkage(int cID, Player owner) : FusionAbility(cID, owner, 9, typeof(Enforcement))
 {

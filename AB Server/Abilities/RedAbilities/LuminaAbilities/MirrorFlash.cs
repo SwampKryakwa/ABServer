@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 

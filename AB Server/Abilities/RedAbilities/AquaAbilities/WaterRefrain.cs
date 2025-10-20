@@ -38,8 +38,6 @@ internal class WaterRefrainMarker(Bakugan user, bool isCopy) : IActive
         game.Players.Where(x => x.TeamId != Owner.TeamId).ToList().ForEach(p => p.RedAbilityBlockers.Add(this));
 
         game.OnTurnEnd += CheckEffectOver;
-
-        User.AffectingEffects.Add(this);
     }
 
     public void CheckEffectOver()

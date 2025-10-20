@@ -2,7 +2,7 @@
 
 internal class NegativeDelta(int cID, Player owner) : GateCard(cID, owner)
 {
-    
+
     public override int TypeId { get; } = 13;
 
     public override void Resolve()

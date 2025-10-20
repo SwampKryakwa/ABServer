@@ -4,7 +4,7 @@ namespace AB_Server.Gates;
 
 internal class MindGhost(int cID, Player owner) : GateCard(cID, owner)
 {
-    
+
     public override int TypeId { get; } = 18;
 
     public override bool IsOpenable() =>

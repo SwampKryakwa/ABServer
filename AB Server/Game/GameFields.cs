@@ -29,7 +29,7 @@ internal partial class Game
     public List<GateCard> GateSetList = [];
     public List<IActive> ActiveZone = [];
     public Stack<IChainable> CardChain = [];
-    
+
     //Game state
     bool Over = false;
     public int turnNumber = 0;

@@ -537,7 +537,7 @@ internal static class EventBuilder
             ["CID"] = ability.CardId,
             ["Owner"] = ability.Owner.PlayerId
         };
-        
+
     public static JObject AddMarkerToActiveZone(IActive active, bool isCopy) =>
         new()
         {

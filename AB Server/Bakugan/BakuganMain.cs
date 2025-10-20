@@ -1,51 +1,7 @@
-﻿
-using AB_Server.Gates;
+﻿using AB_Server.Gates;
 using Newtonsoft.Json.Linq;
 
 namespace AB_Server;
-
-enum Attribute : byte
-{
-    Nova,
-    Aqua,
-    Darkon,
-    Zephyros,
-    Lumina,
-    Subterra,
-    Clear
-}
-enum Treatment : byte
-{
-    None,
-    Flip,
-    Pearl,
-    Diamond,
-    Translucent
-}
-enum BakuganType : sbyte
-{
-    None = -1,
-    Glorius,
-    Laserman,
-    Mantis,
-    Raptor,
-    Lucifer,
-    Saurus,
-    Elephant,
-    Tigress,
-    Garrison,
-    Griffon,
-    Knight,
-    Worm,
-    Shredder,
-    Fairy
-}
-
-enum MoveSource : byte
-{
-    Game,
-    Effect
-}
 
 class Boost(short value)
 {
@@ -66,22 +22,8 @@ class AttributeState(params Attribute[] attributes)
     }
 }
 
-internal class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
+internal partial class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
 {
-    public delegate void Destroyed();
-    public delegate void RemovedFromField();
-    public delegate void FromHandToField();
-    public delegate void FromDropToField();
-    public delegate void FromHandToDrop();
-    public delegate void FromDropToHand();
-
-    public Game Game = game;
-
-    public int BID = BID;
-    public BakuganType Type = type;
-    public bool IsPartner = false;
-
-    public List<object> AffectingEffects = [];
     public List<object> AbilityBlockers = [];
 
     public short DefaultPower { get; } = power;
@@ -89,12 +31,8 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
     public List<Boost> Boosts = [];
     public List<Boost> ContinuousBoosts = [];
 
-    public event Destroyed OnDestroyed;
-    public event RemovedFromField OnRemovedFromField;
-    public event FromHandToField OnFromHandToField;
-    public event FromDropToField OnFromDropToField;
-    public event FromHandToDrop OnFromHandToDrop;
-    public event FromDropToHand OnFromDropToHand;
+    public Attribute BaseAttribute = attribute;
+    public List<AttributeState> attributeChanges = [];
 
     public int Power
     {
@@ -104,13 +42,11 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
     {
         get => Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value);
     }
-
-    public Player Owner = owner;
+    public IEnumerable<Attribute> CurrentAttributes
+    {
+        get => attributeChanges.Count == 0 ? [BaseAttribute] : attributeChanges[^1].Attributes;
+    }
     public bool Frenzied = false;
-
-    public Attribute BaseAttribute = attribute;
-    public List<AttributeState> attributeChanges = [];
-    public IEnumerable<Attribute> CurrentAttributes { get => attributeChanges.Count == 0 ? [BaseAttribute] : attributeChanges[^1].Attributes; }
 
     public Treatment Treatment = treatment;
 
@@ -120,15 +56,14 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
     }
 
     public IBakuganContainer Position = owner;
+
+    //Battle state
     public bool InBattle
     {
         get => Position is GateCard gatePosition && gatePosition.IsBattleGoing;
     }
     public bool Defeated = false;
-    public bool IsDummy = false;
     public bool JustEndedBattle = false;
-
-    public bool StickOnce = false;
     public bool BattleEndedInDraw = false;
 
     public static Bakugan GetDummy() => new(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)

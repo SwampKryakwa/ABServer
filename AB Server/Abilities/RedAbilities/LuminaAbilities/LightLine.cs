@@ -36,7 +36,7 @@ internal class LightLineMarker(Bakugan user, bool isCopy) : IActive
     public Bakugan User { get; set; } = user;
     public Player Owner { get; set; } = user.Owner;
     Game game = user.Game;
-    
+
     public void Activate()
     {
         game.ActiveZone.Add(this);
@@ -49,7 +49,7 @@ internal class LightLineMarker(Bakugan user, bool isCopy) : IActive
     private void OnBakugansToField((Bakugan, GateCard)[] obj)
     {
         foreach ((Bakugan bakugan, GateCard _) in obj)
-            if (bakugan.Owner == Owner && Owner.BakuganOwned.Count(x=>x.OnField()) >= 2)
+            if (bakugan.Owner == Owner && Owner.BakuganOwned.Count(x => x.OnField()) >= 2)
                 foreach (var bak in Owner.BakuganOwned.Where(x => x.OnField()))
                     bak.Boost(80, this);
     }

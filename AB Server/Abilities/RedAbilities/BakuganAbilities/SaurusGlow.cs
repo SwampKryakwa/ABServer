@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using AB_Server.Gates;
+using System.Runtime.CompilerServices;
 namespace AB_Server.Abilities;
 
 internal class SaurusGlow(int cID, Player owner, int typeId) : AbilityCard(cID, owner, typeId)

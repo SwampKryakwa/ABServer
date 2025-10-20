@@ -2,7 +2,7 @@
 
 internal class JokersWild(int cID, Player owner) : GateCard(cID, owner)
 {
-    
+
     public override int TypeId { get; } = 5;
 
     public override bool IsOpenable() =>

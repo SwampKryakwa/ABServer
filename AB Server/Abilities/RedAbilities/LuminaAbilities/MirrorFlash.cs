@@ -7,15 +7,15 @@ internal class MirrorFlash : AbilityCard
 {
     public MirrorFlash(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
-            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.Position == User.Position && x.IsOpponentOf(User) }
+            new BakuganSelector() { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.BasePower > User.BasePower }
         ];
     }
 
     public override void TriggerEffect()
     {
-        Bakugan target = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
+        Bakugan target = (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
 
         short difference = (short)(User.Power - target.Power);
         User.Boost(-difference, this);
@@ -23,10 +23,10 @@ internal class MirrorFlash : AbilityCard
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.Position is GateCard posGate && posGate.BattleStarting && user.IsAttribute(Attribute.Lumina);
+        user.InBattle;
 
     public override bool ActivationCondition() =>
-        Game.CurrentWindow == ActivationWindow.Intermediate;
+        Game.CurrentWindow == ActivationWindow.Normal && Owner.BakuganOwned.Count(x => x.IsAttribute(Attribute.Lumina)) >= 2;
 
     [ModuleInitializer]
     internal static void Init() => Register(27, CardKind.NormalAbility, (cID, owner) => new MirrorFlash(cID, owner, 27));

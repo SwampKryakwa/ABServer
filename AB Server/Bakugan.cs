@@ -851,6 +851,8 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
         if (IsDummy) return;
         if (Position is GateCard positionGate)
         {
+            DestructionTurn = (byte)Game.turnNumber;
+            DestroyedOn = positionGate;
             attributeChanges.Clear();
             Frenzied = false;
             Defeated = true;
@@ -970,6 +972,9 @@ internal class Bakugan(BakuganType type, short power, Attribute attribute, Treat
 
     public bool InDrop() =>
         Position is BakuganDrop;
+
+    public byte DestructionTurn = 0;
+    public GateCard DestroyedOn;
 
     public bool IsOpponentOf(Bakugan bakugan) =>
         Owner.TeamId != bakugan.Owner.TeamId;

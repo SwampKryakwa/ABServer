@@ -8,8 +8,8 @@ internal class LuminousEntrust : AbilityCard
     {
         ResTargetSelectors =
         [
-            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.InHand() && x.Owner == Owner },
-            new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_GATETARGET", TargetValidator = x => x.OnField }
+            new BakuganSelector() { ClientType = "BH", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_ADDTARGET", TargetValidator = x => x.InHand() && x.Owner == Owner },
+            new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_THROWTARGET", TargetValidator = x => x.OnField }
         ];
     }
 
@@ -17,11 +17,11 @@ internal class LuminousEntrust : AbilityCard
     {
         var bakTarget = (CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan;
         bakTarget.AddFromHandToField((CondTargetSelectors[1] as GateSelector)!.SelectedGate);
-        bakTarget.Boost(50, this);
+        bakTarget.Boost(100, this);
     }
 
     public override bool UserValidator(Bakugan user) =>
-        user.IsAttribute(Attribute.Lumina) && user.InDrop();
+        user.IsAttribute(Attribute.Lumina) && user.InDrop() && user.DestroyedOn.OnField && user.DestructionTurn == Game.turnNumber;
 
     public override bool ActivationCondition() =>
         Game.CurrentWindow == ActivationWindow.Intermediate;

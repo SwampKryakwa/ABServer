@@ -32,7 +32,7 @@ internal class LuminescenceEffect(Bakugan user, bool isCopy) : IActive
         game.ThrowEvent(EventBuilder.AddMarkerToActiveZone(this, isCopy));
 
         currentBoosts = [];
-        foreach (var bak in User.Owner.BakuganOwned.Where(x => x.IsAttribute(Attribute.Lumina)))
+        foreach (var bak in User.Owner.BakuganOwned)
         {
             Boost boost = new(30);
             currentBoosts.Add(bak, boost);
@@ -41,32 +41,26 @@ internal class LuminescenceEffect(Bakugan user, bool isCopy) : IActive
         }
 
         game.OnBakugansAttributeChange += OnAttributeChange;
+        game.OnBakugansDestroyed += CheckMarkerExpiration;
+    }
+
+    private void CheckMarkerExpiration(Bakugan[] droppedBakugan)
+    {
+        if (!Owner.BakuganOwned.Any(x => x.IsAttribute(Attribute.Lumina) && !x.InDrop()))
+            CeaseMarker();
     }
 
     public void OnAttributeChange((Bakugan, AttributeState)[] changedBakugan)
     {
-        foreach ((Bakugan target, AttributeState _) in changedBakugan)
-        {
-            if (User.IsAttribute(Attribute.Lumina) && !targets.Contains(target))
-            {
-                Boost boost = new(30);
-                currentBoosts.Add(target, boost);
-                targets.Add(target);
-                target.ContinuousBoost(boost, this);
-            }
-            else if (!User.IsAttribute(Attribute.Lumina) && targets.Contains(target))
-            {
-                Boost boost = currentBoosts[target];
-                boost.Active = false;
-                currentBoosts.Remove(target);
-                targets.Remove(target);
-                target.RemoveContinuousBoost(boost, this);
-            }
-        }
+        if (!Owner.BakuganOwned.Any(x => x.IsAttribute(Attribute.Lumina) && !x.InDrop()))
+            CeaseMarker();
     }
 
 
-    public void Negate(bool asCounter)
+    public void Negate(bool asCounter) =>
+        CeaseMarker();
+
+    public void CeaseMarker()
     {
         game.ActiveZone.Remove(this);
 

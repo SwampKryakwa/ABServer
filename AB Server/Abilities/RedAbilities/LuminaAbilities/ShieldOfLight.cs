@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using AB_Server.Gates;
 
 namespace AB_Server.Abilities;
 
@@ -6,13 +7,11 @@ internal class ShieldOfLight(int cID, Player owner, int typeId) : AbilityCard(cI
 {
     public override void TriggerEffect()
     {
-        if (CondTargetSelectors[0] is BakuganSelector targetSelector)
-        {
-            if (!targetSelector.SelectedBakugan.IsAttribute(Attribute.Lumina))
-                targetSelector.SelectedBakugan.Boost(-100, this);
-            if (targetSelector.SelectedBakugan.Power > User.Power)
-                targetSelector.SelectedBakugan.Boost(-100, this);
-        }
+        if (User.Position is GateCard posGate && posGate.IsOpen)
+            posGate.Negate();
+
+        foreach (var b in Game.BakuganIndex.Where(x => x.BasePower > User.BasePower))
+            b.Boost(-100, this);
     }
 
     public override bool UserValidator(Bakugan user) =>

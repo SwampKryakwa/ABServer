@@ -15,7 +15,11 @@ internal partial class Bakugan
     //Bakugan info
     public int BID = BID;
     public BakuganType Type = type;
+    public Treatment Treatment = treatment;
+    public Attribute BaseAttribute = attribute;
     public bool IsPartner = false;
+    public short DefaultPower { get; } = power;
+    public short BasePower = power;
 
     //Extra info
     public bool IsDummy = false;

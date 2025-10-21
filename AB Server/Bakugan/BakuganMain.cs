@@ -24,47 +24,6 @@ class AttributeState(params Attribute[] attributes)
 
 internal partial class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
 {
-    public List<object> AbilityBlockers = [];
-
-    public short DefaultPower { get; } = power;
-    public short BasePower = power;
-    public List<Boost> Boosts = [];
-    public List<Boost> ContinuousBoosts = [];
-
-    public Attribute BaseAttribute = attribute;
-    public List<AttributeState> attributeChanges = [];
-
-    public int Power
-    {
-        get => BasePower + Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value);
-    }
-    public int AdditionalPower
-    {
-        get => Boosts.Sum(b => b.Value) + ContinuousBoosts.Sum(b => b.Value);
-    }
-    public IEnumerable<Attribute> CurrentAttributes
-    {
-        get => attributeChanges.Count == 0 ? [BaseAttribute] : attributeChanges[^1].Attributes;
-    }
-    public bool Frenzied = false;
-
-    public Treatment Treatment = treatment;
-
-    public bool IsAttribute(Attribute attr)
-    {
-        return attributeChanges.Count == 0 ? BaseAttribute == attr : attributeChanges[^1].IsAttribute(attr);
-    }
-
-    public IBakuganContainer Position = owner;
-
-    //Battle state
-    public bool InBattle
-    {
-        get => Position is GateCard gatePosition && gatePosition.IsBattleGoing;
-    }
-    public bool Defeated = false;
-    public bool JustEndedBattle = false;
-    public bool BattleEndedInDraw = false;
 
     public static Bakugan GetDummy() => new(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)
     {
@@ -895,21 +854,6 @@ internal partial class Bakugan(BakuganType type, short power, Attribute attribut
             });
         }
     }
-
-    /// <summary>
-    /// Shows if the Bakugan is on the field, or, in other words, is standing
-    /// </summary>
-    public bool OnField() =>
-        Position is GateCard;
-
-    public bool InHand() =>
-        Position is Player;
-
-    public bool InDrop() =>
-        Position is BakuganDrop;
-
-    public byte DestructionTurn = 0;
-    public GateCard DestroyedOn;
 
     public bool IsOpponentOf(Bakugan bakugan) =>
         Owner.TeamId != bakugan.Owner.TeamId;

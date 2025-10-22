@@ -18,7 +18,6 @@ internal partial class Bakugan
     public Treatment Treatment = treatment;
     public Attribute BaseAttribute = attribute;
     public bool IsPartner = false;
-    public short DefaultPower { get; } = power;
     public short BasePower = power;
 
     //Extra info

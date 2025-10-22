@@ -30,7 +30,7 @@ internal class VanguardAdvance : AbilityCard
     public override void TriggerEffect()
     {
         if ((ResTargetSelectors[0] as YesNoSelector)!.IsYes)
-            User.Move((ResTargetSelectors[1] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Fireball" });
+            User.MoveOnField((ResTargetSelectors[1] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Fireball" });
     }
 
     public override bool UserValidator(Bakugan user) =>

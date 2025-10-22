@@ -16,7 +16,7 @@ internal static class GenericEffects
     /// <param name="moveEffect">An optional JObject describing the move effect animation.</param>
     public static void MoveBakuganEffect(Bakugan target, GateCard moveTarget, JObject? moveEffect = null)
     {
-        target.Move(moveTarget, moveEffect ?? new JObject { ["MoveEffect"] = "None" }, MoveSource.Effect);
+        target.MoveOnField(moveTarget, moveEffect ?? new JObject { ["MoveEffect"] = "None" }, MoveSource.Effect);
     }
 }
 

@@ -28,8 +28,8 @@ internal class Tunneling : AbilityCard
             var gate = gateSelector.SelectedGate;
             if (target != null && gate != null)
             {
-                User.Move(gate, new() { ["MoveEffect"] = "Submerge" });
-                target.Move(gate, new() { ["MoveEffect"] = "Submerge" });
+                User.MoveOnField(gate, new() { ["MoveEffect"] = "Submerge" });
+                target.MoveOnField(gate, new() { ["MoveEffect"] = "Submerge" });
             }
         }
     }

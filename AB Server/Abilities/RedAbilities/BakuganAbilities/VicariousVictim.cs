@@ -25,8 +25,8 @@ internal class VicariousVictim : AbilityCard
             }
             else if (selectedBakugan.Position is GateCard targetPositionGate)
             {
-                selectedBakugan.Move(positionGate, new JObject { ["MoveEffect"] = "Slide" });
-                User.Move(targetPositionGate, new JObject { ["MoveEffect"] = "Slide" });
+                selectedBakugan.MoveOnField(positionGate, new JObject { ["MoveEffect"] = "Slide" });
+                User.MoveOnField(targetPositionGate, new JObject { ["MoveEffect"] = "Slide" });
             }
             else if (selectedBakugan.Position is Player)
             {

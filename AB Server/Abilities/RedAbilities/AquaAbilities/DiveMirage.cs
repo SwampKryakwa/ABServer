@@ -16,7 +16,7 @@ internal class DiveMirage : AbilityCard
 
     public override void TriggerEffect()
     {
-        User.Move((CondTargetSelectors[0] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Submerge" });
+        User.MoveOnField((CondTargetSelectors[0] as GateSelector)!.SelectedGate, new JObject() { ["MoveEffect"] = "Submerge" });
         if (Owner.BakuganOwned.All(x => x.IsAttribute(Attribute.Aqua)))
             new DiveMirageMarker(User, (CondTargetSelectors[0] as GateSelector)!.SelectedGate, Owner, Game, TypeId, Kind, IsCopy).Activate();
     }

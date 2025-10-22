@@ -18,8 +18,8 @@ internal class WaterTrick : AbilityCard
     {
         var posGate1 = ((ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Position as GateCard)!;
         var posGate2 = ((ResTargetSelectors[1] as BakuganSelector)!.SelectedBakugan.Position as GateCard)!;
-        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Move(posGate2, new() { ["MoveEffect"] = "Slide" });
-        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Move(posGate1, new() { ["MoveEffect"] = "Slide" });
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.MoveOnField(posGate2, new() { ["MoveEffect"] = "Slide" });
+        (ResTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.MoveOnField(posGate1, new() { ["MoveEffect"] = "Slide" });
     }
 
     public override bool UserValidator(Bakugan user) =>

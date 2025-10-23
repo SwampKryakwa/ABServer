@@ -26,6 +26,9 @@ internal partial class Bakugan
     public bool JustEndedBattle = false;
     public bool BattleEndedInDraw = false;
 
+    //Other state
+    public bool Frenzied = false;
+
     //Blockers
     public List<object> AbilityBlockers = [];
 
@@ -42,13 +45,10 @@ internal partial class Bakugan
     {
         get => attributeChanges.Count == 0 ? [BaseAttribute] : attributeChanges[^1].Attributes;
     }
-    public bool Frenzied = false;
 
 
-    public bool IsAttribute(Attribute attr)
-    {
-        return attributeChanges.Count == 0 ? BaseAttribute == attr : attributeChanges[^1].IsAttribute(attr);
-    }
+    public bool IsAttribute(Attribute attr) =>
+        attributeChanges.Count == 0 ? BaseAttribute == attr : attributeChanges[^1].IsAttribute(attr);
 
     public bool InBattle
     {

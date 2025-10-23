@@ -15,15 +15,12 @@ class AttributeState(params Attribute[] attributes)
     public bool IsAttribute(Attribute attribute) =>
         Attributes.Contains(attribute);
 
-    public void AddAttribute(Attribute attribute)
-    {
+    public void AddAttribute(Attribute attribute) =>
         Attributes = [.. Attributes, attribute];
-    }
 }
 
 internal partial class Bakugan(BakuganType type, short power, Attribute attribute, Treatment treatment, Player owner, Game game, int BID)
 {
-
     public static Bakugan GetDummy() => new(BakuganType.None, 0, Attribute.Clear, Treatment.None, null, null, -1)
     {
         IsDummy = true

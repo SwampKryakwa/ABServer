@@ -527,7 +527,7 @@ internal partial class Game
     public JObject GetPossibleMoves(int player)
     {
         Console.WriteLine($"Current window: " + CurrentWindow);
-        JArray gateArray = new JArray();
+        JArray gateArray = [];
 
         foreach (var gate in Players[player].SettableGates())
             gateArray.Add(new JObject

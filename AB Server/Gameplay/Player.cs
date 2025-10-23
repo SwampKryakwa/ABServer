@@ -8,7 +8,7 @@ internal class BakuganDrop(Player player) : IBakuganContainer
 {
     public Player Player = player;
 
-    public List<Bakugan> Bakugans { get; } = new();
+    public List<Bakugan> Bakugans { get; } = [];
 }
 
 internal class Player : IBakuganContainer
@@ -17,21 +17,21 @@ internal class Player : IBakuganContainer
     public byte TeamId = new();
     public string DisplayName;
     public byte Avatar;
-    public List<object> AbilityBlockers = new();
-    public List<object> RedAbilityBlockers = new();
-    public List<object> GreenAbilityBlockers = new();
-    public List<object> BlueAbilityBlockers = new();
-    public List<object> GateBlockers = new();
+    public List<object> AbilityBlockers = [];
+    public List<object> RedAbilityBlockers = [];
+    public List<object> GreenAbilityBlockers = [];
+    public List<object> BlueAbilityBlockers = [];
+    public List<object> GateBlockers = [];
 
-    public List<Bakugan> Bakugans { get; } = new();
-    public List<AbilityCard> AbilityHand = new();
-    public List<GateCard> GateHand = new();
+    public List<Bakugan> Bakugans { get; } = [];
+    public List<AbilityCard> AbilityHand = [];
+    public List<GateCard> GateHand = [];
 
     public BakuganDrop BakuganDrop;
-    public List<AbilityCard> AbilityDrop = new();
-    public List<GateCard> GateDrop = new();
+    public List<AbilityCard> AbilityDrop = [];
+    public List<GateCard> GateDrop = [];
 
-    public List<Bakugan> BakuganOwned = new();
+    public List<Bakugan> BakuganOwned = [];
 
     public bool HadSetGate = false;
     public int UsedThrows = 0;
@@ -169,7 +169,7 @@ internal class Player : IBakuganContainer
 
     public List<GateCard> OpenableGates()
     {
-        List<GateCard> openableGates = new();
+        List<GateCard> openableGates = [];
         foreach (GateCard? gate in Game.Field)
         {
             if (gate is GateCard g)

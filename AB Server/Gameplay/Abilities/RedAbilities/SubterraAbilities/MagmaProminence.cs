@@ -15,7 +15,7 @@ internal class MagmaProminence : AbilityCard
 
     public override void TriggerEffect()
     {
-        GateOfSubterra80 transformedGate = new GateOfSubterra80(Game.GateIndex.Count, Owner);
+        GateOfSubterra80 transformedGate = new(Game.GateIndex.Count, Owner);
         Game.GateIndex.Add(transformedGate);
         transformedGate.TransformFrom((CondTargetSelectors[0] as GateSelector)!.SelectedGate, false);
         Game.Field[transformedGate.Position.X, transformedGate.Position.Y] = transformedGate;

@@ -47,13 +47,13 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
         return GateCtrs[type].Invoke(cID, owner);
     }
 
-    public List<Bakugan[]> EnterOrder = new();
+    public List<Bakugan[]> EnterOrder = [];
 
     public Game Game = owner.Game;
 
     public int CardId { get; set; } = cID;
 
-    public List<Bakugan> Bakugans { get; set; } = new();
+    public List<Bakugan> Bakugans { get; set; } = [];
     public Player Owner { get; set; } = owner;
     public (byte X, byte Y) Position = (255, 255);
     public bool AllowAnyPlayers = false;
@@ -67,11 +67,11 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
     public bool BattleEnding { get => BattleDeclaredOver && !BattleOver; }
     public bool IsFrozen { get => Freezing.Count != 0; }
     public bool AllowsThrows { get => ThrowBlocking.Count != 0; }
-    public List<object> Freezing = new();
-    public List<object> OpenBlocking = new();
-    public List<object> ThrowBlocking = new();
-    public List<object> MovingInEffectBlocking = new();
-    public List<object> MovingAwayEffectBlocking = new();
+    public List<object> Freezing = [];
+    public List<object> OpenBlocking = [];
+    public List<object> ThrowBlocking = [];
+    public List<object> MovingInEffectBlocking = [];
+    public List<object> MovingAwayEffectBlocking = [];
     public bool OnField { get; set; } = false;
     public bool IsOpen { get; set; } = false;
     public bool Negated = false;

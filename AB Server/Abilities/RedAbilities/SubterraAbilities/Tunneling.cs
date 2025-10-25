@@ -6,31 +6,25 @@ namespace AB_Server.Abilities;
 internal class Tunneling : AbilityCard
 {
     /*
-        REQUIREMENT: Used by a standing SUBTERRA bakugan. Target 1 other bakugan on the same horizontal or vertical line as user, but not standing on adjacent gate card and 1 gate card in between the two. 
-        EFFECT: Move user and the target on that gate card. 
-    */
+     * REQUIREMENT: Choose your SUBTERRA bakugan on the field to use. 
+     * EFFECT: Target 1 gate card adjacent to the one user is on. Swaps it with user gate card. Bakugan remain in the same field sectors. 
+     */
     public Tunneling(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
-        CondTargetSelectors =
+        ResTargetSelectors =
         [
-            new BakuganSelector { ClientType = "BF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_MOVETARGET", TargetValidator = b => b.Position is GateCard targetPosGate && User.Position is GateCard userPosGate && targetPosGate != userPosGate && Game.GateIndex.Any(x=>x.IsBetween(userPosGate, targetPosGate)) },
-            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATION", TargetValidator = g => User.Position is GateCard userPosGate &&(CondTargetSelectors[0] as BakuganSelector)!.SelectedBakugan.Position is GateCard targetPosGate && g.IsBetween(userPosGate, targetPosGate) }
+            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATION", TargetValidator = g => User.Position is GateCard posGate && g.IsAdjacent(posGate) }
         ];
     }
 
     public override void TriggerEffect()
     {
-        if (CondTargetSelectors[0] is BakuganSelector targetSelector && CondTargetSelectors[1] is GateSelector gateSelector)
+        if (CondTargetSelectors[0] is GateSelector gateSelector && User.Position is GateCard posGate)
         {
-            var target = targetSelector.SelectedBakugan;
-            if (!User.OnField() || !target.OnField()) return;
-
-            var gate = gateSelector.SelectedGate;
-            if (target != null && gate != null)
-            {
-                User.MoveOnField(gate, new() { ["MoveEffect"] = "Submerge" });
-                target.MoveOnField(gate, new() { ["MoveEffect"] = "Submerge" });
-            }
+            GateCard targetGate = gateSelector.SelectedGate;
+            GateCard userGate = posGate;
+            // Swap the gates' positions
+            var tempPosition = targetGate.Position;
         }
     }
 
@@ -38,5 +32,5 @@ internal class Tunneling : AbilityCard
         user.OnField() && user.IsAttribute(Attribute.Subterra);
 
     [ModuleInitializer]
-    internal static void Init() => Register(10, CardKind.NormalAbility, (cID, owner) => new Tunneling(cID, owner, 10));
+    internal static void Init() => Register(56, CardKind.NormalAbility, (cID, owner) => new Tunneling(cID, owner, 56));
 }

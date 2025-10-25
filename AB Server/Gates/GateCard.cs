@@ -1,5 +1,7 @@
 ﻿using AB_Server.Abilities;
+using AB_Server.Gates.SpecialGates;
 using Newtonsoft.Json.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AB_Server.Gates;
 
@@ -42,9 +44,26 @@ abstract class GateCard(int cID, Player owner) : IBakuganContainer, IActive, ICh
         (x, y) => new DetonationZone(x, y),
     ];
 
+    static Func<int, Player, GateCard>[] SpecialGateCtrs =
+    [
+        (x, y) => new NormalGate(x, y),
+        (x, y) => new GateOfSubterra80(x, y),
+        (x, y) => new GateOfSubterra120(x, y),
+        (x, y) => new GateOfNova120(x, y),
+        (x, y) => new GateOfAqua120(x, y),
+        (x, y) => new GateOfLumina120(x, y),
+        (x, y) => new GateOfDarkon120(x, y),
+        (x, y) => new GateOfZephyros120(x, y),
+    ];
+
     public static GateCard CreateCard(Player owner, int cID, int type)
     {
         return GateCtrs[type].Invoke(cID, owner);
+    }
+
+    public static GateCard CreateSpecialCard(Player owner, int cID, int type)
+    {
+        return SpecialGateCtrs[type].Invoke(cID, owner);
     }
 
     public List<Bakugan[]> EnterOrder = new();

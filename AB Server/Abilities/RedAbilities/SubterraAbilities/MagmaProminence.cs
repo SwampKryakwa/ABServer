@@ -9,13 +9,13 @@ internal class MagmaProminence : AbilityCard
     {
         CondTargetSelectors =
         [
-            new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField && !x.IsOpen }
+            new GateSelector() { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_TARGET", TargetValidator = x => x.OnField }
         ];
     }
 
     public override void TriggerEffect()
     {
-        GateOfSubterra80 transformedGate = new GateOfSubterra80(Game.GateIndex.Count, Owner);
+        GateOfSubterra80 transformedGate = new(Game.GateIndex.Count, Owner);
         Game.GateIndex.Add(transformedGate);
         transformedGate.TransformFrom((CondTargetSelectors[0] as GateSelector)!.SelectedGate, false);
         Game.Field[transformedGate.Position.X, transformedGate.Position.Y] = transformedGate;

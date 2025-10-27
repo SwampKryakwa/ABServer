@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System.Timers;
 
-namespace AB_Server;
+namespace AB_Server.Server;
 
 internal class Room
 {
@@ -98,7 +98,7 @@ internal class Room
                             ["Position"] = j
                         });
                     }
-                    if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+                    if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, []);
                     else Updates[uuid].Clear();
                     string?[][] userNames = new string?[TeamCount][];
                     bool[][] readys = new bool[TeamCount][];
@@ -137,7 +137,7 @@ internal class Room
 
     public void Spectate(long uuid)
     {
-        if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, new List<JObject>());
+        if (!Updates.ContainsKey(uuid)) Updates.Add(uuid, []);
         else Updates[uuid].Clear();
         if (playerPositions.ContainsKey(uuid))
         {

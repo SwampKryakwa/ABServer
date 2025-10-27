@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace AB_Server;
+namespace AB_Server.Server;
 
 class Server
 {
@@ -14,10 +14,10 @@ class Server
         return new string([.. Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)])]);
     }
 
-    public static Dictionary<string, Room> Rooms = new();
+    public static Dictionary<string, Room> Rooms = [];
 
-    static Dictionary<string, Game> GIDToGame = new();
-    private static Random random = new Random();
+    static Dictionary<string, Game> GIDToGame = [];
+    private static Random random = new();
 
 
     public static async Task HandleIncomingConnections()
@@ -39,7 +39,7 @@ class Server
                 // Write the response info
                 string disableSubmit = !runServer ? "disabled" : "";
 
-                StreamReader reader = new StreamReader(request.InputStream, Encoding.UTF8);
+                StreamReader reader = new(request.InputStream, Encoding.UTF8);
                 string body = reader.ReadToEnd();
 
                 if (request.HttpMethod == "GET" || request.HttpMethod == "POST")
@@ -77,13 +77,9 @@ class Server
                                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                                 Console.WriteLine(body);
                                 Console.ForegroundColor = ConsoleColor.White;
-                                //if (OperatingSystem.IsWindows())
-                                //    Console.ForegroundColor = ConsoleColor.White;
-                                //else
-                                //    Console.ForegroundColor = ConsoleColor.Black;
                             }
 
-                            JObject answer = new();
+                            JObject answer = [];
 
                             string GID;
                             Game game;

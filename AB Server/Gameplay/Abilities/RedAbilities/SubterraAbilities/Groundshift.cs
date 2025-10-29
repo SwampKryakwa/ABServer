@@ -5,11 +5,16 @@ namespace AB_Server.Abilities;
 
 internal class Groundshift : AbilityCard
 {
+    /*
+     * Groundshift
+     * REQUIREMENT: Choose your SUBTERRA bakugan on the field to use. 
+     * EFFECT: Target 1 gate card adjacent to the one user is on. Swaps it with user gate card. Bakugan remain in the same field sectors. 
+     */
     public Groundshift(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
         ResTargetSelectors =
         [
-            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATION", TargetValidator = g => User.Position is GateCard userPosGate && g.Owner == userPosGate.Owner }
+            new GateSelector { ClientType = "GF", ForPlayer = (p) => p == Owner, Message = "INFO_ABILITY_DESTINATION", TargetValidator = g => User.Position is GateCard posGate && g.IsAdjacent(posGate) }
         ];
     }
 

@@ -2,9 +2,9 @@ using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities;
 
-internal class Aftershock : AbilityCard
+internal class Diastrophism : AbilityCard
 {
-    public Aftershock(int cID, Player owner, int typeId) : base(cID, owner, typeId)
+    public Diastrophism(int cID, Player owner, int typeId) : base(cID, owner, typeId)
     {
         CondTargetSelectors =
         [
@@ -28,5 +28,5 @@ internal class Aftershock : AbilityCard
     }
 
     [ModuleInitializer]
-    internal static void Init() => Register(54, CardKind.NormalAbility, (cID, owner) => new Aftershock(cID, owner, 54));
+    internal static void Init() => Register(54, CardKind.NormalAbility, (cID, owner) => new Diastrophism(cID, owner, 54));
 }

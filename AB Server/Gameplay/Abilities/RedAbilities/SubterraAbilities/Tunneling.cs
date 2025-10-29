@@ -1,4 +1,5 @@
 using AB_Server.Gates;
+using Newtonsoft.Json.Linq;
 using System.Runtime.CompilerServices;
 
 namespace AB_Server.Abilities;
@@ -23,8 +24,35 @@ internal class Tunneling : AbilityCard
         {
             GateCard targetGate = gateSelector.SelectedGate;
             GateCard userGate = posGate;
-            // Swap the gates' positions
-            var tempPosition = targetGate.Position;
+
+            (userGate.Position, targetGate.Position) = (targetGate.Position, userGate.Position);
+            (userGate.Bakugans, targetGate.Bakugans) = (targetGate.Bakugans, userGate.Bakugans);
+            (userGate.EnterOrder, targetGate.EnterOrder) = (targetGate.EnterOrder, userGate.EnterOrder);
+
+            foreach (var b in userGate.Bakugans)
+                b.Position = userGate;
+
+            foreach (var b in targetGate.Bakugans)
+                b.Position = targetGate;
+
+            Game.ThrowEvent(new()
+            {
+                ["Type"] = "GatesSwappedNotBakugans",
+                ["Owner"] = Owner.PlayerId,
+                ["Gate1"] = new JObject
+                {
+                    ["ID"] = userGate.CardId,
+                    ["PositionX"] = userGate.Position.X,
+                    ["PositionY"] = userGate.Position.Y
+                    
+                },
+                ["Gate2"] = new JObject
+                {
+                    ["ID"] = targetGate.CardId,
+                    ["PositionX"] = targetGate.Position.X,
+                    ["PositionY"] = targetGate.Position.Y
+                }
+            });
         }
     }
 
